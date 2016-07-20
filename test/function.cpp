@@ -3,7 +3,7 @@
 void Test::test_functions() {
 
 	header("Functions");
-	success("function foo(x, y) { x+y } foo(1,2)", "3");
+	success("fn foo(x, y) { x+y } foo(1,2)", "3");
 
 	/*
 	 * Functions / Lambdas
@@ -38,10 +38,10 @@ void Test::test_functions() {
 	success("let f = x -> [x, x, x] f(44)", "[44, 44, 44]");
 //	success("let fact = x -> if x == 1 { 1 } else { fact(x - 1) * x } fact(10)", "3628800");
 //	success("let a = 10 a ~ x -> x ^ 2", "100");
-	success("let f = function(x) { let r = x ** 2 return r + 1 } f(10)", "101");
+	success("let f = fn(x) { let r = x ** 2 return r + 1 } f(10)", "101");
 	success("1; 2", "2");
 	success("return 1; 2", "1");
-//	success("let f = function(x) { if (x < 10) {return true} return 12 } [f(5), f(20)]", "[true, 12]");
+//	success("let f = fn(x) { if (x < 10) {return true} return 12 } [f(5), f(20)]", "[true, 12]");
 
 	/*
 	 * Closures

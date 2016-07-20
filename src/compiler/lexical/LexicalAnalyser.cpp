@@ -18,7 +18,7 @@ static vector<vector<string>> type_literals = {
 	{}, // Ident
 	{}, // String
 
-	{ "let", "var" }, { "global" }, { "function" }, { "return" },
+	{ "let", "var" }, { "global" }, { "fn" }, { "return" },
 	{ "break" }, { "continue" },
 
 	{ "!=", "is not", "≠" }, { "=" },
