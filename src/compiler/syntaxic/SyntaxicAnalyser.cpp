@@ -186,7 +186,6 @@ Instruction* SyntaxicAnalyser::eatInstruction()
 		case TokenType::OPEN_BRACE:
 		case TokenType::NULLL:
 		case TokenType::ARROW:
-		case TokenType::IF:
 		case TokenType::MINUS:
 		case TokenType::NOT:
 		case TokenType::MINUS_MINUS:
@@ -201,6 +200,9 @@ Instruction* SyntaxicAnalyser::eatInstruction()
 		case TokenType::PIPE:
 		case TokenType::TILDE:
 			return new ExpressionInstruction(eatExpression());
+
+		case TokenType::IF:
+			return new ExpressionInstruction(eatIf());
 
 		case TokenType::FUNCTION:
 			return eatFunctionDeclaration();
@@ -668,7 +670,7 @@ Value* SyntaxicAnalyser::eatValue() {
 			return eatBlockOrObject();
 
 		case TokenType::IF:
-			return eatIf();
+			return eatIf(true);
 
 		case TokenType::FUNCTION:
 			return eatFunction();
@@ -755,7 +757,7 @@ Array* SyntaxicAnalyser::eatArray() {
 	return a;
 }
 
-If* SyntaxicAnalyser::eatIf() {
+If* SyntaxicAnalyser::eatIf(bool force_else) {
 
 	If* iff = new If();
 
@@ -786,8 +788,8 @@ If* SyntaxicAnalyser::eatIf() {
 		}
 	}
 
-	if (t->type == TokenType::ELSE) {
-		eat();
+	if (t->type == TokenType::ELSE || force_else) {
+		eat(TokenType::ELSE);
 
 		bool bracesElse = false;
 		if (t->type == TokenType::OPEN_BRACE) {
