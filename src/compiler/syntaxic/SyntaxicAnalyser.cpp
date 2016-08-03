@@ -202,7 +202,7 @@ Instruction* SyntaxicAnalyser::eatInstruction()
 			return new ExpressionInstruction(eatExpression());
 
 		case TokenType::IF:
-			return new ExpressionInstruction(eatIf());
+			return new ExpressionInstruction(eatIf(false));
 
 		case TokenType::FUNCTION:
 			return eatFunctionDeclaration();
@@ -757,7 +757,7 @@ Array* SyntaxicAnalyser::eatArray() {
 	return a;
 }
 
-If* SyntaxicAnalyser::eatIf(bool force_else) {
+If* SyntaxicAnalyser::eatIf(bool force_value) {
 
 	If* iff = new If();
 
@@ -776,6 +776,8 @@ If* SyntaxicAnalyser::eatIf(bool force_else) {
 
 	if (then or braces) {
 		iff->then = eatBlockOrObject();
+	} else if (force_value) {
+		iff->then = eatExpression();
 	} else {
 		Block* block = new Block();
 		block->instructions.push_back(eatInstruction());
@@ -788,7 +790,7 @@ If* SyntaxicAnalyser::eatIf(bool force_else) {
 		}
 	}
 
-	if (t->type == TokenType::ELSE || force_else) {
+	if (t->type == TokenType::ELSE || force_value) {
 		eat(TokenType::ELSE);
 
 		bool bracesElse = false;
@@ -798,6 +800,8 @@ If* SyntaxicAnalyser::eatIf(bool force_else) {
 
 		if (then or bracesElse) {
 			iff->elze = eatBlockOrObject();
+		} else if (force_value) {
+			iff->elze = eatExpression();
 		} else {
 			Block* body = new Block();
 			body->instructions.push_back(eatInstruction());
