@@ -54,7 +54,7 @@ public:
 	Block* eatBlock();
 	Object* eatObject();
 	Array* eatArray();
-	If* eatIf();
+	If* eatIf(bool force_value);
 	Instruction* eatFor();
 	Instruction* eatWhile();
 	Foreach* eatForeach();
