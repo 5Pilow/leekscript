@@ -19,6 +19,10 @@ public:
 		Pattern(Value* begin, Value* end);
 		~Pattern();
 
+		inline bool is_default() const {
+			return !begin && !end;
+		}
+
 		void print(std::ostream&, int indent, bool debug) const;
 		jit_value_t match(Compiler &c, jit_value_t v) const;
 	};

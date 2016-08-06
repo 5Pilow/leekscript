@@ -208,7 +208,7 @@ Instruction* SyntaxicAnalyser::eatInstruction()
 			return new ExpressionInstruction(eatExpression());
 
 		case TokenType::MATCH:
-			return new ExpressionInstruction(eatMatch(false));
+			return new ExpressionInstruction(eatMatch());
 
 		case TokenType::FUNCTION:
 			return eatFunctionDeclaration();
@@ -696,7 +696,7 @@ Value* SyntaxicAnalyser::eatValue() {
 			return eatIf();
 
 		case TokenType::MATCH:
-			return eatMatch(true);
+			return eatMatch();
 
 		case TokenType::FUNCTION:
 			return eatFunction();
@@ -848,7 +848,7 @@ If* SyntaxicAnalyser::eatIf() {
 	return iff;
 }
 
-Match* SyntaxicAnalyser::eatMatch(bool force_value) {
+Match* SyntaxicAnalyser::eatMatch() {
 
 	Match* match = new Match();
 
@@ -869,10 +869,6 @@ Match* SyntaxicAnalyser::eatMatch(bool force_value) {
 		eat(TokenType::COLON);
 		if (t->type == TokenType::OPEN_BRACE) {
 			match->returns.push_back(eatBlockOrObject());
-		} else if (force_value) {
-			Block* block = new Block();
-			block->instructions.push_back(new ExpressionInstruction(eatExpression()));
-			match->returns.push_back(block);
 		} else {
 			Block* body = new Block();
 			body->instructions.push_back(eatInstruction());
