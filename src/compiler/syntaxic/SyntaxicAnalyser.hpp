@@ -56,7 +56,7 @@ public:
 	Object* eatObject();
 	Value* eatArrayOrMap();
 	If* eatIf();
-	Match* eatMatch(bool force_value);
+	Match* eatMatch();
 	Match::Pattern eatMatchPattern();
 	Instruction* eatFor();
 	Instruction* eatWhile();

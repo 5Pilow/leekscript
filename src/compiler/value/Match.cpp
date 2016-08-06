@@ -1,5 +1,6 @@
 #include "Match.hpp"
 #include "../../vm/LSValue.hpp"
+#include "../semantic/SemanticAnalyser.hpp"
 
 using namespace std;
 
@@ -50,7 +51,7 @@ unsigned Match::line() const {
 	return 0;
 }
 
-void Match::analyse(ls::SemanticAnalyser* analyser, const Type&) {
+void Match::analyse(SemanticAnalyser* analyser, const Type& req_type) {
 
 	bool any_pointer = false;
 
@@ -86,6 +87,34 @@ void Match::analyse(ls::SemanticAnalyser* analyser, const Type&) {
 		}
 	}
 
+	/* Default case not needed
+	 *  match x {
+	 *    1: { do this }
+	 *    2: { do that }
+	 *  }
+	 *
+	 * Default case needed
+	 *  let y = match x {
+	 *    1: { return this }
+	 *    2: { return that }
+	 *    ..: { return default }
+	 *  }
+	 */
+
+	if (req_type.nature != Nature::VOID) {
+		// in that case we need a default case
+
+		bool default_exists = false;
+		for (const auto& ps : pattern_list) {
+			for (const Pattern& p : ps) {
+				default_exists = default_exists || p.is_default();
+			}
+		}
+
+		if (!default_exists) {
+			analyser->add_error({SemanticException::Type::MUST_RETURN_A_VALUE, 0});
+		}
+	}
 	// Return type is always pointer because in the default case, null is return
 	type = Type::POINTER;
 	for (Value* r : returns) {
@@ -131,7 +160,11 @@ jit_value_t Match::compile(Compiler& c) const {
 	}
 	jit_insn_label(c.F, &label_next);
 
-	jit_insn_store(c.F, res, VM::create_null(c.F));
+	//jit_insn_store(c.F, res, VM::create_null(c.F));
+	/* Dont need this no longer
+	 *
+	 * default case always here if required
+	 */
 
 	jit_insn_label(c.F, &label_end);
 	return res;
