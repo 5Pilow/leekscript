@@ -16,7 +16,7 @@ void Test::test_general() {
 	header("General");
 	success("", "null");
 	success(" ", "null"); // classic space
-	success(" ", "null"); // unbreakable space
+	success(" ", "null"); // unbreakable space
 	success("	", "null"); // tab
 	success("null", "null");
 	success("()", "null");
@@ -24,7 +24,7 @@ void Test::test_general() {
 	success("true", "true");
 	success("false", "false");
 	success("'toto'", "'toto'");
-	success("[]", "[]");
+	success("[]", "array[]");
 	success("{}", "{}");
 	success("{a: 12}", "{a: 12}");
 	success("{;}", "null");
@@ -56,8 +56,8 @@ void Test::test_general() {
 	success("null ?? 'bar'", "'bar'");
 	success("let a = 'foo' a ?? 'bar'", "'foo'");
 	success("let a = null a ?? 'bar'", "'bar'");
-	success("[] ?? [12]", "[]");
-	success("null ?? [12]", "[12]");
+	success("[] ?? [12]", "array[]");
+	success("null ?? [12]", "array[12]");
 	success("{} ?? 'default'", "{}");
 	success("null ?? 'default'", "'default'");
 	success("let a = null let b = null a ?? b ?? ':)'", "':)'");

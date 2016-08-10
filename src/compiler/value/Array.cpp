@@ -19,7 +19,7 @@ Array::~Array() {
 }
 
 void Array::print(std::ostream& os, int indent, bool debug) const {
-	os << "[";
+	os << "array[";
 	for (size_t i = 0; i < expressions.size(); ++i) {
 		expressions[i]->print(os, indent, debug);
 		if (i < expressions.size() - 1) {

@@ -810,7 +810,7 @@ inline LSValue** LSMap<int,LSValue*>::atL(const LSValue* key) {
 
 template <>
 inline std::ostream& LSMap<LSValue*,LSValue*>::print(std::ostream& os) const {
-	os << "[";
+	os << "map[";
 	for (auto it = begin(); it != end(); ++it) {
 		if (it != begin()) os << " ";
 		it->first->print(os);
@@ -821,7 +821,7 @@ inline std::ostream& LSMap<LSValue*,LSValue*>::print(std::ostream& os) const {
 }
 template <>
 inline std::ostream& LSMap<LSValue*,int>::print(std::ostream& os) const {
-	os << "[";
+	os << "map[";
 	for (auto it = begin(); it != end(); ++it) {
 		if (it != begin()) os << " ";
 		it->first->print(os);
@@ -831,7 +831,7 @@ inline std::ostream& LSMap<LSValue*,int>::print(std::ostream& os) const {
 }
 template <>
 inline std::ostream& LSMap<LSValue*,double>::print(std::ostream& os) const {
-	os << "[";
+	os << "map[";
 	for (auto it = begin(); it != end(); ++it) {
 		if (it != begin()) os << " ";
 		it->first->print(os);
@@ -841,7 +841,7 @@ inline std::ostream& LSMap<LSValue*,double>::print(std::ostream& os) const {
 }
 template <>
 inline std::ostream& LSMap<int,LSValue*>::print(std::ostream& os) const {
-	os << "[";
+	os << "map[";
 	for (auto it = begin(); it != end(); ++it) {
 		if (it != begin()) os << " ";
 		os << it->first << " : ";
@@ -851,7 +851,7 @@ inline std::ostream& LSMap<int,LSValue*>::print(std::ostream& os) const {
 }
 template <>
 inline std::ostream& LSMap<int,int>::print(std::ostream& os) const {
-	os << "[";
+	os << "map[";
 	for (auto it = begin(); it != end(); ++it) {
 		if (it != begin()) os << " ";
 		os << it->first << " : " << it->second;
@@ -860,7 +860,7 @@ inline std::ostream& LSMap<int,int>::print(std::ostream& os) const {
 }
 template <>
 inline std::ostream& LSMap<int,double>::print(std::ostream& os) const {
-	os << "[";
+	os << "map[";
 	for (auto it = begin(); it != end(); ++it) {
 		if (it != begin()) os << " ";
 		os << it->first << " : " << it->second;
@@ -870,70 +870,70 @@ inline std::ostream& LSMap<int,double>::print(std::ostream& os) const {
 
 template <>
 inline std::string LSMap<LSValue*,LSValue*>::json() const {
-	std::string res = "[";
+	std::string res = "{";
 	for (auto it = begin(); it != end(); ++it) {
 		if (it != begin()) res += ",";
 		res += it->first->to_json();
 		res += ":";
 		res += it->second->to_json();
 	}
-	return res + "]";
+	return res + "}";
 }
 
 template <>
 inline std::string LSMap<LSValue*,int>::json() const {
-	std::string res = "[";
+	std::string res = "{";
 	for (auto it = begin(); it != end(); ++it) {
 		if (it != begin()) res += ",";
 		res += it->first->to_json();
 		res += ":";
 		res += std::to_string(it->second);
 	}
-	return res + "]";
+	return res + "}";
 }
 template <>
 inline std::string LSMap<LSValue*,double>::json() const {
-	std::string res = "[";
+	std::string res = "{";
 	for (auto it = begin(); it != end(); ++it) {
 		if (it != begin()) res += ",";
 		res += it->first->to_json();
 		res += ":";
 		res += std::to_string(it->second);
 	}
-	return res + "]";
+	return res + "}";
 }
 template <>
 inline std::string LSMap<int,LSValue*>::json() const {
-	std::string res = "[";
+	std::string res = "{";
 	for (auto it = begin(); it != end(); ++it) {
 		if (it != begin()) res += ",";
 		res += std::to_string(it->first);
 		res += ":";
 		res += it->second->to_json();
 	}
-	return res + "]";
+	return res + "}";
 }
 template <>
 inline std::string LSMap<int,int>::json() const {
-	std::string res = "[";
+	std::string res = "{";
 	for (auto it = begin(); it != end(); ++it) {
 		if (it != begin()) res += ",";
 		res += std::to_string(it->first);
 		res += ":";
 		res += std::to_string(it->second);
 	}
-	return res + "]";
+	return res + "}";
 }
 template <>
 inline std::string LSMap<int,double>::json() const {
-	std::string res = "[";
+	std::string res = "{";
 	for (auto it = begin(); it != end(); ++it) {
 		if (it != begin()) res += ",";
 		res += std::to_string(it->first);
 		res += ":";
 		res += std::to_string(it->second);
 	}
-	return res + "]";
+	return res + "}";
 }
 
 template <>

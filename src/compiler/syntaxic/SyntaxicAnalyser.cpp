@@ -610,11 +610,7 @@ Value* SyntaxicAnalyser::eatValue() {
 
 		case TokenType::TRUE:
 		case TokenType::FALSE:
-		{
-			Boolean* bv = new Boolean(t->type == TokenType::TRUE);
-			eat();
-			return bv;
-		}
+			return new Boolean(eat()->type == TokenType::TRUE);
 
 		case TokenType::NULLL:
 			eat();
@@ -675,9 +671,21 @@ Value* SyntaxicAnalyser::eatValue() {
 						return new VariableValue(ident);
 					}
 				}
-				default: {
-					return new VariableValue(ident);
+
+				case TokenType::OPEN_BRACKET: {
+					if (ident->content == "array") {
+						return eatArray();
+					}
+					if (ident->content == "map") {
+						return eatMap();
+					}
+					if (ident->content == "set") {
+//						return eatSet();
+					}
 				}
+
+				default:
+					return new VariableValue(ident);
 			}
 			break;
 		}
@@ -687,7 +695,7 @@ Value* SyntaxicAnalyser::eatValue() {
 			return new Reference(eatIdent());
 
 		case TokenType::OPEN_BRACKET:
-			return eatArrayOrMap();
+			return eatArray();
 
 		case TokenType::OPEN_BRACE:
 			return eatBlockOrObject();
@@ -721,10 +729,9 @@ Value* SyntaxicAnalyser::eatValue() {
 	return new Nulll();
 }
 
-Value* SyntaxicAnalyser::eatArrayOrMap() {
+Array* SyntaxicAnalyser::eatArray() {
 
 	eat(TokenType::OPEN_BRACKET);
-
 
 	// Empty array
 	if (t->type == TokenType::CLOSING_BRACKET) {
@@ -747,25 +754,6 @@ Value* SyntaxicAnalyser::eatArrayOrMap() {
 		return interval;
 	}
 
-	// eatMap
-	if (t->type == TokenType::COLON) {
-
-		Map* map = new Map();
-		map->keys.push_back(value);
-		eat();
-		map->values.push_back(eatExpression());
-
-		while (t->type != TokenType::CLOSING_BRACKET && t->type != TokenType::FINISHED) {
-			if (t->type == TokenType::COMMA)
-				eat();
-			map->keys.push_back(eatExpression());
-			eat(TokenType::COLON);
-			map->values.push_back(eatExpression());
-		}
-		eat(TokenType::CLOSING_BRACKET);
-		return map;
-	}
-
 	// eatArray
 	Array* array = new Array();
 	array->expressions.push_back(value);
@@ -777,6 +765,32 @@ Value* SyntaxicAnalyser::eatArrayOrMap() {
 	}
 	eat(TokenType::CLOSING_BRACKET);
 	return array;
+}
+
+Map* SyntaxicAnalyser::eatMap() {
+
+	eat(TokenType::OPEN_BRACKET);
+
+	// Empty map
+	if (t->type == TokenType::CLOSING_BRACKET) {
+		eat();
+		return new Map();
+	}
+
+	Map* map = new Map();
+	map->keys.push_back(eatExpression());
+	eat(TokenType::COLON);
+	map->values.push_back(eatExpression());
+
+	while (t->type != TokenType::CLOSING_BRACKET && t->type != TokenType::FINISHED) {
+		if (t->type == TokenType::COMMA)
+			eat();
+		map->keys.push_back(eatExpression());
+		eat(TokenType::COLON);
+		map->values.push_back(eatExpression());
+	}
+	eat(TokenType::CLOSING_BRACKET);
+	return map;
 }
 
 If* SyntaxicAnalyser::eatIf() {
@@ -1100,16 +1114,37 @@ Token* SyntaxicAnalyser::eat(TokenType type) {
 
 	lt = t;
 	if (i < tokens.size() - 1) {
-		t = &tokens.at(++i);
-		// System.out.println(">> " + t.content);
+		t = &tokens[++i];
 	} else {
 		t = new Token(TokenType::FINISHED, 0, 0, "");
-		// System.out.println(">>>> done.");
 	}
-	nt = i < tokens.size() - 1 ? &tokens.at(i + 1) : nullptr;
+	nt = i < tokens.size() - 1 ? &tokens[i + 1] : nullptr;
 
 	if (type != TokenType::DONT_CARE && eaten->type != type) {
 		errors.push_back(new SyntaxicalError(eaten, "Expected token of type <" + to_string((int)type) + ">, got <" + to_string((int)eaten->type) + "> (" + eaten->content + ")"));
+		return new Token(type, 0, 0, "**Error**");
+	}
+	return eaten;
+}
+
+Token* SyntaxicAnalyser::eat(TokenType type, const string& content) {
+
+	Token* eaten = t;
+
+	lt = t;
+	if (i < tokens.size() - 1) {
+		t = &tokens[++i];
+	} else {
+		t = new Token(TokenType::FINISHED, 0, 0, "");
+	}
+	nt = i < tokens.size() - 1 ? &tokens[i + 1] : nullptr;
+
+	if (type != TokenType::DONT_CARE && eaten->type != type) {
+		errors.push_back(new SyntaxicalError(eaten, "Expected token of type <" + to_string((int)type) + ">, got <" + to_string((int)eaten->type) + "> (" + eaten->content + ")"));
+		return new Token(type, 0, 0, "**Error**");
+	}
+	if (eaten->content != content) {
+		errors.push_back(new SyntaxicalError(eaten, "Expected token with content " + content + ", got " + eaten->content));
 		return new Token(type, 0, 0, "**Error**");
 	}
 	return eaten;

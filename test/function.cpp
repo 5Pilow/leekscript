@@ -11,7 +11,7 @@ void Test::test_functions() {
 	sem_err("null()", ls::SemanticException::Type::CANNOT_CALL_VALUE, "null");
 	sem_err("12()", ls::SemanticException::Type::CANNOT_CALL_VALUE, "12");
 	sem_err("'hello'()", ls::SemanticException::Type::CANNOT_CALL_VALUE, "'hello'");
-	sem_err("[1, 2, 3]()", ls::SemanticException::Type::CANNOT_CALL_VALUE, "[1, 2, 3]");
+	sem_err("[1, 2, 3]()", ls::SemanticException::Type::CANNOT_CALL_VALUE, "array[1, 2, 3]");
 
 	/*
 	 * Lambdas
@@ -23,7 +23,7 @@ void Test::test_functions() {
 	success("let f = -> 12 f()", "12");
 	success("(x -> x)(12)", "12");
 	success("(x, y -> x + y)(12, 5)", "17");
-	success("( -> [])()", "[]");
+	success("( -> [])()", "array[]");
 	success("( -> 12)()", "12");
 	success("let f = x -> x f(5) + f(7)", "12");
 	success("[-> 12][0]()", "12");
@@ -37,11 +37,11 @@ void Test::test_functions() {
 	success("(-> -> 12)()()", "12");
 	success("let f = -> -> 12 f()()", "12");
 	success("let f = x -> -> 'salut' f()()", "'salut'");
-	success("let f = x -> [x, x, x] f(44)", "[44, 44, 44]");
+	success("let f = x -> [x, x, x] f(44)", "array[44, 44, 44]");
 	success("let f = function(x) { let r = x ** 2 return r + 1 } f(10)", "101");
 	success("1; 2", "2");
 	success("return 1; 2", "1");
-	success("let f = function(x) { if (x < 10) {return true} return 12 } [f(5), f(20)]", "[true, 12]");
+	success("let f = function(x) { if (x < 10) {return true} return 12 } [f(5), f(20)]", "array[true, 12]");
 	//	success("let a = 10 a ~ x -> x ^ 2", "100");
 
 	/*
@@ -64,7 +64,7 @@ void Test::test_functions() {
 	header("Function operators");
 
 	success("+(1, 2)", "3");
-	success("+([1], 2)", "[1, 2]");
+	success("+([1], 2)", "array[1, 2]");
 	success("+('test', 2)", "'test2'");
 //	success("-(9, 2)", "7");
 	success("*(5, 8)", "40");
@@ -72,9 +72,9 @@ void Test::test_functions() {
 	success("×(5, 8)", "40");
 	success("×('test', 2)", "'testtest'");
 	success("/(48, 12)", "4");
-	success("/('banana', 'n')", "['ba', 'a', 'a']");
+	success("/('banana', 'n')", "array['ba', 'a', 'a']");
 	success("÷(48, 12)", "4");
-	success("÷('banana', 'n')", "['ba', 'a', 'a']");
+	success("÷('banana', 'n')", "array['ba', 'a', 'a']");
 	success("**(2, 11)", "2048");
 	success("%(48, 5)", "3");
 	success("let p = + p(1, 2)", "3");

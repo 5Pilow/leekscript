@@ -20,7 +20,7 @@ LSValue::LSValue() {
 //	cout << "LSValue()" << endl;
 	native = false;
 	obj_count++;
-	objs.insert({this, this});
+//	objs.insert({this, this});
 }
 
 LSValue::~LSValue() {

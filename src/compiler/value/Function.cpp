@@ -194,12 +194,12 @@ jit_value_t Function::compile(Compiler& c) const {
 	}
 
 	// Delete arguments
-	for (unsigned i = 0; i < arg_count; ++i) {
-		if (type.getArgumentType(i).must_manage_memory()) {
-			jit_value_t param = jit_value_get_param(function, i);
+//	for (unsigned i = 0; i < arg_count; ++i) {
+//		if (type.getArgumentType(i).must_manage_memory()) {
+//			jit_value_t param = jit_value_get_param(function, i);
 //			VM::delete_obj(function, param);
-		}
-	}
+//		}
+//	}
 
 	// Return
 	jit_insn_return(function, res);

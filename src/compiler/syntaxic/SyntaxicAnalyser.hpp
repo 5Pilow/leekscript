@@ -22,6 +22,7 @@ class Program;
 class Block;
 class Object;
 class Array;
+class Map;
 class Function;
 
 class SyntaxicAnalyser {
@@ -43,6 +44,7 @@ public:
 
 	Token* eat();
 	Token* eat(TokenType type);
+	Token* eat(TokenType type, const std::string& content);
 	Token* nextTokenAt(int pos);
 
 	Block* eatMain();
@@ -55,6 +57,8 @@ public:
 	Block* eatBlock();
 	Object* eatObject();
 	Value* eatArrayOrMap();
+	Array* eatArray();
+	Map* eatMap();
 	If* eatIf();
 	Match* eatMatch(bool force_value);
 	Match::Pattern eatMatchPattern();

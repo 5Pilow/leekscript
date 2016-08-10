@@ -1374,9 +1374,9 @@ LSValue* LSArray<T>::clone() const {
 	return new_array;
 }
 
-template <class T>
-std::ostream& LSArray<T>::print(std::ostream& os) const {
-	os << "[";
+template <>
+inline std::ostream& LSArray<LSValue*>::print(std::ostream& os) const {
+	os << "array[";
 	for (auto i = this->begin(); i != this->end(); i++) {
 		if (i != this->begin()) os << ", ";
 		(*i)->print(os);
@@ -1389,7 +1389,7 @@ std::ostream& LSArray<T>::print(std::ostream& os) const {
 
 template <>
 inline std::ostream& LSArray<int>::print(std::ostream& os) const {
-	os << "[";
+	os << "array[";
 	for (auto i = this->begin(); i != this->end(); i++) {
 		if (i != this->begin()) os << ", ";
 		os << (*i);
@@ -1400,7 +1400,7 @@ inline std::ostream& LSArray<int>::print(std::ostream& os) const {
 
 template <>
 inline std::ostream& LSArray<double>::print(std::ostream& os) const {
-	os << "[";
+	os << "array[";
 	for (auto i = this->begin(); i != this->end(); i++) {
 		if (i != this->begin()) os << ", ";
 		os << (*i);

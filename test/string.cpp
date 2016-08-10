@@ -20,11 +20,11 @@ void Test::test_strings() {
 	success("'salut' + null", "'salutnull'");
 	success("'salut' * 3", "'salutsalutsalut'");
 	success("|'salut'|", "5");
-	success("'abc' / '.'", "['abc']");
-	success("'ab.c' / '.'", "['ab', 'c']");
-	success("'.ab.c' / '.'", "['', 'ab', 'c']");
-	success("'abc.' / '.'", "['abc', '']");
-	success("'.aaaaa.bbbb.ccc.dd.e.' / '.'", "['', 'aaaaa', 'bbbb', 'ccc', 'dd', 'e', '']");
+	success("'abc' / '.'", "array['abc']");
+	success("'ab.c' / '.'", "array['ab', 'c']");
+	success("'.ab.c' / '.'", "array['', 'ab', 'c']");
+	success("'abc.' / '.'", "array['abc', '']");
+	success("'.aaaaa.bbbb.ccc.dd.e.' / '.'", "array['', 'aaaaa', 'bbbb', 'ccc', 'dd', 'e', '']");
 	success("~'bonjour'", "'ruojnob'");
 	success("'bonjour'[3]", "'j'");
 	sem_err("'bonjour'['hello']", ls::SemanticException::Type::ARRAY_ACCESS_KEY_MUST_BE_NUMBER, "<key 1>");
@@ -48,8 +48,8 @@ void Test::test_strings() {
 	success("'♫👽'.size()", "2");
 
 	success("'☣🦆🧀𑚉𒒫𑓇𐏊'.size()", "7");
-	success("'௵௵a௵௵' / 'a'", "['௵௵', '௵௵']");
-	success("'a☂a' / '☂'", "['a', 'a']");
+	success("'௵௵a௵௵' / 'a'", "array['௵௵', '௵௵']");
+	success("'a☂a' / '☂'", "array['a', 'a']");
 	success("~'∑∬∰∜∷⋙∳⌘⊛'", "'⊛⌘∳⋙∷∜∰∬∑'");
 	success("'ↂↂ' × 3", "'ↂↂↂↂↂↂ'");
 	success("'ḀḂḈḊḖḞḠḦḮḰḸḾṊṎṖ'[5:9]", "'ḞḠḦḮḰ'");
@@ -71,11 +71,11 @@ void Test::test_strings() {
 	success("String.map('salut', x -> '(' + x + ')')", "'(s)(a)(l)(u)(t)'");
 	success("'salut'.map(char -> char + '.')", "'s.a.l.u.t.'");
 	success("'♫☯🐖👽韭'.map(u -> u + ' ')", "'♫ ☯ 🐖 👽 韭 '");
-	success("String.split('bonjour ça va', ' ')", "['bonjour', 'ça', 'va']");
-	success("String.split('bonjour_*_ça_*_va', '_*_')", "['bonjour', 'ça', 'va']");
-	success("String.split('salut', '')", "['s', 'a', 'l', 'u', 't']");
+	success("String.split('bonjour ça va', ' ')", "array['bonjour', 'ça', 'va']");
+	success("String.split('bonjour_*_ça_*_va', '_*_')", "array['bonjour', 'ça', 'va']");
+	success("String.split('salut', '')", "array['s', 'a', 'l', 'u', 't']");
 	success("String.startsWith('salut ça va', 'salut')", "true");
-	success("String.toArray('salut')", "['s', 'a', 'l', 'u', 't']");
+	success("String.toArray('salut')", "array['s', 'a', 'l', 'u', 't']");
 	success("String.charAt('salut', 1)", "'a'");
 	success("'salut'.substring(3, 4)", "'ut'");
 

@@ -48,7 +48,7 @@ LSValue* LSInterval::clone() const {
 }
 
 std::ostream& LSInterval::print(std::ostream& os) const {
-	os << "[" << a << ".." << b << "]";
+	os << "array[" << a << ".." << b << "]";
 	return os;
 }
 
