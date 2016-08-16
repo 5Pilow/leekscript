@@ -21,7 +21,7 @@ public:
 	std::vector<Value*> defaultValues;
 	std::vector<SemanticVar*> captures;
 	Block* body;
-	int pos;
+	bool body_analysed;
 	std::map<std::string, SemanticVar*> vars;
 	bool function_added;
 	Function* parent;
@@ -37,7 +37,7 @@ public:
 
 	virtual void analyse(SemanticAnalyser*, const Type&) override;
 
-	bool will_take(SemanticAnalyser*, const unsigned pos, const Type) override;
+	bool will_take(SemanticAnalyser*, const std::vector<Type>& args_type) override;
 
 	void must_return(SemanticAnalyser*, const Type&) override;
 

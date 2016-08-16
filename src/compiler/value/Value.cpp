@@ -10,8 +10,8 @@ Value::Value() {
 
 Value::~Value() {}
 
-bool Value::will_take(SemanticAnalyser*, const unsigned i, const Type arg_type) {
-	return type.will_take(i, arg_type);
+bool Value::will_take(SemanticAnalyser*, const std::vector<Type>& args_type) {
+	return type.will_take(args_type);
 }
 
 bool Value::will_take_element(SemanticAnalyser*, const Type arg_type) {

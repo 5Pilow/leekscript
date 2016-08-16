@@ -217,7 +217,7 @@ void Expression::analyse(SemanticAnalyser* analyser, const Type& req_type) {
 
 	// [1, 2, 3] ~~ x -> x ^ 2
 	if (op->type == TokenType::TILDE_TILDE) {
-		v2->will_take(analyser, 0, v1->type.getElementType());
+		v2->will_take(analyser, { v1->type.getElementType() });
 		type = Type::ARRAY;
 		type.setElementType(v2->type.getReturnType());
 	}
@@ -893,11 +893,11 @@ jit_value_t Expression::compile(Compiler& c) const {
 
 			jit_label_t label_end = jit_label_undefined;
 			jit_label_t label_else = jit_label_undefined;
-			jit_value_t v = jit_value_create(c.F, ls_jit_pointer);
+			jit_value_t v = jit_value_create(c.F, JIT_POINTER);
 
-			jit_type_t args_types[2] = {ls_jit_pointer};
+			jit_type_t args_types[2] = {JIT_POINTER};
 			jit_value_t x = v1->compile(c);
-			jit_type_t sig = jit_type_create_signature(jit_abi_cdecl, ls_jit_integer, args_types, 1, 0);
+			jit_type_t sig = jit_type_create_signature(jit_abi_cdecl, JIT_INTEGER, args_types, 1, 0);
 			jit_value_t r = jit_insn_call_native(c.F, "is_null", (void*) jit_is_null, sig, &x, 1, JIT_CALL_NOTHROW);
 
 			jit_insn_branch_if(c.F, r, &label_else);

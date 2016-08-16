@@ -325,7 +325,7 @@ jit_value_t Foreach::compile(Compiler& c) const {
 
 		// Dynamic selector
 		jit_type_t args_types_sel[1] = {JIT_POINTER};
-		jit_type_t sig_sel = jit_type_create_signature(jit_abi_cdecl, jit_type_int, args_types_sel, 1, 0);
+		jit_type_t sig_sel = jit_type_create_signature(jit_abi_cdecl, JIT_INTEGER, args_types_sel, 1, 0);
 		jit_value_t s = jit_insn_call_native(c.F, "selector", (void*) fun_selector, sig_sel, &a, 1, JIT_CALL_NOTHROW);
 
 		// Goto begin
@@ -440,7 +440,7 @@ void Foreach::compile_foreach(Compiler&c, jit_value_t a,
 
 	// Condition to continue
 	jit_type_t args_types_cond[2] = {JIT_POINTER, JIT_POINTER};
-	jit_type_t sig_cond = jit_type_create_signature(jit_abi_cdecl, jit_type_sys_bool, args_types_cond, 2, 0);
+	jit_type_t sig_cond = jit_type_create_signature(jit_abi_cdecl, JIT_BOOLEAN, args_types_cond, 2, 0);
 	jit_value_t args_cond[2] = { a, it };
 	jit_value_t cond = jit_insn_call_native(c.F, "cond", (void*) fun_condition, sig_cond, args_cond, 2, JIT_CALL_NOTHROW);
 	jit_insn_branch_if_not(c.F, cond, label_end);
@@ -494,7 +494,7 @@ void Foreach::compile_foreach_noblock(Compiler& c, jit_value_t a,
 
 	// Condition to continue
 	jit_type_t args_types_cond[2] = {JIT_POINTER, JIT_POINTER};
-	jit_type_t sig_cond = jit_type_create_signature(jit_abi_cdecl, jit_type_sys_bool, args_types_cond, 2, 0);
+	jit_type_t sig_cond = jit_type_create_signature(jit_abi_cdecl, JIT_BOOLEAN, args_types_cond, 2, 0);
 	jit_value_t args_cond[2] = { a, it };
 	jit_value_t cond = jit_insn_call_native(c.F, "cond", (void*) fun_condition, sig_cond, args_cond, 2, JIT_CALL_NOTHROW);
 	jit_insn_branch_if_not(c.F, cond, label_end);

@@ -97,17 +97,17 @@ void ArrayAccess::analyse(SemanticAnalyser* analyser, const Type& req_type) {
 //	cout << "array access " << type << endl;
 }
 
-bool ArrayAccess::will_take(SemanticAnalyser* analyser, const unsigned pos, const Type arg_type) {
+bool ArrayAccess::will_take(SemanticAnalyser* analyser, const std::vector<Type>& args_type) {
 
 //	cout << "ArrayAccess::will_take " << arg_type << " at " << pos << endl;
 
-	type.will_take(pos, arg_type);
+	type.will_take(args_type);
 
 	if (Array* arr = dynamic_cast<Array*>(array)) {
-		arr->elements_will_take(analyser, pos, arg_type, 1);
+		arr->elements_will_take(analyser, args_type, 1);
 	}
 	if (ArrayAccess* arr = dynamic_cast<ArrayAccess*>(array)) {
-		arr->array_access_will_take(analyser, pos, arg_type, 1);
+		arr->array_access_will_take(analyser, args_type, 1);
 	}
 
 	type = array->type.getElementType();
@@ -115,15 +115,15 @@ bool ArrayAccess::will_take(SemanticAnalyser* analyser, const unsigned pos, cons
 	return false;
 }
 
-bool ArrayAccess::array_access_will_take(SemanticAnalyser* analyser, const unsigned pos, const Type arg_type, int level) {
+bool ArrayAccess::array_access_will_take(SemanticAnalyser* analyser, const vector<Type>& args_type, int level) {
 
-	type.will_take(pos, arg_type);
+	type.will_take(args_type);
 
 	if (Array* arr = dynamic_cast<Array*>(array)) {
-		arr->elements_will_take(analyser, pos, arg_type, level);
+		arr->elements_will_take(analyser, args_type, level);
 	}
 	if (ArrayAccess* arr = dynamic_cast<ArrayAccess*>(array)) {
-		arr->array_access_will_take(analyser, pos, arg_type, level + 1);
+		arr->array_access_will_take(analyser, args_type, level + 1);
 	}
 
 	type = array->type.getElementType();
@@ -169,8 +169,8 @@ jit_value_t ArrayAccess::compile(Compiler& c) const {
 
 		if (array->type == Type::INTERVAL) {
 
-			jit_type_t args_types[2] = {ls_jit_pointer, ls_jit_integer};
-			jit_type_t sig = jit_type_create_signature(jit_abi_cdecl, ls_jit_integer, args_types, 2, 0);
+			jit_type_t args_types[2] = {JIT_POINTER, JIT_INTEGER};
+			jit_type_t sig = jit_type_create_signature(jit_abi_cdecl, JIT_INTEGER, args_types, 2, 0);
 
 			jit_value_t k = key->compile(c);
 

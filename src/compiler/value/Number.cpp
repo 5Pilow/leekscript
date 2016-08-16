@@ -45,13 +45,13 @@ jit_value_t Number::compile(Compiler& c) const {
 
 	if (type.nature == Nature::POINTER) {
 
-		jit_value_t val = JIT_CREATE_CONST_FLOAT(c.F, ls_jit_real, value);
+		jit_value_t val = JIT_CREATE_CONST_FLOAT(c.F, JIT_FLOAT, value);
 		return VM::value_to_pointer(c.F, val, Type::FLOAT);
 
 	} else {
 
 		bool isfloat = type.raw_type == RawType::FLOAT;
-		jit_type_t type = isfloat ? ls_jit_real : ls_jit_integer;
+		jit_type_t type = isfloat ? JIT_FLOAT : JIT_INTEGER;
 
 		if (isfloat) {
 			return JIT_CREATE_CONST_FLOAT(c.F, type, value);

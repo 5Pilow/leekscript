@@ -21,21 +21,13 @@ Block::~Block() {
 
 void Block::print(ostream& os, int indent, bool debug) const {
 	os << "{";
-	if (instructions.size() > 1) {
+	os << endl;
+	for (Instruction* instruction : instructions) {
+		os << tabs(indent + 1);
+		instruction->print(os, indent + 1, debug);
 		os << endl;
-		for (Instruction* instruction : instructions) {
-			os << tabs(indent + 1);
-			instruction->print(os, indent + 1, debug);
-			os << endl;
-		}
-		os << tabs(indent) << "}";
-	} else {
-		for (Instruction* instruction : instructions) {
-			os << " ";
-			instruction->print(os, indent + 1, debug);
-		}
-		os << " }";
 	}
+	os << tabs(indent) << "}";
 	if (debug) {
 		os << " " << type;
 	}

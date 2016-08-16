@@ -51,10 +51,14 @@ void VariableDeclaration::analyse(SemanticAnalyser* analyser, const Type&) {
 		Token* var = variables[i];
 		Value* value = nullptr;
 
+		// let x = (... x not defined here ...)
+		if (i < expressions.size()) {
+			expressions[i]->analyse(analyser, Type::UNKNOWN);
+		}
+
 		SemanticVar* v = analyser->add_var(var, Type::UNKNOWN, value, this);
 
 		if (i < expressions.size()) {
-			expressions[i]->analyse(analyser, Type::UNKNOWN);
 			v->type = expressions[i]->type;
 			v->value = expressions[i];
 		}

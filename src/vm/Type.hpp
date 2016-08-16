@@ -162,7 +162,7 @@ public:
 	const Type getElementType(size_t i = 0) const;
 	void setElementType(Type);
 
-	bool will_take(const int i, const Type& arg_type);
+	bool will_take(const std::vector<Type>& args_type);
 	bool will_take_element(const Type& arg_type);
 	Type mix(const Type& x) const;
 

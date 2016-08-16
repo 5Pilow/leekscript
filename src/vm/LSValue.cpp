@@ -18,12 +18,12 @@ extern std::map<LSValue*, LSValue*> objs;
 
 LSValue::LSValue() : refs(0), native(false) {
 	obj_count++;
-	objs.insert({this, this});
+//	objs.insert({this, this});
 }
 
 LSValue::LSValue(const LSValue& other) : refs(0), native(other.native) {
 	obj_count++;
-	objs.insert({this, this});
+//	objs.insert({this, this});
 }
 
 LSValue::~LSValue() {

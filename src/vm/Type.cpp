@@ -144,34 +144,30 @@ void Type::setElementType(Type type) {
 	}
 }
 
-/*
- *
- */
-bool Type::will_take(const int i, const Type& arg_type) {
+bool Type::will_take(const vector<Type>& args_type) {
 
-//	cout << "before will_take: " << *this << endl;
-//	cout << "will_take " << arg_type << endl;
+	bool changed = false;
 
-	Type current_type = getArgumentType(i);
+	for (size_t i = 0; i < args_type.size(); ++i) {
+		Type current_type = getArgumentType(i);
 
-	/*
-	if (current_type.nature == Nature::MIXED) {
-		return; // No change, it is still mixed
-	}
-	*/
+		/*
+		if (current_type.nature == Nature::MIXED) {
+			return; // No change, it is still mixed
+		}
+		*/
 
-	if (current_type.nature == Nature::UNKNOWN) {
-		setArgumentType(i, arg_type);
-		return true;
-	} else {
-		if (current_type.nature == Nature::VALUE and arg_type.nature == Nature::POINTER) {
-			setArgumentType(i, Type(RawType::UNKNOWN, Nature::POINTER));
-			return true;
+		if (current_type.nature == Nature::UNKNOWN) {
+			setArgumentType(i, args_type[i]);
+			changed = true;
+		} else {
+			if (current_type.nature == Nature::VALUE and args_type[i].nature == Nature::POINTER) {
+				setArgumentType(i, Type(RawType::UNKNOWN, Nature::POINTER));
+				changed = true;
+			}
 		}
 	}
-
-//	cout << "after will_take: " << *this << endl;
-	return false;
+	return changed;
 }
 
 bool Type::will_take_element(const Type& element_type) {

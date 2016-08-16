@@ -44,6 +44,9 @@ void Test::test_functions() {
 	success("let f = function(x) { if (x < 10) {return true} return 12 } [f(5), f(20)]", "[true, 12]");
 	//	success("let a = 10 a ~ x -> x ^ 2", "100");
 	success("let f = x -> { let y = { if x == 0 { return 'error' } 1/x } '' + y } [f(-2), f(0), f(2)]", "['-0.5', 'error', '0.5']");
+	success("let f = i -> { [1 2 3][i] } f(1)", "2");
+	success("let f = i -> { [1 2 3][i] } 42", "42");
+	success("let f = a,i -> a[i] f([1 2 3], 1)", "2");
 
 	/*
 	 * Closures

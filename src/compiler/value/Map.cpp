@@ -170,7 +170,7 @@ jit_value_t Map::compile(Compiler &c) const {
 		jit_value_t v = values[i]->compile(c);
 
 		jit_type_t args[3] = {JIT_POINTER, key_type, value_type};
-		jit_type_t sig = jit_type_create_signature(jit_abi_cdecl, jit_type_void, args, 3, 0);
+		jit_type_t sig = jit_type_create_signature(jit_abi_cdecl, JIT_VOID, args, 3, 0);
 		jit_value_t args_v[] = {map, k, v};
 		jit_insn_call_native(c.F, "insert", (void*) insert, sig, args_v, 3, JIT_CALL_NOTHROW); ops += std::log2(i + 1);
 

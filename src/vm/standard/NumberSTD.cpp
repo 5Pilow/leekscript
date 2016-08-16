@@ -77,16 +77,16 @@ NumberSTD::NumberSTD() : Module("Number") {
 }
 
 jit_value_t Number_e(jit_function_t F) {
-	return jit_value_create_float64_constant(F, jit_type_float64, M_E);
+	return JIT_CREATE_CONST_FLOAT(F, JIT_FLOAT, M_E);
 }
 jit_value_t Number_phi(jit_function_t F) {
-	return jit_value_create_float64_constant(F, jit_type_float64, 1.61803398874989484820);
+	return JIT_CREATE_CONST_FLOAT(F, JIT_FLOAT, 1.61803398874989484820);
 }
 jit_value_t Number_pi(jit_function_t F) {
-	return jit_value_create_float64_constant(F, jit_type_float64, 3.14159265358979323846);
+	return JIT_CREATE_CONST_FLOAT(F, JIT_FLOAT, 3.14159265358979323846);
 }
 jit_value_t Number_epsilon(jit_function_t F) {
-	return jit_value_create_float64_constant(F, jit_type_float64, std::numeric_limits<double>::epsilon());
+	return JIT_CREATE_CONST_FLOAT(F, JIT_FLOAT, std::numeric_limits<double>::epsilon());
 }
 
 LSNumber* number_abs(const LSNumber* number) {

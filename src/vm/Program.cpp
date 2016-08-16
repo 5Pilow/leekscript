@@ -150,7 +150,7 @@ void Program::compile_jit(Compiler& c, Context& context, bool toplevel) {
 		jit_value_t array = jit_insn_call_native(F, "new", (void*) &Program_create_array, array_sig, {}, 0, JIT_CALL_NOTHROW);
 
 		jit_type_t push_args_types[2] = {JIT_POINTER, JIT_POINTER};
-		jit_type_t push_sig_pointer = jit_type_create_signature(jit_abi_cdecl, jit_type_void, push_args_types, 2, 0);
+		jit_type_t push_sig_pointer = jit_type_create_signature(jit_abi_cdecl, JIT_VOID, push_args_types, 2, 0);
 
 		jit_value_t push_args[2] = {array, res};
 		jit_insn_call_native(F, "push", (void*) &Program_push_pointer, push_sig_pointer, push_args, 2, 0);
@@ -188,19 +188,19 @@ void Program::compile_jit(Compiler& c, Context& context, bool toplevel) {
 //				cout << "save value" << endl;
 				if (type.raw_type == RawType::NULLL) {
 					jit_type_t push_args_types[2] = {JIT_POINTER, JIT_INTEGER};
-					jit_type_t push_sig = jit_type_create_signature(jit_abi_cdecl, jit_type_void, push_args_types, 2, 0);
+					jit_type_t push_sig = jit_type_create_signature(jit_abi_cdecl, JIT_VOID, push_args_types, 2, 0);
 					jit_insn_call_native(F, "push", (void*) &Program_push_null, push_sig, var_args, 2, JIT_CALL_NOTHROW);
 				} else if (type.raw_type == RawType::BOOLEAN) {
 					jit_type_t push_args_types[2] = {JIT_POINTER, JIT_INTEGER};
-					jit_type_t push_sig = jit_type_create_signature(jit_abi_cdecl, jit_type_void, push_args_types, 2, 0);
+					jit_type_t push_sig = jit_type_create_signature(jit_abi_cdecl, JIT_VOID, push_args_types, 2, 0);
 					jit_insn_call_native(F, "push", (void*) &Program_push_boolean, push_sig, var_args, 2, JIT_CALL_NOTHROW);
 				} else if (type.raw_type == RawType::INTEGER) {
 					jit_type_t push_args_types[2] = {JIT_POINTER, JIT_INTEGER};
-					jit_type_t push_sig = jit_type_create_signature(jit_abi_cdecl, jit_type_void, push_args_types, 2, 0);
+					jit_type_t push_sig = jit_type_create_signature(jit_abi_cdecl, JIT_VOID, push_args_types, 2, 0);
 					jit_insn_call_native(F, "push", (void*) &Program_push_integer, push_sig, var_args, 2, JIT_CALL_NOTHROW);
 				} else if (type.raw_type == RawType::FLOAT) {
 					jit_type_t args_float[2] = {JIT_POINTER, JIT_FLOAT};
-					jit_type_t sig_push_float = jit_type_create_signature(jit_abi_cdecl, jit_type_void, args_float, 2, 0);
+					jit_type_t sig_push_float = jit_type_create_signature(jit_abi_cdecl, JIT_VOID, args_float, 2, 0);
 					jit_insn_call_native(F, "push", (void*) &Program_push_float, sig_push_float, var_args, 2, JIT_CALL_NOTHROW);
 				} else if (type.raw_type == RawType::FUNCTION) {
 					jit_insn_call_native(F, "push", (void*) &Program_push_function, push_sig_pointer, var_args, 2, JIT_CALL_NOTHROW);

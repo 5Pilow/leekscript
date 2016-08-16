@@ -24,7 +24,7 @@ public:
 	virtual unsigned line() const override;
 
 	virtual void analyse(SemanticAnalyser*, const Type&) override;
-	virtual bool will_take(SemanticAnalyser* analyser, unsigned pos, const Type type) override;
+	virtual bool will_take(SemanticAnalyser* analyser, const std::vector<Type>& args_type) override;
 	void must_return(SemanticAnalyser* analyser, const Type& type) override;
 	virtual void change_type(SemanticAnalyser*, const Type&) override;
 

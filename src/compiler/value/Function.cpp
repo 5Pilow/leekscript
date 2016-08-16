@@ -10,9 +10,7 @@ namespace ls {
 Function::Function() {
 	body = nullptr;
 	parent = nullptr;
-	pos = 0;
 	constant = true;
-	type = Type::FUNCTION;
 	function_added = false;
 }
 
@@ -77,6 +75,8 @@ void Function::analyse(SemanticAnalyser* analyser, const Type& req_type) {
 		function_added = true;
 	}
 
+	type = Type::FUNCTION;
+
 	for (unsigned int i = 0; i < arguments.size(); ++i) {
 		type.setArgumentType(i, Type::UNKNOWN);
 	}
@@ -87,7 +87,8 @@ void Function::analyse(SemanticAnalyser* analyser, const Type& req_type) {
 
 //	type.setReturnType(return_type);
 
-	analyse_body(analyser, req_type.getReturnType());
+//	analyse_body(analyser, req_type.getReturnType());
+	body_analysed = false;
 
 	if (req_type.nature != Nature::UNKNOWN) {
 		type.nature = req_type.nature;
@@ -96,12 +97,11 @@ void Function::analyse(SemanticAnalyser* analyser, const Type& req_type) {
 //	cout << "Function type: " << type << endl;
 }
 
-bool Function::will_take(SemanticAnalyser* analyser, const unsigned pos, const Type arg_type) {
+bool Function::will_take(SemanticAnalyser* analyser, const vector<Type>& args_type) {
 
 //	cout << "Function::will_take " << arg_type << " at " << pos << endl;
 
-	bool changed = type.will_take(pos, arg_type);
-
+	bool changed = type.will_take(args_type);
 	analyse_body(analyser, type.getReturnType());
 
 //	cout << "Function::will_take type after " << type << endl;
@@ -119,6 +119,8 @@ void Function::must_return(SemanticAnalyser* analyser, const Type& ret_type) {
 }
 
 void Function::analyse_body(SemanticAnalyser* analyser, const Type& req_type) {
+
+	body_analysed = true;
 
 	analyser->enter_function(this);
 
@@ -164,6 +166,10 @@ void Function::capture(SemanticVar* var) {
 jit_value_t Function::compile(Compiler& c) const {
 
 //	cout << "Function::compile : " << type << endl;
+
+	if (!body_analysed) {
+		return nullptr;
+	}
 
 	jit_context_t context = jit_context_create();
 	jit_context_build_start(context);

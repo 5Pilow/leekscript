@@ -53,13 +53,15 @@ void VariableValue::analyse(SemanticAnalyser* analyser, const Type& req_type) {
 //		cout << t.first << " : " << t.second << endl;
 }
 
-bool VariableValue::will_take(SemanticAnalyser* analyser, unsigned pos, const Type type) {
+bool VariableValue::will_take(SemanticAnalyser* analyser, const vector<Type>& args_type) {
 
+	bool changed = false;
 	if (var != nullptr and var->value != nullptr) {
-		var->value->will_take(analyser, pos, type);
-		this->type = var->value->type;
+		changed = var->value->will_take(analyser, args_type);
+		type = var->value->type;
+
 	}
-	return false;
+	return changed;
 }
 
 void VariableValue::must_return(SemanticAnalyser* analyser, const Type& ret_type) {

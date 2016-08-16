@@ -83,6 +83,11 @@ void FunctionCall::analyse(SemanticAnalyser* analyser, const Type& req_type) {
 		arg->analyse(analyser, Type::UNKNOWN);
 	}
 
+	vector<Type> arg_types;
+	for (auto arg : arguments) {
+		arg_types.push_back(arg->type);
+	}
+
 	// Standard library constructors
 	VariableValue* vv = dynamic_cast<VariableValue*>(function);
 	if (vv != nullptr) {
@@ -152,11 +157,6 @@ void FunctionCall::analyse(SemanticAnalyser* analyser, const Type& req_type) {
 		if (!is_static_native) {
 
 			Type object_type = oa->object->type;
-
-			vector<Type> arg_types;
-			for (auto arg : arguments) {
-				arg_types.push_back(arg->type);
-			}
 
 			if (object_type.raw_type == RawType::CLASS) { // String.size("salut")
 
@@ -296,20 +296,18 @@ void FunctionCall::analyse(SemanticAnalyser* analyser, const Type& req_type) {
 	a = 0;
 	for (Value* arg : arguments) {
 		arg->analyse(analyser, function->type.getArgumentType(a));
+		if (function->type.getArgumentType(a).raw_type == RawType::FUNCTION) {
+			arg->will_take(analyser, function->type.getArgumentType(a).arguments_types);
+		}
 		a++;
 	}
 
-	a = 0;
-	for (Value* arg : arguments) {
-		function->will_take(analyser, a++, arg->type);
-	}
+	function->will_take(analyser, arg_types);
 
 	// The function is a variable
-	if (vv and vv->var->value != nullptr) {
-		a = 0;
-		for (Value* arg : arguments) {
-			vv->var->will_take(analyser, a++, arg->type);
-		}
+	if (vv and vv->var and vv->var->value) {
+		vv->var->will_take(analyser, arg_types);
+
 		Type ret_type = vv->var->value->type.getReturnType();
 		if (ret_type.raw_type != RawType::UNKNOWN) {
 			type = ret_type;

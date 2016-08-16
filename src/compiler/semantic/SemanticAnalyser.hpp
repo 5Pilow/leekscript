@@ -39,7 +39,7 @@ public:
 		VariableDeclaration* vd, Function* function) :
 		name(name), scope(scope), type(type), index(index), value(value), vd(vd), function(function) {}
 
-	void will_take(SemanticAnalyser*, unsigned, const Type&);
+	void will_take(SemanticAnalyser*, const std::vector<Type>& args_type);
 	void will_take_element(SemanticAnalyser*, const Type&);
 	void must_be_pointer(SemanticAnalyser*);
 };

@@ -28,7 +28,7 @@ public:
 
 	virtual unsigned line() const = 0;
 
-	virtual bool will_take(SemanticAnalyser*, const unsigned, const Type);
+	virtual bool will_take(SemanticAnalyser*, const std::vector<Type>& args_type);
 	virtual bool will_take_element(SemanticAnalyser*, const Type);
 	virtual bool must_be_pointer(SemanticAnalyser*);
 	virtual void must_return(SemanticAnalyser*, const Type&);
