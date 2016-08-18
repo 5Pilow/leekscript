@@ -18,6 +18,7 @@ public:
 
 	bool global;
 	std::vector<Token*> variables;
+	std::vector<bool> references;
 	std::vector<Value*> expressions;
 	std::map<std::string, SemanticVar*> vars;
 

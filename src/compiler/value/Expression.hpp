@@ -18,12 +18,13 @@ public:
 	bool ignorev2;
 	bool no_op;
 	int operations;
+	bool reference_v2;
 
 	Expression();
 	Expression(Value*);
 	virtual ~Expression();
 
-	void append(Operator*, Value*);
+	void append(Operator*, Value*, bool ref_v2);
 
 	void print(std::ostream&, int indent, bool debug) const override;
 	virtual unsigned line() const override;

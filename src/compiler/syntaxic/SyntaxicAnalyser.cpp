@@ -199,7 +199,7 @@ Instruction* SyntaxicAnalyser::eatInstruction() {
 		case TokenType::MINUS_MINUS:
 		case TokenType::PLUS_PLUS:
 		case TokenType::NEW:
-		case TokenType::AROBASE:
+//		case TokenType::AROBASE:
 		case TokenType::PLUS:
 		case TokenType::TIMES:
 		case TokenType::DIVIDE:
@@ -268,10 +268,23 @@ VariableDeclaration* SyntaxicAnalyser::eatVariableDeclaration() {
 
 		eat(TokenType::EQUAL);
 
+		if (t->type == TokenType::AROBASE) {
+			eat();
+			vd->references.push_back(true);
+		} else {
+			vd->references.push_back(false);
+		}
 		vd->expressions.push_back(eatExpression());
+
 
 		while (t->type == TokenType::COMMA && vd->expressions.size() < vd->variables.size()) {
 			eat();
+			if (t->type == TokenType::AROBASE) {
+				eat();
+				vd->references.push_back(true);
+			} else {
+				vd->references.push_back(false);
+			}
 			vd->expressions.push_back(eatExpression());
 		}
 	}
@@ -343,7 +356,7 @@ VariableDeclaration* SyntaxicAnalyser::eatFunctionDeclaration() {
 bool SyntaxicAnalyser::beginingOfExpression(TokenType type) {
 
 	return type == TokenType::NUMBER or type == TokenType::IDENT
-		or type == TokenType::AROBASE or type == TokenType::OPEN_BRACKET
+		/*or type == TokenType::AROBASE*/ or type == TokenType::OPEN_BRACKET
 		or type == TokenType::OPEN_BRACE or type == TokenType::OPEN_PARENTHESIS
 		or type == TokenType::STRING or type == TokenType::PI or type == TokenType::TRUE
 		or type == TokenType::FALSE or type == TokenType::NULLL;
@@ -560,6 +573,12 @@ Value* SyntaxicAnalyser::eatExpression(bool pipe_opened) {
 		Operator* op = new Operator(t);
 		eat();
 
+		bool reference_v2 = false;
+		if (op->type == TokenType::EQUAL && t->type == TokenType::AROBASE) {
+			eat();
+			reference_v2 = true;
+		}
+
 		if (ex == nullptr) {
 			if (Expression* exx = dynamic_cast<Expression*>(e)) {
 				ex = exx;
@@ -568,7 +587,7 @@ Value* SyntaxicAnalyser::eatExpression(bool pipe_opened) {
 				ex->v1 = e;
 			}
 		}
-		ex->append(op, eatSimpleExpression());
+		ex->append(op, eatSimpleExpression(), reference_v2);
 	}
 
 	if (ex != nullptr) {
@@ -648,7 +667,7 @@ Value* SyntaxicAnalyser::eatValue() {
 
 					Function* l = new Function();
 					l->lambda = true;
-					l->arguments.push_back(ident);
+					l->addArgument(ident, false, nullptr);
 					eat(TokenType::ARROW);
 					l->body = new Block();
 					l->body->instructions.push_back(new ExpressionInstruction(eatExpression()));
@@ -677,10 +696,10 @@ Value* SyntaxicAnalyser::eatValue() {
 
 						Function* l = new Function();
 						l->lambda = true;
-						l->arguments.push_back(ident);
+						l->addArgument(ident, false, nullptr);
 						while (t->type == TokenType::COMMA) {
 							eat();
-							l->arguments.push_back(eatIdent());
+							l->addArgument(eatIdent(), false, nullptr);
 						}
 
 						eat(TokenType::ARROW);
@@ -700,9 +719,9 @@ Value* SyntaxicAnalyser::eatValue() {
 			break;
 		}
 
-		case TokenType::AROBASE:
-			eat();
-			return new Reference(eatIdent());
+//		case TokenType::AROBASE:
+//			eat();
+//			return new Reference(eatIdent());
 
 		case TokenType::OPEN_BRACKET:
 			return eatArrayOrMap();

@@ -98,11 +98,7 @@ inline LSArray<int>::LSArray(Json& json) {
 
 template <>
 inline LSArray<LSValue*>::~LSArray() {
-//	std::cout << "~LSArray<T>" << std::endl;
 	for (auto v : *this) {
-//		std::cout << "delete ";
-//		v->print(std::cout);
-//		std::cout << " " << v->refs << std::endl;
 		LSValue::delete_ref(v);
 	}
 }
@@ -200,67 +196,187 @@ inline double LSArray<int>::average() const {
 	return (double) this->sum() / size();
 }
 
-template <class T>
-T LSArray<T>::first() const {
-	if (this->size() == 0) return T();
-	return this->operator [] (0);
+template <>
+inline LSValue* LSArray<LSValue*>::ls_first() {
+	if (this->size() == 0) {
+		if (refs == 0) {
+			delete this;
+		}
+		return LSNull::get();
+	}
+	LSValue* first = front();
+	if (refs == 0) {
+		if (first->refs == 1) {
+			(*this)[0] = nullptr;
+			first->refs = 0;
+		}
+		delete this;
+		/* In that case `first` will survive
+		 */
+	}
+	return first->move(); /* return temporary */
+}
+template <>
+inline LSValue* LSArray<double>::ls_first() {
+	if (this->size() == 0) {
+		if (refs == 0) {
+			delete this;
+		}
+		return LSNull::get();
+	}
+	double first = front();
+	if (refs == 0) {
+		delete this;
+	}
+	return LSNumber::get(first);
+}
+template <>
+inline LSValue* LSArray<int>::ls_first() {
+	if (this->size() == 0) {
+		if (refs == 0) {
+			delete this;
+		}
+		return LSNull::get();
+	}
+	double first = front();
+	if (refs == 0) {
+		delete this;
+	}
+	return LSNumber::get(first);
 }
 
-template <class T>
-T LSArray<T>::last() const {
-	if (this->size() == 0) return T();
-	return this->back();
+template <>
+inline LSValue* LSArray<LSValue*>::ls_last() {
+	if (this->size() == 0) {
+		if (refs == 0) {
+			delete this;
+		}
+		return LSNull::get();
+	}
+	LSValue* last = back();
+	if (refs == 0) {
+		if (last->refs == 1) {
+			pop_back();
+			last->refs = 0;
+		}
+		delete this;
+	}
+	return last->move();
+}
+template <>
+inline LSValue* LSArray<double>::ls_last() {
+	if (this->size() == 0) {
+		if (refs == 0) {
+			delete this;
+		}
+		return LSNull::get();
+	}
+	double last = back();
+	if (refs == 0) {
+		delete this;
+	}
+	return LSNumber::get(last);
+}
+template <>
+inline LSValue* LSArray<int>::ls_last() {
+	if (this->size() == 0) {
+		if (refs == 0) {
+			delete this;
+		}
+		return LSNull::get();
+	}
+	double last = back();
+	if (refs == 0) {
+		delete this;
+	}
+	return LSNumber::get(last);
 }
 
 template <>
 inline LSValue* LSArray<LSValue*>::ls_pop() {
 	if (empty()) {
+		if (refs == 0) {
+			delete this;
+		}
 		return LSNull::get();
 	}
 	LSValue* last = back();
 	last->refs--;
 	pop_back();
-	return last;
+	if (refs == 0) {
+		delete this;
+	}
+	return last->move();
 }
 template <>
 inline LSValue* LSArray<int>::ls_pop() {
 	if (empty()) {
+		if (refs == 0) {
+			delete this;
+		}
 		return LSNull::get();
 	}
 	LSValue* last = LSNumber::get(back());
 	pop_back();
+	if (refs == 0) {
+		delete this;
+	}
 	return last;
 }
 template <>
 inline LSValue* LSArray<double>::ls_pop() {
 	if (empty()) {
+		if (refs == 0) {
+			delete this;
+		}
 		return LSNull::get();
 	}
 	LSValue* last = LSNumber::get(back());
 	pop_back();
+	if (refs == 0) {
+		delete this;
+	}
 	return last;
 }
 
 template <typename T>
 inline int LSArray<T>::ls_size() {
-	return this->size();
-}
-
-template <>
-inline LSArray<LSValue*>* LSArray<LSValue*>::map(const void* function) const {
-
-	LSArray<LSValue*>* new_array = new LSArray<LSValue*>();
-	new_array->reserve(this->size());
-	auto fun = (LSValue* (*)(void*)) function;
-	for (auto v : *this) {
-		LSValue* c = v->clone();
-		new_array->push_move(fun(c));
+	int s = this->size();
+	if (refs == 0) {
+		delete this;
 	}
-	return new_array;
+	return s;
 }
 
 template <>
-inline LSArray<LSValue*>* LSArray<int>::map(const void* function) const {
+inline LSArray<LSValue*>* LSArray<LSValue*>::ls_map(const void* function) {
+
+	auto fun = (LSValue* (*)(void*)) function;
+
+	if (refs == 0) {
+		/* In that case we have the abolute ownership of `this`
+		 * Then instead of commit sucide, let optimize and work inplace
+		 */
+		for (size_t i = 0; i < size(); ++i) {
+			LSValue* v = fun((*this)[i]);
+			LSValue::delete_ref((*this)[i]);
+			v->refs++;
+			(*this)[i] = v;
+		}
+		return this;
+	} else {
+		LSArray<LSValue*>* new_array = new LSArray<LSValue*>();
+		new_array->reserve(size());
+		for (auto v : *this) {
+			LSValue* c = v->clone();
+			new_array->push_move(fun(c));
+		}
+		return new_array;
+	}
+}
+
+template <>
+inline LSArray<LSValue*>* LSArray<int>::ls_map(const void* function) {
 
 	LSArray<LSValue*>* new_array = new LSArray<LSValue*>();
 	new_array->reserve(this->size());
@@ -268,21 +384,30 @@ inline LSArray<LSValue*>* LSArray<int>::map(const void* function) const {
 	for (auto v : *this) {
 		new_array->push_move(fun(v));
 	}
+	if (refs == 0) {
+		/* No other possibilities than sucide
+		 * We have to delete temporary arguments that are not returned
+		 */
+		delete this;
+	}
 	return new_array;
 }
 template <>
-inline LSArray<LSValue*>* LSArray<double>::map(const void* function) const {
+inline LSArray<LSValue*>* LSArray<double>::ls_map(const void* function) {
 	LSArray<LSValue*>* new_array = new LSArray<LSValue*>();
 	new_array->reserve(this->size());
 	auto fun = (LSValue* (*)(double)) function;
 	for (auto v : *this) {
 		new_array->push_move(fun(v));
 	}
+	if (refs == 0) {
+		delete this;
+	}
 	return new_array;
 }
 
 template <>
-inline LSArray<double>* LSArray<int>::map_real(const void* function) const {
+inline LSArray<double>* LSArray<int>::ls_map_real(const void* function) {
 	LSArray<double>* new_array = new LSArray<double>();
 	new_array->reserve(this->size());
 	auto fun = (double (*)(int)) function;
@@ -292,33 +417,47 @@ inline LSArray<double>* LSArray<int>::map_real(const void* function) const {
 	return new_array;
 }
 template <>
-inline LSArray<double>* LSArray<double>::map_real(const void* function) const {
+inline LSArray<double>* LSArray<double>::ls_map_real(const void* function) {
 	LSArray<double>* new_array = new LSArray<double>();
 	new_array->reserve(this->size());
 	auto fun = (double (*)(double)) function;
 	for (auto v : *this) {
 		new_array->push_no_clone(fun(v));
 	}
+	if (refs == 0) {
+		delete this;
+	}
 	return new_array;
 }
 
 template <>
-inline LSArray<int>* LSArray<int>::map_int(const void* function) const {
-	LSArray<int>* new_array = new LSArray<int>();
-	new_array->reserve(this->size());
+inline LSArray<int>* LSArray<int>::ls_map_int(const void* function) {
 	auto fun = (int (*)(int)) function;
-	for (auto v : *this) {
-		new_array->push_back(fun(v));
+
+	if (refs == 0) {
+		for (size_t i = 0; i < size(); ++i) {
+			(*this)[i] = fun((*this)[i]);
+		}
+		return this;
+	} else {
+		LSArray<int>* new_array = new LSArray<int>();
+		new_array->reserve(this->size());
+		for (auto v : *this) {
+			new_array->push_back(fun(v));
+		}
+		return new_array;
 	}
-	return new_array;
 }
 template <>
-inline LSArray<int>* LSArray<double>::map_int(const void* function) const {
+inline LSArray<int>* LSArray<double>::ls_map_int(const void* function) {
 	LSArray<int>* new_array = new LSArray<int>();
 	new_array->reserve(this->size());
 	auto fun = (int (*)(double)) function;
 	for (auto v : *this) {
 		new_array->push_no_clone(fun(v));
+	}
+	if (refs == 0) {
+		delete this;
 	}
 	return new_array;
 }
@@ -339,18 +478,27 @@ inline LSArray<LSValue*>* LSArray<T>::ls_chunk(int size) const {
 		sub_array->reserve(size);
 
 		size_t j = std::min(i + size, this->size());
-		for (; i < j; ++i) {
-			sub_array->push_clone((*this)[i]);
+		if (refs == 0) {
+			for (; i < j; ++i) {
+				sub_array->push_no_clone((*this)[i]);
+			}
+		} else {
+			for (; i < j; ++i) {
+				sub_array->push_clone((*this)[i]);
+			}
 		}
 
 		new_array->push_no_clone(sub_array);
+	}
+	if (refs == 0) {
+		delete this;
 	}
 	return new_array;
 }
 
 template <>
-inline void LSArray<LSValue*>::ls_unique() {
-	if (this->empty()) return;
+inline LSValue* LSArray<LSValue*>::ls_unique() {
+	if (this->empty()) return this->move();
 
 	auto it = this->begin();
 	auto next = it;
@@ -368,31 +516,37 @@ inline void LSArray<LSValue*>::ls_unique() {
 		*it = *next;
 	}
 	this->resize(std::distance(this->begin(), it));
+	return this->move();
 }
 template <>
-inline void LSArray<int>::ls_unique() {
+inline LSValue* LSArray<int>::ls_unique() {
 	auto it = std::unique(this->begin(), this->end());
 	this->resize(std::distance(this->begin(), it));
+	return this->move();
 }
 template <>
-inline void LSArray<double>::ls_unique() {
+inline LSValue* LSArray<double>::ls_unique() {
 	auto it = std::unique(this->begin(), this->end());
 	this->resize(std::distance(this->begin(), it));
+	return this->move();
 }
 
 template <>
-inline void LSArray<LSValue*>::ls_sort() {
+inline LSValue* LSArray<LSValue*>::ls_sort() {
 	std::sort(this->begin(), this->end(), [](LSValue* a, LSValue* b) -> bool {
 		return b->operator < (a);
 	});
+	return this;
 }
 template <>
-inline void LSArray<int>::ls_sort() {
+inline LSValue* LSArray<int>::ls_sort() {
 	std::sort(this->begin(), this->end());
+	return this;
 }
 template <>
-inline void LSArray<double>::ls_sort() {
+inline LSValue* LSArray<double>::ls_sort() {
 	std::sort(this->begin(), this->end());
+	return this;
 }
 
 template <class T>

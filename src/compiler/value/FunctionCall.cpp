@@ -511,24 +511,6 @@ jit_value_t FunctionCall::compile(Compiler& c) const {
 
 		jit_value_t res = jit_insn_call_native(c.F, "std_func", (void*) std_func, sig, args.data(), arg_count, JIT_CALL_NOTHROW);
 
-		// Destroy temporary arguments
-		for (int i = 0; i < arg_count - 1; ++i) {
-			if (function->type.getArgumentType(i).must_manage_memory()) {
-				VM::delete_temporary(c.F, args[i + 1]);
-			}
-		}
-
-		if (return_type.nature == Nature::POINTER) {
-			// Dont delete the argument if it is the result
-			jit_label_t label = jit_label_undefined;
-			jit_insn_branch_if(c.F, jit_insn_eq(c.F, res, args[0]), &label);
-			VM::delete_temporary(c.F, args[0]);
-			jit_insn_label(c.F, &label);
-		} else {
-			VM::delete_temporary(c.F, args[0]);
-		}
-
-
 		if (return_type.nature == Nature::VALUE and type.nature == Nature::POINTER) {
 			return VM::value_to_pointer(c.F, res, type);
 		}
@@ -556,13 +538,6 @@ jit_value_t FunctionCall::compile(Compiler& c) const {
 		jit_type_t sig = jit_type_create_signature(jit_abi_cdecl, ret_type, args_types.data(), arg_count, 0);
 
 		jit_value_t res = jit_insn_call_native(c.F, "std_func", (void*) std_func, sig, args.data(), arg_count, JIT_CALL_NOTHROW);
-
-		// Destroy temporary arguments
-		for (int i = 0; i < arg_count; ++i) {
-			if (function->type.getArgumentType(i).nature == Nature::POINTER) {
-				VM::delete_temporary(c.F, args[i]);
-			}
-		}
 
 		if (return_type.nature == Nature::VALUE and type.nature == Nature::POINTER) {
 			return VM::value_to_pointer(c.F, res, type);
@@ -628,7 +603,10 @@ jit_value_t FunctionCall::compile(Compiler& c) const {
 		args_types.push_back(VM::get_jit_type(function->type.getArgumentType(i)));
 
 		if (function->type.getArgumentType(i).must_manage_memory()) {
+			// TODO : if reference
 			VM::inc_refs(c.F, args[i]);
+			// TODO : else
+			// move_inc
 		}
 	}
 

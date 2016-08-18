@@ -42,9 +42,9 @@ void Function::print(std::ostream& os, int indent, bool debug) const {
 	os << "(";
 	for (unsigned i = 0; i < arguments.size(); ++i) {
 		if (i > 0) os << ", ";
-//		if (references.at(i)) {
-//			os << "@";
-//		}
+		if (references.at(i)) {
+			os << "@";
+		}
 		os << arguments.at(i)->content;
 //
 //		if ((Value*)defaultValues.at(i) != nullptr) {

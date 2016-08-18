@@ -44,8 +44,8 @@ ArraySTD::ArraySTD() : Module("Array") {
 	map_fun_type.setReturnType(Type::POINTER);
 
 	method("map", {
-		{Type::ARRAY, Type::ARRAY, {map_fun_type}, (void*) &LSArray<LSValue*>::map},
-		{Type::INT_ARRAY, Type::ARRAY, {map_int_fun_type}, (void*) &LSArray<int>::map},
+		{Type::ARRAY, Type::ARRAY, {map_fun_type}, (void*) &LSArray<LSValue*>::ls_map},
+		{Type::INT_ARRAY, Type::ARRAY, {map_int_fun_type}, (void*) &LSArray<int>::ls_map},
 	});
 
 	method("chunk", {
@@ -59,15 +59,15 @@ ArraySTD::ArraySTD() : Module("Array") {
     });
 
 	method("unique", {
-		{Type::ARRAY, Type::VOID, {}, (void*) &LSArray<LSValue*>::ls_unique},
-		{Type::FLOAT_ARRAY, Type::VOID, {}, (void*) &LSArray<double>::ls_unique},
-		{Type::INT_ARRAY, Type::VOID, {}, (void*) &LSArray<int>::ls_unique},
+		{Type::ARRAY, Type::ARRAY, {}, (void*) &LSArray<LSValue*>::ls_unique},
+		{Type::FLOAT_ARRAY, Type::FLOAT_ARRAY, {}, (void*) &LSArray<double>::ls_unique},
+		{Type::INT_ARRAY, Type::INT_ARRAY, {}, (void*) &LSArray<int>::ls_unique},
 	});
 
 	method("sort", {
-		{Type::ARRAY, Type::VOID, {}, (void*) &LSArray<LSValue*>::ls_sort},
-		{Type::FLOAT_ARRAY, Type::VOID, {}, (void*) &LSArray<double>::ls_sort},
-		{Type::INT_ARRAY, Type::VOID, {}, (void*) &LSArray<int>::ls_sort},
+		{Type::ARRAY, Type::ARRAY, {}, (void*) &LSArray<LSValue*>::ls_sort},
+		{Type::FLOAT_ARRAY, Type::FLOAT_ARRAY, {}, (void*) &LSArray<double>::ls_sort},
+		{Type::INT_ARRAY, Type::INT_ARRAY, {}, (void*) &LSArray<int>::ls_sort},
 	});
 
 	Type map2_fun_type = Type::FUNCTION;
@@ -121,8 +121,16 @@ ArraySTD::ArraySTD() : Module("Array") {
 		{Type::ARRAY, Type::ARRAY, {partition_fun_type_int}, (void*) &LSArray<int>::partition}
 	});
 
-	method("first", Type::ARRAY, Type::POINTER, {}, (void*) &array_first);
-	method("last", Type::ARRAY, Type::POINTER, {}, (void*) &array_last);
+	method("first", {
+		{Type::ARRAY, Type::POINTER, {}, (void*) &LSArray<LSValue*>::ls_first},
+		{Type::FLOAT_ARRAY, Type::POINTER, {}, (void*) &LSArray<double>::ls_first},
+		{Type::INT_ARRAY, Type::POINTER, {}, (void*) &LSArray<int>::ls_first},
+	});
+	method("last", {
+		{Type::ARRAY, Type::POINTER, {}, (void*) &LSArray<LSValue*>::ls_last},
+		{Type::FLOAT_ARRAY, Type::POINTER, {}, (void*) &LSArray<double>::ls_last},
+		{Type::INT_ARRAY, Type::POINTER, {}, (void*) &LSArray<int>::ls_last},
+	});
 
 	Type fold_fun_type = Type::FUNCTION_P;
 	fold_fun_type.setArgumentType(0, Type::POINTER);
@@ -220,8 +228,8 @@ ArraySTD::ArraySTD() : Module("Array") {
 	});
 
 	static_method("map", {
-		{Type::ARRAY, {Type::ARRAY, map_fun_type}, (void*) &LSArray<LSValue*>::map},
-		{Type::ARRAY, {Type::INT_ARRAY, map_int_fun_type}, (void*) &LSArray<int>::map},
+		{Type::ARRAY, {Type::ARRAY, map_fun_type}, (void*) &LSArray<LSValue*>::ls_map},
+		{Type::ARRAY, {Type::INT_ARRAY, map_int_fun_type}, (void*) &LSArray<int>::ls_map},
 	});
 
 	static_method("map2", {
@@ -247,8 +255,16 @@ ArraySTD::ArraySTD() : Module("Array") {
 		{Type::INT_ARRAY, {Type::INT_ARRAY, partition_fun_type_int}, (void*) &LSArray<int>::partition}
 	});
 
-	static_method("first", Type::POINTER, {Type::ARRAY}, (void*)&array_first);
-	static_method("last", Type::POINTER, {Type::ARRAY}, (void*)&array_last);
+	static_method("first", {
+		{Type::POINTER, {Type::ARRAY}, (void*) &LSArray<LSValue*>::ls_first},
+		{Type::POINTER, {Type::FLOAT_ARRAY}, (void*) &LSArray<double>::ls_first},
+		{Type::POINTER, {Type::INT_ARRAY}, (void*) &LSArray<int>::ls_first},
+	});
+	static_method("last", {
+		{Type::POINTER, {Type::ARRAY}, (void*) &LSArray<LSValue*>::ls_last},
+		{Type::POINTER, {Type::FLOAT_ARRAY}, (void*) &LSArray<double>::ls_last},
+		{Type::POINTER, {Type::INT_ARRAY}, (void*) &LSArray<int>::ls_last},
+	});
 
 	static_method("foldLeft", {
 		{Type::POINTER, {Type::ARRAY, fold_fun_type, Type::POINTER}, (void*) &array_foldLeft},
@@ -340,10 +356,6 @@ LSArray<LSValue*>* array_filter(const LSArray<LSValue*>* array, const void* func
 	return array->filter(function);
 }
 
-LSValue* array_first(const LSArray<LSValue*>* array) {
-	return array->first()->clone();
-}
-
 LSArray<LSValue*>* array_flatten(const LSArray<LSValue*>*, const LSNumber*) {
 	// TODO
 	return new LSArray<LSValue*>();
@@ -376,10 +388,6 @@ LSValue* array_insert(LSArray<LSValue*>* array, const LSValue* element, const LS
 
 LSValue* array_isEmpty(const LSArray<LSValue*>* array) {
 	return LSBoolean::get(array->size() == 0);
-}
-
-LSValue* array_last(const LSArray<LSValue*>* array) {
-	return array->last()->clone();
 }
 
 LSValue* array_max(const LSArray<LSValue*>*) {

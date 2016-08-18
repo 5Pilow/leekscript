@@ -34,7 +34,7 @@ Expression::~Expression() {
 	}
 }
 
-void Expression::append(Operator* op, Value* exp) {
+void Expression::append(Operator* op, Value* exp, bool ref_v2) {
 
 	/*
 	 * Single expression (2, 'hello', ...), just add the operator
@@ -42,6 +42,7 @@ void Expression::append(Operator* op, Value* exp) {
 	if (this->op == nullptr) {
 		this->op = op;
 		v2 = exp;
+		reference_v2 = ref_v2;
 		return;
 	}
 
@@ -55,6 +56,7 @@ void Expression::append(Operator* op, Value* exp) {
 		Expression* ex = new Expression();
 		ex->v1 = v2;
 		ex->op = op;
+		ex->reference_v2 = ref_v2;
 		ex->v2 = exp;
 		this->v2 = ex;
 
@@ -70,6 +72,7 @@ void Expression::append(Operator* op, Value* exp) {
 		newV1->v2 = this->v2;
 		this->v1 = newV1;
 		this->op = op;
+		this->reference_v2 = ref_v2;
 		v2 = exp;
 	}
 }
@@ -88,6 +91,7 @@ void Expression::print(std::ostream& os, int indent, bool debug) const {
 			os << " ";
 			op->print(os);
 			os << " ";
+			if (reference_v2) os << "@";
 			v2->print(os, indent, debug);
 		}
 	}
@@ -462,7 +466,11 @@ jit_value_t Expression::compile(Compiler& c) const {
 					args.push_back(v2->compile(c));
 
 					if (v1->type.must_manage_memory()) {
-						VM::inc_refs(c.F, args[1]);
+						if (reference_v2) {
+							VM::inc_refs(c.F, args[1]);
+						} else {
+							args[1] = VM::move_inc_obj(c.F, args[1]);
+						}
 					}
 
 					ls_func = (void*) &jit_store;
@@ -473,7 +481,11 @@ jit_value_t Expression::compile(Compiler& c) const {
 					jit_value_t y = v2->compile(c);
 
 					if (v2->type.must_manage_memory()) {
-						VM::inc_refs(c.F, y);
+						if (reference_v2) {
+							VM::inc_refs(c.F, y);
+						} else {
+							y = VM::move_inc_obj(c.F, y);
+						}
 					}
 					if (v1->type.must_manage_memory()) {
 						VM::delete_ref(c.F, x);
@@ -738,22 +750,22 @@ jit_value_t Expression::compile(Compiler& c) const {
 		case TokenType::TILDE_TILDE: {
 			if (v1->type.getElementType() == Type::INTEGER) {
 				if (type.getElementType() == Type::INTEGER) {
-					ls_func = (void*) &LSArray<int>::map_int;
+					ls_func = (void*) &LSArray<int>::ls_map_int;
 				} else if (type.getElementType() == Type::FLOAT) {
-					ls_func = (void*) &LSArray<int>::map_real;
+					ls_func = (void*) &LSArray<int>::ls_map_real;
 				} else {
-					ls_func = (void*) &LSArray<int>::map;
+					ls_func = (void*) &LSArray<int>::ls_map;
 				}
 			} else if (v1->type.getElementType() == Type::FLOAT) {
 				if (type.getElementType() == Type::FLOAT) {
-					ls_func = (void*) &LSArray<double>::map_real;
+					ls_func = (void*) &LSArray<double>::ls_map_real;
 				} else if (type.getElementType() == Type::INTEGER) {
-					ls_func = (void*) &LSArray<double>::map_int;
+					ls_func = (void*) &LSArray<double>::ls_map_int;
 				} else {
-					ls_func = (void*) &LSArray<double>::map;
+					ls_func = (void*) &LSArray<double>::ls_map;
 				}
 			} else {
-				ls_func = (void*) &LSArray<LSValue*>::map;
+				ls_func = (void*) &LSArray<LSValue*>::ls_map;
 			}
 			break;
 		}
