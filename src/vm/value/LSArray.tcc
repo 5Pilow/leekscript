@@ -1239,9 +1239,9 @@ inline LSValue* LSArray<T>::range(int start, int end) const {
 	LSArray<T>* range = new LSArray<T>();
 
 	size_t start_i = std::max<size_t>(0, start);
-	size_t end_i = std::min<size_t>(this->size() - 1, end);
+	size_t end_i = std::min<size_t>(this->size(), end);
 
-	for (size_t i = start_i; i <= end_i; ++i) {
+	for (size_t i = start_i; i < end_i; ++i) {
 		range->push_clone(this->operator [] (i));
 	}
 	return range;
