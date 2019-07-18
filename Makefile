@@ -22,7 +22,7 @@ BUILD_DIR += $(addprefix build/web/,$(SRC_WEB))
 OBJ := $(patsubst %.cpp,build/default/%.o,$(SRC))
 DEPS := $(patsubst %.cpp,build/deps/%.d,$(SRC))
 
-OBJ_TOPLEVEL = build/default/src/TopLevel.o
+OBJ_TOPLEVEL = build/default/src/CLI.o build/default/src/Main.o
 OBJ_BENCHMARK = build/benchmark/Benchmark.o
 OBJ_TEST := $(patsubst %.cpp,build/default/%.o,$(TEST_SRC))
 OBJ_LIB := $(patsubst %.cpp,build/shared/%.o,$(SRC))
