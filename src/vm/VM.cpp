@@ -153,6 +153,10 @@ VM::Result VM::execute(const std::string code, Context* ctx, std::string file_na
 		delete f;
 	}
 	function_created.clear();
+	for (const auto& c : class_created) {
+		delete c;
+	}
+	class_created.clear();
 	VM::enable_operations = true;
 	Type::clear_placeholder_types();
 

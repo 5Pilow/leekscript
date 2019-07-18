@@ -17,6 +17,7 @@ LSValue* LSClass::_clazz;
 LSClass* LSClass::constructor(char* name) {
 	auto clazz = new LSClass(new Class(name));
 	VM::current()->function_created.push_back(clazz);
+	VM::current()->class_created.push_back(clazz->clazz);
 	return clazz;
 }
 LSClass::LSClass(Class* clazz) : LSValue(CLASS, 1, true), clazz(clazz) {}
