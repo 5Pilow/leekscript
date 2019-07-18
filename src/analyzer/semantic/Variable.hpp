@@ -33,9 +33,9 @@ public:
 	VarScope scope;
 	int index;
 	int parent_index;
-	Value* value;
+	Value* value = nullptr;
 	FunctionVersion* function;
-	Block* block;
+	Block* block = nullptr;
 	const Type* type;
 	std::vector<const Type*> version;
 	Call call;
