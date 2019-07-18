@@ -2,12 +2,12 @@
 #include <iostream>
 #include <sstream>
 #include "Test.hpp"
-#include "../src/vm/Context.hpp"
+#include "../src/analyzer/Context.hpp"
 #include "../src/analyzer/lexical/LexicalAnalyzer.hpp"
 #include "../src/analyzer/syntaxic/SyntaxicAnalyzer.hpp"
 #include "../src/analyzer/semantic/SemanticAnalyzer.hpp"
 #include "../src/analyzer/error/Error.hpp"
-#include "../src/vm/Program.hpp"
+#include "../src/analyzer/Program.hpp"
 #include "../src/vm/value/LSNumber.hpp"
 #include "../src/vm/value/LSObject.hpp"
 

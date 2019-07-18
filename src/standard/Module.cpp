@@ -3,14 +3,14 @@
 #include <sstream>
 #include <algorithm>
 #include "Module.hpp"
-#include "LSValue.hpp"
-#include "value/LSClass.hpp"
-#include "value/LSNumber.hpp"
+#include "../vm/LSValue.hpp"
+#include "../vm/value/LSClass.hpp"
+#include "../vm/value/LSNumber.hpp"
 #include "../analyzer/semantic/Callable.hpp"
 #include "../analyzer/semantic/CallableVersion.hpp"
 #include "../analyzer/semantic/Variable.hpp"
 #include "../analyzer/semantic/Class.hpp"
-#include "VM.hpp"
+#include "../vm/VM.hpp"
 #include "../type/Type.hpp"
 
 namespace ls {
@@ -40,19 +40,25 @@ void Module::field(std::string name, const Type* type) {
 	clazz->addField(name, type, nullptr);
 }
 void Module::field(std::string name, const Type* type, std::function<Compiler::value(Compiler&, Compiler::value)> fun) {
+	#if COMPILER
 	clazz->addField(name, type, fun);
+	#endif
 }
 void Module::field(std::string name, const Type* type, void* fun) {
 	clazz->addField(name, type, fun);
 }
 void Module::static_field(std::string name, const Type* type, std::function<Compiler::value(Compiler&)> fun) {
+	#if COMPILER
 	clazz->addStaticField({name, type, fun});
+	#endif
 }
 void Module::static_field(std::string name, const Type* type, void* addr) {
 	clazz->addStaticField({name, type, addr, true});
 }
 void Module::static_field_fun(std::string name, const Type* type, void* fun) {
+	#if COMPILER
 	clazz->addStaticField({name, type, fun, nullptr});
+	#endif
 }
 void Module::constructor_(std::initializer_list<CallableVersion> methods) {
 	clazz->addMethod("new", methods);

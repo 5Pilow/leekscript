@@ -1,40 +1,42 @@
 #include "SystemSTD.hpp"
 #include <chrono>
-#include "../LSValue.hpp"
+#include "../../vm/LSValue.hpp"
 #include "../../constants.h"
-#include "../VM.hpp"
+#include "../../vm/VM.hpp"
 #include "../../type/Type.hpp"
 
 namespace ls {
 
 SystemSTD::SystemSTD(VM* vm) : Module(vm, "System") {
 
-	static_field("version", Type::integer, version);
-	static_field("operations", Type::integer, (void*) &vm->operations);
-	static_field_fun("time", Type::long_, (void*) time);
-	static_field_fun("milliTime", Type::long_, (void*) millitime);
-	static_field_fun("microTime", Type::long_, (void*) microtime);
-	static_field_fun("nanoTime", Type::long_, (void*) nanotime);
+	static_field("version", Type::integer, ADDR(version));
+	static_field("operations", Type::integer, ADDR((void*) &vm->operations));
+	static_field_fun("time", Type::long_, ADDR((void*) time));
+	static_field_fun("milliTime", Type::long_, ADDR((void*) millitime));
+	static_field_fun("microTime", Type::long_, ADDR((void*) microtime));
+	static_field_fun("nanoTime", Type::long_, ADDR((void*) nanotime));
 
 	method("print", {
-		{Type::void_, {Type::const_any}, (void*) print},
-		{Type::void_, {Type::mpz_ptr}, (void*) print_mpz},
-		{Type::void_, {Type::tmp_mpz_ptr}, (void*) print_mpz_tmp},
-		{Type::void_, {Type::const_long}, (void*) print_long},
-		{Type::void_, {Type::const_real}, (void*) print_float},
-		{Type::void_, {Type::const_integer}, (void*) print_int},
-		{Type::void_, {Type::const_boolean}, (void*) print_bool},
+		{Type::void_, {Type::const_any}, ADDR((void*) print)},
+		{Type::void_, {Type::mpz_ptr}, ADDR((void*) print_mpz)},
+		{Type::void_, {Type::tmp_mpz_ptr}, ADDR((void*) print_mpz_tmp)},
+		{Type::void_, {Type::const_long}, ADDR((void*) print_long)},
+		{Type::void_, {Type::const_real}, ADDR((void*) print_float)},
+		{Type::void_, {Type::const_integer}, ADDR((void*) print_int)},
+		{Type::void_, {Type::const_boolean}, ADDR((void*) print_bool)},
 	});
 
 	method("throw", {
-		{Type::void_, {Type::integer, Type::i8_ptr, Type::i8_ptr, Type::long_}, (void*) throw1},
-		{Type::void_, {Type::long_, Type::long_, Type::i8_ptr, Type::i8_ptr}, (void*) throw2},
+		{Type::void_, {Type::integer, Type::i8_ptr, Type::i8_ptr, Type::long_}, ADDR((void*) throw1)},
+		{Type::void_, {Type::long_, Type::long_, Type::i8_ptr, Type::i8_ptr}, ADDR((void*) throw2)},
 	});
 
 	method("debug", {
-		{Type::void_, {Type::any}, (void*) print}
+		{Type::void_, {Type::any}, ADDR((void*) print)}
 	});
 }
+
+#if COMPILER
 
 long SystemSTD::time() {
 	return std::chrono::duration_cast<std::chrono::seconds>(
@@ -118,5 +120,7 @@ void SystemSTD::throw2(void** ex, char* file, char* function, size_t line) {
 	exception->frames.push_back({file, function, line});
 	__cxa_throw(exception, (void*) &typeid(vm::ExceptionObj), &fake_ex_destru_fun);
 }
+
+#endif
 
 }

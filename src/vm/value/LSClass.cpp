@@ -2,7 +2,7 @@
 #include "LSString.hpp"
 #include "LSNumber.hpp"
 #include "LSFunction.hpp"
-#include "../Module.hpp"
+#include "../../standard/Module.hpp"
 #include "../../analyzer/semantic/Callable.hpp"
 #include "../../vm/VM.hpp"
 #include "../../analyzer/semantic/CallableVersion.hpp"

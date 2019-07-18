@@ -2,7 +2,9 @@
 #define PROGRAM_HPP
 
 #include "../analyzer/value/Function.hpp"
-#include "VM.hpp"
+#if COMPILER
+#include "../vm/VM.hpp"
+#endif
 
 namespace ls {
 
@@ -20,12 +22,14 @@ public:
 	const Type* type;
 	std::vector<Function*> functions;
 	std::string file_name;
+	std::unordered_map<std::string, Variable*> operators;
+	File* main_file;
+	#if COMPILER
 	VM* vm;
 	bool handle_created = false;
 	llvm::Module* module = nullptr;
 	llvm::orc::VModuleKey module_handle;
-	std::unordered_map<std::string, Variable*> operators;
-	File* main_file;
+	#endif
 
 	Program(const std::string& code, const std::string& file_name);
 	virtual ~Program();
@@ -47,7 +51,9 @@ public:
 	/*
 	 * Execute the program and get a std::string result
 	 */
+	#if COMPILER
 	std::string execute(VM& vm);
+	#endif
 
 	void print(std::ostream& os, bool debug = false) const;
 

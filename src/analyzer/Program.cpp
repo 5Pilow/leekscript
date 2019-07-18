@@ -1,8 +1,8 @@
 #include <chrono>
 #include "Program.hpp"
 #include "Context.hpp"
-#include "value/LSNull.hpp"
-#include "value/LSArray.hpp"
+#include "../vm/value/LSNull.hpp"
+#include "../vm/value/LSArray.hpp"
 #include "../analyzer/lexical/LexicalAnalyzer.hpp"
 #include "../analyzer/syntaxic/SyntaxicAnalyzer.hpp"
 #include "Context.hpp"
@@ -34,9 +34,11 @@ Program::Program(const std::string& code, const std::string& file_name) {
 }
 
 Program::~Program() {
+	#if COMPILER
 	if (handle_created) {
 		vm->compiler.removeModule(module_handle);
 	}
+	#endif
 }
 
 #if COMPILER
@@ -226,6 +228,7 @@ void Program::analyze(SemanticAnalyzer* analyzer) {
 	main->analyze(analyzer);
 }
 
+#if COMPILER
 std::string Program::execute(VM& vm) {
 
 	assert(!type->reference && "Program return type shouldn't be a reference!");
@@ -276,6 +279,7 @@ std::string Program::execute(VM& vm) {
 	LSValue::delete_ref(ptr);
 	return oss.str();
 }
+#endif
 
 void Program::print(std::ostream& os, bool debug) const {
 	if (main) {

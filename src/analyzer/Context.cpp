@@ -4,6 +4,9 @@
 #include <vector>
 #include "../util/json.hpp"
 #include "../type/Type.hpp"
+#if COMPILER
+#include "../vm/LSValue.hpp"
+#endif
 
 namespace ls {
 
@@ -26,8 +29,10 @@ void Context::add_variable(char* name, void* v, const Type* type) {
 	if (i != vars.end()) {
 		// std::cout << "variable already exists " << i->second.value << std::endl;
 		if (i->second.type->is_polymorphic()) {
+			#if COMPILER
 			// The previous object was deleted in the program, but we don't count the destruction
 			LSValue::obj_deleted--;
+			#endif
 		}
 		vars[name] = { v, type };
 	} else {
@@ -45,10 +50,12 @@ namespace std {
 		for (const auto& v : context->vars) {
 			if (i++ > 0) os << ", ";
 			os << v.first << ": " << v.second.value << " " << v.second.type;
+			#if COMPILER
 			if (v.second.type == ls::Type::any) {
 				os << " " << (ls::LSValue*) v.second.value;
 				os << " " << ((ls::LSValue*) v.second.value)->refs;
 			}
+			#endif
 		}
 		os << "}";
 		return os;

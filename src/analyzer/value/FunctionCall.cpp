@@ -1,8 +1,8 @@
 #include "FunctionCall.hpp"
 #include <sstream>
 #include <string>
-#include "../../vm/Module.hpp"
-#include "../../vm/Program.hpp"
+#include "../../standard/Module.hpp"
+#include "../Program.hpp"
 #include "../../type/Type.hpp"
 #include "../../vm/value/LSArray.hpp"
 #include "../../vm/value/LSClass.hpp"

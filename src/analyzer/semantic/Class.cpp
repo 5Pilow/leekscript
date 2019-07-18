@@ -1,10 +1,9 @@
 #include "Class.hpp"
 #include "Callable.hpp"
 #include "SemanticAnalyzer.hpp"
-#include "../../vm/Module.hpp"
+#include "../../standard/Module.hpp"
 #include "Variable.hpp"
 #include "../../vm/value/LSFunction.hpp"
-#include "../../vm/Module.hpp"
 
 namespace ls {
 

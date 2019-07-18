@@ -4,20 +4,20 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include "../vm/standard/ArraySTD.hpp"
-#include "../vm/standard/MapSTD.hpp"
-#include "../vm/standard/BooleanSTD.hpp"
-#include "../vm/standard/NumberSTD.hpp"
-#include "../vm/standard/ObjectSTD.hpp"
-#include "../vm/standard/StringSTD.hpp"
-#include "../vm/standard/IntervalSTD.hpp"
-#include "../vm/standard/SetSTD.hpp"
-#include "../vm/standard/SystemSTD.hpp"
-#include "../vm/standard/ClassSTD.hpp"
-#include "../vm/standard/FunctionSTD.hpp"
-#include "../vm/standard/JsonSTD.hpp"
-#include "../vm/standard/NullSTD.hpp"
-#include "../vm/standard/ValueSTD.hpp"
+#include "../standard/class/ArraySTD.hpp"
+#include "../standard/class/MapSTD.hpp"
+#include "../standard/class/BooleanSTD.hpp"
+#include "../standard/class/NumberSTD.hpp"
+#include "../standard/class/ObjectSTD.hpp"
+#include "../standard/class/StringSTD.hpp"
+#include "../standard/class/IntervalSTD.hpp"
+#include "../standard/class/SetSTD.hpp"
+#include "../standard/class/SystemSTD.hpp"
+#include "../standard/class/ClassSTD.hpp"
+#include "../standard/class/FunctionSTD.hpp"
+#include "../standard/class/JsonSTD.hpp"
+#include "../standard/class/NullSTD.hpp"
+#include "../standard/class/ValueSTD.hpp"
 
 namespace ls {
 

@@ -1,11 +1,13 @@
 #include <algorithm>
 #include "ArraySTD.hpp"
-#include "../value/LSNumber.hpp"
-#include "../value/LSArray.hpp"
 #include "ValueSTD.hpp"
 #include "../TypeMutator.hpp"
 #include "../../type/Type.hpp"
 #include "../../analyzer/semantic/Variable.hpp"
+#if COMPILER
+#include "../../vm/value/LSNumber.hpp"
+#include "../../vm/value/LSArray.hpp"
+#endif
 
 namespace ls {
 
@@ -22,10 +24,10 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	 * Constructor
 	 */
 	constructor_({
-		{Type::tmp_array(Type::boolean), {Type::integer}, (void*) LSArray<char>::constructor},
-		{Type::tmp_array(Type::integer), {Type::integer}, (void*) LSArray<int>::constructor},
-		{Type::tmp_array(Type::real), {Type::integer}, (void*) LSArray<double>::constructor},
-		{Type::tmp_array(Type::any), {Type::integer}, (void*) LSArray<LSValue*>::constructor},
+		{Type::tmp_array(Type::boolean), {Type::integer}, ADDR((void*) LSArray<char>::constructor)},
+		{Type::tmp_array(Type::integer), {Type::integer}, ADDR((void*) LSArray<int>::constructor)},
+		{Type::tmp_array(Type::real), {Type::integer}, ADDR((void*) LSArray<double>::constructor)},
+		{Type::tmp_array(Type::any), {Type::integer}, ADDR((void*) LSArray<LSValue*>::constructor)},
 	});
 
 	/*
@@ -68,37 +70,37 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 		{Type::tmp_array(Type::integer), {Type::const_array(Type::integer)}, ADDR(ValueSTD::copy)},
 	});
 	method("average", {
-		{Type::real, {Type::const_array()}, (void*) &LSArray<LSValue*>::ls_average},
-		{Type::real, {Type::const_array(Type::real)}, (void*) &LSArray<double>::ls_average},
-		{Type::real, {Type::const_array(Type::integer)}, (void*) &LSArray<int>::ls_average},
+		{Type::real, {Type::const_array()}, ADDR((void*) &LSArray<LSValue*>::ls_average)},
+		{Type::real, {Type::const_array(Type::real)}, ADDR((void*) &LSArray<double>::ls_average)},
+		{Type::real, {Type::const_array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_average)},
 	});
 
 	method("chunk", {
-		{Type::array(Type::array()), {Type::const_array()}, (void*) chunk_1_ptr},
-		{Type::array(Type::array(Type::real)), {Type::const_array(Type::real)}, (void*) chunk_1_float},
-		{Type::array(Type::array(Type::integer)), {Type::const_array(Type::integer)}, (void*) chunk_1_int},
-		{Type::array(Type::array()), {Type::const_array(), Type::const_integer}, (void*) &LSArray<LSValue*>::ls_chunk},
-		{Type::array(Type::array(Type::real)), {Type::const_array(Type::real), Type::const_integer}, (void*) &LSArray<double>::ls_chunk},
-		{Type::array(Type::array(Type::integer)), {Type::const_array(Type::integer), Type::const_integer}, (void*) &LSArray<int>::ls_chunk},
+		{Type::array(Type::array()), {Type::const_array()}, ADDR((void*) chunk_1_ptr)},
+		{Type::array(Type::array(Type::real)), {Type::const_array(Type::real)}, ADDR((void*) chunk_1_float)},
+		{Type::array(Type::array(Type::integer)), {Type::const_array(Type::integer)}, ADDR((void*) chunk_1_int)},
+		{Type::array(Type::array()), {Type::const_array(), Type::const_integer}, ADDR((void*) &LSArray<LSValue*>::ls_chunk)},
+		{Type::array(Type::array(Type::real)), {Type::const_array(Type::real), Type::const_integer}, ADDR((void*) &LSArray<double>::ls_chunk)},
+		{Type::array(Type::array(Type::integer)), {Type::const_array(Type::integer), Type::const_integer}, ADDR((void*) &LSArray<int>::ls_chunk)},
     });
 
 	// TODO should return array<never>
 	method("clear", {
-		{Type::array(), {Type::const_array()}, (void*) &LSArray<LSValue*>::ls_clear},
-		{Type::array(Type::real), {Type::const_array(Type::real)}, (void*) &LSArray<double>::ls_clear},
-		{Type::array(Type::integer), {Type::const_array(Type::integer)}, (void*) &LSArray<int>::ls_clear},
-		{Type::tmp_array(), {Type::tmp_array()}, (void*) &LSArray<LSValue*>::ls_clear},
-		{Type::tmp_array(Type::real), {Type::tmp_array(Type::real)}, (void*) &LSArray<double>::ls_clear},
-		{Type::tmp_array(Type::integer), {Type::tmp_array(Type::integer)}, (void*) &LSArray<int>::ls_clear},
+		{Type::array(), {Type::const_array()}, ADDR((void*) &LSArray<LSValue*>::ls_clear)},
+		{Type::array(Type::real), {Type::const_array(Type::real)}, ADDR((void*) &LSArray<double>::ls_clear)},
+		{Type::array(Type::integer), {Type::const_array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_clear)},
+		{Type::tmp_array(), {Type::tmp_array()}, ADDR((void*) &LSArray<LSValue*>::ls_clear)},
+		{Type::tmp_array(Type::real), {Type::tmp_array(Type::real)}, ADDR((void*) &LSArray<double>::ls_clear)},
+		{Type::tmp_array(Type::integer), {Type::tmp_array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_clear)},
 	});
 
 	method("contains", {
-		{Type::boolean, {Type::const_array(Type::any), Type::const_any}, (void*) &LSArray<LSValue*>::ls_contains},
-		{Type::boolean, {Type::const_array(Type::real), Type::const_real}, (void*) &LSArray<double>::ls_contains},
-		{Type::boolean, {Type::const_array(Type::integer), Type::const_integer}, (void*) &LSArray<int>::ls_contains},
+		{Type::boolean, {Type::const_array(Type::any), Type::const_any}, ADDR((void*) &LSArray<LSValue*>::ls_contains)},
+		{Type::boolean, {Type::const_array(Type::real), Type::const_real}, ADDR((void*) &LSArray<double>::ls_contains)},
+		{Type::boolean, {Type::const_array(Type::integer), Type::const_integer}, ADDR((void*) &LSArray<int>::ls_contains)},
 	});
 
-	auto iter_ptr = &LSArray<LSValue*>::ls_iter<LSFunction*>;
+	auto iter_ptr = ADDR(&LSArray<LSValue*>::ls_iter<LSFunction*>);
 	auto iE = Type::template_("E");
 	template_(iE).
 	method("iter", {
@@ -107,18 +109,18 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	});
 
 	method("max", {
-		{Type::any, {Type::const_array()}, (void*) &LSArray<LSValue*>::ls_max, THROWS},
-		{Type::real, {Type::const_array(Type::real)}, (void*) &LSArray<double>::ls_max, THROWS},
-		{Type::integer, {Type::const_array(Type::integer)}, (void*) &LSArray<int>::ls_max, THROWS}
+		{Type::any, {Type::const_array()}, ADDR((void*) &LSArray<LSValue*>::ls_max), THROWS},
+		{Type::real, {Type::const_array(Type::real)}, ADDR((void*) &LSArray<double>::ls_max), THROWS},
+		{Type::integer, {Type::const_array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_max), THROWS}
 	});
 
 	method("min", {
-		{Type::any, {Type::const_array()}, (void*) &LSArray<LSValue*>::ls_min, THROWS},
-		{Type::real, {Type::const_array(Type::real)}, (void*) &LSArray<double>::ls_min, THROWS},
-		{Type::integer, {Type::const_array(Type::integer)}, (void*) &LSArray<int>::ls_min, THROWS}
+		{Type::any, {Type::const_array()}, ADDR((void*) &LSArray<LSValue*>::ls_min), THROWS},
+		{Type::real, {Type::const_array(Type::real)}, ADDR((void*) &LSArray<double>::ls_min), THROWS},
+		{Type::integer, {Type::const_array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_min), THROWS}
 	});
 
-	auto map_fun = &LSArray<LSValue*>::ls_map<LSFunction*, LSValue*>;
+	auto map_fun = ADDR((&LSArray<LSValue*>::ls_map<LSFunction*, LSValue*>));
 	auto E = Type::template_("E");
 	auto R = Type::template_("R");
 	template_(E, R).
@@ -128,24 +130,24 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	});
 
 	method("unique", {
-		{Type::array(), {Type::array()}, (void*) &LSArray<LSValue*>::ls_unique},
-		{Type::array(Type::real), {Type::array(Type::real)}, (void*) &LSArray<double>::ls_unique},
-		{Type::array(Type::integer), {Type::array(Type::integer)}, (void*) &LSArray<int>::ls_unique},
+		{Type::array(), {Type::array()}, ADDR((void*) &LSArray<LSValue*>::ls_unique)},
+		{Type::array(Type::real), {Type::array(Type::real)}, ADDR((void*) &LSArray<double>::ls_unique)},
+		{Type::array(Type::integer), {Type::array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_unique)},
 	});
 
 	auto sT = Type::template_("T");
 	template_(sT).
 	method("sort", {
-		{Type::array(), {Type::array()}, (void*) &LSArray<LSValue*>::ls_sort},
-		{Type::array(Type::real), {Type::array(Type::real)}, (void*) &LSArray<double>::ls_sort},
-		{Type::array(Type::integer), {Type::array(Type::integer)}, (void*) &LSArray<int>::ls_sort},
+		{Type::array(), {Type::array()}, ADDR((void*) &LSArray<LSValue*>::ls_sort)},
+		{Type::array(Type::real), {Type::array(Type::real)}, ADDR((void*) &LSArray<double>::ls_sort)},
+		{Type::array(Type::integer), {Type::array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_sort)},
 		{Type::array(sT), {Type::array(sT), Type::fun_object(Type::boolean, {sT, sT})}, ADDR(sort)}
 	});
 
 	auto map2_fun_type = (const Type*) Type::fun_object(Type::any, {Type::any, Type::any});
 	auto map2_fun_type_int = (const Type*) Type::fun_object(Type::any, {Type::any, Type::integer});
-	auto map2_ptr_ptr = &LSArray<LSValue*>::ls_map2<LSFunction*, LSValue*, LSValue*>;
-	auto map2_ptr_int = &LSArray<LSValue*>::ls_map2<LSFunction*, LSValue*, int>;
+	auto map2_ptr_ptr = ADDR((&LSArray<LSValue*>::ls_map2<LSFunction*, LSValue*, LSValue*>));
+	auto map2_ptr_int = ADDR((&LSArray<LSValue*>::ls_map2<LSFunction*, LSValue*, int>));
 	method("map2", {
 		{Type::tmp_array(), {Type::const_array(), Type::const_array(), map2_fun_type}, (void*) map2_ptr_ptr},
 		{Type::tmp_array(), {Type::const_array(), Type::const_array(Type::integer), map2_fun_type_int}, (void*) map2_ptr_int},
@@ -161,20 +163,20 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	});
 
 	method("isEmpty", {
-		{Type::boolean, {Type::array()}, (void*) &LSArray<LSValue*>::ls_empty},
-		{Type::boolean, {Type::array(Type::real)}, (void*) &LSArray<double>::ls_empty},
-		{Type::boolean, {Type::array(Type::integer)}, (void*) &LSArray<int>::ls_empty},
+		{Type::boolean, {Type::array()}, ADDR((void*) &LSArray<LSValue*>::ls_empty)},
+		{Type::boolean, {Type::array(Type::real)}, ADDR((void*) &LSArray<double>::ls_empty)},
+		{Type::boolean, {Type::array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_empty)},
 	});
 
-	auto perm_int_int = &LSArray<int>::is_permutation<int>;
-	auto perm_int_real = &LSArray<int>::is_permutation<double>;
-	auto perm_int_ptr = &LSArray<int>::is_permutation<LSValue*>;
-	auto perm_real_int = &LSArray<double>::is_permutation<int>;
-	auto perm_real_real = &LSArray<double>::is_permutation<double>;
-	auto perm_real_ptr = &LSArray<double>::is_permutation<LSValue*>;
-	auto perm_ptr_int = &LSArray<LSValue*>::is_permutation<int>;
-	auto perm_ptr_real = &LSArray<LSValue*>::is_permutation<double>;
-	auto perm_ptr_ptr = &LSArray<LSValue*>::is_permutation<LSValue*>;
+	auto perm_int_int = ADDR(&LSArray<int>::is_permutation<int>);
+	auto perm_int_real = ADDR(&LSArray<int>::is_permutation<double>);
+	auto perm_int_ptr = ADDR(&LSArray<int>::is_permutation<LSValue*>);
+	auto perm_real_int = ADDR(&LSArray<double>::is_permutation<int>);
+	auto perm_real_real = ADDR(&LSArray<double>::is_permutation<double>);
+	auto perm_real_ptr = ADDR(&LSArray<double>::is_permutation<LSValue*>);
+	auto perm_ptr_int = ADDR(&LSArray<LSValue*>::is_permutation<int>);
+	auto perm_ptr_real = ADDR(&LSArray<LSValue*>::is_permutation<double>);
+	auto perm_ptr_ptr = ADDR(&LSArray<LSValue*>::is_permutation<LSValue*>);
 	method("isPermutation", {
 		{Type::boolean, {Type::array(), Type::array()}, (void*) perm_ptr_ptr},
 		{Type::boolean, {Type::array(), Type::array(Type::real)}, (void*) perm_ptr_real},
@@ -220,30 +222,30 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	});
 
 	method("pop", {
-		{Type::tmp_any, {Type::array()}, (void*) &LSArray<LSValue*>::ls_pop, THROWS},
-		{Type::real, {Type::array(Type::real)}, (void*) &LSArray<double>::ls_pop, THROWS},
-		{Type::integer, {Type::array(Type::integer)}, (void*) &LSArray<int>::ls_pop, THROWS},
+		{Type::tmp_any, {Type::array()}, ADDR((void*) &LSArray<LSValue*>::ls_pop), THROWS},
+		{Type::real, {Type::array(Type::real)}, ADDR((void*) &LSArray<double>::ls_pop), THROWS},
+		{Type::integer, {Type::array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_pop), THROWS},
 	});
 
 	method("product", {
-		{Type::real, {Type::array(Type::real)}, (void*) &LSArray<double>::ls_product},
-		{Type::integer, {Type::array(Type::integer)}, (void*) &LSArray<int>::ls_product}
+		{Type::real, {Type::array(Type::real)}, ADDR((void*) &LSArray<double>::ls_product)},
+		{Type::integer, {Type::array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_product)}
 	});
 
 	auto pT = Type::template_("T");
 	auto pE = Type::template_("E");
 	template_(pT, pE).
 	method("push", {
-		{Type::array(Type::any), {Type::array(), Type::const_any}, (void*) &LSArray<LSValue*>::ls_push, 0, { new ConvertMutator() }},
+		{Type::array(Type::any), {Type::array(), Type::const_any}, ADDR((void*) &LSArray<LSValue*>::ls_push), 0, { new ConvertMutator() }},
 		{Type::array(Type::meta_mul(pT, Type::meta_not_temporary(pE))), {Type::array(pT), pE}, ADDR(push), 0, { new ConvertMutator() }},
 	});
 
 	// void (LSArray<int>::*push_int)(int&&) = &LSArray<int>::push_back;
 	method("vpush", {
-		{Type::void_, {Type::array(Type::boolean), Type::boolean}, (void*) &LSArray<char>::ls_push},
-		{Type::void_, {Type::array(Type::integer), Type::integer}, (void*) &LSArray<int>::ls_push},
-		{Type::void_, {Type::array(Type::real), Type::real}, (void*) &LSArray<double>::ls_push},
-		{Type::void_, {Type::array(Type::any), Type::any}, (void*) &LSArray<LSValue*>::push_inc},
+		{Type::void_, {Type::array(Type::boolean), Type::boolean}, ADDR((void*) &LSArray<char>::ls_push)},
+		{Type::void_, {Type::array(Type::integer), Type::integer}, ADDR((void*) &LSArray<int>::ls_push)},
+		{Type::void_, {Type::array(Type::real), Type::real}, ADDR((void*) &LSArray<double>::ls_push)},
+		{Type::void_, {Type::array(Type::any), Type::any}, ADDR((void*) &LSArray<LSValue*>::push_inc)},
 	});
 
 	auto paX = Type::template_("X");
@@ -254,13 +256,13 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	});
 
 	method("join", {
-		{Type::string, {Type::const_array(), Type::const_string}, (void*) &LSArray<LSValue*>::ls_join},
-		{Type::string, {Type::const_array(Type::real), Type::const_string}, (void*) &LSArray<double>::ls_join},
-		{Type::string, {Type::const_array(Type::integer), Type::const_string}, (void*) &LSArray<int>::ls_join},
+		{Type::string, {Type::const_array(), Type::const_string}, ADDR((void*) &LSArray<LSValue*>::ls_join)},
+		{Type::string, {Type::const_array(Type::real), Type::const_string}, ADDR((void*) &LSArray<double>::ls_join)},
+		{Type::string, {Type::const_array(Type::integer), Type::const_string}, ADDR((void*) &LSArray<int>::ls_join)},
 	});
 
 	method("json", {
-		{Type::string, {Type::array()}, (void*) &LSValue::ls_json},
+		{Type::string, {Type::array()}, ADDR((void*) &LSValue::ls_json)},
 	});
 
 	auto T = Type::template_("T");
@@ -271,21 +273,21 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	});
 
 	method("insert", {
-		{Type::array(Type::any), {Type::array(), Type::any, Type::integer}, (void*) &LSArray<LSValue*>::ls_insert},
-		{Type::array(Type::real), {Type::array(Type::real), Type::real, Type::integer}, (void*) &LSArray<double>::ls_insert},
-		{Type::array(Type::integer), {Type::array(Type::integer), Type::integer, Type::integer}, (void*) &LSArray<int>::ls_insert},
+		{Type::array(Type::any), {Type::array(), Type::any, Type::integer}, ADDR((void*) &LSArray<LSValue*>::ls_insert)},
+		{Type::array(Type::real), {Type::array(Type::real), Type::real, Type::integer}, ADDR((void*) &LSArray<double>::ls_insert)},
+		{Type::array(Type::integer), {Type::array(Type::integer), Type::integer, Type::integer}, ADDR((void*) &LSArray<int>::ls_insert)},
 	});
 
 	method("random", {
-		{Type::tmp_array(), {Type::const_array(), Type::const_integer}, (void*) &LSArray<LSValue*>::ls_random},
-		{Type::tmp_array(Type::real), {Type::const_array(Type::real), Type::const_integer}, (void*) &LSArray<double>::ls_random},
-		{Type::tmp_array(Type::integer), {Type::const_array(Type::integer), Type::const_integer}, (void*) &LSArray<int>::ls_random},
+		{Type::tmp_array(), {Type::const_array(), Type::const_integer}, ADDR((void*) &LSArray<LSValue*>::ls_random)},
+		{Type::tmp_array(Type::real), {Type::const_array(Type::real), Type::const_integer}, ADDR((void*) &LSArray<double>::ls_random)},
+		{Type::tmp_array(Type::integer), {Type::const_array(Type::integer), Type::const_integer}, ADDR((void*) &LSArray<int>::ls_random)},
 	});
 
 	method("remove", {
-		{Type::any, {Type::array(), Type::integer}, (void*)&LSArray<LSValue*>::ls_remove},
-		{Type::real, {Type::array(Type::real), Type::integer}, (void*)&LSArray<double>::ls_remove},
-		{Type::integer, {Type::array(Type::integer), Type::integer}, (void*)&LSArray<int>::ls_remove},
+		{Type::any, {Type::array(), Type::integer}, ADDR((void*) &LSArray<LSValue*>::ls_remove)},
+		{Type::real, {Type::array(Type::real), Type::integer}, ADDR((void*) &LSArray<double>::ls_remove)},
+		{Type::integer, {Type::array(Type::integer), Type::integer}, ADDR((void*) &LSArray<int>::ls_remove)},
 	});
 
 	method("removeElement", {
@@ -297,21 +299,21 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	});
 
 	method("reverse", {
-		{Type::tmp_array(), {Type::const_array()}, (void*) &LSArray<LSValue*>::ls_reverse},
-		{Type::tmp_array(Type::real), {Type::const_array(Type::real)}, (void*) &LSArray<double>::ls_reverse},
-		{Type::tmp_array(Type::integer), {Type::const_array(Type::integer)}, (void*) &LSArray<int>::ls_reverse},
+		{Type::tmp_array(), {Type::const_array()}, ADDR((void*) &LSArray<LSValue*>::ls_reverse)},
+		{Type::tmp_array(Type::real), {Type::const_array(Type::real)}, ADDR((void*) &LSArray<double>::ls_reverse)},
+		{Type::tmp_array(Type::integer), {Type::const_array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_reverse)},
 	});
 
 	method("shuffle", {
-		{Type::tmp_array(Type::any), {Type::array()}, (void*) &LSArray<LSValue*>::ls_shuffle},
-		{Type::tmp_array(Type::real), {Type::array(Type::real)}, (void*) &LSArray<double>::ls_shuffle},
-		{Type::tmp_array(Type::integer), {Type::array(Type::integer)}, (void*) &LSArray<int>::ls_shuffle},
+		{Type::tmp_array(Type::any), {Type::array()}, ADDR((void*) &LSArray<LSValue*>::ls_shuffle)},
+		{Type::tmp_array(Type::real), {Type::array(Type::real)}, ADDR((void*) &LSArray<double>::ls_shuffle)},
+		{Type::tmp_array(Type::integer), {Type::array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_shuffle)},
 	});
 
 	method("search", {
-		{Type::integer, {Type::const_array(), Type::const_any, Type::const_integer}, (void*) &LSArray<LSValue*>::ls_search},
-		{Type::integer, {Type::const_array(Type::real), Type::const_real, Type::const_integer}, (void*) &LSArray<double>::ls_search},
-		{Type::integer, {Type::const_array(Type::integer), Type::const_integer, Type::const_integer}, (void*) &LSArray<int>::ls_search},
+		{Type::integer, {Type::const_array(), Type::const_any, Type::const_integer}, ADDR((void*) &LSArray<LSValue*>::ls_search)},
+		{Type::integer, {Type::const_array(Type::real), Type::const_real, Type::const_integer}, ADDR((void*) &LSArray<double>::ls_search)},
+		{Type::integer, {Type::const_array(Type::integer), Type::const_integer, Type::const_integer}, ADDR((void*) &LSArray<int>::ls_search)},
 	});
 
 	method("size", {
@@ -322,47 +324,47 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	});
 
 	method("sum", {
-		{Type::any, {Type::const_array()}, (void*) &LSArray<LSValue*>::ls_sum},
-		{Type::real, {Type::const_array(Type::real)}, (void*) &LSArray<double>::ls_sum},
-		{Type::integer, {Type::const_array(Type::integer)}, (void*) &LSArray<int>::ls_sum},
+		{Type::any, {Type::const_array()}, ADDR((void*) &LSArray<LSValue*>::ls_sum)},
+		{Type::real, {Type::const_array(Type::real)}, ADDR((void*) &LSArray<double>::ls_sum)},
+		{Type::integer, {Type::const_array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_sum)},
 	});
 
 	method("subArray", {
-		{Type::tmp_array(), {Type::const_array(), Type::const_integer, Type::const_integer}, (void*) &sub},
-		{Type::tmp_array(Type::real), {Type::const_array(Type::real), Type::const_integer, Type::const_integer}, (void*) &sub},
-		{Type::tmp_array(Type::integer), {Type::const_array(Type::integer), Type::const_integer, Type::const_integer}, (void*) &sub},
+		{Type::tmp_array(), {Type::const_array(), Type::const_integer, Type::const_integer}, ADDR((void*) &sub)},
+		{Type::tmp_array(Type::real), {Type::const_array(Type::real), Type::const_integer, Type::const_integer}, ADDR((void*) &sub)},
+		{Type::tmp_array(Type::integer), {Type::const_array(Type::integer), Type::const_integer, Type::const_integer}, ADDR((void*) &sub)},
 	});
 
 	/** V1 **/
 	method("count", {
-		{Type::integer, {Type::any}, (void*) &LSArray<LSValue*>::ls_size}
+		{Type::integer, {Type::any}, ADDR((void*) &LSArray<LSValue*>::ls_size)}
 	});
 	method("inArray", {
-		{Type::boolean, {Type::array(), Type::any}, (void*) &LSArray<LSValue*>::ls_contains},
-		{Type::boolean, {Type::array(Type::real), Type::real}, (void*) &LSArray<double>::ls_contains},
-		{Type::boolean, {Type::array(Type::integer), Type::integer}, (void*) &LSArray<int>::ls_contains}
+		{Type::boolean, {Type::array(), Type::any}, ADDR((void*) &LSArray<LSValue*>::ls_contains)},
+		{Type::boolean, {Type::array(Type::real), Type::real}, ADDR((void*) &LSArray<double>::ls_contains)},
+		{Type::boolean, {Type::array(Type::integer), Type::integer}, ADDR((void*) &LSArray<int>::ls_contains)}
 	});
 
 	/** Internal **/
 	method("convert_key", {
-		{Type::integer, {Type::const_any}, (void*) &convert_key}
+		{Type::integer, {Type::const_any}, ADDR((void*) &convert_key)}
 	});
 	method("in", {
-		{Type::boolean, {Type::const_array(Type::any), Type::const_any}, (void*) &LSArray<LSValue*>::in},
-		{Type::boolean, {Type::const_array(Type::real), Type::const_any}, (void*) &LSArray<double>::in},
-		{Type::boolean, {Type::const_array(Type::integer), Type::integer}, (void*) &LSArray<int>::in_i},
+		{Type::boolean, {Type::const_array(Type::any), Type::const_any}, ADDR((void*) &LSArray<LSValue*>::in)},
+		{Type::boolean, {Type::const_array(Type::real), Type::const_any}, ADDR((void*) &LSArray<double>::in)},
+		{Type::boolean, {Type::const_array(Type::integer), Type::integer}, ADDR((void*) &LSArray<int>::in_i)},
 	});
 	method("isize", {
-		{Type::integer, {Type::array(Type::any)}, (void*) &LSArray<LSValue*>::int_size},
-		{Type::integer, {Type::array(Type::real)}, (void*) &LSArray<double>::int_size},
-		{Type::integer, {Type::array(Type::integer)}, (void*) &LSArray<int>::int_size},
+		{Type::integer, {Type::array(Type::any)}, ADDR((void*) &LSArray<LSValue*>::int_size)},
+		{Type::integer, {Type::array(Type::real)}, ADDR((void*) &LSArray<double>::int_size)},
+		{Type::integer, {Type::array(Type::integer)}, ADDR((void*) &LSArray<int>::int_size)},
 	});
 	method("to_bool", {
-		{Type::boolean, {Type::array()}, (void*) &LSArray<int>::to_bool}
+		{Type::boolean, {Type::array()}, ADDR((void*) &LSArray<int>::to_bool)}
 	});
-	auto sort_fun_int = &LSArray<int>::ls_sort_fun<LSFunction*>;
-	auto sort_fun_real = &LSArray<double>::ls_sort_fun<LSFunction*>;
-	auto sort_fun_any = &LSArray<LSValue*>::ls_sort_fun<LSFunction*>;
+	auto sort_fun_int = ADDR(&LSArray<int>::ls_sort_fun<LSFunction*>);
+	auto sort_fun_real = ADDR(&LSArray<double>::ls_sort_fun<LSFunction*>);
+	auto sort_fun_any = ADDR(&LSArray<LSValue*>::ls_sort_fun<LSFunction*>);
 	method("sort_fun", {
 		{Type::array(), {Type::array(), (const Type*) Type::fun_object(Type::void_, {})}, (void*) sort_fun_any},
 		{Type::array(), {Type::array(), (const Type*) Type::fun_object(Type::void_, {})}, (void*) sort_fun_real},
@@ -370,32 +372,32 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	});
 
 	method("fill_fun", {
-		{Type::array(), {Type::array(), Type::any, Type::integer}, (void*) &LSArray<LSValue*>::ls_fill},
-		{Type::array(), {Type::array(), Type::real, Type::integer}, (void*) &LSArray<double>::ls_fill},
-		{Type::array(), {Type::array(), Type::integer, Type::integer}, (void*) &LSArray<int>::ls_fill},
-		{Type::array(), {Type::array(), Type::boolean, Type::integer}, (void*) &LSArray<char>::ls_fill},
+		{Type::array(), {Type::array(), Type::any, Type::integer}, ADDR((void*) &LSArray<LSValue*>::ls_fill)},
+		{Type::array(), {Type::array(), Type::real, Type::integer}, ADDR((void*) &LSArray<double>::ls_fill)},
+		{Type::array(), {Type::array(), Type::integer, Type::integer}, ADDR((void*) &LSArray<int>::ls_fill)},
+		{Type::array(), {Type::array(), Type::boolean, Type::integer}, ADDR((void*) &LSArray<char>::ls_fill)},
 	});
 	method("remove_element_fun", {
-		{Type::boolean, {Type::array(), Type::any}, (void*) &LSArray<LSValue*>::ls_remove_element},
-		{Type::boolean, {Type::array(), Type::any}, (void*) &LSArray<double>::ls_remove_element},
-		{Type::boolean, {Type::array(), Type::any}, (void*) &LSArray<int>::ls_remove_element},
+		{Type::boolean, {Type::array(), Type::any}, ADDR((void*) &LSArray<LSValue*>::ls_remove_element)},
+		{Type::boolean, {Type::array(), Type::any}, ADDR((void*) &LSArray<double>::ls_remove_element)},
+		{Type::boolean, {Type::array(), Type::any}, ADDR((void*) &LSArray<int>::ls_remove_element)},
 	});
 	method("int_to_any", {
-		{Type::array(Type::any), {Type::array(Type::integer)}, (void*) &LSArray<int>::to_any_array}
+		{Type::array(Type::any), {Type::array(Type::integer)}, ADDR((void*) &LSArray<int>::to_any_array)}
 	});
 	method("real_to_any", {
-		{Type::array(Type::any), {Type::array(Type::real)}, (void*) &LSArray<double>::to_any_array}
+		{Type::array(Type::any), {Type::array(Type::real)}, ADDR((void*) &LSArray<double>::to_any_array)}
 	});
 	method("int_to_real", {
-		{Type::array(Type::any), {Type::array(Type::real)}, (void*) &LSArray<int>::to_real_array}
+		{Type::array(Type::any), {Type::array(Type::real)}, ADDR((void*) &LSArray<int>::to_real_array)}
 	});
 	method("push_all_fun", {
-		{Type::array(Type::any), {Type::array(Type::any), Type::array(Type::any)}, (void*) &LSArray<LSValue*>::ls_push_all_ptr},
-		{Type::array(Type::any), {Type::array(Type::any), Type::array(Type::real)}, (void*) &LSArray<LSValue*>::ls_push_all_flo},
-		{Type::array(Type::any), {Type::array(Type::any), Type::array(Type::integer)}, (void*) &LSArray<LSValue*>::ls_push_all_int},
-		{Type::array(Type::real), {Type::array(Type::real), Type::array(Type::real)}, (void*) &LSArray<double>::ls_push_all_flo},
-		{Type::array(Type::real), {Type::array(Type::real), Type::array(Type::integer)}, (void*) &LSArray<double>::ls_push_all_int},
-		{Type::array(Type::integer), {Type::array(Type::integer), Type::array(Type::integer)}, (void*) &LSArray<int>::ls_push_all_int},
+		{Type::array(Type::any), {Type::array(Type::any), Type::array(Type::any)}, ADDR((void*) &LSArray<LSValue*>::ls_push_all_ptr)},
+		{Type::array(Type::any), {Type::array(Type::any), Type::array(Type::real)}, ADDR((void*) &LSArray<LSValue*>::ls_push_all_flo)},
+		{Type::array(Type::any), {Type::array(Type::any), Type::array(Type::integer)}, ADDR((void*) &LSArray<LSValue*>::ls_push_all_int)},
+		{Type::array(Type::real), {Type::array(Type::real), Type::array(Type::real)}, ADDR((void*) &LSArray<double>::ls_push_all_flo)},
+		{Type::array(Type::real), {Type::array(Type::real), Type::array(Type::integer)}, ADDR((void*) &LSArray<double>::ls_push_all_int)},
+		{Type::array(Type::integer), {Type::array(Type::integer), Type::array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_push_all_int)},
 	});
 }
 

@@ -1,6 +1,8 @@
 #include "ClassSTD.hpp"
-#include "../value/LSClass.hpp"
 #include "../../type/Type.hpp"
+#if COMPILER
+#include "../../vm/value/LSClass.hpp"
+#endif
 
 namespace ls {
 
@@ -13,12 +15,12 @@ ClassSTD::ClassSTD(VM* vm) : Module(vm, "Class") {
 	field("name", Type::string);
 
 	constructor_({
-		{Type::clazz(), {Type::i8_ptr}, (void*) LSClass::constructor},
+		{Type::clazz(), {Type::i8_ptr}, ADDR((void*) LSClass::constructor)},
 	});
 
 	/** Internal **/
 	method("add_field", {
-		{Type::void_, {Type::clazz(), Type::i8_ptr, Type::any}, (void*) add_field}
+		{Type::void_, {Type::clazz(), Type::i8_ptr, Type::any}, ADDR((void*) add_field)}
 	});
 }
 

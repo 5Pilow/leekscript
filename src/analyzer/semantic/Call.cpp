@@ -1,7 +1,7 @@
 #include "Call.hpp"
 #include "../value/Value.hpp"
 #include "Callable.hpp"
-#include "../../vm/Module.hpp"
+#include "../../standard/Module.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
 #include "../value/LeftValue.hpp"
 #include "CallableVersion.hpp"

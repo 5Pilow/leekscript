@@ -8,8 +8,8 @@
 #include "../../vm/value/LSString.hpp"
 #include "../../vm/value/LSSet.hpp"
 #include "../../vm/value/LSClass.hpp"
-#include "../../vm/Module.hpp"
-#include "../../vm/Program.hpp"
+#include "../../standard/Module.hpp"
+#include "../Program.hpp"
 #include "../semantic/Variable.hpp"
 
 namespace ls {

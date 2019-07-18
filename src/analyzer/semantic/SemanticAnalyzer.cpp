@@ -1,10 +1,10 @@
 #include "SemanticAnalyzer.hpp"
 #include "../instruction/ExpressionInstruction.hpp"
-#include "../../vm/Program.hpp"
-#include "../../vm/Context.hpp"
+#include "../Program.hpp"
+#include "../Context.hpp"
 #include "../error/Error.hpp"
 #include "../instruction/VariableDeclaration.hpp"
-#include "../../vm/Module.hpp"
+#include "../../standard/Module.hpp"
 #include <functional>
 #include "Variable.hpp"
 #include "FunctionVersion.hpp"

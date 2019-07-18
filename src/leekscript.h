@@ -2,11 +2,11 @@
 #define LEEKSCRIPT_H__
 
 #include "vm/VM.hpp"
-#include "vm/Module.hpp"
+#include "standard/Module.hpp"
 #include "vm/value/LSNumber.hpp"
 #include "vm/value/LSArray.hpp"
 #include "vm/value/LSObject.hpp"
-#include "vm/Program.hpp"
+#include "analyzer/Program.hpp"
 #include "type/Integer_type.hpp"
 #include "type/Object_type.hpp"
 #include "analyzer/semantic/Callable.hpp"

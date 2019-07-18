@@ -4,7 +4,7 @@
 #include "../../type/Meta_mul_type.hpp"
 #include "../../type/Meta_baseof_type.hpp"
 #include "../../type/Meta_not_temporary_type.hpp"
-#include "../../vm/Module.hpp"
+#include "../../standard/Module.hpp"
 #include "../../colors.h"
 #include "../value/ObjectAccess.hpp"
 #include "FunctionVersion.hpp"

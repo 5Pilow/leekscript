@@ -3,11 +3,13 @@
 
 #include <string>
 #include <vector>
-#include "value/LSClass.hpp"
 #include "../compiler/Compiler.hpp"
 #include "TypeMutator.hpp"
 #include "../analyzer/semantic/CallableVersion.hpp"
 #include "../analyzer/semantic/Class.hpp"
+#if COMPILER
+#include "../vm/value/LSClass.hpp"
+#endif
 
 namespace ls {
 
@@ -18,7 +20,7 @@ class VM;
 class Type;
 
 #if COMPILER
-#define ADDR(x) (x)
+#define ADDR(X) (X)
 #else
 #define ADDR(x) ((void*) 0x0)
 #endif

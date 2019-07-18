@@ -1,10 +1,12 @@
 #include "JsonSTD.hpp"
-#include "../LSValue.hpp"
-#include "../value/LSNull.hpp"
-#include "../value/LSString.hpp"
-#include "../value/LSNumber.hpp"
 #include <chrono>
 #include "../../type/Type.hpp"
+#if COMPILER
+#include "../../vm/LSValue.hpp"
+#include "../../vm/value/LSNull.hpp"
+#include "../../vm/value/LSString.hpp"
+#include "../../vm/value/LSNumber.hpp"
+#endif
 
 namespace ls {
 
@@ -14,7 +16,7 @@ JsonSTD::JsonSTD(VM* vm) : Module(vm, "Json") {
 		{Type::tmp_string, {Type::const_any}, ADDR(encode)}
 	});
 	method("decode", {
-		{Type::tmp_any, {Type::const_string}, (void*) decode},
+		{Type::tmp_any, {Type::const_string}, ADDR((void*) decode)},
 	});
 }
 

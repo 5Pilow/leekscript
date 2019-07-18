@@ -1,8 +1,10 @@
 #include "BooleanSTD.hpp"
-#include "../value/LSBoolean.hpp"
-#include "../value/LSString.hpp"
-#include "../value/LSNumber.hpp"
 #include "../../type/Type.hpp"
+#if COMPILER
+#include "../../vm/value/LSBoolean.hpp"
+#include "../../vm/value/LSString.hpp"
+#include "../../vm/value/LSNumber.hpp"
+#endif
 
 namespace ls {
 
@@ -13,8 +15,8 @@ BooleanSTD::BooleanSTD(VM* vm) : Module(vm, "Boolean") {
 	#endif
 
 	operator_("+", {
-		{Type::const_boolean, Type::const_string, Type::tmp_string, (void*) add},
-		{Type::const_boolean, Type::tmp_string, Type::tmp_string, (void*) add_tmp},
+		{Type::const_boolean, Type::const_string, Type::tmp_string, ADDR((void*) add)},
+		{Type::const_boolean, Type::tmp_string, Type::tmp_string, ADDR((void*) add_tmp)},
 		{Type::const_boolean, Type::const_boolean, Type::integer, ADDR(add_bool)},
 		{Type::const_boolean, Type::const_real, Type::real, ADDR(add_bool)},
 		{Type::const_boolean, Type::const_integer, Type::integer, ADDR(add_bool)}
@@ -33,13 +35,13 @@ BooleanSTD::BooleanSTD(VM* vm) : Module(vm, "Boolean") {
 	});
 
 	method("compare", {
-		{Type::any, {Type::const_any, Type::const_any}, (void*) compare_ptr_ptr_ptr},
+		{Type::any, {Type::const_any, Type::const_any}, ADDR((void*) compare_ptr_ptr_ptr)},
 		{Type::integer, {Type::const_boolean, Type::const_any}, ADDR(compare_val_val)}
 	});
 
 	/** Internal **/
 	method("to_string", {
-		{Type::tmp_string, {Type::boolean}, (void*) to_string}
+		{Type::tmp_string, {Type::boolean}, ADDR((void*) to_string)}
 	});
 }
 

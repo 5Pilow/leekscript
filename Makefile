@@ -1,8 +1,8 @@
 SRC_DIR := src/vm src/vm/value src/vm/standard src/doc \
 src/analyzer src/analyzer/lexical src/analyzer/syntaxic src/analyzer/semantic src/analyzer/resolver src/analyzer/error src/analyzer/value src/analyzer/instruction \
-src/compiler src/type src/util
+src/compiler src/standard src/standard/class src/type src/util
 WEB_DIR := src/analyzer src/analyzer/lexical src/analyzer/syntaxic src/analyzer/semantic src/analyzer/resolver src/analyzer/error \
-src/analyzer/value src/analyzer/instruction src/type src/util
+src/analyzer/value src/analyzer/instruction src/standard src/standard/class src/type src/util
 TEST_DIR := test
 
 SRC := $(foreach d,$(SRC_DIR),$(wildcard $(d)/*.cpp))

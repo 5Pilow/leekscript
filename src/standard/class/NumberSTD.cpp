@@ -1,17 +1,20 @@
 #include "NumberSTD.hpp"
 #include "ValueSTD.hpp"
 #include "StringSTD.hpp"
-#include "../value/LSNumber.hpp"
-#include "../value/LSMpz.hpp"
-#include "../value/LSString.hpp"
-#include "../value/LSBoolean.hpp"
 #include "../../util/utf8.h"
-#include "../../compiler/Compiler.hpp"
-#include "../VM.hpp"
 #include "../../type/Type.hpp"
+#if COMPILER
+#include "../../compiler/Compiler.hpp"
+#include "../../vm/VM.hpp"
+#include "../../vm/value/LSNumber.hpp"
+#include "../../vm/value/LSMpz.hpp"
+#include "../../vm/value/LSString.hpp"
+#include "../../vm/value/LSBoolean.hpp"
+#endif
 
 namespace ls {
 
+#if COMPILER
 int mpz_log(__mpz_struct* n) {
 	// std::cout << "mpz_log size " << n._mp_size << std::endl;
 	// std::cout << "mpz_log alloc " << n._mp_alloc << std::endl;
@@ -22,6 +25,7 @@ int mpz_log(__mpz_struct* n) {
 	while (s >>= 1) r++;
 	return 64 * l + r + 1;
 }
+#endif
 
 NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 
@@ -29,18 +33,18 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 	LSNumber::clazz = lsclass.get();
 	#endif
 
-	static_field("pi", Type::real, [](Compiler& c) { return c.new_real(3.14159265358979323846); });
-	static_field("e", Type::real, [](Compiler& c) { return c.new_real(M_E); });
-	static_field("phi", Type::real, [](Compiler& c) { return c.new_real(1.61803398874989484820); });
-	static_field("epsilon", Type::real, [](Compiler& c) { return c.new_real(std::numeric_limits<double>::epsilon()); });
+	static_field("pi", Type::real, ADDR(([](Compiler& c) { return c.new_real(3.14159265358979323846); })));
+	static_field("e", Type::real, ADDR(([](Compiler& c) { return c.new_real(M_E); })));
+	static_field("phi", Type::real, ADDR(([](Compiler& c) { return c.new_real(1.61803398874989484820); })));
+	static_field("epsilon", Type::real, ADDR(([](Compiler& c) { return c.new_real(std::numeric_limits<double>::epsilon()); })));
 
 	/*
 	 * Constructors
 	 */
 	constructor_({
-		{Type::any, {Type::integer}, (void*) &LSNumber::get},
-		{Type::any, {Type::tmp_mpz}, (void*) &LSMpz::get_from_tmp},
-		{Type::any, {Type::mpz}, (void*) &LSMpz::get_from_mpz},
+		{Type::any, {Type::integer}, ADDR((void*) &LSNumber::get)},
+		{Type::any, {Type::tmp_mpz}, ADDR((void*) &LSMpz::get_from_tmp)},
+		{Type::any, {Type::mpz}, ADDR((void*) &LSMpz::get_from_mpz)},
 	});
 
 	/*
@@ -57,7 +61,7 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 		{Type::real, Type::real, Type::real, ADDR(add_real_real)},
 		{Type::long_, Type::long_, Type::long_, ADDR(add_real_real)},
 		{Type::const_integer, Type::const_integer, Type::integer, ADDR(add_real_real)},
-		{Type::const_integer, Type::const_string, Type::tmp_string, (void*) &StringSTD::add_int_r}
+		{Type::const_integer, Type::const_string, Type::tmp_string, ADDR((void*) &StringSTD::add_int_r)}
 	});
 	operator_("+=", {
 		{Type::mpz_ptr, Type::mpz_ptr, Type::tmp_mpz_ptr, ADDR(add_eq_mpz_mpz), 0, { new ConvertMutator() }, true},
@@ -82,7 +86,7 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 		{Type::const_integer, Type::mpz_ptr, Type::tmp_mpz_ptr, ADDR(mul_int_mpz)},
 		{Type::mpz_ptr, Type::integer, Type::tmp_mpz_ptr, ADDR(mul_mpz_int)},
 		{Type::const_integer, Type::const_integer, Type::integer, ADDR(mul_real_real)},
-		{Type::const_integer, Type::const_string, Type::string, (void*) mul_int_string},
+		{Type::const_integer, Type::const_string, Type::string, ADDR((void*) mul_int_string)},
 		{Type::mpz, Type::mpz_ptr, Type::tmp_mpz_ptr, ADDR(mul_tmp_mpz_mpz)},
 		{Type::mpz_ptr, Type::mpz, Type::tmp_mpz_ptr, ADDR(mul_mpz_tmp_mpz)},
 		{Type::mpz_ptr, Type::mpz_ptr, Type::tmp_mpz_ptr, ADDR(mul_mpz_mpz)},
@@ -196,7 +200,7 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 	auto absT = Type::template_("T");
 	template_(absT).
 	method("abs", {
-		{Type::any, {Type::any}, (void*) abs_ptr},
+		{Type::any, {Type::any}, ADDR((void*) abs_ptr)},
 		{absT, {absT}, ADDR(abs)}
 	});
 	int (*abs_int)(int) = std::abs;
@@ -208,15 +212,15 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 		{Type::real, {Type::real}, (void*) abs_real},
 	});
 	method("acos", {
-		{Type::real, {Type::any}, (void*) acos_ptr},
+		{Type::real, {Type::any}, ADDR((void*) acos_ptr)},
 		{Type::real, {Type::real}, ADDR(acos_real)},
 	});
 	method("asin", {
-		{Type::real, {Type::any}, (void*) asin_ptr},
+		{Type::real, {Type::any}, ADDR((void*) asin_ptr)},
 		{Type::real, {Type::real}, ADDR(asin_real)},
 	});
 	method("atan", {
-		{Type::real, {Type::any}, (void*) atan_ptr},
+		{Type::real, {Type::any}, ADDR((void*) atan_ptr)},
 		{Type::real, {Type::real}, ADDR(atan_real)},
 	});
 
@@ -226,44 +230,44 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 	auto atan2T2 = Type::meta_base_of(Type::template_("T2"), Type::number);
 	template_(atan2T1, atan2T2).
 	method("atan2", {
-		{Type::any, {Type::any, Type::any}, (void*) atan2_ptr_ptr, DEFAULT},
+		{Type::any, {Type::any, Type::any}, ADDR((void*) atan2_ptr_ptr), DEFAULT},
 		{Type::real, {atan2T1, atan2T2}, ADDR(atan2)},
 	});
 
 	double (*cbrtreal)(double) = std::cbrt;
 	double (*cbrtint)(int) = std::cbrt;
 	method("cbrt", {
-		{Type::any, {Type::any}, (void*) cbrt_ptr},
+		{Type::any, {Type::any}, ADDR((void*) cbrt_ptr)},
 		{Type::real, {Type::real}, (void*) cbrtreal},
 		{Type::real, {Type::integer}, (void*) cbrtint},
 	});
 	method("ceil", {
-		{Type::integer, {Type::any}, (void*) ceil_ptr},
+		{Type::integer, {Type::any}, ADDR((void*) ceil_ptr)},
 		{Type::integer, {Type::real}, ADDR(ceil_real)},
 		{Type::integer, {Type::integer}, ADDR(ceil_int)},
 	});
 	method("char", {
-		{Type::tmp_string, {Type::const_any}, (void*) char_ptr},
-		{Type::tmp_string, {Type::real}, (void*) char_real},
-		{Type::tmp_string, {Type::const_integer}, (void*) char_int},
+		{Type::tmp_string, {Type::const_any}, ADDR((void*) char_ptr)},
+		{Type::tmp_string, {Type::real}, ADDR((void*) char_real)},
+		{Type::tmp_string, {Type::const_integer}, ADDR((void*) char_int)},
 	});
 	method("cos", {
-		{Type::any, {Type::any}, (void*) cos_ptr},
+		{Type::any, {Type::any}, ADDR((void*) cos_ptr)},
 		{Type::real, {Type::real}, ADDR(cos_real)},
 	});
 	method("exp", {
-		{Type::real, {Type::any}, (void*) exp_ptr},
+		{Type::real, {Type::any}, ADDR((void*) exp_ptr)},
 		{Type::real, {Type::real}, ADDR(exp_real)},
 	});
 	auto fold_fun_type = Type::fun_object(Type::any, {Type::any, Type::integer});
-	auto fold_fun = &LSNumber::ls_fold<LSFunction*>;
+	auto fold_fun = ADDR(&LSNumber::ls_fold<LSFunction*>);
 	method("fold", {
 		{Type::any, {Type::any, fold_fun_type, Type::any}, (void*) fold_fun},
 		{Type::any, {Type::any, fold_fun_type, Type::any}, ADDR(fold)}
 	});
 
 	method("floor", {
-		{Type::long_, {Type::any}, (void*) floor_ptr},
+		{Type::long_, {Type::any}, ADDR((void*) floor_ptr)},
 		{Type::long_, {Type::real}, ADDR(floor_real)},
 		{Type::long_, {Type::long_}, ADDR(floor_real)},
 		{Type::integer, {Type::integer}, ADDR(floor_real)},
@@ -274,11 +278,11 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 		{Type::real, {Type::real, Type::real}, (void*) std::hypot<double, double>},
 	});
 	method("log", {
-		{Type::real, {Type::any}, (void*) log_ptr},
+		{Type::real, {Type::any}, ADDR((void*) log_ptr)},
 		{Type::real, {Type::real}, ADDR(log_real)},
 	});
 	method("log10", {
-		{Type::real, {Type::any}, (void*) log10_ptr},
+		{Type::real, {Type::any}, ADDR((void*) log10_ptr)},
 		{Type::real, {Type::long_}, ADDR(log10_real)},
 		{Type::real, {Type::real}, ADDR(log10_real)},
 	});
@@ -289,7 +293,7 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 	auto maxT2 = Type::meta_base_of(Type::template_("T2"), Type::number);
 	template_(maxT1, maxT2).
 	method("max", {
-		{Type::any, {Type::any, Type::any}, (void*) max_ptr_ptr, DEFAULT},
+		{Type::any, {Type::any, Type::any}, ADDR((void*) max_ptr_ptr), DEFAULT},
 		{Type::meta_mul(maxT1, maxT2), {maxT1, maxT2}, ADDR(max)},
 	});
 
@@ -299,29 +303,29 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 	auto minT2 = Type::meta_base_of(Type::template_("T2"), Type::number);
 	template_(minT1, minT2).
 	method("min", {
-		{Type::real, {Type::any, Type::any}, (void*) min_ptr_ptr, DEFAULT},
+		{Type::real, {Type::any, Type::any}, ADDR((void*) min_ptr_ptr), DEFAULT},
 		{Type::meta_mul(minT1, minT2), {minT1, minT2}, ADDR(min)},
 	});
 
 	method("pow", {
-		{Type::real, {Type::any, Type::any}, (void*) pow_ptr},
+		{Type::real, {Type::any, Type::any}, ADDR((void*) pow_ptr)},
 		{Type::long_, {Type::long_, Type::integer}, ADDR(pow_int)},
 		{Type::real, {Type::long_, Type::long_}, ADDR(pow_int)},
 	});
 	method("round", {
-		{Type::integer, {Type::any}, (void*) round_ptr},
-		{Type::integer, {Type::any}, (void*) round_ptr},
+		{Type::integer, {Type::any}, ADDR((void*) round_ptr)},
+		{Type::integer, {Type::any}, ADDR((void*) round_ptr)},
 		{Type::integer, {Type::real}, ADDR(round_real)},
 		{Type::integer, {Type::integer}, ADDR(round_int)}
 	});
 	method("rand", {
-		{Type::real, {}, (void*) rand01},
+		{Type::real, {}, ADDR((void*) rand01)},
 	});
 	method("randInt", {
-		{Type::integer, {Type::integer, Type::integer}, (void*) rand_int},
+		{Type::integer, {Type::integer, Type::integer}, ADDR((void*) rand_int)},
 	});
 	method("randFloat", {
-		{Type::real, {Type::real, Type::real}, (void*) rand_real},
+		{Type::real, {Type::real, Type::real}, ADDR((void*) rand_real)},
 	});
 	method("signum", {
 		{Type::integer, {Type::any}, ADDR((void*) signum_ptr)},
@@ -336,7 +340,7 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 	method("sqrt", {
 		{Type::real, {Type::any}, ADDR((void*) sqrt_ptr)},
 		{Type::tmp_mpz_ptr, {Type::mpz_ptr}, ADDR(sqrt_mpz)},
-		{Type::real, {Type::real}, ADDR((void*) sqrt_real)},
+		{Type::real, {Type::real}, (void*) sqrt_real},
 		{Type::real, {Type::integer}, ADDR((void*) std::sqrt<int>)},
 	});
 	method("tan", {
@@ -362,7 +366,7 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 		{Type::boolean, {Type::long_}, ADDR((void*) is_prime_number<long>)},
 	});
 	method("isPalindrome", {
-		{Type::boolean, {Type::integer}, (void*) is_palindrome<int>}
+		{Type::boolean, {Type::integer}, ADDR((void*) is_palindrome<int>)}
 	});
 
 	/** Internal **/
@@ -376,76 +380,76 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 		{Type::real, {Type::integer, Type::integer}, (void*) std::pow<int, int>}
 	});
 	method("mpz_init", {
-		{Type::void_, {Type::mpz_ptr}, (void*) mpz_init}
+		{Type::void_, {Type::mpz_ptr}, ADDR((void*) mpz_init)}
 	});
 	method("mpz_init_set", {
-		{Type::void_, {Type::mpz_ptr}, (void*) mpz_init_set}
+		{Type::void_, {Type::mpz_ptr}, ADDR((void*) mpz_init_set)}
 	});
 	method("mpz_init_str", {
-		{Type::void_, {Type::mpz_ptr, Type::i8_ptr, Type::integer}, (void*) mpz_init_set_str}
+		{Type::void_, {Type::mpz_ptr, Type::i8_ptr, Type::integer}, ADDR((void*) mpz_init_set_str)}
 	});
 	method("mpz_get_ui", {
-		{{Type::long_}, {Type::mpz_ptr}, (void*) mpz_get_ui}
+		{{Type::long_}, {Type::mpz_ptr}, ADDR((void*) mpz_get_ui)}
 	});
 	method("mpz_get_si", {
-		{{Type::long_}, {Type::mpz_ptr}, (void*) mpz_get_si}
+		{{Type::long_}, {Type::mpz_ptr}, ADDR((void*) mpz_get_si)}
 	});
 	method("mpz_add", {
-		{Type::void_, {Type::mpz_ptr, Type::mpz_ptr, Type::mpz_ptr}, (void*) mpz_add}
+		{Type::void_, {Type::mpz_ptr, Type::mpz_ptr, Type::mpz_ptr}, ADDR((void*) mpz_add)}
 	});
 	method("mpz_add_ui", {
-		{Type::void_, {Type::mpz_ptr, Type::long_, Type::mpz_ptr}, (void*) mpz_add_ui}
+		{Type::void_, {Type::mpz_ptr, Type::long_, Type::mpz_ptr}, ADDR((void*) mpz_add_ui)}
 	});
 	method("mpz_sub", {
-		{Type::void_, {Type::mpz_ptr, Type::mpz_ptr, Type::mpz_ptr}, (void*) mpz_sub}
+		{Type::void_, {Type::mpz_ptr, Type::mpz_ptr, Type::mpz_ptr}, ADDR((void*) mpz_sub)}
 	});
 	method("mpz_sub_ui", {
-		{Type::void_, {Type::mpz_ptr, Type::long_, Type::mpz_ptr}, (void*) mpz_sub_ui}
+		{Type::void_, {Type::mpz_ptr, Type::long_, Type::mpz_ptr}, ADDR((void*) mpz_sub_ui)}
 	});
 	method("mpz_mul", {
-		{Type::void_, {Type::mpz_ptr, Type::mpz_ptr, Type::mpz_ptr}, (void*) mpz_mul}
+		{Type::void_, {Type::mpz_ptr, Type::mpz_ptr, Type::mpz_ptr}, ADDR((void*) mpz_mul)}
 	});
 	method("mpz_mul_si", {
-		{Type::void_, {Type::mpz_ptr, Type::long_, Type::mpz_ptr}, (void*) mpz_mul_si}
+		{Type::void_, {Type::mpz_ptr, Type::long_, Type::mpz_ptr}, ADDR((void*) mpz_mul_si)}
 	});
 	method("mpz_pow_ui", {
-		{Type::void_, {Type::mpz_ptr, Type::mpz_ptr, Type::integer}, (void*) mpz_pow_ui}
+		{Type::void_, {Type::mpz_ptr, Type::mpz_ptr, Type::integer}, ADDR((void*) mpz_pow_ui)}
 	});
 	method("mpz_mod", {
-		{Type::void_, {Type::mpz_ptr, Type::mpz_ptr, Type::mpz_ptr}, (void*) mpz_mod}
+		{Type::void_, {Type::mpz_ptr, Type::mpz_ptr, Type::mpz_ptr}, ADDR((void*) mpz_mod)}
 	});
 	method("mpz_probab_prime_p", {
-		{Type::integer, {Type::mpz_ptr, Type::integer}, (void*) mpz_probab_prime_p}
+		{Type::integer, {Type::mpz_ptr, Type::integer}, ADDR((void*) mpz_probab_prime_p)}
 	});
 	method("mpz_neg", {
-		{Type::void_, {Type::mpz_ptr, Type::mpz_ptr}, (void*) mpz_neg}
+		{Type::void_, {Type::mpz_ptr, Type::mpz_ptr}, ADDR((void*) mpz_neg)}
 	});
 	method("mpz_log", {
-		{{Type::integer}, {Type::mpz_ptr}, (void*) mpz_log}
+		{{Type::integer}, {Type::mpz_ptr}, ADDR((void*) mpz_log)}
 	});
 	method("mpz_cmp", {
-		{{Type::integer}, {Type::mpz_ptr, Type::mpz_ptr}, (void*) mpz_cmp}
+		{{Type::integer}, {Type::mpz_ptr, Type::mpz_ptr}, ADDR((void*) mpz_cmp)}
 	});
 	method("_mpz_cmp_si", {
-		{{Type::integer}, {Type::mpz_ptr, Type::long_}, (void*) _mpz_cmp_si}
+		{{Type::integer}, {Type::mpz_ptr, Type::long_}, ADDR((void*) _mpz_cmp_si)}
 	});
 	method("mpz_sqrt", {
-		{Type::void_, {Type::mpz_ptr, Type::mpz_ptr}, (void*) mpz_sqrt}
+		{Type::void_, {Type::mpz_ptr, Type::mpz_ptr}, ADDR((void*) mpz_sqrt)}
 	});
 	method("mpz_clear", {
-		{Type::void_, {Type::mpz_ptr}, (void*) mpz_clear}
+		{Type::void_, {Type::mpz_ptr}, ADDR((void*) mpz_clear)}
 	});
 	method("int_to_string", {
-		{Type::tmp_string, {Type::integer}, (void*) int_to_string}
+		{Type::tmp_string, {Type::integer}, ADDR((void*) int_to_string)}
 	});
 	method("long_to_string", {
-		{Type::tmp_string, {Type::long_}, (void*) long_to_string}
+		{Type::tmp_string, {Type::long_}, ADDR((void*) long_to_string)}
 	});
 	method("real_to_string", {
-		{Type::tmp_string, {Type::real}, (void*) real_to_string}
+		{Type::tmp_string, {Type::real}, ADDR((void*) real_to_string)}
 	});
 	method("mpz_to_string", {
-		{Type::tmp_string, {Type::mpz_ptr}, (void*) mpz_to_string}
+		{Type::tmp_string, {Type::mpz_ptr}, ADDR((void*) mpz_to_string)}
 	});
 	double (*logreal)(double) = std::log;
 	method("m_log", {
@@ -529,7 +533,7 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 		{Type::real, {Type::real, Type::real}, (void*) atan2real},
 	});
 	method("m_isint", {
-		{Type::boolean, {Type::any}, (void*) isint},
+		{Type::boolean, {Type::any}, ADDR((void*) isint)},
 	});
 }
 

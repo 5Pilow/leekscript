@@ -1,5 +1,5 @@
 #include "Test.hpp"
-#include "../src/vm/Context.hpp"
+#include "../src/analyzer/Context.hpp"
 #include "../src/vm/value/LSString.hpp"
 #include "../src/vm/value/LSArray.hpp"
 #include "../src/vm/value/LSSet.hpp"

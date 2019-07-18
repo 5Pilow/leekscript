@@ -1,6 +1,6 @@
 #include "Callable.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
-#include "../../vm/Module.hpp"
+#include "../../standard/Module.hpp"
 #include "CallableVersion.hpp"
 #include "../../type/Type.hpp"
 

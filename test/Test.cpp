@@ -3,7 +3,7 @@
 #include <string>
 #include "../src/constants.h"
 #include "../src/colors.h"
-#include "../src/vm/Program.hpp"
+#include "../src/analyzer/Program.hpp"
 #include "../src/leekscript.h"
 
 std::vector<std::string> Test::failed_tests;

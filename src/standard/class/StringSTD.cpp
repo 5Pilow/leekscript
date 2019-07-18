@@ -5,14 +5,17 @@
 #include "../../util/utf8.h"
 #include "StringSTD.hpp"
 #include "ValueSTD.hpp"
-#include "../value/LSNumber.hpp"
-#include "../value/LSArray.hpp"
-#include "../VM.hpp"
 #include "../../type/Type.hpp"
 #include "../../analyzer/semantic/Variable.hpp"
+#if COMPILER
+#include "../../vm/value/LSNumber.hpp"
+#include "../../vm/value/LSArray.hpp"
+#include "../../vm/VM.hpp"
+#endif
 
 namespace ls {
 
+#if COMPILER
 LSValue* string_charAt(LSString* string, int index);
 bool string_contains(LSString* haystack, LSString* needle);
 bool string_endsWith(LSString* string, LSString* ending);
@@ -69,6 +72,7 @@ LSString* iterator_get(unsigned int c, LSString* previous) {
 	s->refs = 1;
 	return s;
 }
+#endif
 
 StringSTD::StringSTD(VM* vm) : Module(vm, "String") {
 
@@ -80,20 +84,20 @@ StringSTD::StringSTD(VM* vm) : Module(vm, "String") {
 	 * Constructor
 	 */
 	constructor_({
-		{Type::tmp_string, {}, (void*) &LSString::constructor_1},
-		{Type::tmp_string, {Type::i8_ptr}, (void*) &LSString::constructor_2},
+		{Type::tmp_string, {}, ADDR((void*) &LSString::constructor_1)},
+		{Type::tmp_string, {Type::i8_ptr}, ADDR((void*) &LSString::constructor_2)},
 	});
 
 	/*
 	 * Operators
 	 */
 	operator_("+", {
-		{Type::string, Type::any, Type::tmp_string, (void*) plus_any},
-		{Type::string, Type::mpz_ptr, Type::tmp_string, (void*) plus_mpz},
-		{Type::string, Type::tmp_mpz_ptr, Type::tmp_string, (void*) plus_mpz_tmp},
-		{Type::string, Type::real, Type::tmp_string, (void*) add_real},
-		{Type::string, Type::integer, Type::tmp_string, (void*) add_int},
-		{Type::string, Type::boolean, Type::tmp_string, (void*) add_bool},
+		{Type::string, Type::any, Type::tmp_string, ADDR((void*) plus_any)},
+		{Type::string, Type::mpz_ptr, Type::tmp_string, ADDR((void*) plus_mpz)},
+		{Type::string, Type::tmp_mpz_ptr, Type::tmp_string, ADDR((void*) plus_mpz_tmp)},
+		{Type::string, Type::real, Type::tmp_string, ADDR((void*) add_real)},
+		{Type::string, Type::integer, Type::tmp_string, ADDR((void*) add_int)},
+		{Type::string, Type::boolean, Type::tmp_string, ADDR((void*) add_bool)},
 	});
 
 	auto aeT = Type::template_("T");
@@ -116,13 +120,13 @@ StringSTD::StringSTD(VM* vm) : Module(vm, "String") {
 		{Type::string, {Type::const_string}, ADDR(ValueSTD::copy)}
 	});
 	method("charAt", {
-		{Type::string, {Type::const_string, Type::const_integer}, (void*) string_charAt},
+		{Type::string, {Type::const_string, Type::const_integer}, ADDR((void*) string_charAt)},
 	});
 	method("contains", {
-		{Type::boolean, {Type::string, Type::const_string}, (void*) string_contains},
+		{Type::boolean, {Type::string, Type::const_string}, ADDR((void*) string_contains)},
 	});
 	method("endsWith", {
-		{Type::boolean, {Type::string, Type::string}, (void*) string_endsWith},
+		{Type::boolean, {Type::string, Type::string}, ADDR((void*) string_endsWith)},
 	});
 	auto fold_fun_type = Type::fun(Type::any, {Type::any, Type::string});
 	auto fold_clo_type = Type::closure(Type::any, {Type::any, Type::string});
@@ -131,105 +135,105 @@ StringSTD::StringSTD(VM* vm) : Module(vm, "String") {
 		{Type::any, {Type::string, fold_clo_type, Type::any}, ADDR(fold_fun)},
 	});
 	method("indexOf", {
-		{Type::integer, {Type::string, Type::string}, (void*) string_indexOf},
+		{Type::integer, {Type::string, Type::string}, ADDR((void*) string_indexOf)},
 	});
 	method("isPermutation", {
-		{Type::boolean, {Type::string, Type::const_any}, (void*) &LSString::is_permutation},
+		{Type::boolean, {Type::string, Type::const_any}, ADDR((void*) &LSString::is_permutation)},
 	});
 	method("isPalindrome", {
-		{Type::boolean, {Type::string}, (void*) &LSString::is_palindrome},
+		{Type::boolean, {Type::string}, ADDR((void*) &LSString::is_palindrome)},
 	});
 	method("left", {
-		{Type::tmp_string, {Type::string, Type::integer}, (void*) string_left},
-		{Type::tmp_string, {Type::tmp_string, Type::integer}, (void*) string_left_tmp},
+		{Type::tmp_string, {Type::string, Type::integer}, ADDR((void*) string_left)},
+		{Type::tmp_string, {Type::tmp_string, Type::integer}, ADDR((void*) string_left_tmp)},
 	});
 	method("length", {
-		{Type::integer, {Type::string}, (void*) string_length},
+		{Type::integer, {Type::string}, ADDR((void*) string_length)},
 	});
 	method("lines", {
-		{Type::tmp_array(Type::string), {Type::string}, (void*) &LSString::ls_lines},
+		{Type::tmp_array(Type::string), {Type::string}, ADDR((void*) &LSString::ls_lines)},
 	});
 	method("size", {
-		{Type::any, {Type::string}, (void*) &LSString::ls_size_ptr},
-		{Type::integer, {Type::string}, (void*) &LSString::ls_size},
+		{Type::any, {Type::string}, ADDR((void*) &LSString::ls_size_ptr)},
+		{Type::integer, {Type::string}, ADDR((void*) &LSString::ls_size)},
 	});
 	method("replace", {
-		{Type::tmp_string, {Type::string, Type::string, Type::string}, (void*) replace},
-		{Type::tmp_string, {Type::string, Type::string, Type::string}, (void*) v1_replace, LEGACY},
+		{Type::tmp_string, {Type::string, Type::string, Type::string}, ADDR((void*) replace)},
+		{Type::tmp_string, {Type::string, Type::string, Type::string}, ADDR((void*) v1_replace), LEGACY},
 	});
 	method("reverse", {
-		{Type::tmp_string, {Type::string}, (void*) &LSString::ls_tilde},
+		{Type::tmp_string, {Type::string}, ADDR((void*) &LSString::ls_tilde)},
 	});
 	method("right", {
-		{Type::tmp_string, {Type::string, Type::integer}, (void*) string_right},
-		{Type::tmp_string, {Type::tmp_string, Type::integer}, (void*) string_right_tmp},
+		{Type::tmp_string, {Type::string, Type::integer}, ADDR((void*) string_right)},
+		{Type::tmp_string, {Type::tmp_string, Type::integer}, ADDR((void*) string_right_tmp)},
 	});
 	method("substring", {
-		{Type::tmp_string, {Type::string, Type::const_integer, Type::const_integer}, (void*) string_substring},
+		{Type::tmp_string, {Type::string, Type::const_integer, Type::const_integer}, ADDR((void*) string_substring)},
 	});
 	method("toArray", {
-		{Type::tmp_array(Type::any), {Type::string}, (void*) string_toArray},
+		{Type::tmp_array(Type::any), {Type::string}, ADDR((void*) string_toArray)},
 	});
 	method("toLower", {
-		{Type::tmp_string, {Type::string}, (void*) string_toLower},
+		{Type::tmp_string, {Type::string}, ADDR((void*) string_toLower)},
 	});
 	method("toUpper", {
-		{Type::tmp_string, {Type::string}, (void*) string_toUpper},
+		{Type::tmp_string, {Type::string}, ADDR((void*) string_toUpper)},
 	});
 	method("split", {
-		{Type::tmp_array(Type::string), {Type::string, Type::string}, (void*) string_split},
-		{Type::tmp_array(Type::string), {Type::const_any, Type::const_any}, (void*) string_split},
+		{Type::tmp_array(Type::string), {Type::string, Type::string}, ADDR((void*) string_split)},
+		{Type::tmp_array(Type::string), {Type::const_any, Type::const_any}, ADDR((void*) string_split)},
 	});
 	method("startsWith", {
-		{Type::boolean, {Type::string, Type::string}, (void*) string_startsWith},
+		{Type::boolean, {Type::string, Type::string}, ADDR((void*) string_startsWith)},
 	});
 	method("code", {
-		{Type::any, {Type::const_any}, (void*) string_begin_code_ptr},
-		{Type::integer, {Type::string}, (void*) string_begin_code},
-		{Type::integer, {Type::const_any}, (void*) string_begin_code},
-		{Type::integer, {Type::string, Type::const_integer}, (void*) string_code},
+		{Type::any, {Type::const_any}, ADDR((void*) string_begin_code_ptr)},
+		{Type::integer, {Type::string}, ADDR((void*) string_begin_code)},
+		{Type::integer, {Type::const_any}, ADDR((void*) string_begin_code)},
+		{Type::integer, {Type::string, Type::const_integer}, ADDR((void*) string_code)},
 	});
 	method("number", {
-		{Type::long_, {Type::string}, (void*) string_number},
-		{Type::long_, {Type::const_any}, (void*) string_number},
+		{Type::long_, {Type::string}, ADDR((void*) string_number)},
+		{Type::long_, {Type::const_any}, ADDR((void*) string_number)},
 	});
-	auto map_fun = &LSString::ls_map<LSFunction*>;
+	auto map_fun = ADDR(&LSString::ls_map<LSFunction*>);
 	method("map", {
 		{Type::tmp_string, {Type::string, Type::fun_object(Type::string, {Type::string})}, (void*) map_fun},
 	});
 	method("sort", {
-		{Type::tmp_string, {Type::string}, (void*) &LSString::sort},
+		{Type::tmp_string, {Type::string}, ADDR((void*) &LSString::sort)},
 	});
 	method("wordCount", {
-		{Type::any, {Type::string}, (void*) &LSString::word_count_ptr},
-		{Type::integer, {Type::string}, (void*) &LSString::word_count},
+		{Type::any, {Type::string}, ADDR((void*) &LSString::word_count_ptr)},
+		{Type::integer, {Type::string}, ADDR((void*) &LSString::word_count)},
 	});
 
 	/** Internal **/
 	method("to_bool", {
-		{Type::boolean, {Type::string}, (void*) &LSString::to_bool}
+		{Type::boolean, {Type::string}, ADDR((void*) &LSString::to_bool)}
 	});
 	method("codePointAt", {
-		{Type::tmp_string, {Type::string, Type::integer}, (void*) &LSString::codePointAt}
+		{Type::tmp_string, {Type::string, Type::integer}, ADDR((void*) &LSString::codePointAt)}
 	});
 	method("isize", {
-		{Type::integer, {Type::string}, (void*) &LSString::int_size}
+		{Type::integer, {Type::string}, ADDR((void*) &LSString::int_size)}
 	});
 	method("iterator_begin", {
-		{Type::void_, {Type::string, Type::i8_ptr}, (void*) iterator_begin}
+		{Type::void_, {Type::string, Type::i8_ptr}, ADDR((void*) iterator_begin)}
 	});
 	method("iterator_end", {
-		{Type::void_, {Type::i8_ptr}, (void*) &LSString::iterator_end}
+		{Type::void_, {Type::i8_ptr}, ADDR((void*) &LSString::iterator_end)}
 	});
 	method("iterator_get", {
-		{Type::integer, {Type::i8_ptr}, (void*) &LSString::iterator_get},
-		{Type::tmp_string, {Type::integer, Type::string}, (void*) iterator_get},
+		{Type::integer, {Type::i8_ptr}, ADDR((void*) &LSString::iterator_get)},
+		{Type::tmp_string, {Type::integer, Type::string}, ADDR((void*) iterator_get)},
 	});
 	method("iterator_key", {
-		{Type::integer, {Type::i8_ptr}, (void*) &LSString::iterator_key}
+		{Type::integer, {Type::i8_ptr}, ADDR((void*) &LSString::iterator_key)}
 	});
 	method("iterator_next", {
-		{Type::void_, {Type::i8_ptr}, (void*) &LSString::iterator_next}
+		{Type::void_, {Type::i8_ptr}, ADDR((void*) &LSString::iterator_next)}
 	});
 }
 

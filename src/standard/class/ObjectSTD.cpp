@@ -1,39 +1,43 @@
 #include "ObjectSTD.hpp"
 #include "ValueSTD.hpp"
-#include "../value/LSObject.hpp"
-#include "../value/LSNumber.hpp"
 #include "../../type/Type.hpp"
+#if COMPILER
+#include "../../vm/value/LSObject.hpp"
+#include "../../vm/value/LSNumber.hpp"
+#endif
 
 namespace ls {
 
+#if COMPILER
 LSObject* ObjectSTD::readonly = new LSObject();
 LSNumber* ObjectSTD::readonly_value = LSNumber::get(12);
+#endif
 
 ObjectSTD::ObjectSTD(VM* vm) : Module(vm, "Object") {
 
 	#if COMPILER
 	LSObject::object_class = lsclass.get();
-	#endif
 
 	readonly->addField("v", readonly_value);
 	readonly->readonly = true;
 	readonly->native = true;
+	#endif
 
-	static_field("readonly", Type::object, (void*) &readonly);
+	static_field("readonly", Type::object, ADDR((void*) &readonly));
 
 	/*
 	 * Constructor
 	 */
 	constructor_({
-		{Type::tmp_object, {}, (void*) &LSObject::constructor},
-		{Type::tmp_object, {Type::clazz()}, (void*) object_new},
+		{Type::tmp_object, {}, ADDR((void*) &LSObject::constructor)},
+		{Type::tmp_object, {Type::clazz()}, ADDR((void*) object_new)},
 	});
 
 	/*
 	 * Operators
 	 */
 	operator_("in", {
-		{Type::object, Type::any, Type::boolean, (void*) &LSObject::in},
+		{Type::object, Type::any, Type::boolean, ADDR((void*) &LSObject::in)},
 		{Type::object, Type::number, Type::boolean, ADDR(in_any)}
 	});
 
@@ -44,20 +48,20 @@ ObjectSTD::ObjectSTD(VM* vm) : Module(vm, "Object") {
 		{Type::object, {Type::object}, ADDR(ValueSTD::copy)}
 	});
 	auto map_fun_type = Type::fun_object(Type::any, {Type::any});
-	auto map_fun = &LSObject::ls_map<LSFunction*>;
+	auto map_fun = ADDR(&LSObject::ls_map<LSFunction*>);
 	method("map", {
 		{Type::tmp_object, {Type::object, map_fun_type}, (void*) map_fun}
 	});
 	method("keys", {
-		{Type::array(Type::string), {Type::object}, (void*) &LSObject::ls_get_keys}
+		{Type::array(Type::string), {Type::object}, ADDR((void*) &LSObject::ls_get_keys)}
 	});
 	method("values", {
-		{Type::array(Type::any), {Type::object}, (void*) &LSObject::ls_get_values}
+		{Type::array(Type::any), {Type::object}, ADDR((void*) &LSObject::ls_get_values)}
 	});
 
 	/** Internal **/
 	method("add_field", {
-		{Type::void_, {Type::object, Type::i8_ptr, Type::any}, (void*) &LSObject::addField}
+		{Type::void_, {Type::object, Type::i8_ptr, Type::any}, ADDR((void*) &LSObject::addField)}
 	});
 }
 

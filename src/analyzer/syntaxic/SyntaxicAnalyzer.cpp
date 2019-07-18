@@ -33,7 +33,7 @@
 #include "../value/String.hpp"
 #include "../value/VariableValue.hpp"
 #include "../value/ArrayFor.hpp"
-#include "../../vm/Program.hpp"
+#include "../Program.hpp"
 #include "../../vm/value/LSNumber.hpp"
 #include "../lexical/Token.hpp"
 #include "../../util/Util.hpp"

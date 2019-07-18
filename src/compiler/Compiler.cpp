@@ -21,7 +21,7 @@
 #include "../analyzer/semantic/SemanticAnalyzer.hpp"
 #include "llvm/IR/GlobalVariable.h"
 #include "../type/Type.hpp"
-#include "../vm/Program.hpp"
+#include "../analyzer/Program.hpp"
 #include "llvm/Bitcode/BitcodeWriter.h"
 #include "../analyzer/resolver/File.hpp"
 #include "../analyzer/semantic/FunctionVersion.hpp"

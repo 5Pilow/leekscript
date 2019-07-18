@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <ostream>
-#include "../vm/Module.hpp"
+#include "../standard/Module.hpp"
 
 namespace ls {
 
