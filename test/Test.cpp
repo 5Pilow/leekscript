@@ -228,7 +228,7 @@ void Test::Input::works() {
 
 void Test::Input::equals(const std::string& expected) {
 	if (disabled) return disable();
-	
+
 	auto result = run();
 
 	std::string errors;
@@ -253,7 +253,7 @@ template void Test::Input::almost(double expected, double delta);
 template <typename T>
 void Test::Input::almost(T expected, T delta) {
 	if (disabled) return disable();
-	
+
 	auto result = run();
 
 	T res_num;
@@ -285,7 +285,7 @@ void Test::Input::quine() {
 void Test::Input::type(const ls::Type* type) {
 	if (disabled) return disable();
 	auto vm = v1 ? &test->vmv1 : &test->vm;
-	
+
 	test->total++;
 	auto result = vm->execute(code, ctx, file_name, false, false);
 
@@ -325,7 +325,7 @@ void Test::Input::between(T a, T b) {
 
 void Test::Input::error(ls::Error::Type expected_type, std::vector<std::string>&& parameters) {
 	if (disabled) return disable();
-	
+
 	auto result = run(false);
 
 	auto expected_message = ls::Error::build_message(expected_type, parameters);
@@ -344,12 +344,12 @@ void Test::Input::error(ls::Error::Type expected_type, std::vector<std::string>&
 
 void Test::Input::exception(ls::vm::Exception expected, std::vector<ls::vm::exception_frame> frames) {
 	if (disabled) return disable();
-	
+
 	auto result = run(false);
 
 	auto actual_type = result.exception.type != ls::vm::Exception::NO_EXCEPTION ? result.exception.type : ls::vm::Exception::NO_EXCEPTION;
 	auto actual_frames = result.exception.type != ls::vm::Exception::NO_EXCEPTION ? result.exception.frames : std::vector<ls::vm::exception_frame>();
-	
+
 	if (actual_type == expected and (actual_frames == frames or expected == ls::vm::Exception::NO_EXCEPTION)) {
 		pass(result.exception.type != ls::vm::Exception::NO_EXCEPTION ? result.exception.to_string() : "(no exception)");
 	} else {
@@ -366,7 +366,7 @@ void Test::Input::exception(ls::vm::Exception expected, std::vector<ls::vm::exce
 
 void Test::Input::operations(int expected) {
 	if (disabled) return disable();
-	
+
 	auto result = run(true, true);
 
 	if (result.operations != expected) {
