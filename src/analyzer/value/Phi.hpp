@@ -2,7 +2,9 @@
 #define PHI_HPP
 
 #include <vector>
+#if COMPILER
 #include "../../compiler/Compiler.hpp"
+#endif
 
 namespace ls {
 
@@ -15,10 +17,12 @@ public:
 	Variable* variable;
 	Block* block1;
 	Variable* variable1;
-	Compiler::value value1;
 	Block* block2;
 	Variable* variable2;
+	#if COMPILER
+	Compiler::value value1;
 	Compiler::value value2;
+	#endif
 
 	Phi(Variable* variable, Block* block1, Variable* value1, Block* block2, Variable* value2);
 
