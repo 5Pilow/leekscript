@@ -17,6 +17,7 @@ class VariableDeclaration;
 class Callable;
 class Call;
 class Phi;
+class Class;
 
 enum class VarScope {
 	INTERNAL, LOCAL, PARAMETER, CAPTURE
@@ -43,6 +44,7 @@ public:
 	Variable* parent = nullptr;
 	Phi* phi = nullptr;
 	bool assignment = false;
+	Class* clazz = nullptr;
 
 	Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, LSValue* lsvalue, Call call = {});
 

@@ -4,7 +4,7 @@
 namespace ls {
 
 NullSTD::NullSTD(VM* vm) : Module(vm, "Null") {
-	LSNull::clazz = clazz.get();
+	LSNull::clazz = lsclass.get();
 }
 
 }

@@ -12,7 +12,7 @@ namespace ls {
 
 ValueSTD::ValueSTD(VM* vm) : Module(vm, "Value") {
 
-	LSValue::ValueClass = clazz.get();
+	LSValue::ValueClass = lsclass.get();
 
 	/*
 	 * Static attributes

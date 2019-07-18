@@ -30,6 +30,7 @@ class LSBoolean;
 class LSFunction;
 class Callable;
 class Call;
+class Class;
 
 class VM {
 public:
@@ -87,7 +88,7 @@ public:
 
 	/** Add a module **/
 	void add_module(std::unique_ptr<Module> m);
-	void add_internal_var(std::string name, const Type* type, LSValue* value, Call call = {});
+	void add_internal_var(std::string name, const Type* type, Class* clazz, LSClass* lsclass, Call call = {});
 	void add_internal_var(std::string name, const Type* type, Function* function);
 	
 	void* resolve_symbol(std::string name);

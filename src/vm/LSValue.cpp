@@ -8,6 +8,7 @@
 #include "value/LSSet.hpp"
 #include "value/LSObject.hpp"
 #include "value/LSFunction.hpp"
+#include "../analyzer/semantic/Class.hpp"
 
 namespace ls {
 
@@ -252,7 +253,7 @@ LSValue* LSValue::attr(const std::string& key) const {
 	if (key == "class") {
 		return getClass();
 	}
-	auto method = ((LSClass*) getClass())->getDefaultMethod(key);
+	auto method = ((LSClass*) getClass())->clazz->getDefaultMethod(key);
 	if (method == nullptr) {
 		LSValue::delete_temporary(this);
 		throw vm::ExceptionObj(vm::Exception::NO_SUCH_ATTRIBUTE);

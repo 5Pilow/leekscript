@@ -42,15 +42,15 @@ std::map<int, int>::iterator end(LSMap<int, int>* map) {
 
 MapSTD::MapSTD(VM* vm) : Module(vm, "Map") {
 
-	LSMap<LSValue*, LSValue*>::clazz = clazz.get();
-	LSMap<LSValue*, int>::clazz = clazz.get();
-	LSMap<LSValue*, double>::clazz = clazz.get();
-	LSMap<int, LSValue*>::clazz = clazz.get();
-	LSMap<int, int>::clazz = clazz.get();
-	LSMap<int, double>::clazz = clazz.get();
-	LSMap<double, LSValue*>::clazz = clazz.get();
-	LSMap<double, int>::clazz = clazz.get();
-	LSMap<double, double>::clazz = clazz.get();
+	LSMap<LSValue*, LSValue*>::clazz = lsclass.get();
+	LSMap<LSValue*, int>::clazz = lsclass.get();
+	LSMap<LSValue*, double>::clazz = lsclass.get();
+	LSMap<int, LSValue*>::clazz = lsclass.get();
+	LSMap<int, int>::clazz = lsclass.get();
+	LSMap<int, double>::clazz = lsclass.get();
+	LSMap<double, LSValue*>::clazz = lsclass.get();
+	LSMap<double, int>::clazz = lsclass.get();
+	LSMap<double, double>::clazz = lsclass.get();
 
 	/*
 	 * Constructor

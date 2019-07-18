@@ -14,10 +14,9 @@ LSSet<int>::iterator iterator_inc(LSSet<int>::iterator it) {
 
 SetSTD::SetSTD(VM* vm) : Module(vm, "Set") {
 
-	LSSet<LSValue*>::clazz = clazz.get();
-	LSSet<int>::clazz = clazz.get();
-	LSSet<double>::clazz = clazz.get();
-
+	LSSet<LSValue*>::clazz = lsclass.get();
+	LSSet<int>::clazz = lsclass.get();
+	LSSet<double>::clazz = lsclass.get();
 	/*
 	 * Constructor
 	 */

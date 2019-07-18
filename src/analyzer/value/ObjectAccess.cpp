@@ -93,12 +93,12 @@ Call ObjectAccess::get_callable(SemanticAnalyzer* analyzer, int argument_count) 
 	// std::cout << "ObjectAccess::get_callable(" << argument_count << ")" << std::endl;
 
 	auto vv = dynamic_cast<VariableValue*>(object.get());
-	auto value_class = (LSClass*) analyzer->vm->internal_vars["Value"]->lsvalue;
+	auto value_class = (Class*) analyzer->vm->internal_vars["Value"]->clazz;
 
 	std::string object_class_name = object->type->class_name();
-	LSClass* object_class = nullptr;
+	Class* object_class = nullptr;
 	if (analyzer->vm->internal_vars.find(object_class_name) != analyzer->vm->internal_vars.end()) {
-		object_class = (LSClass*) analyzer->vm->internal_vars[object_class_name]->lsvalue;
+		object_class = (Class*) analyzer->vm->internal_vars[object_class_name]->clazz;
 	}
 
 	// <object>.<method>
@@ -115,7 +115,7 @@ Call ObjectAccess::get_callable(SemanticAnalyzer* analyzer, int argument_count) 
 	}
 	// <class>.<field>
 	if (object->type->is_class() and vv != nullptr) {
-		auto std_class = (LSClass*) analyzer->vm->internal_vars[vv->name]->lsvalue;
+		auto std_class = (Class*) analyzer->vm->internal_vars[vv->name]->clazz;
 		// <class>.<method>
 		auto i = std_class->methods.find(field->content);
 		if (i != std_class->methods.end()) {
@@ -149,11 +149,11 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 
 	// Get the object class : 12 => Number
 	object_class_name = object->type->class_name();
-	LSClass* object_class = nullptr;
+	Class* object_class = nullptr;
 	if (object_class_name != "Value") {
 		auto i = analyzer->vm->internal_vars.find(object_class_name);
 		if (i != analyzer->vm->internal_vars.end()) {
-			object_class = (LSClass*) i->second->lsvalue;
+			object_class = (Class*) i->second->clazz;
 		}
 	}
 
@@ -163,7 +163,7 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 	bool found = false;
 	if (object->type->is_class() and vv != nullptr) {
 
-		auto std_class = (LSClass*) analyzer->vm->internal_vars[vv->name]->lsvalue;
+		auto std_class = (Class*) analyzer->vm->internal_vars[vv->name]->clazz;
 		auto i = std_class->methods.find(field->content);
 		if (i != std_class->methods.end()) {
 
@@ -182,7 +182,7 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 	}
 	if (!found and object->type->is_class() and vv != nullptr) {
 
-		auto std_class = (LSClass*) analyzer->vm->internal_vars[vv->name]->lsvalue;
+		auto std_class = (Class*) analyzer->vm->internal_vars[vv->name]->clazz;
 
 		auto i = std_class->static_fields.find(field->content);
 		if (i != std_class->static_fields.end()) {
@@ -204,7 +204,7 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 		}
 	}
 
-	auto value_class = (LSClass*) analyzer->vm->internal_vars["Value"]->lsvalue;
+	auto value_class = (Class*) analyzer->vm->internal_vars["Value"]->clazz;
 
 	// Attribute? Fields and methods ([1, 2, 3].length, 12.abs)
 	if (!found and object_class != nullptr) {

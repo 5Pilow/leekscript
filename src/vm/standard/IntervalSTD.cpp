@@ -9,7 +9,7 @@ namespace ls {
 
 IntervalSTD::IntervalSTD(VM* vm) : Module(vm, "Interval") {
 
-	LSInterval::clazz = clazz.get();
+	LSInterval::clazz = lsclass.get();
 
 	constructor_({
 		{Type::tmp_interval, {Type::integer, Type::integer}, (void*) &LSInterval::constructor}

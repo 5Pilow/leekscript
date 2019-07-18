@@ -3,6 +3,7 @@
 #include "LSString.hpp"
 #include "LSNumber.hpp"
 #include "LSArray.hpp"
+#include "../../analyzer/semantic/Class.hpp"
 
 namespace ls {
 
@@ -19,7 +20,7 @@ LSObject::LSObject() : LSValue(OBJECT) {
 
 LSObject::LSObject(LSClass* clazz) : LSObject() {
 	this->clazz = clazz;
-	for (auto f : clazz->fields) {
+	for (auto f : clazz->clazz->fields) {
 		this->addField(f.first.c_str(), f.second.default_value->clone());
 	}
 }
@@ -193,7 +194,7 @@ LSValue* LSObject::clone() const {
 }
 
 std::ostream& LSObject::dump(std::ostream& os, int level) const {
-	if (clazz != nullptr) os << clazz->name << " ";
+	if (clazz != nullptr) os << clazz->clazz->name << " ";
 	os << "{";
 	if (level > 0) {
 		for (auto i = values.begin(); i != values.end(); i++) {

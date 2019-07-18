@@ -8,7 +8,7 @@ namespace ls {
 
 BooleanSTD::BooleanSTD(VM* vm) : Module(vm, "Boolean") {
 
-	LSBoolean::clazz = clazz.get();
+	LSBoolean::clazz = lsclass.get();
 
 	operator_("+", {
 		{Type::const_boolean, Type::const_string, Type::tmp_string, (void*) add},

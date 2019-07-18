@@ -65,7 +65,7 @@ VM::VM(bool legacy) : compiler(this), legacy(legacy) {
 	add_module(std::make_unique<JsonSTD>(this));
 
 	auto ptr_type = Type::fun(Type::tmp_any, {Type::any});
-	add_internal_var("ptr", ptr_type, nullptr, {
+	add_internal_var("ptr", ptr_type, nullptr, nullptr, {
 		new CallableVersion {"Value.ptr", ptr_type }
 	});
 }
@@ -85,7 +85,7 @@ void VM::static_init() {
 
 void VM::add_module(std::unique_ptr<Module> m) {
 	auto const_class = Type::const_class(m->name);
-	add_internal_var(m->name, const_class, m->clazz.get());
+	add_internal_var(m->name, const_class, m->clazz.get(), m->lsclass.get());
 	modules.push_back(std::move(m));
 }
 
@@ -178,9 +178,9 @@ VM::Result VM::execute(const std::string code, Context* ctx, std::string file_na
 	return result;
 }
 
-void VM::add_internal_var(std::string name, const Type* type, LSValue* value, Call call) {
+void VM::add_internal_var(std::string name, const Type* type, Class* clazz, LSClass* lsclass, Call call) {
 	// std::cout << "add_interval_var "<< name << " " << type << " " << value << std::endl;
-	internal_vars.insert({ name, std::make_unique<Variable>(name, VarScope::INTERNAL, type, 0, nullptr, nullptr, nullptr, value, call) });
+	internal_vars.insert({ name, std::make_unique<Variable>(name, VarScope::INTERNAL, type, 0, nullptr, nullptr, nullptr, clazz, lsclass, call) });
 }
 
 void VM::add_internal_var(std::string name, const Type* type, Function* function) {
@@ -206,7 +206,7 @@ void* VM::resolve_symbol(std::string name) {
 		if (module == "ctx") {
 			return &context->vars.at(method).value;
 		} else if (internal_vars.find(module) != internal_vars.end()) {
-			const auto& clazz = (LSClass*) internal_vars.at(module)->lsvalue;
+			const auto& clazz = (Class*) internal_vars.at(module)->clazz;
 			if (method.substr(0, 8) == "operator") {
 				const auto& op = method.substr(8);
 				const auto& implems = clazz->operators.at(op);
@@ -228,7 +228,7 @@ void* VM::resolve_symbol(std::string name) {
 		}
 	} else {
 		if (internal_vars.find(name) != internal_vars.end()) {
-			return internal_vars.at(name)->lsvalue;
+			return internal_vars.at(name)->lsclass;
 		}
 	}
 	return nullptr;

@@ -8,7 +8,7 @@ namespace ls {
 
 FunctionSTD::FunctionSTD(VM* vm) : Module(vm, "Function") {
 
-	LSFunction::clazz = clazz.get();
+	LSFunction::clazz = lsclass.get();
 
 	field("return", Type::clazz(), field_return);
 	field("args", Type::array(Type::clazz()), field_args);

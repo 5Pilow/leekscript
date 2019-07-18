@@ -9,7 +9,7 @@
 #include "../value/LSArray.hpp"
 #include "../VM.hpp"
 #include "../../type/Type.hpp"
-#include "../../compiler/semantic/Variable.hpp"
+#include "../../analyzer/semantic/Variable.hpp"
 
 namespace ls {
 
@@ -72,7 +72,7 @@ LSString* iterator_get(unsigned int c, LSString* previous) {
 
 StringSTD::StringSTD(VM* vm) : Module(vm, "String") {
 
-	LSString::string_class = clazz.get();
+	LSString::string_class = lsclass.get();
 
 	/*
 	 * Constructor

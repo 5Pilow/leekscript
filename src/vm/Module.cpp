@@ -8,6 +8,8 @@
 #include "value/LSNumber.hpp"
 #include "../analyzer/semantic/Callable.hpp"
 #include "../analyzer/semantic/CallableVersion.hpp"
+#include "../analyzer/semantic/Variable.hpp"
+#include "../analyzer/semantic/Class.hpp"
 #include "VM.hpp"
 #include "../type/Type.hpp"
 
@@ -22,9 +24,10 @@ int Module::EMPTY_VARIABLE = 16;
 bool Module::STORE_ARRAY_SIZE = true;
 
 Module::Module(VM* vm, std::string name) : vm(vm), name(name) {
-	clazz = std::make_unique<LSClass>(name);
+	clazz = std::make_unique<Class>(name);
+	lsclass = std::make_unique<LSClass>(clazz.get());
 	if (name != "Value") {
-		clazz->parent = LSValue::ValueClass;
+		clazz->parent = vm->internal_vars["Value"]->clazz;
 	}
 }
 

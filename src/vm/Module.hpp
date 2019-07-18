@@ -7,6 +7,7 @@
 #include "../compiler/Compiler.hpp"
 #include "TypeMutator.hpp"
 #include "../analyzer/semantic/CallableVersion.hpp"
+#include "../analyzer/semantic/Class.hpp"
 
 namespace ls {
 
@@ -39,7 +40,8 @@ public:
 
 	VM* vm;
 	std::string name;
-	std::unique_ptr<LSClass> clazz;
+	std::unique_ptr<Class> clazz;
+	std::unique_ptr<LSClass> lsclass;
 
 	Module(VM* vm, std::string name);
 	virtual ~Module() {}
