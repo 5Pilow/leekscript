@@ -269,6 +269,7 @@ Call Function::get_callable(SemanticAnalyzer*, int argument_count) const {
 	return call;
 }
 
+#if COMPILER
 Compiler::value Function::compile(Compiler& c) const {
 	// std::cout << "Function::compile() " << this << " version " << version << " " << has_version << std::endl;
 	((Function*) this)->compiler = &c;
@@ -333,6 +334,7 @@ void Function::export_context(const Compiler& c) const {
 		c.export_context_variable(variable.second->name, c.insn_load(variable.second->val));
 	}
 }
+#endif
 
 std::unique_ptr<Value> Function::clone() const {
 	auto f = std::make_unique<Function>(token);

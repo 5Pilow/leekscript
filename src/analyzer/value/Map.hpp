@@ -20,7 +20,10 @@ public:
 
 	virtual void pre_analyze(SemanticAnalyzer*) override;
 	virtual void analyze(SemanticAnalyzer*) override;
+
+	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;
+	#endif
 
 	virtual std::unique_ptr<Value> clone() const override;
 };

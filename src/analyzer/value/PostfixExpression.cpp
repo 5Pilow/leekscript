@@ -49,6 +49,7 @@ void PostfixExpression::analyze(SemanticAnalyzer* analyzer) {
 	}
 }
 
+#if COMPILER
 Compiler::value PostfixExpression::compile(Compiler& c) const {
 
 	c.inc_ops(1);
@@ -116,6 +117,7 @@ Compiler::value PostfixExpression::compile(Compiler& c) const {
 	}
 	return {nullptr, {}};
 }
+#endif
 
 std::unique_ptr<Value> PostfixExpression::clone() const {
 	auto pe = std::make_unique<PostfixExpression>();

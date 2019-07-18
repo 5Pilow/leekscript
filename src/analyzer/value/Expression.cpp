@@ -220,6 +220,7 @@ void Expression::analyze(SemanticAnalyzer* analyzer) {
 	analyzer->add_error({Error::Type::NO_SUCH_OPERATOR, location(), op->token->location, {v1->type->to_string(), op->character, v2->type->to_string()}});
 }
 
+#if COMPILER
 Compiler::value Expression::compile(Compiler& c) const {
 
 	// No operator : compile v1 and return
@@ -346,6 +347,7 @@ Compiler::value Expression::compile(Compiler& c) const {
 	v2->compile_end(c);
 	return r;
 }
+#endif
 
 std::unique_ptr<Value> Expression::clone() const {
 	auto ex = std::make_unique<Expression>();

@@ -30,6 +30,7 @@ void AbsoluteValue::analyze(SemanticAnalyzer* analyzer) {
 	constant = expression->constant;
 }
 
+#if COMPILER
 Compiler::value AbsoluteValue::compile(Compiler& c) const {
 	auto ex = c.insn_to_any(expression->compile(c));
 	c.mark_offset(location().start.line);
@@ -37,6 +38,7 @@ Compiler::value AbsoluteValue::compile(Compiler& c) const {
 	c.insn_delete_temporary(ex);
 	return abso;
 }
+#endif
 
 std::unique_ptr<Value> AbsoluteValue::clone() const {
 	auto abs = std::make_unique<AbsoluteValue>();

@@ -94,6 +94,7 @@ void If::analyze(SemanticAnalyzer* analyzer) {
 	}
 }
 
+#if COMPILER
 Compiler::value If::compile(Compiler& c) const {
 	
 	for (const auto& phi : phis) {
@@ -169,6 +170,7 @@ Compiler::value If::compile(Compiler& c) const {
 
 	return r;
 }
+#endif
 
 std::unique_ptr<Value> If::clone() const {
 	auto iff = std::make_unique<If>();

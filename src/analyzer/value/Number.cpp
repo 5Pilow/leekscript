@@ -105,6 +105,7 @@ bool Number::is_zero() const {
 	}
 }
 
+#if COMPILER
 Compiler::value Number::compile(Compiler& c) const {
 	if (type->is_any()) {
 		return c.insn_to_any(c.new_real(double_value));
@@ -124,6 +125,7 @@ Compiler::value Number::compile(Compiler& c) const {
 	}
 	return c.new_integer(int_value);
 }
+#endif
 
 std::unique_ptr<Value> Number::clone() const {
 	return std::make_unique<Number>(value, token);

@@ -28,10 +28,12 @@ bool String::will_store(SemanticAnalyzer* analyzer, const Type* type) {
 	return false;
 }
 
+#if COMPILER
 Compiler::value String::compile(Compiler& c) const {
 	auto s = c.new_const_string(token->content);
 	return c.insn_call(Type::tmp_string, {s}, "String.new.1");
 }
+#endif
 
 std::unique_ptr<Value> String::clone() const {
 	return std::make_unique<String>(token);

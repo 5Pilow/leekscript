@@ -1,6 +1,8 @@
 #ifndef VARIABLE_HPP
 #define VARIABLE_HPP
 
+#include <string>
+#include "../../constants.h"
 #include "Call.hpp"
 
 namespace ls {
@@ -17,6 +19,8 @@ class VariableDeclaration;
 class Callable;
 class Call;
 class Phi;
+class Block;
+class FunctionVersion;
 class Class;
 
 enum class VarScope {
@@ -34,10 +38,7 @@ public:
 	Block* block;
 	const Type* type;
 	std::vector<const Type*> version;
-	LSValue* lsvalue = nullptr;
 	Call call;
-	Compiler::value val;
-	Compiler::value addr_val;
 	int id = 0;
 	int generator = 0;
 	Variable* root = nullptr;
@@ -45,16 +46,26 @@ public:
 	Phi* phi = nullptr;
 	bool assignment = false;
 	Class* clazz = nullptr;
+	#if COMPILER
+	Compiler::value val;
+	Compiler::value addr_val;
+	LSClass* lsclass = nullptr;
+	#endif
 
-	Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, LSValue* lsvalue, Call call = {});
+	Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, Call call = {});
+	#if COMPILER
+	Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, LSClass* lsclass, Call call = {});
+	#endif
 
 	const Type* get_entry_type() const;
 
+	#if COMPILER
 	Compiler::value get_value(Compiler& c) const;
 	Compiler::value get_address(Compiler& c) const;
 	void create_entry(Compiler& c);
 	void create_addr_entry(Compiler& c, Compiler::value);
 	void store_value(Compiler& c, Compiler::value);
+	#endif
 
 	static Variable* new_temporary(std::string name, const Type* type);
 	static const Type* get_type_for_variable_from_expression(const Type* value_type);

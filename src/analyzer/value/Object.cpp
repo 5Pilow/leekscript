@@ -42,6 +42,7 @@ void Object::analyze(SemanticAnalyzer* analyzer) {
 	}
 }
 
+#if COMPILER
 Compiler::value Object::compile(Compiler& c) const {
 	auto object = c.new_object();
 	for (unsigned i = 0; i < keys.size(); ++i) {
@@ -51,6 +52,7 @@ Compiler::value Object::compile(Compiler& c) const {
 	}
 	return object;
 }
+#endif
 
 std::unique_ptr<Value> Object::clone() const {
 	auto o = std::make_unique<Object>();

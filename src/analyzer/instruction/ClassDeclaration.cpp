@@ -39,6 +39,7 @@ void ClassDeclaration::analyze(SemanticAnalyzer* analyzer, const Type*) {
 	}
 }
 
+#if COMPILER
 Compiler::value ClassDeclaration::compile(Compiler& c) const {
 	auto clazz = c.new_class(name);
 	for (const auto& vd : fields) {
@@ -54,6 +55,7 @@ Compiler::value ClassDeclaration::compile(Compiler& c) const {
 	var->store_value(c, clazz);
 	return clazz;
 }
+#endif
 
 std::unique_ptr<Instruction> ClassDeclaration::clone() const {
 	auto cd = std::make_unique<ClassDeclaration>(token);

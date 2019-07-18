@@ -200,6 +200,7 @@ void For::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	}
 }
 
+#if COMPILER
 Compiler::value For::compile(Compiler& c) const {
 
 	c.enter_block(init.get()); // { for init ; cond ; inc { body } }<-- this block
@@ -307,6 +308,7 @@ Compiler::value For::compile(Compiler& c) const {
 	}
 	return return_v;
 }
+#endif
 
 std::unique_ptr<Instruction> For::clone() const {
 	auto f = std::make_unique<For>();

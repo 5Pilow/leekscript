@@ -9,7 +9,6 @@
 #include "../../vm/value/LSNumber.hpp"
 #include "../../vm/value/LSObject.hpp"
 #include "../../vm/value/LSString.hpp"
-#include "../Compiler.hpp"
 #include "../lexical/Token.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
 #include "../error/Error.hpp"
@@ -19,6 +18,9 @@
 #include "../semantic/FunctionVersion.hpp"
 #include "../semantic/Variable.hpp"
 #include "ArrayAccess.hpp"
+#if COMPILER
+#include "../../compiler/Compiler.hpp"
+#endif
 
 namespace ls {
 
@@ -295,6 +297,7 @@ const Type* FunctionCall::version_type(std::vector<const Type*> version) const {
 	return function_type->return_type()->function()->version_type(version);
 }
 
+#if COMPILER
 Compiler::value FunctionCall::compile(Compiler& c) const {
 	
 	c.mark_offset(location().start.line);
@@ -350,6 +353,7 @@ Compiler::value FunctionCall::compile(Compiler& c) const {
 	}
 	return r;
 }
+#endif
 
 std::unique_ptr<Value> FunctionCall::clone() const {
 	auto fc = std::make_unique<FunctionCall>(token);

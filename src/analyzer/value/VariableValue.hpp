@@ -4,7 +4,9 @@
 #include <memory>
 #include "LeftValue.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
-#include "../Compiler.hpp"
+#if COMPILER
+#include "../../compiler/Compiler.hpp"
+#endif
 
 namespace ls {
 
@@ -20,11 +22,13 @@ public:
 	Variable* var;
 	int capture_index = 0;
 	VarScope scope;
-	std::function<Compiler::value(Compiler&)> static_access_function = nullptr;
 	bool class_method = false;
-	LSFunction* ls_function = nullptr;
 	bool update_variable = false;
 	const Type* previous_type;
+	#if COMPILER
+	std::function<Compiler::value(Compiler&)> static_access_function = nullptr;
+	LSFunction* ls_function = nullptr;
+	#endif
 
 	VariableValue(Token* token);
 
@@ -43,9 +47,11 @@ public:
 	virtual void change_value(SemanticAnalyzer*, Value* value) override;
 	virtual const Type* version_type(std::vector<const Type*>) const override;
 
+	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;
 	virtual Compiler::value compile_version(Compiler&, std::vector<const Type*> version) const override;
 	virtual Compiler::value compile_l(Compiler&) const override;
+	#endif
 
 	virtual std::unique_ptr<Value> clone() const override;
 };

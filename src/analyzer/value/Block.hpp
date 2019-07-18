@@ -20,14 +20,16 @@ public:
 	bool mpz_pointer = false;
 	bool was_reference = false;
 	std::unordered_map<std::string, Variable*> variables;
-	std::vector<llvm::BasicBlock*> blocks;
 	Block* branch = nullptr;
 	std::vector<std::pair<Variable*, Variable*>> assignments;
 	std::vector<Variable*> temporary_variables;
-	std::vector<Compiler::value> temporary_values;
-	std::vector<Compiler::value> temporary_expression_values;
 	std::vector<Variable*> mutations;
 	bool enabled = true;
+	#if COMPILER
+	std::vector<llvm::BasicBlock*> blocks;
+	std::vector<Compiler::value> temporary_values;
+	std::vector<Compiler::value> temporary_expression_values;
+	#endif
 
 	Block(bool is_function_block = false);
 
@@ -39,8 +41,10 @@ public:
 	virtual void pre_analyze(SemanticAnalyzer* analyzer) override;
 	void create_assignments(SemanticAnalyzer* analyzer);
 	virtual void analyze(SemanticAnalyzer* analyzer) override;
-
+	
+	#if COMPILER
 	Compiler::value compile(Compiler&) const override;
+	#endif
 
 	virtual std::unique_ptr<Value> clone() const override;
 };

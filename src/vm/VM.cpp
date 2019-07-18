@@ -89,6 +89,7 @@ void VM::add_module(std::unique_ptr<Module> m) {
 	modules.push_back(std::move(m));
 }
 
+#if COMPILER
 VM::Result VM::execute(const std::string code, Context* ctx, std::string file_name, bool debug, bool ops, bool assembly, bool pseudo_code, bool optimized_ir, bool execute_ir, bool execute_bitcode) {
 
 	// Reset
@@ -181,6 +182,7 @@ VM::Result VM::execute(const std::string code, Context* ctx, std::string file_na
 	}
 	return result;
 }
+#endif
 
 void VM::add_internal_var(std::string name, const Type* type, Class* clazz, LSClass* lsclass, Call call) {
 	// std::cout << "add_interval_var "<< name << " " << type << " " << value << std::endl;
@@ -192,6 +194,7 @@ void VM::add_internal_var(std::string name, const Type* type, Function* function
 	internal_vars.insert({ name, std::make_unique<Variable>(name, VarScope::INTERNAL, type, 0, function, nullptr, nullptr, nullptr) });
 }
 
+#if COMPILER
 void* VM::resolve_symbol(std::string name) {
 	// std::cout << "VM::resolve_symbol " << name << std::endl;
 	const auto& p = name.find(".");
@@ -237,5 +240,6 @@ void* VM::resolve_symbol(std::string name) {
 	}
 	return nullptr;
 }
+#endif
 
 }

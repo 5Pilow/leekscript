@@ -8,31 +8,33 @@ namespace ls {
 
 BooleanSTD::BooleanSTD(VM* vm) : Module(vm, "Boolean") {
 
+	#if COMPILER
 	LSBoolean::clazz = lsclass.get();
+	#endif
 
 	operator_("+", {
 		{Type::const_boolean, Type::const_string, Type::tmp_string, (void*) add},
 		{Type::const_boolean, Type::tmp_string, Type::tmp_string, (void*) add_tmp},
-		{Type::const_boolean, Type::const_boolean, Type::integer, add_bool},
-		{Type::const_boolean, Type::const_real, Type::real, add_bool},
-		{Type::const_boolean, Type::const_integer, Type::integer, add_bool}
+		{Type::const_boolean, Type::const_boolean, Type::integer, ADDR(add_bool)},
+		{Type::const_boolean, Type::const_real, Type::real, ADDR(add_bool)},
+		{Type::const_boolean, Type::const_integer, Type::integer, ADDR(add_bool)}
 	});
 
 	operator_("-", {
-		{Type::const_boolean, Type::const_boolean, Type::integer, sub_bool},
-		{Type::const_boolean, Type::const_real, Type::real, sub_bool},
-		{Type::const_boolean, Type::const_integer, Type::integer, sub_bool}
+		{Type::const_boolean, Type::const_boolean, Type::integer, ADDR(sub_bool)},
+		{Type::const_boolean, Type::const_real, Type::real, ADDR(sub_bool)},
+		{Type::const_boolean, Type::const_integer, Type::integer, ADDR(sub_bool)}
 	});
 
 	operator_("*", {
-		{Type::const_boolean, Type::const_boolean, Type::integer, mul_bool},
-		{Type::const_boolean, Type::const_real, Type::real, mul_bool},
-		{Type::const_boolean, Type::const_integer, Type::integer, mul_bool}
+		{Type::const_boolean, Type::const_boolean, Type::integer, ADDR(mul_bool)},
+		{Type::const_boolean, Type::const_real, Type::real, ADDR(mul_bool)},
+		{Type::const_boolean, Type::const_integer, Type::integer, ADDR(mul_bool)}
 	});
 
 	method("compare", {
 		{Type::any, {Type::const_any, Type::const_any}, (void*) compare_ptr_ptr_ptr},
-		{Type::integer, {Type::const_boolean, Type::const_any}, compare_val_val}
+		{Type::integer, {Type::const_boolean, Type::const_any}, ADDR(compare_val_val)}
 	});
 
 	/** Internal **/
@@ -40,6 +42,8 @@ BooleanSTD::BooleanSTD(VM* vm) : Module(vm, "Boolean") {
 		{Type::tmp_string, {Type::boolean}, (void*) to_string}
 	});
 }
+
+#if COMPILER
 
 LSString* BooleanSTD::add(int boolean, LSString* string) {
 	return new LSString((boolean ? "true" : "false") + *string);
@@ -85,5 +89,7 @@ Compiler::value BooleanSTD::compare_val_val(Compiler& c, std::vector<Compiler::v
 LSValue* BooleanSTD::to_string(bool b) {
 	return new LSString(b ? "true" : "false");
 }
+
+#endif
 
 }

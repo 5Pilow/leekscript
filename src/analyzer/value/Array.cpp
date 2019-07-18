@@ -149,6 +149,7 @@ bool Array::elements_will_store(SemanticAnalyzer* analyzer, const Type* type, in
 	return false;
 }
 
+#if COMPILER
 Compiler::value Array::compile(Compiler& c) const {
 	std::vector<Compiler::value> elements;
 	for (const auto& val : expressions) {
@@ -158,6 +159,7 @@ Compiler::value Array::compile(Compiler& c) const {
 	}
 	return c.new_array(type->element(), elements);
 }
+#endif
 
 std::unique_ptr<Value> Array::clone() const {
 	auto array = std::make_unique<Array>();

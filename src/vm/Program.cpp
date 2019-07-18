@@ -39,6 +39,7 @@ Program::~Program() {
 	}
 }
 
+#if COMPILER
 VM::Result Program::compile_leekscript(VM& vm, Context* ctx, bool bitcode, bool pseudo_code, bool optimized_ir) {
 
 	auto parse_start = std::chrono::high_resolution_clock::now();
@@ -187,6 +188,7 @@ VM::Result Program::compile(VM& vm, Context* ctx, bool export_bitcode, bool pseu
 		return compile_leekscript(vm, ctx, export_bitcode, pseudo_code, optimized_ir);
 	}
 }
+#endif
 
 Variable* Program::get_operator(const std::string& name) {
 	// std::cout << "Program::get_operator(" << name << ")" << std::endl;

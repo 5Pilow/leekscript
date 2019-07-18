@@ -17,6 +17,12 @@ class Module;
 class VM;
 class Type;
 
+#if COMPILER
+#define ADDR(x) (x)
+#else
+#define ADDR(x) ((void*) 0x0)
+#endif
+
 class Template {
 public:
 	Module* module;
@@ -41,7 +47,9 @@ public:
 	VM* vm;
 	std::string name;
 	std::unique_ptr<Class> clazz;
+	#if COMPILER
 	std::unique_ptr<LSClass> lsclass;
+	#endif
 
 	Module(VM* vm, std::string name);
 	virtual ~Module() {}

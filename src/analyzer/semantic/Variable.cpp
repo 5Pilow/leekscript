@@ -5,7 +5,11 @@
 
 namespace ls {
 
-Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, LSValue* lsvalue, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), type(type), lsvalue(lsvalue), call(call) {}
+Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), type(type), clazz(clazz), call(call) {}
+
+#if COMPILER
+Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, LSClass* lsclass, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), type(type), clazz(clazz), lsclass(lsclass), call(call) {}
+#endif
 
 const Type* Variable::get_entry_type() const {
 	if (type->is_mpz_ptr()) {
@@ -14,6 +18,7 @@ const Type* Variable::get_entry_type() const {
 	return type->not_temporary();
 }
 
+#if COMPILER
 Compiler::value Variable::get_value(Compiler& c) const {
 	if (!val.v) {
 		std::cout << "no value for variable " << this << std::endl;
@@ -62,6 +67,7 @@ void Variable::store_value(Compiler& c, Compiler::value value) {
 		}
 	}
 }
+#endif
 
 Variable* Variable::new_temporary(std::string name, const Type* type) {
 	return new Variable(name, VarScope::LOCAL, type, 0, nullptr, nullptr, nullptr, nullptr);

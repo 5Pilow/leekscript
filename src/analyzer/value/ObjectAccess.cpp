@@ -189,10 +189,11 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 
 			const auto& mod_field = i->second;
 			type = mod_field.type;
-
+			#if COMPILER
 			if (mod_field.static_fun != nullptr) {
 				static_access_function = mod_field.static_fun;
 			}
+			#endif
 			if (mod_field.addr != nullptr) {
 				attr_addr = mod_field.addr;
 			}
@@ -213,9 +214,11 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 		if (i != object_class->fields.end()) {
 			const auto& f = i->second;
 			type = f.type;
+			#if COMPILER
 			if (f.fun != nullptr) {
 				access_function = f.fun;
 			}
+			#endif
 			if (f.native_fun != nullptr) {
 				native_access_function = object_class->name + "." + f.name;
 			}
@@ -226,9 +229,11 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 				auto f = i->second;
 				type = f.type;
 				class_field = true;
+				#if COMPILER
 				if (f.fun != nullptr) {
 					access_function = f.fun;
 				}
+				#endif
 				if (f.native_fun != nullptr) {
 					native_access_function = "Value." + f.name;
 				}
@@ -269,6 +274,7 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 	}
 }
 
+#if COMPILER
 Compiler::value ObjectAccess::compile(Compiler& c) const {
 
 	// Special case for custom attributes, accessible via a function
@@ -327,6 +333,7 @@ Compiler::value ObjectAccess::compile_l(Compiler& c) const {
 	auto k = c.new_const_string(field->content);
 	return c.insn_invoke(type->pointer(), {o, k}, "Value.attrL");
 }
+#endif
 
 std::unique_ptr<Value> ObjectAccess::clone() const {
 	auto oa = std::make_unique<ObjectAccess>(field);

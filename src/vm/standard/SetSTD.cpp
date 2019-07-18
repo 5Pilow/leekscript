@@ -14,9 +14,12 @@ LSSet<int>::iterator iterator_inc(LSSet<int>::iterator it) {
 
 SetSTD::SetSTD(VM* vm) : Module(vm, "Set") {
 
+	#if COMPILER
 	LSSet<LSValue*>::clazz = lsclass.get();
 	LSSet<int>::clazz = lsclass.get();
 	LSSet<double>::clazz = lsclass.get();
+	#endif
+
 	/*
 	 * Constructor
 	 */
@@ -31,7 +34,7 @@ SetSTD::SetSTD(VM* vm) : Module(vm, "Set") {
 	 */
 	operator_("in", {
 		{Type::const_set(), Type::any, Type::boolean, (void*) &LSSet<LSValue*>::in_v},
-		{Type::const_set(), Type::integer, Type::boolean, in_any},
+		{Type::const_set(), Type::integer, Type::boolean, ADDR(in_any)},
 		{Type::const_set(Type::real), Type::real, Type::boolean, (void*) &LSSet<double>::in_v},
 		{Type::const_set(Type::integer), Type::integer, Type::boolean, (void*) &LSSet<int>::in_v}
 	});
@@ -40,7 +43,7 @@ SetSTD::SetSTD(VM* vm) : Module(vm, "Set") {
 	auto pqE = Type::template_("E");
 	template_(pqT, pqE).
 	operator_("+=", {
-		{Type::set(pqT), pqE, Type::set(Type::meta_mul(pqT, pqE)), set_add_eq, 0, { new ConvertMutator() }, true},
+		{Type::set(pqT), pqE, Type::set(Type::meta_mul(pqT, pqE)), ADDR(set_add_eq), 0, { new ConvertMutator() }, true},
 	});
 
 	/*
@@ -53,9 +56,9 @@ SetSTD::SetSTD(VM* vm) : Module(vm, "Set") {
 	});
 	method("insert", {
 		{Type::boolean, {Type::set(Type::any), Type::any}, (void*) &LSSet<LSValue*>::ls_insert_ptr},
-		{Type::boolean, {Type::set(Type::any), Type::any}, insert_any},
-		{Type::boolean, {Type::set(Type::real), Type::real}, insert_real},
-		{Type::boolean, {Type::set(Type::integer), Type::integer}, insert_int},
+		{Type::boolean, {Type::set(Type::any), Type::any}, ADDR(insert_any)},
+		{Type::boolean, {Type::set(Type::real), Type::real}, ADDR(insert_real)},
+		{Type::boolean, {Type::set(Type::integer), Type::integer}, ADDR(insert_int)},
 	});
 	method("clear", {
 		{Type::set(), {Type::set(Type::any)}, (void*) &LSSet<LSValue*>::ls_clear},
@@ -98,6 +101,8 @@ SetSTD::SetSTD(VM* vm) : Module(vm, "Set") {
 	});
 }
 
+#if COMPILER
+
 Compiler::value SetSTD::in_any(Compiler& c, std::vector<Compiler::value> args, int) {
 	return c.insn_call(Type::any, {args[0], c.insn_to_any(args[1])}, "Value.operatorin");
 }
@@ -115,5 +120,7 @@ Compiler::value SetSTD::insert_real(Compiler& c, std::vector<Compiler::value> ar
 Compiler::value SetSTD::insert_int(Compiler& c, std::vector<Compiler::value> args, int) {
 	return c.insn_call(Type::boolean, {args[0], c.to_int(args[1])}, "Set.insert_fun.2");
 }
+
+#endif
 
 }

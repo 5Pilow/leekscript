@@ -26,7 +26,9 @@ public:
 	virtual bool will_store(SemanticAnalyzer* analyzer, const Type* type) override;
 	virtual bool elements_will_store(SemanticAnalyzer* analyzer, const Type* type, int level) override;
 
+	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;
+	#endif
 
 	virtual std::unique_ptr<Value> clone() const override;
 };

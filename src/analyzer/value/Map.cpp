@@ -72,6 +72,7 @@ void Map::analyze(SemanticAnalyzer* analyzer) {
 	type = Type::tmp_map(key_type, value_type);
 }
 
+#if COMPILER
 Compiler::value Map::compile(Compiler &c) const {
 
 	std::string create;
@@ -102,6 +103,7 @@ Compiler::value Map::compile(Compiler &c) const {
 	c.inc_ops(ops);
 	return map;
 }
+#endif
 
 std::unique_ptr<Value> Map::clone() const {
 	auto map = std::make_unique<Map>();

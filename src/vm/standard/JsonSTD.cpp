@@ -11,12 +11,14 @@ namespace ls {
 JsonSTD::JsonSTD(VM* vm) : Module(vm, "Json") {
 
 	method("encode", {
-		{Type::tmp_string, {Type::const_any}, encode}
+		{Type::tmp_string, {Type::const_any}, ADDR(encode)}
 	});
 	method("decode", {
 		{Type::tmp_any, {Type::const_string}, (void*) decode},
 	});
 }
+
+#if COMPILER
 
 Compiler::value JsonSTD::encode(Compiler& c, std::vector<Compiler::value> args, int) {
 	if (args[0].t->is_integer()) {
@@ -48,5 +50,7 @@ LSValue* JsonSTD::decode(LSString* string) {
 		return LSNull::get();
 	}
 }
+
+#endif
 
 }

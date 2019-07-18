@@ -1,5 +1,4 @@
 #include "FunctionVersion.hpp"
-#include "../Compiler.hpp"
 #include "../../type/Type.hpp"
 #include "../value/Function.hpp"
 #include "../../vm/VM.hpp"
@@ -12,14 +11,13 @@
 #include "../../type/Compound_type.hpp"
 #include "../../type/Function_type.hpp"
 #include "Variable.hpp"
+#if COMPILER
+#include "../../compiler/Compiler.hpp"
+#endif
 
 namespace ls {
 
 FunctionVersion::FunctionVersion(std::unique_ptr<Block> body) : body(std::move(body)), type(Type::void_) {}
-
-bool FunctionVersion::is_compiled() const {
-	return fun.v != nullptr;
-}
 
 void FunctionVersion::print(std::ostream& os, int indent, bool debug, bool condensed) const {
 	if (parent->arguments.size() != 1) {
@@ -238,6 +236,11 @@ Variable* FunctionVersion::capture(SemanticAnalyzer* analyzer, Variable* var) {
 	}
 }
 
+#if COMPILER
+
+bool FunctionVersion::is_compiled() const {
+	return fun.v != nullptr;
+}
 void FunctionVersion::create_function(Compiler& c) {
 	if (fun.v) return;
 
@@ -463,5 +466,6 @@ llvm::BasicBlock* FunctionVersion::get_landing_pad(const Compiler& c) {
 	c.builder.restoreIP(savedIP);
 	return landing_pad;
 }
+#endif
 
 }

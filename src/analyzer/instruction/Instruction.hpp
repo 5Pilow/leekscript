@@ -2,9 +2,12 @@
 #define INSTRUCTION_HPP
 
 #include <ostream>
-#include "../Compiler.hpp"
+#include "../../constants.h"
 #include "../lexical/Token.hpp"
 #include "../../type/Type.hpp"
+#if COMPILER
+#include "../../compiler/Compiler.hpp"
+#endif
 
 namespace ls {
 
@@ -29,9 +32,11 @@ public:
 	virtual void pre_analyze(SemanticAnalyzer* analyzer);
 	virtual void analyze(SemanticAnalyzer* analyzer, const Type* type = Type::any) = 0;
 
+	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const = 0;
 	virtual Compiler::value compile_end(Compiler&) const;
-
+	#endif
+	
 	virtual std::unique_ptr<Instruction> clone() const = 0;
 
 	std::string tabs(int indent) const;

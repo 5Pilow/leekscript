@@ -44,7 +44,9 @@ public:
 	void set_version(SemanticAnalyzer*, const std::vector<const Type*>& args, int level) override;
 	virtual const Type* version_type(std::vector<const Type*>) const override;
 
+	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;
+	#endif
 
 	virtual std::unique_ptr<Value> clone() const override;
 };

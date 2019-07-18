@@ -142,6 +142,7 @@ void Block::analyze(SemanticAnalyzer* analyzer) {
 	}
 }
 
+#if COMPILER
 Compiler::value Block::compile(Compiler& c) const {
 
 	// std::cout << "Compile block " << type << std::endl;
@@ -223,6 +224,7 @@ Compiler::value Block::compile(Compiler& c) const {
 	}
 	return {};
 }
+#endif
 
 std::unique_ptr<Value> Block::clone() const {
 	auto b = std::make_unique<Block>(is_function_block);

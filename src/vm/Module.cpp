@@ -25,7 +25,9 @@ bool Module::STORE_ARRAY_SIZE = true;
 
 Module::Module(VM* vm, std::string name) : vm(vm), name(name) {
 	clazz = std::make_unique<Class>(name);
+	#if COMPILER
 	lsclass = std::make_unique<LSClass>(clazz.get());
+	#endif
 	if (name != "Value") {
 		clazz->parent = vm->internal_vars["Value"]->clazz;
 	}

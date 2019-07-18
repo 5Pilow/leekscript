@@ -27,8 +27,8 @@ void Break::analyze(SemanticAnalyzer* analyzer, const Type*) {
 	}
 }
 
+#if COMPILER
 Compiler::value Break::compile(Compiler& c) const {
-
 	/*	{ for {
 	 *		let x = ...
 	 *		{
@@ -41,14 +41,12 @@ Compiler::value Break::compile(Compiler& c) const {
 	 *		label end
 	 *	}
 	 */
-
 	c.delete_variables_block(c.get_current_loop_blocks(deepness));
-
 	c.insn_branch(c.get_current_loop_end_label(deepness));
 	c.insert_new_generation_block();
-	
 	return {};
 }
+#endif
 
 std::unique_ptr<Instruction> Break::clone() const {
 	auto b = std::make_unique<Break>();

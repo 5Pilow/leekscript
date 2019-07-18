@@ -37,6 +37,7 @@ void Throw::analyze(SemanticAnalyzer* analyzer, const Type*) {
 	}
 }
 
+#if COMPILER
 Compiler::value Throw::compile(Compiler& c) const {
 
 	auto exception = c.new_integer((int) vm::Exception::EXCEPTION);
@@ -49,6 +50,7 @@ Compiler::value Throw::compile(Compiler& c) const {
 
 	return {};
 }
+#endif
 
 std::unique_ptr<Instruction> Throw::clone() const {
 	auto ex = expression ? expression->clone() : nullptr;

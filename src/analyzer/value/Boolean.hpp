@@ -17,8 +17,10 @@ public:
 
 	virtual void print(std::ostream&, int indent, bool debug, bool condensed) const override;
 	virtual Location location() const override;
-
+	
+	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;
+	#endif
 
 	virtual std::unique_ptr<Value> clone() const override;
 };

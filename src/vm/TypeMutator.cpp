@@ -24,6 +24,7 @@ void ConvertMutator::apply(SemanticAnalyzer* analyzer, std::vector<Value*> value
 	}
 }
 
+#if COMPILER
 int ConvertMutator::compile(Compiler& c, CallableVersion* callable, std::vector<Value*> values) const {
 	// std::cout << "ConvertMutator" << std::endl;
 	if (auto vv = dynamic_cast<VariableValue*>(values[0])) {
@@ -82,6 +83,7 @@ int ConvertMutator::compile(Compiler& c, CallableVersion* callable, std::vector<
 	}
 	return 0;
 }
+#endif
 
 void ChangeValueMutator::apply(SemanticAnalyzer* analyzer, std::vector<Value*> values, const Type* return_type) const {
 	// std::cout << "Change value mutator " << values[0]->type << " => " << return_type << std::endl;
@@ -108,6 +110,7 @@ void ChangeValueMutator::apply(SemanticAnalyzer* analyzer, std::vector<Value*> v
 	}
 }
 
+#if COMPILER
 int ChangeValueMutator::compile(Compiler& c, CallableVersion* callable, std::vector<Value*> values) const {
 	// std::cout << "ChangeValueMutator " << std::endl;
 	if (auto vv = dynamic_cast<VariableValue*>(values[0])) {
@@ -144,6 +147,7 @@ int ChangeValueMutator::compile(Compiler& c, CallableVersion* callable, std::vec
 	}
 	return 0;
 }
+#endif
 
 void WillTakeMutator::apply(SemanticAnalyzer* analyzer, std::vector<Value*> values, const Type* return_type) const {
 	values[1]->will_take(analyzer, {Type::any}, 1);

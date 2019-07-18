@@ -3,10 +3,14 @@
 
 #include <map>
 #include <vector>
-#include "../Compiler.hpp"
+#include <memory>
+#include "../../constants.h"
 #include "../lexical/Location.hpp"
 #include "../semantic/Call.hpp"
 #include "../semantic/Assignment.hpp"
+#if COMPILER
+#include "../../compiler/Compiler.hpp"
+#endif
 
 namespace ls {
 
@@ -50,9 +54,11 @@ public:
 	virtual Call get_callable(SemanticAnalyzer*, int argument_count) const;
 	virtual void analyze(SemanticAnalyzer*);
 
+	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const = 0;
 	virtual Compiler::value compile_version(Compiler&, std::vector<const Type*>) const;
 	virtual void compile_end(Compiler&) const {}
+	#endif
 
 	virtual std::unique_ptr<Value> clone() const = 0;
 

@@ -165,6 +165,7 @@ const Type* ArrayAccess::version_type(std::vector<const Type*> version) const {
 	}
 }
 
+#if COMPILER
 Compiler::value ArrayAccess::compile(Compiler& c) const {
 
 	c.mark_offset(open_bracket->location.start.line);
@@ -322,6 +323,7 @@ Compiler::value ArrayAccess::compile_l(Compiler& c) const {
 void ArrayAccess::compile_end(Compiler& c) const {
 	c.pop_temporary_value();
 }
+#endif
 
 std::unique_ptr<Value> ArrayAccess::clone() const {
 	auto aa = std::make_unique<ArrayAccess>();

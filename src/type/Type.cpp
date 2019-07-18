@@ -592,6 +592,7 @@ std::ostream& operator << (std::ostream& os, const std::vector<const Type*>& typ
 	return os;
 }
 
+#if COMPILER
 std::ostream& operator << (std::ostream& os, const llvm::Type* type) {
 	std::string str;
 	llvm::raw_string_ostream rso(str);
@@ -599,5 +600,6 @@ std::ostream& operator << (std::ostream& os, const llvm::Type* type) {
 	os << rso.str();
 	return os;
 }
+#endif
 
 }

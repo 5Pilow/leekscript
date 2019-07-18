@@ -11,10 +11,12 @@ namespace ls {
 
 ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 
+	#if COMPILER
 	LSArray<LSValue*>::clazz = lsclass.get();
 	LSArray<char>::clazz = lsclass.get();
 	LSArray<int>::clazz = lsclass.get();
 	LSArray<double>::clazz = lsclass.get();
+	#endif
 
 	/*
 	 * Constructor
@@ -30,14 +32,14 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	 * Operators
 	 */
 	operator_("in", {
-		{Type::const_array(), Type::const_any, Type::boolean, in, THROWS},
+		{Type::const_array(), Type::const_any, Type::boolean, ADDR(in), THROWS},
 	});
 
 	auto aT = Type::template_("T");
 	auto aE = Type::template_("E");
 	template_(aT, aE).
 	operator_("+", {
-		{Type::const_array(aT), aE, Type::tmp_array(Type::meta_add(aT, aE)), op_add},
+		{Type::const_array(aT), aE, Type::tmp_array(Type::meta_add(aT, aE)), ADDR(op_add)},
 	});
 
 	auto pqT = Type::template_("T");
@@ -45,25 +47,25 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	template_(pqT, pqE).
 	operator_("+=", {
 		// array<T> += E   ==> array<T | E>
-		{Type::array(pqT), pqE, Type::array(Type::meta_add(pqT, Type::meta_not_temporary(pqE))), array_add_eq, 0, { new ConvertMutator() }, true},
+		{Type::array(pqT), pqE, Type::array(Type::meta_add(pqT, Type::meta_not_temporary(pqE))), ADDR(array_add_eq), 0, { new ConvertMutator() }, true},
 		// array<T> += array<E>   ==> array<T | E>
-		{Type::array(pqT), Type::array(pqE), Type::array(Type::meta_add(pqT, pqE)), array_add_eq, 0, { new ConvertMutator() }, true},
+		{Type::array(pqT), Type::array(pqE), Type::array(Type::meta_add(pqT, pqE)), ADDR(array_add_eq), 0, { new ConvertMutator() }, true},
 	});
 
 	auto ttE = Type::template_("E");
 	auto ttR = Type::template_("R");
 	template_(ttE, ttR).
 	operator_("~~", {
-		{Type::const_array(ttE), Type::fun(ttR, {ttE}), Type::tmp_array(ttR), map},
+		{Type::const_array(ttE), Type::fun(ttR, {ttE}), Type::tmp_array(ttR), ADDR(map)},
 	});
 
 	/*
 	 * Methods
 	 */
 	method("copy", {
-		{Type::tmp_array(), {Type::const_array()}, ValueSTD::copy},
-		{Type::tmp_array(Type::real), {Type::const_array(Type::real)}, ValueSTD::copy},
-		{Type::tmp_array(Type::integer), {Type::const_array(Type::integer)}, ValueSTD::copy},
+		{Type::tmp_array(), {Type::const_array()}, ADDR(ValueSTD::copy)},
+		{Type::tmp_array(Type::real), {Type::const_array(Type::real)}, ADDR(ValueSTD::copy)},
+		{Type::tmp_array(Type::integer), {Type::const_array(Type::integer)}, ADDR(ValueSTD::copy)},
 	});
 	method("average", {
 		{Type::real, {Type::const_array()}, (void*) &LSArray<LSValue*>::ls_average},
@@ -101,7 +103,7 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	template_(iE).
 	method("iter", {
 		{Type::void_, {Type::const_array(iE), Type::fun(Type::void_, {iE})}, (void*) iter_ptr},
-		{Type::void_, {Type::const_array(iE), Type::fun(Type::void_, {iE})}, iter},
+		{Type::void_, {Type::const_array(iE), Type::fun(Type::void_, {iE})}, ADDR(iter)},
 	});
 
 	method("max", {
@@ -122,7 +124,7 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	template_(E, R).
 	method("map", {
 		{Type::tmp_array(R), {Type::const_array(E), Type::fun(R, {E})}, (void*) map_fun},
-		{Type::tmp_array(R), {Type::const_array(E), Type::fun(R, {E})}, map},
+		{Type::tmp_array(R), {Type::const_array(E), Type::fun(R, {E})}, ADDR(map)},
 	});
 
 	method("unique", {
@@ -137,7 +139,7 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 		{Type::array(), {Type::array()}, (void*) &LSArray<LSValue*>::ls_sort},
 		{Type::array(Type::real), {Type::array(Type::real)}, (void*) &LSArray<double>::ls_sort},
 		{Type::array(Type::integer), {Type::array(Type::integer)}, (void*) &LSArray<int>::ls_sort},
-		{Type::array(sT), {Type::array(sT), Type::fun_object(Type::boolean, {sT, sT})}, sort}
+		{Type::array(sT), {Type::array(sT), Type::fun_object(Type::boolean, {sT, sT})}, ADDR(sort)}
 	});
 
 	auto map2_fun_type = (const Type*) Type::fun_object(Type::any, {Type::any, Type::any});
@@ -155,7 +157,7 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	auto fiT = Type::template_("T");
 	template_(fiT).
 	method("filter", {
-		{Type::tmp_array(fiT), {Type::const_array(fiT), Type::fun(Type::boolean, {fiT})}, filter},
+		{Type::tmp_array(fiT), {Type::const_array(fiT), Type::fun(Type::boolean, {fiT})}, ADDR(filter)},
 	});
 
 	method("isEmpty", {
@@ -186,35 +188,35 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	});
 
 	method("partition", {
-		{Type::tmp_array(), {Type::array(), pred_fun_type}, partition},
-		{Type::tmp_array(), {Type::array(Type::real), pred_fun_type_float}, partition},
-		{Type::tmp_array(), {Type::array(Type::integer), pred_fun_type_int}, partition},
+		{Type::tmp_array(), {Type::array(), pred_fun_type}, ADDR(partition)},
+		{Type::tmp_array(), {Type::array(Type::real), pred_fun_type_float}, ADDR(partition)},
+		{Type::tmp_array(), {Type::array(Type::integer), pred_fun_type_int}, ADDR(partition)},
 	});
 
 	auto fT = Type::template_("T");
 	template_(fT).
 	method("first", {
-		{fT, {Type::const_array(fT)}, first}
+		{fT, {Type::const_array(fT)}, ADDR(first)}
 	});
 
 	auto lT = Type::template_("T");
 	template_(lT).
 	method("last", {
-		{lT, {Type::const_array(lT)}, last}
+		{lT, {Type::const_array(lT)}, ADDR(last)}
 	});
 
 	auto flT = Type::template_("T");
 	auto flR = Type::template_("R");
 	template_(flT, flR).
 	method("foldLeft", {
-		{flR, {Type::const_array(flT), Type::fun(flR, {Type::meta_not_temporary(flR), flT}), flR}, fold_left},
+		{flR, {Type::const_array(flT), Type::fun(flR, {Type::meta_not_temporary(flR), flT}), flR}, ADDR(fold_left)},
 	});
 
 	auto frT = Type::template_("T");
 	auto frR = Type::template_("R");
 	template_(frT, frR).
 	method("foldRight", {
-		{frR, {Type::const_array(frT), Type::fun(frR, {frT, Type::meta_not_temporary(frR)}), frR}, fold_right},
+		{frR, {Type::const_array(frT), Type::fun(frR, {frT, Type::meta_not_temporary(frR)}), frR}, ADDR(fold_right)},
 	});
 
 	method("pop", {
@@ -233,7 +235,7 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	template_(pT, pE).
 	method("push", {
 		{Type::array(Type::any), {Type::array(), Type::const_any}, (void*) &LSArray<LSValue*>::ls_push, 0, { new ConvertMutator() }},
-		{Type::array(Type::meta_mul(pT, Type::meta_not_temporary(pE))), {Type::array(pT), pE}, push, 0, { new ConvertMutator() }},
+		{Type::array(Type::meta_mul(pT, Type::meta_not_temporary(pE))), {Type::array(pT), pE}, ADDR(push), 0, { new ConvertMutator() }},
 	});
 
 	// void (LSArray<int>::*push_int)(int&&) = &LSArray<int>::push_back;
@@ -248,7 +250,7 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	auto paY = Type::template_("Y");
 	template_(paX, paY).
 	method("pushAll", {
-		{Type::array(Type::meta_add(paX, paY)), {Type::array(paX), Type::array(paY)}, push_all, 0, { new ConvertMutator() }}
+		{Type::array(Type::meta_add(paX, paY)), {Type::array(paX), Type::array(paY)}, ADDR(push_all), 0, { new ConvertMutator() }}
 	});
 
 	method("join", {
@@ -264,8 +266,8 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	auto T = Type::template_("T");
 	template_(T).
 	method("fill", {
-		{Type::array(T), {Type::array(), T}, fill, 0, { new ConvertMutator(STORE_ARRAY_SIZE) }},
-		{Type::array(T), {Type::array(), T, Type::const_integer}, fill, 0, { new ConvertMutator() }},
+		{Type::array(T), {Type::array(), T}, ADDR(fill), 0, { new ConvertMutator(STORE_ARRAY_SIZE) }},
+		{Type::array(T), {Type::array(), T, Type::const_integer}, ADDR(fill), 0, { new ConvertMutator() }},
 	});
 
 	method("insert", {
@@ -287,11 +289,11 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	});
 
 	method("removeElement", {
-		{Type::boolean, {Type::array(), Type::const_any}, remove_element_any},
-		{Type::boolean, {Type::array(Type::real), Type::const_any}, remove_element_real},
-		{Type::boolean, {Type::array(Type::real), Type::const_real}, remove_element_real},
-		{Type::boolean, {Type::array(Type::integer), Type::const_any}, remove_element_int},
-		{Type::boolean, {Type::array(Type::integer), Type::integer}, remove_element_int},
+		{Type::boolean, {Type::array(), Type::const_any}, ADDR(remove_element_any)},
+		{Type::boolean, {Type::array(Type::real), Type::const_any}, ADDR(remove_element_real)},
+		{Type::boolean, {Type::array(Type::real), Type::const_real}, ADDR(remove_element_real)},
+		{Type::boolean, {Type::array(Type::integer), Type::const_any}, ADDR(remove_element_int)},
+		{Type::boolean, {Type::array(Type::integer), Type::integer}, ADDR(remove_element_int)},
 	});
 
 	method("reverse", {
@@ -313,10 +315,10 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 	});
 
 	method("size", {
-		{Type::any, {Type::const_any}, (void*) &LSArray<LSValue*>::ls_size_ptr},
-		{Type::integer, {Type::const_any}, size},
-		{Type::integer, {Type::const_array(Type::real)}, size},
-		{Type::integer, {Type::const_array(Type::integer)}, size}
+		{Type::any, {Type::const_any}, ADDR((void*) &LSArray<LSValue*>::ls_size_ptr)},
+		{Type::integer, {Type::const_any}, ADDR(size)},
+		{Type::integer, {Type::const_array(Type::real)}, ADDR(size)},
+		{Type::integer, {Type::const_array(Type::integer)}, ADDR(size)}
 	});
 
 	method("sum", {
@@ -396,6 +398,8 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 		{Type::array(Type::integer), {Type::array(Type::integer), Type::array(Type::integer)}, (void*) &LSArray<int>::ls_push_all_int},
 	});
 }
+
+#if COMPILER
 
 Compiler::value ArraySTD::in(Compiler& c, std::vector<Compiler::value> args, int) {
 	const auto& type = args[0].t->element()->fold();
@@ -680,5 +684,7 @@ int ArraySTD::convert_key(LSValue* key_pointer) {
 	LSValue::delete_temporary(key_pointer);
 	return key_int;
 }
+
+#endif
 
 }

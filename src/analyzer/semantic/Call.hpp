@@ -2,7 +2,10 @@
 #define CALL_HPP_
 
 #include <vector>
-#include "../Compiler.hpp"
+#include "../../constants.h"
+#if COMPILER
+#include "../../compiler/Compiler.hpp"
+#endif
 
 namespace ls {
 
@@ -26,9 +29,10 @@ public:
 
 	const CallableVersion* resolve(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const;
 	void apply_mutators(SemanticAnalyzer* analyzer, const CallableVersion* version, std::vector<Value*> arguments) const;
+	#if COMPILER
 	Compiler::value pre_compile_call(Compiler& c) const;
 	Compiler::value compile_call(Compiler& c, const CallableVersion* version, std::vector<Compiler::value> args, int flags) const;
-	
+	#endif
 };
 
 }

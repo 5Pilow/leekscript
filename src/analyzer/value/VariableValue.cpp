@@ -18,9 +18,11 @@ VariableValue::VariableValue(Token* token) : token(token), previous_type(Type::v
 	this->name = token->content;
 	this->var = nullptr;
 	constant = false;
+	#if COMPILER
 	if (ls_function != nullptr) {
 		delete ls_function;
 	}
+	#endif
 }
 
 bool VariableValue::isLeftValue() const {
@@ -52,47 +54,47 @@ Call VariableValue::get_callable(SemanticAnalyzer* analyzer, int argument_count)
 		auto T = Type::template_("T");
 		auto R = Type::template_("R");
 		auto type = Type::fun(R, {T, Type::fun(R, {T})});
-		auto fun = [&](Compiler& c, std::vector<Compiler::value> args, bool) {
+		auto fun = ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 			return c.insn_call(args[1], {args[0]});
-		};
+		});
 		return { new CallableVersion { name, type, fun, {}, {R, T} } };
 	}
 	if (name == "Number") {
 		return {
-			new CallableVersion { "Number", Type::fun(Type::integer, {}), [&](Compiler& c, std::vector<Compiler::value>, bool) {
+			new CallableVersion { "Number", Type::fun(Type::integer, {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
 				return c.new_integer(0);
-			} },
-			new CallableVersion { "Number", Type::fun(Type::real, {Type::real}), [&](Compiler& c, std::vector<Compiler::value> args, bool) {
+			}) },
+			new CallableVersion { "Number", Type::fun(Type::real, {Type::real}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 				return c.to_real(args[0]);
-			} },
-			new CallableVersion { "Number", Type::fun(Type::tmp_mpz_ptr, {Type::mpz_ptr}), [&](Compiler& c, std::vector<Compiler::value> args, bool) {
+			}) },
+			new CallableVersion { "Number", Type::fun(Type::tmp_mpz_ptr, {Type::mpz_ptr}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 				return args[0];
-			} }
+			}) }
 		};
 	}
 	if (name == "Boolean") {
 		auto type = Type::fun(Type::boolean, {});
-		return { new CallableVersion { "Boolean", type, [&](Compiler& c, std::vector<Compiler::value>, bool) {
+		return { new CallableVersion { "Boolean", type, ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
 			return c.new_bool(false);
-		} } };
+		}) } };
 	}
 	if (name == "String") {
 		return {
 			new CallableVersion { "String.new", Type::fun(Type::tmp_string, {}) },
-			new CallableVersion { "String", Type::fun(Type::tmp_string, {Type::string}), [&](Compiler& c, std::vector<Compiler::value> args, bool) {
+			new CallableVersion { "String", Type::fun(Type::tmp_string, {Type::string}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 				return args[0];
-			} }
+			}) }
 		};
 	}
 	if (name == "Array") {
-		return { new CallableVersion { "Array", Type::fun(Type::array(Type::any), {}), [&](Compiler& c, std::vector<Compiler::value>, bool) {
+		return { new CallableVersion { "Array", Type::fun(Type::array(Type::any), {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
 			return c.new_array(Type::void_, {});
-		} } };
+		}) } };
 	}
 	if (name == "Object") {
-		return { new CallableVersion { "Object", Type::fun(Type::tmp_object, {}), [&](Compiler& c, std::vector<Compiler::value>, bool) {
+		return { new CallableVersion { "Object", Type::fun(Type::tmp_object, {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
 			return c.new_object();
-		} } };
+		}) } };
 	}
 	if (name == "Set") {
 		return { new CallableVersion { "Set.new", Type::fun(Type::tmp_set(Type::any), {}) } };
@@ -100,9 +102,9 @@ Call VariableValue::get_callable(SemanticAnalyzer* analyzer, int argument_count)
 	if (type->is_class()) {
 		auto type = Type::fun(Type::any, {Type::clazz()});
 		return { new Callable {
-			{ new CallableVersion { name, type, [&](Compiler& c, std::vector<Compiler::value> args, bool) {
+			{ new CallableVersion { name, type, ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 				return c.new_object_class(args[0]);
-			} } }
+			}) } }
 		}, (Value*) this };
 	}
 	if (var) {
@@ -185,7 +187,9 @@ void VariableValue::analyze(SemanticAnalyzer* analyzer) {
 				for (const auto& c : cl->static_fields) {
 					if (c.first == name) {
 						type = c.second.type;
+						#if COMPILER
 						static_access_function = c.second.static_fun;
+						#endif
 						found = true;
 						break;
 					}
@@ -265,6 +269,7 @@ const Type* VariableValue::version_type(std::vector<const Type*> version) const 
 	return type;
 }
 
+#if COMPILER
 Compiler::value VariableValue::compile(Compiler& c) const {
 	// std::cout << "Compile var " << name << " " << type << std::endl;
 	// std::cout << "Compile vv " << name << " : " << type << "(" << (int) scope << ")" << std::endl;
@@ -362,6 +367,7 @@ Compiler::value VariableValue::compile_l(Compiler& c) const {
 	}
 	return v;
 }
+#endif
 
 std::unique_ptr<Value> VariableValue::clone() const {
 	return std::make_unique<VariableValue>(token);

@@ -72,7 +72,9 @@ LSString* iterator_get(unsigned int c, LSString* previous) {
 
 StringSTD::StringSTD(VM* vm) : Module(vm, "String") {
 
+	#if COMPILER
 	LSString::string_class = lsclass.get();
+	#endif
 
 	/*
 	 * Constructor
@@ -97,21 +99,21 @@ StringSTD::StringSTD(VM* vm) : Module(vm, "String") {
 	auto aeT = Type::template_("T");
 	template_(aeT).
 	operator_("+=", {
-		{Type::string, aeT, Type::string, add_eq, 0, {}, true},
+		{Type::string, aeT, Type::string, ADDR(add_eq), 0, {}, true},
 	});
 
 	operator_("<", {
-		{Type::string, Type::string, Type::boolean, lt}
+		{Type::string, Type::string, Type::boolean, ADDR(lt)}
 	});
 	operator_("/", {
-		{Type::string, Type::string, Type::tmp_array(Type::string), div}
+		{Type::string, Type::string, Type::tmp_array(Type::string), ADDR(div)}
 	});
 
 	/*
 	 * Methods
 	 */
 	method("copy", {
-		{Type::string, {Type::const_string}, ValueSTD::copy}
+		{Type::string, {Type::const_string}, ADDR(ValueSTD::copy)}
 	});
 	method("charAt", {
 		{Type::string, {Type::const_string, Type::const_integer}, (void*) string_charAt},
@@ -125,8 +127,8 @@ StringSTD::StringSTD(VM* vm) : Module(vm, "String") {
 	auto fold_fun_type = Type::fun(Type::any, {Type::any, Type::string});
 	auto fold_clo_type = Type::closure(Type::any, {Type::any, Type::string});
 	method("fold", {
-		{Type::any, {Type::string, fold_fun_type, Type::any}, fold_fun},
-		{Type::any, {Type::string, fold_clo_type, Type::any}, fold_fun},
+		{Type::any, {Type::string, fold_fun_type, Type::any}, ADDR(fold_fun)},
+		{Type::any, {Type::string, fold_clo_type, Type::any}, ADDR(fold_fun)},
 	});
 	method("indexOf", {
 		{Type::integer, {Type::string, Type::string}, (void*) string_indexOf},
@@ -233,6 +235,7 @@ StringSTD::StringSTD(VM* vm) : Module(vm, "String") {
 
 StringSTD::~StringSTD() {}
 
+#if COMPILER
 /*
  * Operators
  */
@@ -509,5 +512,7 @@ LSValue* StringSTD::string_left(LSString* string, int pos) {
 LSValue* StringSTD::string_left_tmp(LSString* string, int pos) {
 	return &string->operator = (string->substr(0, std::max(0, pos)));
 }
+
+#endif
 
 }

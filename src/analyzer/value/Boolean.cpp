@@ -21,9 +21,11 @@ Location Boolean::location() const {
 	return token->location;
 }
 
+#if COMPILER
 Compiler::value Boolean::compile(Compiler& c) const {
 	return c.new_bool(value);
 }
+#endif
 
 std::unique_ptr<Value> Boolean::clone() const {
 	auto b = std::make_unique<Boolean>(token);

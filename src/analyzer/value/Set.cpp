@@ -62,6 +62,7 @@ bool Set::will_store(SemanticAnalyzer* analyzer, const Type* type) {
 	return false;
 }
 
+#if COMPILER
 Compiler::value Set::compile(Compiler& c) const {
 	auto create = type->element()->is_integer() ? "Set.new.2" : type->element()->is_real() ? "Set.new.1" : "Set.new";
 	auto insert = type->element()->is_integer() ? "Set.vinsert.2" : type->element()->is_real() ? "Set.vinsert.1" : "Set.vinsert";
@@ -79,6 +80,7 @@ Compiler::value Set::compile(Compiler& c) const {
 	c.inc_ops(ops);
 	return s;
 }
+#endif
 
 std::unique_ptr<Value> Set::clone() const {
 	auto s = std::make_unique<Set>();

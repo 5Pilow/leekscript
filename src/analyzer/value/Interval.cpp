@@ -37,6 +37,7 @@ void Interval::analyze(SemanticAnalyzer* analyzer) {
 	end->analyze(analyzer);
 }
 
+#if COMPILER
 Compiler::value Interval::compile(Compiler& c) const {
 	auto a = start->compile(c);
 	auto b = end->compile(c);
@@ -47,6 +48,7 @@ Compiler::value Interval::compile(Compiler& c) const {
 	c.insn_delete_temporary(b);
 	return interval;
 }
+#endif
 
 std::unique_ptr<Value> Interval::clone() const {
 	auto interval = std::make_unique<Interval>();

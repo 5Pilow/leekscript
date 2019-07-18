@@ -23,7 +23,9 @@ public:
 		inline bool is_default() const { return !begin && !end; }
 
 		void print(std::ostream&, int indent, bool debug) const;
+		#if COMPILER
 		Compiler::value match(Compiler &c, Compiler::value v) const;
+		#endif
 
 		Pattern&& clone() const {
 			Pattern p { begin->clone(), end->clone() };
@@ -41,9 +43,12 @@ public:
 
 	virtual void pre_analyze(SemanticAnalyzer*) override;
 	virtual void analyze(SemanticAnalyzer*) override;
+
+	#if COMPILER
 	Compiler::value construct_branch(Compiler& c, Compiler::value v, size_t i) const;
 	Compiler::value get_pattern_condition(Compiler& c, Compiler::value v, const std::vector<Pattern>&) const;
 	virtual Compiler::value compile(Compiler&) const override;
+	#endif
 
 	virtual std::unique_ptr<Value> clone() const override;
 };

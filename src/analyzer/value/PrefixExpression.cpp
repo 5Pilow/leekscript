@@ -102,6 +102,7 @@ void PrefixExpression::analyze(SemanticAnalyzer* analyzer) {
 	}
 }
 
+#if COMPILER
 Compiler::value PrefixExpression::compile(Compiler& c) const {
 
 	c.mark_offset(location().start.line);
@@ -233,6 +234,7 @@ Compiler::value PrefixExpression::compile(Compiler& c) const {
 		}
 	}
 }
+#endif
 
 std::unique_ptr<Value> PrefixExpression::clone() const {
 	return std::make_unique<PrefixExpression>(operatorr, expression->clone());

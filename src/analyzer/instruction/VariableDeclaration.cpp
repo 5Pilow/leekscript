@@ -93,6 +93,7 @@ void VariableDeclaration::analyze(SemanticAnalyzer* analyzer, const Type*) {
 	}
 }
 
+#if COMPILER
 Compiler::value VariableDeclaration::compile(Compiler& c) const {
 	for (unsigned i = 0; i < variables.size(); ++i) {
 		const auto& name = variables[i]->content;
@@ -116,6 +117,7 @@ Compiler::value VariableDeclaration::compile(Compiler& c) const {
 	}
 	return {};
 }
+#endif
 
 std::unique_ptr<Instruction> VariableDeclaration::clone() const {
 	auto vd = std::make_unique<VariableDeclaration>();

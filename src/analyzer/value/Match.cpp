@@ -78,6 +78,8 @@ void Match::analyze(ls::SemanticAnalyzer* analyzer) {
 	}
 }
 
+#if COMPILER
+
 Compiler::value Match::get_pattern_condition(Compiler& c, Compiler::value v, const std::vector<Pattern>& patterns) const {
 	auto cond = patterns[0].match(c, v);
 	for (size_t i = 1; i < patterns.size(); ++i) {
@@ -125,6 +127,7 @@ Compiler::value Match::compile(Compiler& c) const {
 	c.insn_delete(v);
 	return res;
 }
+#endif
 
 Match::Pattern::Pattern(std::unique_ptr<Value> value) : interval(false), begin(std::move(value)), end(nullptr) {}
 
@@ -142,6 +145,7 @@ void Match::Pattern::print(std::ostream &os, int indent, bool debug) const {
 	}
 }
 
+#if COMPILER
 Compiler::value Match::Pattern::match(Compiler &c, Compiler::value v) const {
 	if (interval) {
 		Compiler::value ge;
@@ -168,6 +172,7 @@ Compiler::value Match::Pattern::match(Compiler &c, Compiler::value v) const {
 		return c.insn_eq(p, v);
 	}
 }
+#endif
 
 std::unique_ptr<Value> Match::clone() const {
 	auto match = std::make_unique<Match>();

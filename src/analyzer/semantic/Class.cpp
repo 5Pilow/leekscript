@@ -12,14 +12,14 @@ Class::Class(std::string name) : name(name) {}
 
 Class::~Class() {
 	for (auto s : static_fields) {
-		#ifdef COMPILER
+		#if COMPILER
 		if (s.second.value != nullptr) {
 			delete s.second.value;
 		}
 		#endif
 	}
 	for (auto f : fields) {
-		#ifdef COMPILER
+		#if COMPILER
 		if (f.second.default_value != nullptr) {
 			delete f.second.default_value;
 		}
@@ -114,7 +114,7 @@ void Class::addOperator(std::string name, std::initializer_list<CallableVersion>
 	}
 }
 
-#ifdef COMPILER
+#if COMPILER
 LSFunction* Class::getDefaultMethod(const std::string& name) {
 	try {
 		auto& f = static_fields.at(name);

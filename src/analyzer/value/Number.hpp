@@ -32,7 +32,9 @@ public:
 	virtual void analyze(SemanticAnalyzer*) override;
 	virtual bool is_zero() const override;
 
+	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;
+	#endif
 
 	virtual std::unique_ptr<Value> clone() const override;
 };

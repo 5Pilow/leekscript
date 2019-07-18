@@ -96,6 +96,7 @@ void While::analyze(SemanticAnalyzer* analyzer, const Type*) {
 	}
 }
 
+#if COMPILER
 Compiler::value While::compile(Compiler& c) const {
 	c.mark_offset(token->location.start.line);
 	auto cond_label = c.insn_init_label("cond");
@@ -151,6 +152,7 @@ Compiler::value While::compile(Compiler& c) const {
 	}
 	return {};
 }
+#endif
 
 std::unique_ptr<Instruction> While::clone() const {
 	auto w = std::make_unique<While>();

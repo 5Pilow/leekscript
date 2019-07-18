@@ -26,9 +26,11 @@ void ArrayFor::analyze(SemanticAnalyzer* analyzer) {
 	throws = forr->throws;
 }
 
+#if COMPILER
 Compiler::value ArrayFor::compile(Compiler& c) const {
 	return forr->compile(c);
 }
+#endif
 
 std::unique_ptr<Value> ArrayFor::clone() const {
 	auto af = std::make_unique<ArrayFor>();

@@ -9,7 +9,9 @@ namespace ls {
 
 IntervalSTD::IntervalSTD(VM* vm) : Module(vm, "Interval") {
 
+	#if COMPILER
 	LSInterval::clazz = lsclass.get();
+	#endif
 
 	constructor_({
 		{Type::tmp_interval, {Type::integer, Type::integer}, (void*) &LSInterval::constructor}
@@ -25,14 +27,14 @@ IntervalSTD::IntervalSTD(VM* vm) : Module(vm, "Interval") {
 	auto ttR = Type::template_("R");
 	template_(ttR).
 	operator_("~~", {
-		{Type::tmp_array(ttR), {Type::const_interval, Type::fun(ttR, {Type::integer})}, ArraySTD::map},
+		{Type::tmp_array(ttR), {Type::const_interval, Type::fun(ttR, {Type::integer})}, ADDR(ArraySTD::map)},
 	});
 
 	/*
 	 * Methods
 	 */
 	method("copy", {
-		{Type::interval, {Type::interval}, ValueSTD::copy}
+		{Type::interval, {Type::interval}, ADDR(ValueSTD::copy)}
 	});
 	auto pred_fun_type_int = Type::fun_object(Type::boolean, {Type::integer});
 	auto pred_clo_type_int = Type::closure(Type::boolean, {Type::integer});
@@ -46,7 +48,7 @@ IntervalSTD::IntervalSTD(VM* vm) : Module(vm, "Interval") {
 	auto mapR = Type::template_("R");
 	template_(mapR).
 	method("map", {
-		{Type::tmp_array(mapR), {Type::const_interval, Type::fun(mapR, {Type::integer})}, ArraySTD::map},
+		{Type::tmp_array(mapR), {Type::const_interval, Type::fun(mapR, {Type::integer})}, ADDR(ArraySTD::map)},
 	});
 
 	method("sum", {

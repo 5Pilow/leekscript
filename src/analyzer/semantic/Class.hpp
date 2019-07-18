@@ -4,9 +4,10 @@
 #include <string>
 #include <unordered_map>
 #include <functional>
+#include "../../constants.h"
 #include "Callable.hpp"
 #include "CallableVersion.hpp"
-#ifdef COMPILER
+#if COMPILER
 #include "../../compiler/Compiler.hpp"
 #endif
 
@@ -25,7 +26,7 @@ public:
 		const Type* type;
 		void* native_fun = nullptr;
 		void* addr = nullptr;
-		#ifdef COMPILER
+		#if COMPILER
 		LSValue* value = nullptr;
 		std::function<Compiler::value(Compiler&, Compiler::value)> fun = nullptr;
 		std::function<Compiler::value(Compiler&)> static_fun = nullptr;
@@ -33,7 +34,7 @@ public:
 		#endif
 		field(std::string name, const Type* type) : name(name), type(type) {}
 		field(std::string name, const Type* type, void* addr, bool) : name(name), type(type), addr(addr) {}
-		#ifdef COMPILER
+		#if COMPILER
 		field(std::string name, const Type* type, std::function<Compiler::value(Compiler&, Compiler::value)> fun, LSValue* default_value) : name(name), type(type), fun(fun), default_value(default_value) {}
 		field(std::string name, const Type* type, std::function<Compiler::value(Compiler&)> static_fun) : name(name), type(type), static_fun(static_fun) {}
 		field(std::string name, const Type* type, void* fun, LSValue* default_value) : name(name), type(type), native_fun(fun), default_value(default_value) {}
@@ -60,7 +61,7 @@ public:
 	void addStaticField(field f);
 	void addOperator(std::string name, std::initializer_list<CallableVersion>, std::vector<const Type*> templates = {}, bool legacy = false);
 	const Callable* getOperator(SemanticAnalyzer* analyzer, std::string& name);
-	#ifdef COMPILER
+	#if COMPILER
 	LSFunction* getDefaultMethod(const std::string& name);
 	#endif
 };

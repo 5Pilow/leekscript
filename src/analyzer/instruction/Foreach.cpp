@@ -131,6 +131,7 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	}
 }
 
+#if COMPILER
 Compiler::value Foreach::compile(Compiler& c) const {
 	auto container_v = container->compile(c);
 	value_var->create_entry(c);
@@ -146,6 +147,7 @@ Compiler::value Foreach::compile(Compiler& c) const {
 	}
 	return result;
 }
+#endif
 
 std::unique_ptr<Instruction> Foreach::clone() const {
 	auto f = std::make_unique<Foreach>();

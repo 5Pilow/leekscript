@@ -56,9 +56,11 @@ bool Value::is_zero() const {
 	return false;
 }
 
+#if COMPILER
 Compiler::value Value::compile_version(Compiler& c, std::vector<const Type*>) const {
 	return compile(c);
 }
+#endif
 
 std::string Value::tabs(int indent) {
 	return std::string(indent * 4, ' ');

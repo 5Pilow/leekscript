@@ -32,6 +32,7 @@ void Call::apply_mutators(SemanticAnalyzer* analyzer, const CallableVersion* ver
 	}
 }
 
+#if COMPILER
 Compiler::value Call::pre_compile_call(Compiler& c) const {
 	assert(object != nullptr);
 	if (object->isLeftValue()) {
@@ -54,5 +55,6 @@ Compiler::value Call::compile_call(Compiler& c, const CallableVersion* version, 
 	}
 	return r;
 }
+#endif
 
 }

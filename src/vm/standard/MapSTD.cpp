@@ -42,6 +42,7 @@ std::map<int, int>::iterator end(LSMap<int, int>* map) {
 
 MapSTD::MapSTD(VM* vm) : Module(vm, "Map") {
 
+	#if COMPILER
 	LSMap<LSValue*, LSValue*>::clazz = lsclass.get();
 	LSMap<LSValue*, int>::clazz = lsclass.get();
 	LSMap<LSValue*, double>::clazz = lsclass.get();
@@ -51,6 +52,7 @@ MapSTD::MapSTD(VM* vm) : Module(vm, "Map") {
 	LSMap<double, LSValue*>::clazz = lsclass.get();
 	LSMap<double, int>::clazz = lsclass.get();
 	LSMap<double, double>::clazz = lsclass.get();
+	#endif
 
 	/*
 	 * Constructor
@@ -131,7 +133,7 @@ MapSTD::MapSTD(VM* vm) : Module(vm, "Map") {
 	auto lV = Type::template_("V");
 	template_(lK, lV).
 	method("look", {
-		{lV, {Type::const_map(lK, lV), lK, lV}, look},
+		{lV, {Type::const_map(lK, lV), lK, lV}, ADDR(look)},
 	});
 
 	method("min", {
@@ -176,7 +178,7 @@ MapSTD::MapSTD(VM* vm) : Module(vm, "Map") {
 	template_(iK, iV).
 	method("iter", {
 		{Type::void_, {Type::const_map(Type::any, Type::any), Type::fun(Type::void_, {Type::any, Type::any})}, (void*) iter_ptr, THROWS},
-		{Type::void_, {Type::const_map(iK, iV), Type::fun(Type::void_, {iK, iV})}, iter, THROWS},
+		{Type::void_, {Type::const_map(iK, iV), Type::fun(Type::void_, {iK, iV})}, ADDR(iter), THROWS},
 	});
 
 	auto flT = Type::template_("T");
@@ -185,7 +187,7 @@ MapSTD::MapSTD(VM* vm) : Module(vm, "Map") {
 	auto flR = Type::template_("R");
 	template_(flT, flK, flI, flR).
 	method("foldLeft", {
-		{flR, {Type::const_map(flK, flT), Type::fun(flR, {Type::meta_add(flI, flR), flK, flT}), flI}, fold_left},
+		{flR, {Type::const_map(flK, flT), Type::fun(flR, {Type::meta_add(flI, flR), flK, flT}), flI}, ADDR(fold_left)},
 	});
 
 	auto frT = Type::template_("T");
@@ -194,7 +196,7 @@ MapSTD::MapSTD(VM* vm) : Module(vm, "Map") {
 	auto frR = Type::template_("R");
 	template_(frT, frK, frI, frR).
 	method("foldRight", {
-		{frR, {Type::const_map(frK, frT), Type::fun(frR, {frK, frT, Type::meta_add(frI, frR)}), frI}, fold_right},
+		{frR, {Type::const_map(frK, frT), Type::fun(frR, {frK, frT, Type::meta_add(frI, frR)}), frI}, ADDR(fold_right)},
 	});
 
 	/** Internal **/
@@ -262,6 +264,8 @@ MapSTD::MapSTD(VM* vm) : Module(vm, "Map") {
 		{Type::integer, {Type::const_map(Type::integer, Type::integer), Type::integer, Type::integer}, (void*) &LSMap<int, int>::ls_look},
 	});
 }
+
+#if COMPILER
 
 Compiler::value MapSTD::look(Compiler& c, std::vector<Compiler::value> args, int) {
 	auto map = args[0];
@@ -331,5 +335,7 @@ Compiler::value MapSTD::iter(Compiler& c, std::vector<Compiler::value> args, int
 	});
 	return {};
 }
+
+#endif
 
 }

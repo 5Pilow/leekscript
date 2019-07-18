@@ -18,7 +18,9 @@ public:
 	Token* open_bracket;
 	Token* close_bracket;
 	const Type* map_key_type = Type::void_;
+	#if COMPILER
 	Compiler::value compiled_array;
+	#endif
 
 	ArrayAccess();
 	
@@ -36,9 +38,11 @@ public:
 	virtual void change_value(SemanticAnalyzer*, Value*) override;
 	virtual const Type* version_type(std::vector<const Type*>) const override;
 
+	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;
 	virtual Compiler::value compile_l(Compiler&) const override;
 	virtual void compile_end(Compiler&) const override;
+	#endif
 
 	virtual std::unique_ptr<Value> clone() const override;
 };

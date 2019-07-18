@@ -22,12 +22,14 @@ public:
 	Call* call = nullptr;
 	bool class_field = false;
 	void* attr_addr = nullptr;
-	std::function<Compiler::value(Compiler&)> static_access_function = nullptr;
-	std::function<Compiler::value(Compiler&, Compiler::value)> access_function = nullptr;
 	std::string native_access_function = "";
 	std::string native_static_access_function = "";
 	const Type* field_type;
 	LSFunction* ls_function = nullptr;
+	#if COMPILER
+	std::function<Compiler::value(Compiler&)> static_access_function = nullptr;
+	std::function<Compiler::value(Compiler&, Compiler::value)> access_function = nullptr;
+	#endif
 
 	ObjectAccess(Token* token);
 	virtual ~ObjectAccess();
@@ -44,9 +46,11 @@ public:
 	virtual void pre_analyze(SemanticAnalyzer*) override;
 	virtual void analyze(SemanticAnalyzer*) override;
 
+	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;
 	virtual Compiler::value compile_version(Compiler& c, std::vector<const Type*> version) const;
 	virtual Compiler::value compile_l(Compiler&) const override;
+	#endif
 
 	virtual std::unique_ptr<Value> clone() const override;
 };

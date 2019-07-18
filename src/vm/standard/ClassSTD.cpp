@@ -6,7 +6,9 @@ namespace ls {
 
 ClassSTD::ClassSTD(VM* vm) : Module(vm, "Class") {
 
+	#if COMPILER
 	LSClass::_clazz = lsclass.get();
+	#endif
 
 	field("name", Type::string);
 
@@ -20,9 +22,11 @@ ClassSTD::ClassSTD(VM* vm) : Module(vm, "Class") {
 	});
 }
 
+#if COMPILER
 void ClassSTD::add_field(LSClass* clazz, char* field_name, LSValue* default_value) {
 	clazz->clazz->addField(field_name, Type::any, nullptr);
 	clazz->clazz->fields.at(field_name).default_value = default_value;
 }
+#endif
 
 }

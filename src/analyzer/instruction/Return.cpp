@@ -36,6 +36,7 @@ Location Return::location() const {
 	return expression->location();
 }
 
+#if COMPILER
 Compiler::value Return::compile(Compiler& c) const {
 	if (expression != nullptr) {
 		auto r = expression->compile(c);
@@ -53,6 +54,7 @@ Compiler::value Return::compile(Compiler& c) const {
 	c.insert_new_generation_block();
 	return {};
 }
+#endif
 
 std::unique_ptr<Instruction> Return::clone() const {
 	auto ex = expression ? expression->clone() : nullptr;

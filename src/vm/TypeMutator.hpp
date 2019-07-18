@@ -10,7 +10,9 @@ class SemanticAnalyzer;
 class TypeMutator {
 public:
 	virtual void apply(SemanticAnalyzer*, std::vector<Value*> values, const Type* return_type) const = 0;
+	#if COMPILER
 	virtual int compile(Compiler&, CallableVersion* callable, std::vector<Value*> values) const = 0;
+	#endif
 };
 class TypeExtractor {
 public:
@@ -22,14 +24,18 @@ public:
 	bool store_array_size = false;
 	ConvertMutator(bool store_array_size = false) : store_array_size(store_array_size) {}
 	virtual void apply(SemanticAnalyzer*, std::vector<Value*> values, const Type* return_type) const override;
+	#if COMPILER
 	virtual int compile(Compiler&, CallableVersion* callable, std::vector<Value*> values) const override;
+	#endif
 };
 
 class ChangeValueMutator : public TypeMutator {
 public:
 	ChangeValueMutator() {}
 	virtual void apply(SemanticAnalyzer*, std::vector<Value*> values, const Type* return_type) const override;
+	#if COMPILER
 	virtual int compile(Compiler&, CallableVersion* callable, std::vector<Value*> values) const override;
+	#endif
 };
 
 class WillTakeMutator : public TypeMutator {
