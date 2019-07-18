@@ -24,9 +24,11 @@ int Real_type::distance(const Type* type) const {
 	if (dynamic_cast<const Any_type*>(type->folded)) { return 5; }
 	return -1;
 }
+#if COMPILER
 llvm::Type* Real_type::llvm(const Compiler& c) const {
 	return llvm::Type::getDoubleTy(c.getContext());
 }
+#endif
 std::string Real_type::class_name() const {
 	return "Number";
 }

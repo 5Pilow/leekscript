@@ -54,12 +54,14 @@ int Pointer_type::distance(const Type* type) const {
 std::string Pointer_type::class_name() const {
 	return _type->class_name();
 }
+#if COMPILER
 llvm::Type* Pointer_type::llvm(const Compiler& c) const {
 	if (_llvm_type == nullptr) {
 		((Pointer_type*) this)->_llvm_type = _type->llvm(c)->getPointerTo();
 	}
 	return _llvm_type;
 }
+#endif
 std::ostream& Pointer_type::print(std::ostream& os) const {
 	os << _type << BLUE_BOLD << "*" << END_COLOR;
 	return os;

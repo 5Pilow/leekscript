@@ -31,9 +31,11 @@ int Number_type::distance(const Type* type) const {
 std::string Number_type::class_name() const {
 	return "Number";
 }
+#if COMPILER
 llvm::Type* Number_type::llvm(const Compiler& c) const {
 	assert(false);
 }
+#endif
 std::ostream& Number_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "number" << END_COLOR;
 	return os;

@@ -17,11 +17,13 @@ bool Template_type::operator == (const Type* type) const {
 	if (_implementation == Type::void_) return false;
 	return _implementation->operator == (type);
 }
+#if COMPILER
 llvm::Type* Template_type::llvm(const Compiler& c) const {
 	// assert(_implementation._types.size() > 0);
 	// return _implementation._types[0]->llvm();
 	return llvm::Type::getInt32Ty(c.getContext());
 }
+#endif
 std::ostream& Template_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << _name;
 	if (_implementation != Type::void_) {

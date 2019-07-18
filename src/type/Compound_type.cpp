@@ -45,10 +45,11 @@ void Compound_type::implement(const Type* type) const {
 		t->implement(type);
 	}
 }
+#if COMPILER
 llvm::Type* Compound_type::llvm(const Compiler& c) const {
 	return folded->llvm(c);
 }
-
+#endif
 std::string Compound_type::class_name() const {
 	return folded->class_name();
 }

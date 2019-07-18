@@ -15,7 +15,9 @@ public:
 	virtual const std::string getJsonName() const { return "meta_mul"; }
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;
+	#if COMPILER
 	virtual llvm::Type* llvm(const Compiler& c) const override;
+	#endif
 	virtual std::string class_name() const override;
 	virtual std::ostream& print(std::ostream& os) const override;
 	virtual Type* clone() const override;

@@ -21,7 +21,9 @@ public:
 	bool some(std::function<bool(const Type*)> fun) const;
 	virtual int distance(const Type* type) const override;
 	virtual void implement(const Type* type) const override;
+	#if COMPILER
 	virtual llvm::Type* llvm(const Compiler& c) const override;
+	#endif
 	virtual std::string class_name() const override;
 	virtual std::ostream& print(std::ostream& os) const override;
 	virtual Type* clone() const override;

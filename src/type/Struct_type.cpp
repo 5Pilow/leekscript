@@ -28,6 +28,7 @@ int Struct_type::distance(const Type* type) const {
 	}
 	return -1;
 }
+#if COMPILER
 llvm::Type* Struct_type::llvm(const Compiler& c) const {
 	if (_llvm_type == nullptr) {
 		std::vector<llvm::Type*> llvm_types;
@@ -38,6 +39,7 @@ llvm::Type* Struct_type::llvm(const Compiler& c) const {
 	}
 	return _llvm_type;
 }
+#endif
 std::string Struct_type::class_name() const {
 	return "Struct";
 }

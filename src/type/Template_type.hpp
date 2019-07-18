@@ -15,7 +15,9 @@ public:
 	Template_type(const std::string name) : _name(name) {}
 	virtual void implement(const Type* type) const override;
 	virtual bool operator == (const Type*) const override;
+	#if COMPILER
 	virtual llvm::Type* llvm(const Compiler& c) const override;
+	#endif
 	virtual std::ostream& print(std::ostream& os) const override;
 	virtual Type* clone() const override;
 	

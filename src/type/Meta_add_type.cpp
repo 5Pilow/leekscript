@@ -10,9 +10,11 @@ bool Meta_add_type::operator == (const Type* type) const {
 int Meta_add_type::distance(const Type* type) const {
 	return -1;
 }
+#if COMPILER
 llvm::Type* Meta_add_type::llvm(const Compiler& c) const {
 	return llvm::Type::getVoidTy(c.getContext());
 }
+#endif
 std::string Meta_add_type::class_name() const {
 	return "";
 }

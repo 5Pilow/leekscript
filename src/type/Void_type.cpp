@@ -11,9 +11,11 @@ int Void_type::distance(const Type* type) const {
 	if (dynamic_cast<const Void_type*>(type->folded)) { return 1; }
 	return -1;
 }
+#if COMPILER
 llvm::Type* Void_type::llvm(const Compiler& c) const {
 	return llvm::Type::getVoidTy(c.getContext());
 }
+#endif
 std::string Void_type::class_name() const {
 	return "";
 }

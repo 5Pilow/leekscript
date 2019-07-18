@@ -38,9 +38,11 @@ int Long_type::distance(const Type* type) const {
 	if (dynamic_cast<const Bool_type*>(type->folded)) { return 101; }
 	return -1;
 }
+#if COMPILER
 llvm::Type* Long_type::llvm(const Compiler& c) const {
 	return llvm::Type::getInt64Ty(c.getContext());
 }
+#endif
 std::string Long_type::class_name() const {
 	return "Number";
 }

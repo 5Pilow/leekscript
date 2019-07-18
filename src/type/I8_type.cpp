@@ -27,9 +27,11 @@ int I8_type::distance(const Type* type) const {
 	if (dynamic_cast<const Bool_type*>(type->folded)) { return 100; }
 	return -1;
 }
+#if COMPILER
 llvm::Type* I8_type::llvm(const Compiler& c) const {
 	return llvm::Type::getInt8Ty(c.getContext());
 }
+#endif
 std::string I8_type::class_name() const {
 	return "Number";
 }

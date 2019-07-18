@@ -59,6 +59,7 @@ const Type* Function_type::argument(size_t i) const {
 	}
 	return Type::any;
 }
+#if COMPILER
 llvm::Type* Function_type::llvm(const Compiler& c) const {
 	if (llvm_type) return llvm_type;
 	std::vector<llvm::Type*> llvm_types;
@@ -68,6 +69,7 @@ llvm::Type* Function_type::llvm(const Compiler& c) const {
 	((Function_type*) this)->llvm_type = llvm::FunctionType::get(_return_type->llvm(c), llvm_types, false);
 	return llvm_type;
 }
+#endif
 std::string Function_type::class_name() const {
 	return "Function";
 }

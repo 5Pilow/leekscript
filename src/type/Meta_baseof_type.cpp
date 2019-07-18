@@ -14,9 +14,11 @@ bool Meta_baseof_type::operator == (const Type* type) const {
 int Meta_baseof_type::distance(const Type* type) const {
 	return -1;
 }
+#if COMPILER
 llvm::Type* Meta_baseof_type::llvm(const Compiler& c) const {
 	return llvm::Type::getVoidTy(c.getContext());
 }
+#endif
 std::string Meta_baseof_type::class_name() const {
 	return "";
 }

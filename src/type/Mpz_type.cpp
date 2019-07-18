@@ -12,7 +12,9 @@
 
 namespace ls {
 
+#if COMPILER
 llvm::Type* Mpz_type::mpz_type = nullptr;
+#endif
 
 bool Mpz_type::operator == (const Type* type) const {
 	return dynamic_cast<const Mpz_type*>(type) != nullptr;
@@ -28,9 +30,11 @@ int Mpz_type::distance(const Type* type) const {
 	if (dynamic_cast<const Bool_type*>(type->folded)) { return 400; }
 	return -1;
 }
+#if COMPILER
 llvm::Type* Mpz_type::llvm(const Compiler& c) const {
 	return get_mpz_type(c);
 }
+#endif
 std::string Mpz_type::class_name() const {
 	return "Number";
 }
@@ -42,11 +46,13 @@ Type* Mpz_type::clone() const {
 	return new Mpz_type {};
 }
 
+#if COMPILER
 llvm::Type* Mpz_type::get_mpz_type(const Compiler& c) {
 	if (mpz_type == nullptr) {
 		mpz_type = llvm::StructType::create({ llvm::Type::getInt128Ty(c.getContext()) }, "mpz");
 	}
 	return mpz_type;
 }
+#endif
 
 }

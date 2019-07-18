@@ -15,7 +15,9 @@ public:
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;
 	virtual std::string class_name() const override;
+	#if COMPILER
 	virtual llvm::Type* llvm(const Compiler& c) const override;
+	#endif
 	virtual std::ostream& print(std::ostream& os) const override;
 	virtual Type* clone() const override;
 };

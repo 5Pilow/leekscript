@@ -25,9 +25,11 @@ int Bool_type::distance(const Type* type) const {
 	if (dynamic_cast<const Any_type*>(type->folded)) { return 6; }
 	return -1;
 }
+#if COMPILER
 llvm::Type* Bool_type::llvm(const Compiler& c) const {
 	return llvm::Type::getInt1Ty(c.getContext());
 }
+#endif
 std::string Bool_type::class_name() const {
 	return "Boolean";
 }

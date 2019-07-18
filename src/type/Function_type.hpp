@@ -26,7 +26,9 @@ public:
 	virtual const Type* return_type() const override;
 	virtual const std::vector<const Type*>& arguments() const override;
 	virtual const Type* argument(size_t) const override;
+	#if COMPILER
 	virtual llvm::Type* llvm(const Compiler& c) const override;
+	#endif
 	virtual std::string class_name() const override;
 	virtual std::ostream& print(std::ostream& os) const override;
 	virtual Type* clone() const override;

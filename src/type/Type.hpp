@@ -6,6 +6,7 @@
 #include <set>
 #include <iostream>
 #include <cassert>
+#include "../constants.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/DerivedTypes.h"
 
@@ -56,7 +57,9 @@ public:
 	virtual const Type* not_temporary() const;
 	virtual const Type* add_constant() const;
 	virtual const Type* not_constant() const;
+	#if COMPILER
 	virtual llvm::Type* llvm(const Compiler& c) const = 0;
+	#endif
 	virtual const Type* iterator() const { assert(false); }
 	const Type* pointer() const;
 	virtual const Type* pointed() const { assert(false); }
