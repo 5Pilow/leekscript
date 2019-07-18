@@ -2,6 +2,7 @@
 #define PHI_HPP
 
 #include <vector>
+#include "../../constants.h"
 #if COMPILER
 #include "../../compiler/Compiler.hpp"
 #endif
