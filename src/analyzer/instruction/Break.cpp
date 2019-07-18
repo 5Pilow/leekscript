@@ -1,4 +1,4 @@
-#include "../../compiler/instruction/Break.hpp"
+#include "Break.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
 #include "../error/Error.hpp"
 

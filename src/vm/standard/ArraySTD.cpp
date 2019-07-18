@@ -5,7 +5,7 @@
 #include "ValueSTD.hpp"
 #include "../TypeMutator.hpp"
 #include "../../type/Type.hpp"
-#include "../../compiler/semantic/Variable.hpp"
+#include "../../analyzer/semantic/Variable.hpp"
 
 namespace ls {
 

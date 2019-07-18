@@ -1,7 +1,7 @@
 #include "Test.hpp"
 
 #include <chrono>
-#include "../src/compiler/error/Error.hpp"
+#include "../src/analyzer/error/Error.hpp"
 
 long get_sec_time() {
 	return std::chrono::duration_cast<std::chrono::seconds>(

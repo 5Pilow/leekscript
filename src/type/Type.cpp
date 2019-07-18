@@ -37,8 +37,8 @@
 #include "Meta_baseof_type.hpp"
 #include "Meta_element_type.hpp"
 #include "Meta_not_temporary_type.hpp"
-#include "../compiler/value/Function.hpp"
-#include "../compiler/value/Value.hpp"
+#include "../analyzer/value/Function.hpp"
+#include "../analyzer/value/Value.hpp"
 
 namespace ls {
 

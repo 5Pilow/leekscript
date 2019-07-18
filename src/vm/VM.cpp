@@ -3,11 +3,11 @@
 #include "VM.hpp"
 #include "../constants.h"
 #include "../colors.h"
-#include "../compiler/lexical/LexicalAnalyzer.hpp"
-#include "../compiler/syntaxic/SyntaxicAnalyzer.hpp"
+#include "../analyzer/lexical/LexicalAnalyzer.hpp"
+#include "../analyzer/syntaxic/SyntaxicAnalyzer.hpp"
 #include "Context.hpp"
-#include "../compiler/semantic/SemanticAnalyzer.hpp"
-#include "../compiler/error/Error.hpp"
+#include "../analyzer/semantic/SemanticAnalyzer.hpp"
+#include "../analyzer/error/Error.hpp"
 #include "value/LSNumber.hpp"
 #include "value/LSArray.hpp"
 #include "Program.hpp"
@@ -27,9 +27,9 @@
 #include "standard/ClassSTD.hpp"
 #include "standard/IntervalSTD.hpp"
 #include "standard/JsonSTD.hpp"
-#include "../compiler/semantic/Callable.hpp"
-#include "../compiler/semantic/CallableVersion.hpp"
-#include "../compiler/semantic/Variable.hpp"
+#include "../analyzer/semantic/Callable.hpp"
+#include "../analyzer/semantic/CallableVersion.hpp"
+#include "../analyzer/semantic/Variable.hpp"
 
 namespace ls {
 

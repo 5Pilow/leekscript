@@ -2,7 +2,7 @@
 #define WHILE_HPP
 
 #include <vector>
-#include "../../compiler/value/Value.hpp"
+#include "../value/Value.hpp"
 #include "../value/Block.hpp"
 class Variable;
 

@@ -2,8 +2,8 @@
 #define EXPRESSION_HPP
 
 #include <vector>
-#include "../../compiler/lexical/Operator.hpp"
-#include "../../compiler/value/Value.hpp"
+#include "../../analyzer/lexical/Operator.hpp"
+#include "../../analyzer/value/Value.hpp"
 
 namespace ls {
 

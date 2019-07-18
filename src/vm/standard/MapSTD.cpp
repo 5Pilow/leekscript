@@ -1,7 +1,7 @@
 #include "MapSTD.hpp"
 #include "../value/LSMap.hpp"
 #include "../../type/Type.hpp"
-#include "../../compiler/semantic/Variable.hpp"
+#include "../../analyzer/semantic/Variable.hpp"
 
 namespace ls {
 

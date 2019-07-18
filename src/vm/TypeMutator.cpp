@@ -1,11 +1,11 @@
 #include "TypeMutator.hpp"
-#include "../compiler/value/LeftValue.hpp"
-#include "../compiler/value/VariableValue.hpp"
-#include "../compiler/value/ArrayAccess.hpp"
-#include "../compiler/semantic/Variable.hpp"
+#include "../analyzer/value/LeftValue.hpp"
+#include "../analyzer/value/VariableValue.hpp"
+#include "../analyzer/value/ArrayAccess.hpp"
+#include "../analyzer/semantic/Variable.hpp"
 #include "../type/Type.hpp"
 #include "Module.hpp"
-#include "../compiler/value/Phi.hpp"
+#include "../analyzer/value/Phi.hpp"
 
 namespace ls {
 

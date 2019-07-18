@@ -8,7 +8,7 @@
 #include "../../vm/value/LSClass.hpp"
 #include "../../vm/Program.hpp"
 #include "../../vm/Module.hpp"
-#include "../../compiler/semantic/Callable.hpp"
+#include "../../analyzer/semantic/Callable.hpp"
 #include "../semantic/Variable.hpp"
 #include "../../type/Function_type.hpp"
 

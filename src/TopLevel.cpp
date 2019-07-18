@@ -18,7 +18,7 @@
 #include "util/Util.hpp"
 #include "../test/Test.hpp"
 #include "vm/Context.hpp"
-#include "compiler/resolver/File.hpp"
+#include "analyzer/resolver/File.hpp"
 
 void print_errors(ls::VM::Result& result, std::ostream& os, bool json);
 void print_result(ls::VM::Result& result, const std::string& output, bool json, bool display_time, bool ops);

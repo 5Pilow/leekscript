@@ -6,8 +6,8 @@
 #include "LSValue.hpp"
 #include "value/LSClass.hpp"
 #include "value/LSNumber.hpp"
-#include "../compiler/semantic/Callable.hpp"
-#include "../compiler/semantic/CallableVersion.hpp"
+#include "../analyzer/semantic/Callable.hpp"
+#include "../analyzer/semantic/CallableVersion.hpp"
 #include "VM.hpp"
 #include "../type/Type.hpp"
 

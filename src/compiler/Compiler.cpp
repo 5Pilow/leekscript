@@ -10,7 +10,7 @@
 #include <vector>
 #include <bitset>
 #include "Compiler.hpp"
-#include "value/Function.hpp"
+#include "../analyzer/value/Function.hpp"
 #include "../vm/value/LSNull.hpp"
 #include "../vm/value/LSMpz.hpp"
 #include "../vm/value/LSArray.hpp"
@@ -18,16 +18,16 @@
 #include "../vm/value/LSClosure.hpp"
 #include "../colors.h"
 #include "../util/utf8.h"
-#include "semantic/SemanticAnalyzer.hpp"
+#include "../analyzer/semantic/SemanticAnalyzer.hpp"
 #include "llvm/IR/GlobalVariable.h"
 #include "../type/Type.hpp"
 #include "../vm/Program.hpp"
 #include "llvm/Bitcode/BitcodeWriter.h"
-#include "resolver/File.hpp"
-#include "semantic/FunctionVersion.hpp"
+#include "../analyzer/resolver/File.hpp"
+#include "../analyzer/semantic/FunctionVersion.hpp"
 #include "../type/Function_type.hpp"
 #include "../type/Function_object_type.hpp"
-#include "semantic/Variable.hpp"
+#include "../analyzer/semantic/Variable.hpp"
 
 namespace ls {
 

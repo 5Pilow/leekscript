@@ -1,5 +1,5 @@
 #include "While.hpp"
-#include "../../compiler/value/Number.hpp"
+#include "../value/Number.hpp"
 #include "../../vm/LSValue.hpp"
 #include "../../vm/value/LSNull.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"

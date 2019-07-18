@@ -10,11 +10,11 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "../compiler/error/Error.hpp"
+#include "../analyzer/error/Error.hpp"
 #include "../compiler/Compiler.hpp"
 #include "Exception.hpp"
 #include "OutputStream.hpp"
-#include "../compiler/semantic/Call.hpp"
+#include "../analyzer/semantic/Call.hpp"
 
 #define OPERATION_LIMIT 10000000
 

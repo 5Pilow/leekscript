@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 #include "LSValue.hpp"
-#include "../compiler/semantic/Variable.hpp"
+#include "../analyzer/semantic/Variable.hpp"
 
 namespace ls {
 

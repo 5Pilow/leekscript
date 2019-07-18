@@ -1,7 +1,7 @@
 #ifndef TYPE_MUTATOR_HPP
 #define TYPE_MUTATOR_HPP
 
-#include "../compiler/value/Value.hpp"
+#include "../analyzer/value/Value.hpp"
 
 namespace ls {
 
