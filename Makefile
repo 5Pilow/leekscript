@@ -141,7 +141,6 @@ opti: test
 
 web: FLAGS += -DCOMPILER=0
 web: build/leekscript-web
-	@build/leekscript-web
 
 # Benchmark
 benchmark-dir:
