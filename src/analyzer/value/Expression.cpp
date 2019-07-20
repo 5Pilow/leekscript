@@ -34,11 +34,15 @@ void Expression::append(std::shared_ptr<Operator> op, Value* exp) {
 		 * and try to add a operator with a higher priority,
 		 * such as : '× 7' => '5 + (2 × 7)'
 		 */
-		auto ex = new Expression();
-		ex->v1 = std::move(v2);
-		ex->op = op;
-		ex->v2.reset(exp);
-		this->v2.reset(ex);
+		if (auto exp2 = dynamic_cast<Expression*>(v2.get())) {
+			exp2->append(op, exp);
+		} else {
+			auto ex = new Expression();
+			ex->v1 = std::move(v2);
+			ex->op = op;
+			ex->v2.reset(exp);
+			this->v2.reset(ex);
+		}
 	} else {
 		/*
 		 * We already have '5 + 2' for example,
