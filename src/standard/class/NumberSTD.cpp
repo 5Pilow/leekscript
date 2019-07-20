@@ -66,6 +66,7 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 	operator_("+=", {
 		{Type::mpz_ptr, Type::mpz_ptr, Type::tmp_mpz_ptr, ADDR(add_eq_mpz_mpz), 0, { new ConvertMutator() }, true},
 		{Type::real, Type::real, Type::real, ADDR(add_eq_real), 0, { new ConvertMutator() }, true},
+		{Type::long_, Type::long_, Type::long_, ADDR(add_eq_real), 0, { new ConvertMutator() }, true},
 		{Type::integer, Type::integer, Type::integer, ADDR(add_eq_real), 0, { new ConvertMutator() }, true}
 	});
 	operator_("-", {
