@@ -1828,16 +1828,14 @@ Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Block* 
 	const auto folded_type = type->fold();
 	const auto llvm_type = folded_type->llvm(*this);
 	auto phi = Compiler::builder.CreatePHI(llvm_type, 2, "phi");
-	if (v1.v) {
-		// std::cout << "v1 type " << v1.t << ", " << folded_type << ", " << type << std::endl;
-		// assert(v1.t == folded_type);
-		phi->addIncoming(v1.v, b1->blocks.back());
-	}
-	if (v2.v) {
-		// std::cout << "v2 type " << v2.t << ", " << folded_type << ", " << type << std::endl;
-		// assert(v2.t == folded_type);
-		phi->addIncoming(v2.v, b2->blocks.back());
-	}
+	assert(v1.v != nullptr);
+	// std::cout << "v1 type " << v1.t << ", " << folded_type << ", " << type << std::endl;
+	// assert(v1.t == folded_type);
+	phi->addIncoming(v1.v, b1->blocks.back());
+	assert(v2.v != nullptr);
+	// std::cout << "v2 type " << v2.t << ", " << folded_type << ", " << type << std::endl;
+	// assert(v2.t == folded_type);
+	phi->addIncoming(v2.v, b2->blocks.back());
 	return {phi, folded_type};
 }
 
