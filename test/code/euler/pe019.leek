@@ -1,0 +1,22 @@
+var day = 1 // 1 janvier 1901 => mardi
+var sundays = 0
+
+for (var i = 1901; i <= 2000; ++i) {
+    
+    let leap = (i % 100 != 0 && i % 4 == 0) || (i % 400 == 0)
+    
+    for (var m = 0; m < 12; ++m) {
+        
+        if (day % 7 == 6) sundays++
+        
+        if (m == 3 || m == 5 || m == 8 || m == 10) {
+            day += 30
+        } else if (m == 1) {
+            day += leap ? 29 : 28
+        } else {
+            day += 31
+        }
+    }
+}
+
+sundays
