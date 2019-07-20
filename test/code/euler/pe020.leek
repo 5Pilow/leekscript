@@ -1,0 +1,12 @@
+// TODO create a builtin fact function
+let fact = x => x == 1 ? 1m : fact(x - 1) * x
+
+let f = fact(100)
+let s = f.string() // TODO mpz.string() directly
+
+var sum = 0
+for (var c in s) {
+    sum += c.code() - '0'.code()
+}
+
+sum
