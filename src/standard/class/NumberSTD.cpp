@@ -1256,6 +1256,7 @@ LSValue* NumberSTD::real_to_string(double x) {
 	return new LSString(LSNumber::print(x));
 }
 LSValue* NumberSTD::mpz_to_string(mpz_t x) {
+	// TODO dynamic buffer size
 	char buff[10000];
 	mpz_get_str(buff, 10, x);
 	return new LSString(buff);
