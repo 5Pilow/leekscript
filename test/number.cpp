@@ -235,6 +235,7 @@ void Test::test_numbers() {
 	code("let a = 15$ a + true").equals("16");
 	code("10000m + 15").equals("10015");
 	code("let a = ['a', 12321111111111111111111111111111111321321321999999] a[1] + 123456789").equals("12321111111111111111111111111111111321321445456788");
+	code("10000m + (-15)").equals("9985");
 
 	section("Number.operator +=");
 	code("var a = 15$ a += true a").equals("16");

@@ -579,7 +579,11 @@ Compiler::value NumberSTD::add_mpz_mpz(Compiler& c, std::vector<Compiler::value>
 
 Compiler::value NumberSTD::add_mpz_int(Compiler& c, std::vector<Compiler::value> args, int) {
 	auto r = args[0].t->temporary ? args[0] : c.new_mpz();
-	c.insn_call(Type::void_, {r, args[0], args[1]}, "Number.mpz_add_ui");
+	c.insn_if(c.insn_gt(args[1], c.new_integer(0)), [&]() {
+		c.insn_call(Type::void_, {r, args[0], args[1]}, "Number.mpz_add_ui");
+	}, [&]() {
+		c.insn_call(Type::void_, {r, args[0], c.insn_neg(args[1])}, "Number.mpz_sub_ui");
+	});
 	return r;
 }
 
