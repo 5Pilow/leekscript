@@ -326,7 +326,7 @@ ValueSTD::ValueSTD(VM* vm) : Module(vm, "Value") {
  * Static attributes
  */
 Compiler::value ValueSTD::unknown(Compiler& c) {
-	return c.insn_call(Type::any, {c.new_integer(floor(1 + ((double) rand() / RAND_MAX) * 100))}, "Number.new");
+	return c.insn_call(Type::any, {c.new_real(floor(1 + ((double) rand() / RAND_MAX) * 100))}, "Number.new");
 }
 
 /*
