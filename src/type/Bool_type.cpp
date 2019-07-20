@@ -22,7 +22,7 @@ int Bool_type::distance(const Type* type) const {
 	if (dynamic_cast<const Real_type*>(type->folded)) { return 103; }
 	if (dynamic_cast<const Mpz_type*>(type->folded)) { return 104; }
 	if (dynamic_cast<const Number_type*>(type->folded)) { return 105; }
-	if (dynamic_cast<const Any_type*>(type->folded)) { return 6; }
+	if (dynamic_cast<const Any_type*>(type->folded)) { return 106; }
 	return -1;
 }
 #if COMPILER
