@@ -93,6 +93,12 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 		{Type::mpz_ptr, Type::mpz_ptr, Type::tmp_mpz_ptr, ADDR(mul_mpz_mpz)},
 		{Type::mpz, Type::integer, Type::tmp_mpz_ptr, ADDR(mul_tmp_mpz_int)},
 	});
+	operator_("*=", {
+		{Type::mpz, Type::mpz, Type::tmp_mpz, ADDR(mul_eq_mpz_mpz)},
+		{Type::mpz_ptr, Type::integer, Type::tmp_mpz_ptr, ADDR(mul_eq_mpz_int)},
+		{Type::real, Type::real, Type::real, ADDR(mul_eq_real), 0, {}, true},
+		{Type::integer, Type::integer, Type::integer, ADDR(mul_eq_real), 0, {}, true}
+	});
 	operator_("**", {
 		{Type::real, Type::real, Type::real, ADDR(pow_real_real)},
 		{Type::const_integer, Type::const_integer, Type::integer, ADDR(pow_real_real)},
@@ -103,11 +109,6 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 		{Type::mpz_ptr, Type::mpz_ptr, Type::tmp_mpz_ptr, ADDR(pow_eq_mpz_mpz)},
 		{Type::real, Type::real, Type::real, ADDR(pow_eq_real), 0, {}, true},
 		{Type::integer, Type::integer, Type::integer, ADDR(pow_eq_real), 0, {}, true}
-	});
-	operator_("*=", {
-		{Type::mpz, Type::mpz, Type::tmp_mpz, ADDR(mul_eq_mpz_mpz)},
-		{Type::real, Type::real, Type::real, ADDR(mul_eq_real), 0, {}, true},
-		{Type::integer, Type::integer, Type::integer, ADDR(mul_eq_real), 0, {}, true}
 	});
 	operator_("/", {
 		{Type::number, Type::number, Type::real, ADDR(div_val_val)}
@@ -708,11 +709,25 @@ Compiler::value NumberSTD::mul_mpz_tmp_mpz(Compiler& c, std::vector<Compiler::va
 	return r;
 }
 
-Compiler::value NumberSTD::mul_eq_mpz_mpz(Compiler& c, std::vector<Compiler::value> args, int) {
-	// auto a_addr = c.insn_address_of(args[0]);
-	// auto b_addr = c.insn_address_of(args[1]);
-	// c.insn_call(Type::void_, {a_addr, a_addr, b_addr}, &mpz_mul);
-	return c.insn_clone_mpz(args[0]);
+Compiler::value NumberSTD::mul_eq_mpz_int(Compiler& c, std::vector<Compiler::value> args, int flags) {
+	c.insn_call(Type::void_, {args[0], args[0], args[1]}, "Number.mpz_mul_si");
+	if (flags & Module::NO_RETURN) {
+		return {};
+	} else {
+		return c.insn_clone_mpz(args[0]);
+	}
+}
+
+Compiler::value NumberSTD::mul_eq_mpz_mpz(Compiler& c, std::vector<Compiler::value> args, int flags) {
+	c.insn_call(Type::void_, {args[0], args[0], args[1]}, "Number.mpz_mul");
+	if (args[1].t->temporary) {
+		c.insn_delete_mpz(args[1]);
+	}
+	if (flags & Module::NO_RETURN) {
+		return {};
+	} else {
+		return c.insn_clone_mpz(args[0]);
+	}
 }
 
 Compiler::value NumberSTD::mul_eq_real(Compiler& c, std::vector<Compiler::value> args, int) {

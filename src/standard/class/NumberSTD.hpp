@@ -50,6 +50,7 @@ public:
 	static Compiler::value mul_mpz_tmp_mpz(Compiler& c, std::vector<Compiler::value> args, int);
 	static LSValue* mul_int_string(int a, LSString* b);
 
+	static Compiler::value mul_eq_mpz_int(Compiler& c, std::vector<Compiler::value> args, int);
 	static Compiler::value mul_eq_mpz_mpz(Compiler& c, std::vector<Compiler::value> args, int);
 	static Compiler::value mul_eq_real(Compiler& c, std::vector<Compiler::value> args, int);
 
