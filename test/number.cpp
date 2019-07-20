@@ -284,6 +284,11 @@ void Test::test_numbers() {
 	code("var a = 15$ a *= []").exception(ls::vm::Exception::NO_SUCH_OPERATOR);
 	code("var a = 15$ a *= [] a").exception(ls::vm::Exception::NO_SUCH_OPERATOR);
 	code("var a = 15; ['', a *= 2]").equals("['', 30]");
+	code("var a = 5m a *= 0 a").equals("0");
+	code("var a = 5m a *= 12 a").equals("60");
+	code("var a = 5m a *= 5m a").equals("25");
+	code("var a = 91591785496891278315799124157189514175m a *= 157854689278315792457851475m a").equals("14458192840057923568549758280294876918394393505787702519557158125");
+	code("var a = 78m a *= true a").equals("78");
 
 	section("Number.operator **");
 	code("14$ ** 3").equals("2744");
