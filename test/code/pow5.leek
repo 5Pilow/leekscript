@@ -1,0 +1,14 @@
+function pow5(p) {
+    var x = 1m
+    var n = 0
+    while (p > 0) {
+        if ((p & 1) != 0) {
+            x *= 5m ** (1 << n)
+        }
+        p = p >> 1
+        n++
+    }
+    x
+}
+
+pow5(57)
