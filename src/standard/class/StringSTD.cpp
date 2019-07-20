@@ -188,10 +188,8 @@ StringSTD::StringSTD(VM* vm) : Module(vm, "String") {
 		{Type::boolean, {Type::string, Type::string}, ADDR((void*) string_startsWith)},
 	});
 	method("code", {
-		{Type::any, {Type::const_any}, ADDR((void*) string_begin_code_ptr)},
-		{Type::integer, {Type::string}, ADDR((void*) string_begin_code)},
-		{Type::integer, {Type::const_any}, ADDR((void*) string_begin_code)},
-		{Type::integer, {Type::string, Type::const_integer}, ADDR((void*) string_code)},
+		{Type::integer, {Type::const_string}, ADDR((void*) string_begin_code)},
+		{Type::integer, {Type::const_string, Type::const_integer}, ADDR((void*) string_code)},
 	});
 	method("number", {
 		{Type::long_, {Type::string}, ADDR((void*) string_number)},
