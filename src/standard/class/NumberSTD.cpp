@@ -42,7 +42,7 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 	 * Constructors
 	 */
 	constructor_({
-		{Type::any, {Type::integer}, ADDR((void*) &LSNumber::get)},
+		{Type::any, {Type::real}, ADDR((void*) &LSNumber::get)},
 		{Type::any, {Type::tmp_mpz}, ADDR((void*) &LSMpz::get_from_tmp)},
 		{Type::any, {Type::mpz}, ADDR((void*) &LSMpz::get_from_mpz)},
 	});
