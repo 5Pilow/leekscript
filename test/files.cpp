@@ -74,6 +74,8 @@ void Test::test_files() {
 	DISABLED_file("test/code/euler/pe023.leek").equals("4179871");
 	file("test/code/euler/pe024.leek").equals("2783915460");
 	DISABLED_file("test/code/euler/pe025.leek").equals("4782");
+	// TODO needs mpf numbers
+	DISABLED_file("test/code/euler/pe026.leek").equals("");
 	DISABLED_file("test/code/euler/pe062.leek").equals("127035954683");
 	file("test/code/euler/pe063.leek").equals("49");
 	DISABLED_file("test/code/euler/pe206.leek").equals("1389019170");
