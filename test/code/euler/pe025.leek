@@ -1,0 +1,15 @@
+var n1 = 1m
+var n2 = 1m
+
+var t = 2
+
+while |n1.string()| < 1000 {
+    
+    var tmp = n1
+    n1 = n1 + n2
+    n2 = tmp
+
+    t++
+}
+
+t
