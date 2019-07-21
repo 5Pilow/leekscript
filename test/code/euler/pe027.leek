@@ -1,0 +1,33 @@
+function numPrimes(a, b) {
+	var n = 0
+    // TODO while (n*n + a*n + b).isPrime() not working
+	while ((n*n + a*n + b).isPrime()) { n++ }
+	return n
+}
+
+print(numPrimes(-79, 1601))
+
+var max = 0;
+var maxA = 0, maxB = 0;
+
+for (var a = -999; a < 1000; ++a) {
+    for (var b = -999; b < 1000; ++b) {
+        
+        if (b.isPrime()) { // b doit etre premier !
+        
+            var num = numPrimes(a, b);
+            if (num > max) {
+                max = num;
+                maxA = a;
+                maxB = b;
+            }
+        }
+    }
+}
+
+print("Nombre de premiers : " + max)
+print("a : " + maxA)
+print("b : " + maxB)
+print("ab : " + maxA * maxB)
+
+return maxA * maxB
