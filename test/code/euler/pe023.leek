@@ -1,0 +1,39 @@
+function isAbundant(n) {
+	var sum = 0;
+	var half = n \ 2;
+	for (var i = 1; i <= half; ++i)
+		if (n % i == 0) {
+			sum += i
+		}
+	return sum > n
+}
+
+let N = 28123
+	
+var numbers = [].fill(0, N)
+var abundant = [].fill(false, N)
+var canBeWritten = [].fill(false, N)
+
+for (var i = 0; i < N; ++i) {
+    numbers[i] = i + 1
+    abundant[i] = isAbundant(i + 1)
+    canBeWritten[i] = false
+}
+
+for (var i = 0; i < N; ++i) {
+    if (abundant[i]) {
+        for (var j = 0; j < N; ++j) {
+            if (abundant[j]) {
+                var sum = numbers[i] + numbers[j];
+                if (sum <= N) canBeWritten[sum - 1] = true;
+            }
+        }
+    }
+}
+
+var sum = 0;
+for (var i = 0; i < N; ++i) {
+    if (!canBeWritten[i]) sum += (i + 1);
+}
+
+sum
