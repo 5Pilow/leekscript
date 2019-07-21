@@ -36,9 +36,9 @@ void If::print(std::ostream& os, int indent, PrintOptions options) const {
 	}
 	if (options.debug) {
 		os << " " << type;
-	}
-	for (const auto& phi : phis) {
-		os << std::endl << tabs(indent) << phi->variable << " = phi(" << phi->variable1 << " " << phi->variable1->type << ", " << phi->variable2 << " " << phi->variable2->type << ") " << phi->variable->type;
+		for (const auto& phi : phis) {
+			os << std::endl << tabs(indent) << phi->variable << " = phi(" << phi->variable1 << " " << phi->variable1->type << ", " << phi->variable2 << " " << phi->variable2->type << ") " << phi->variable->type;
+		}
 	}
 }
 
