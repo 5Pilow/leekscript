@@ -36,8 +36,10 @@ void For::print(std::ostream& os, int indent, PrintOptions options) const {
 		os << " ";
 		body2->print(os, indent, options);
 	}
-	for (const auto& assignment : assignments) {
-		os << std::endl << tabs(indent) << assignment.first << " " << assignment.first->type << " = " << assignment.second << " " << assignment.second->type;
+	if (options.debug) {
+		for (const auto& assignment : assignments) {
+			os << std::endl << tabs(indent) << assignment.first << " " << assignment.first->type << " = " << assignment.second << " " << assignment.second->type;
+		}
 	}
 }
 
