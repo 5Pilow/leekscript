@@ -84,14 +84,13 @@ ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
 		{Type::array(Type::array(Type::integer)), {Type::const_array(Type::integer), Type::const_integer}, ADDR((void*) &LSArray<int>::ls_chunk)},
     });
 
-	// TODO should return array<never>
 	method("clear", {
-		{Type::array(), {Type::const_array()}, ADDR((void*) &LSArray<LSValue*>::ls_clear)},
-		{Type::array(Type::real), {Type::const_array(Type::real)}, ADDR((void*) &LSArray<double>::ls_clear)},
-		{Type::array(Type::integer), {Type::const_array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_clear)},
-		{Type::tmp_array(), {Type::tmp_array()}, ADDR((void*) &LSArray<LSValue*>::ls_clear)},
-		{Type::tmp_array(Type::real), {Type::tmp_array(Type::real)}, ADDR((void*) &LSArray<double>::ls_clear)},
-		{Type::tmp_array(Type::integer), {Type::tmp_array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_clear)},
+		{Type::array(Type::never), {Type::const_array()}, ADDR((void*) &LSArray<LSValue*>::ls_clear)},
+		{Type::array(Type::never), {Type::const_array(Type::real)}, ADDR((void*) &LSArray<double>::ls_clear)},
+		{Type::array(Type::never), {Type::const_array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_clear)},
+		{Type::tmp_array(Type::never), {Type::tmp_array()}, ADDR((void*) &LSArray<LSValue*>::ls_clear)},
+		{Type::tmp_array(Type::never), {Type::tmp_array(Type::real)}, ADDR((void*) &LSArray<double>::ls_clear)},
+		{Type::tmp_array(Type::never), {Type::tmp_array(Type::integer)}, ADDR((void*) &LSArray<int>::ls_clear)},
 	});
 
 	method("contains", {
