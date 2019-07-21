@@ -41,14 +41,16 @@ void FunctionVersion::print(std::ostream& os, int indent, PrintOptions options) 
 	if (parent->arguments.size() != 1) {
 		os << ")";
 	}
-	if (options.debug and placeholder_type) {
-		os << " " << placeholder_type;
-	}
-	if (recursive) {
-		os << BLUE_BOLD << " recursive" << END_COLOR;
-	}
-	if (options.debug and this->body->throws) {
-		os << BLUE_BOLD << " throws" << END_COLOR;
+	if (options.debug) {
+		if (placeholder_type) {
+			os << " " << placeholder_type;
+		}
+		if (recursive) {
+			os << BLUE_BOLD << " recursive" << END_COLOR;
+		}
+		if (this->body->throws) {
+			os << BLUE_BOLD << " throws" << END_COLOR;
+		}
 	}
 	os << " => ";
 	body->print(os, indent, options);
@@ -71,9 +73,9 @@ void FunctionVersion::print(std::ostream& os, int indent, PrintOptions options) 
 			os << argument.second;
 		}
 		os << "]";
-	}
-	if (options.debug and type->return_type() != body->type) {
-		os << " : " << type->return_type();
+		if (type->return_type() != body->type) {
+			os << " : " << type->return_type();
+		}
 	}
 }
 
