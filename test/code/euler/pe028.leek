@@ -1,0 +1,15 @@
+
+
+var size = 1001
+var n = 1m
+var steps = size \ 2
+
+for i in [1..steps] {
+    var x = 2*i + 1
+    n += x*x
+    n += x*x - 6*i
+    n += x*x - 4*i
+    n += x*x - 2*i
+}
+
+n
