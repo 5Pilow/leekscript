@@ -47,7 +47,7 @@ void FunctionVersion::print(std::ostream& os, int indent, PrintOptions options) 
 	if (recursive) {
 		os << BLUE_BOLD << " recursive" << END_COLOR;
 	}
-	if (this->body->throws) {
+	if (options.debug and this->body->throws) {
 		os << BLUE_BOLD << " throws" << END_COLOR;
 	}
 	os << " => ";
