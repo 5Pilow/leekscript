@@ -32,6 +32,7 @@ int CLI::start(int argc, char* argv[]) {
 	CLI11::App app("~~~ LeekScript v2.0 ~~~");
 	CLI_options options;
 	app.allow_extras();
+    app.add_flag("-f,--format", options.format, "Format code nicely");
     app.add_flag("-d,--debug", options.debug, "Output debug information");
     app.add_flag("-v,--version", options.version, "Output version");
     app.add_flag("-j,--json", options.json_output, "Output in JSON format");
@@ -106,7 +107,7 @@ int CLI::file(std::string file, CLI_options options) {
 	OutputStringStream oss;
 	if (options.json_output)
 		vm.output = &oss;
-	auto result = vm.execute(code, nullptr, file_name, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
+	auto result = vm.execute(code, nullptr, file_name, options.format, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
 	vm.output = ls::VM::default_output;
 	print_result(result, oss.str(), options.json_output, options.display_time, options.operations);
 	return 0;

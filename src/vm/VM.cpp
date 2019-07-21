@@ -90,7 +90,7 @@ void VM::add_module(std::unique_ptr<Module> m) {
 }
 
 #if COMPILER
-VM::Result VM::execute(const std::string code, Context* ctx, std::string file_name, bool debug, bool ops, bool assembly, bool pseudo_code, bool optimized_ir, bool execute_ir, bool execute_bitcode) {
+VM::Result VM::execute(const std::string code, Context* ctx, std::string file_name, bool format, bool debug, bool ops, bool assembly, bool pseudo_code, bool optimized_ir, bool execute_ir, bool execute_bitcode) {
 
 	// Reset
 	this->file_name = file_name;
@@ -113,10 +113,11 @@ VM::Result VM::execute(const std::string code, Context* ctx, std::string file_na
 	auto program = new Program(code, file_name);
 
 	// Compile
-	auto result = program->compile(*this, ctx, assembly, pseudo_code, optimized_ir, execute_ir, execute_bitcode);
+	auto result = program->compile(*this, ctx, debug, assembly, pseudo_code, optimized_ir, execute_ir, execute_bitcode);
 
-	if (debug) {
-		std::cout << "main() " << result.program << std::endl; // LCOV_EXCL_LINE
+	if (format or debug) {
+		std::cout << "main() ";
+		std::cout << result.program << std::endl; // LCOV_EXCL_LINE
 	}
 	if (pseudo_code) {
 		if (debug) std::cout << std::endl;

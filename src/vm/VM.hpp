@@ -85,7 +85,7 @@ public:
 	static void static_init();
 
 	/** Main execution function **/
-	Result execute(const std::string code, Context* ctx, std::string file_name = "unamed", bool debug = false, bool ops = true, bool assembly = false, bool pseudo_code = false, bool optimized_ir = false, bool execute_ir = false, bool execute_bitcode = false);
+	Result execute(const std::string code, Context* ctx, std::string file_name = "unamed", bool format = false, bool debug = false, bool ops = true, bool assembly = false, bool pseudo_code = false, bool optimized_ir = false, bool execute_ir = false, bool execute_bitcode = false);
 
 	/** Add a module **/
 	void add_module(std::unique_ptr<Module> m);

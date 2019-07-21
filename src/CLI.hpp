@@ -32,6 +32,7 @@ struct CLI_option {
 
 struct CLI_options {
 	bool legacy = false;		// L
+	bool format = false;		// F
 	bool debug = false;			// D
 	bool json_output = false;	// J
 	bool display_time = false;	// T
