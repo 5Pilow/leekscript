@@ -32,6 +32,7 @@ public:
 	static Compiler::value add_mpz_int(Compiler& c, std::vector<Compiler::value> args, int);
 
 	static Compiler::value add_eq_mpz_mpz(Compiler& c, std::vector<Compiler::value> args, bool no_return);
+	static Compiler::value add_eq_mpz_int(Compiler& c, std::vector<Compiler::value> args, int);
 	static Compiler::value add_eq_real(Compiler& c, std::vector<Compiler::value> args, int);
 
 	static Compiler::value sub_mpz_mpz(Compiler& c, std::vector<Compiler::value> args, int);

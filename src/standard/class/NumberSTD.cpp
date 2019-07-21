@@ -65,6 +65,7 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 	});
 	operator_("+=", {
 		{Type::mpz_ptr, Type::mpz_ptr, Type::tmp_mpz_ptr, ADDR(add_eq_mpz_mpz), 0, { new ConvertMutator() }, true},
+		{Type::mpz_ptr, Type::integer, Type::tmp_mpz_ptr, ADDR(add_eq_mpz_int), 0, { new ConvertMutator() }, true},
 		{Type::real, Type::real, Type::real, ADDR(add_eq_real), 0, { new ConvertMutator() }, true},
 		{Type::long_, Type::long_, Type::long_, ADDR(add_eq_real), 0, { new ConvertMutator() }, true},
 		{Type::integer, Type::integer, Type::integer, ADDR(add_eq_real), 0, { new ConvertMutator() }, true}
@@ -591,6 +592,14 @@ Compiler::value NumberSTD::add_eq_mpz_mpz(Compiler& c, std::vector<Compiler::val
 	c.insn_call(Type::void_, {args[0], args[0], args[1]}, "Number.mpz_add");
 	c.insn_delete_temporary(args[1]);
 	return no_return ? Compiler::value() : c.insn_clone_mpz(args[0]);
+}
+Compiler::value NumberSTD::add_eq_mpz_int(Compiler& c, std::vector<Compiler::value> args, int flags) {
+	c.insn_if(c.insn_gt(args[1], c.new_integer(0)), [&]() {
+		c.insn_call(Type::void_, {args[0], args[0], args[1]}, "Number.mpz_add_ui");
+	}, [&]() {
+		c.insn_call(Type::void_, {args[0], args[0], c.insn_neg(args[1])}, "Number.mpz_sub_ui");
+	});
+	return flags & NO_RETURN ? Compiler::value() : c.insn_clone_mpz(args[0]);
 }
 
 Compiler::value NumberSTD::add_eq_real(Compiler& c, std::vector<Compiler::value> args, int) {

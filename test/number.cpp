@@ -244,6 +244,9 @@ void Test::test_numbers() {
 	code("var a = 10m a += 4m").equals("14");
 	code("var a = 10m a += 4m a").equals("14");
 	code("var a = 15 ['', a += 7]").equals("['', 22]");
+	code("var a = 10m a += 5 a").equals("15");
+	code("var a = 10m a += 78m a").equals("88");
+	code("var a = 10m a += (-6) a").equals("4");
 
 	section("Number.operator -");
 	code("1m - 2m").equals("-1");
