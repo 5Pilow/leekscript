@@ -25,9 +25,9 @@ void If::print(std::ostream& os, int indent, PrintOptions options) const {
 		elze->instructions[0]->print(os, indent, options);
 		os << ")";
 	} else {
-		os << "if ";
+		os << "if (";
 		condition->print(os, indent + 1, options);
-		os << " ";
+		os << ") ";
 		then->print(os, indent, options);
 		if (elze != nullptr) {
 			os << " else ";

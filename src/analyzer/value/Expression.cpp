@@ -60,19 +60,19 @@ void Expression::append(std::shared_ptr<Operator> op, Value* exp) {
 }
 
 void Expression::print(std::ostream& os, int indent, PrintOptions options) const {
-	if (parenthesis or options.debug) {
+	if (parenthesis or options.parenthesis) {
 		os << "(";
 	}
 	if (v1 != nullptr) {
-		v1->print(os, indent, options);
+		v1->print(os, indent, options.add_parenthesis());
 		if (op != nullptr) {
 			os << " ";
 			op->print(os);
 			os << " ";
-			v2->print(os, indent, options);
+			v2->print(os, indent, options.add_parenthesis(op->token->type != TokenType::EQUAL));
 		}
 	}
-	if (parenthesis or options.debug) {
+	if (parenthesis or options.parenthesis) {
 		os << ")";
 	}
 	if (options.debug) {

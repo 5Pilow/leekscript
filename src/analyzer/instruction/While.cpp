@@ -14,9 +14,9 @@ While::While() {
 }
 
 void While::print(std::ostream& os, int indent, PrintOptions options) const {
-	os << "while ";
+	os << "while (";
 	condition->print(os, indent + 1, options);
-	os << " ";
+	os << ") ";
 	body->print(os, indent, options);
 	if (body2_activated) {
 		os << " ";
