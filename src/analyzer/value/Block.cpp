@@ -28,18 +28,18 @@ void Block::print(std::ostream& os, int indent, PrintOptions options) const {
 	if (options.debug) {
 		os << " " << type;
 		if (may_return) os << " ==>" << return_type;
-	}
-	if (variables.size()) {
-		os << " vars: [";
-		int i = 0;
-		for (const auto& variable : variables) {
-			if (i++ > 0) os << ", ";
-			os << variable.second;
+		if (variables.size()) {
+			os << " vars: [";
+			int i = 0;
+			for (const auto& variable : variables) {
+				if (i++ > 0) os << ", ";
+				os << variable.second;
+			}
+			os << "]";
 		}
-		os << "]";
-	}
-	for (const auto& assignment : assignments) {
-		os << std::endl << tabs(indent) << assignment.first << " " << assignment.first->type << " = " << assignment.second << " " << assignment.second->type;
+		for (const auto& assignment : assignments) {
+			os << std::endl << tabs(indent) << assignment.first << " " << assignment.first->type << " = " << assignment.second << " " << assignment.second->type;
+		}
 	}
 }
 
