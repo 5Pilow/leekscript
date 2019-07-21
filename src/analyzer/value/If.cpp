@@ -15,26 +15,26 @@ If::If(bool ternary) {
 	this->ternary = ternary;
 }
 
-void If::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void If::print(std::ostream& os, int indent, PrintOptions options) const {
 	if (ternary) {
 		os << "(";
-		condition->print(os, indent, debug);
+		condition->print(os, indent, options);
 		os << " ? ";
-		then->instructions[0]->print(os, indent, debug, condensed);
+		then->instructions[0]->print(os, indent, options);
 		os << " : ";
-		elze->instructions[0]->print(os, indent, debug, condensed);
+		elze->instructions[0]->print(os, indent, options);
 		os << ")";
 	} else {
 		os << "if ";
-		condition->print(os, indent + 1, debug);
+		condition->print(os, indent + 1, options);
 		os << " ";
-		then->print(os, indent, debug);
+		then->print(os, indent, options);
 		if (elze != nullptr) {
 			os << " else ";
-			elze->print(os, indent, debug);
+			elze->print(os, indent, options);
 		}
 	}
-	if (debug) {
+	if (options.debug) {
 		os << " " << type;
 	}
 	for (const auto& phi : phis) {

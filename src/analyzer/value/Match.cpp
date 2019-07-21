@@ -3,9 +3,9 @@
 
 namespace ls {
 
-void Match::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void Match::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "match ";
-	value->print(os, indent, debug);
+	value->print(os, indent, options);
 	os << " {";
 	for (size_t i = 0; i < pattern_list.size(); ++i) {
 
@@ -16,13 +16,13 @@ void Match::print(std::ostream& os, int indent, bool debug, bool condensed) cons
 			if (j > 0) {
 				os << "|";
 			}
-			list[j].print(os, indent + 1, debug);
+			list[j].print(os, indent + 1, options);
 		}
 		os << " : ";
-		returns[i]->print(os, indent + 1, debug);
+		returns[i]->print(os, indent + 1, options);
 	}
 	os << std::endl << tabs(indent) << "}";
-	if (debug) {
+	if (options.debug) {
 		os << " " << type;
 	}
 }
@@ -135,13 +135,13 @@ Match::Pattern::Pattern(std::unique_ptr<Value> begin, std::unique_ptr<Value> end
 
 Match::Pattern::~Pattern() {}
 
-void Match::Pattern::print(std::ostream &os, int indent, bool debug) const {
+void Match::Pattern::print(std::ostream &os, int indent, PrintOptions options) const {
 	if (interval) {
-		if (begin) begin->print(os, indent, debug);
+		if (begin) begin->print(os, indent, options);
 		os << "..";
-		if (end) end->print(os, indent, debug);
+		if (end) end->print(os, indent, options);
 	} else {
-		begin->print(os, indent, debug);
+		begin->print(os, indent, options);
 	}
 }
 

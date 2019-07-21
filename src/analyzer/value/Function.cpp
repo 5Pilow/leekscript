@@ -47,7 +47,7 @@ void Function::addArgument(Token* name, Value* defaultValue) {
 	if (defaultValue) default_values_count++;
 }
 
-void Function::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void Function::print(std::ostream& os, int indent, PrintOptions options) const {
 	for (const auto& capture : captures) {
 		os << "[" << capture << " = any(" << capture->parent << ")] ";
 	}
@@ -64,13 +64,13 @@ void Function::print(std::ostream& os, int indent, bool debug, bool condensed) c
 		int i = 0;
 		for (const auto& v : versions) {
 			if (i++ > 0) os << std::endl << tabs(indent);
-			v.second->print(os, indent, debug, condensed);
+			v.second->print(os, indent, options);
 		}
 	}
 	if (default_version and (generate_default_version or is_main_function or versions.size() == 0)) {
 		if (versions.size() > 0) os << std::endl << tabs(indent);
 		// std::cout << "print default version" << std::endl;
-		default_version->print(os, indent, debug, condensed);
+		default_version->print(os, indent, options);
 	}
 }
 

@@ -15,7 +15,7 @@ public:
 
 	String(Token* token);
 
-	virtual void print(std::ostream&, int indent, bool debug, bool condensed) const override;
+	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
 
 	virtual bool will_store(SemanticAnalyzer* analyzer, const Type* type) override;

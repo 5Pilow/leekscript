@@ -36,7 +36,7 @@ public:
 
 	virtual bool isLeftValue() const override;
 	
-	virtual void print(std::ostream&, int indent, bool debug, bool condensed) const override;
+	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
 
 	void set_version(SemanticAnalyzer*, const std::vector<const Type*>& args, int level) override;

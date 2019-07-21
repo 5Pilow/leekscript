@@ -10,10 +10,10 @@ Return::Return(std::unique_ptr<Value> v) : expression(std::move(v)) {
 	may_return = true;
 }
 
-void Return::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void Return::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "return ";
 	if (expression != nullptr) {
-		expression->print(os, indent, debug);
+		expression->print(os, indent, options);
 	}
 }
 

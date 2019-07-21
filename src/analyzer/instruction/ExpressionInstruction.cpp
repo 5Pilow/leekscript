@@ -6,8 +6,8 @@ namespace ls {
 
 ExpressionInstruction::ExpressionInstruction(std::unique_ptr<Value> value) : value(std::move(value)) {}
 
-void ExpressionInstruction::print(std::ostream& os, int indent, bool debug, bool condensed) const {
-	value->print(os, indent, debug, condensed);
+void ExpressionInstruction::print(std::ostream& os, int indent, PrintOptions options) const {
+	value->print(os, indent, options);
 }
 
 Location ExpressionInstruction::location() const {

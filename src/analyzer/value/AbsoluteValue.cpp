@@ -9,11 +9,11 @@ AbsoluteValue::AbsoluteValue() {
 	throws = true;
 }
 
-void AbsoluteValue::print(std::ostream& os, int, bool debug, bool condensed) const {
+void AbsoluteValue::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "|";
-	expression->print(os, 0, debug);
+	expression->print(os, indent, options);
 	os << "|";
-	if (debug) {
+	if (options.debug) {
 		os << " " << type;
 	}
 }

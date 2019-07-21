@@ -5,6 +5,7 @@
 #include "../../constants.h"
 #include "../lexical/Token.hpp"
 #include "../../type/Type.hpp"
+#include "../PrintOptions.hpp"
 #if COMPILER
 #include "../../compiler/Compiler.hpp"
 #endif
@@ -26,7 +27,7 @@ public:
 
 	virtual ~Instruction() {}
 
-	virtual void print(std::ostream&, int indent, bool debug, bool condensed) const = 0;
+	virtual void print(std::ostream&, int indent, PrintOptions options) const = 0;
 	virtual Location location() const = 0;
 
 	virtual void pre_analyze(SemanticAnalyzer* analyzer);

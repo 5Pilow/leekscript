@@ -2,12 +2,12 @@
 
 namespace ls {
 
-void ArrayFor::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void ArrayFor::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "[";
-	forr->print(os, indent, debug, condensed);
+	forr->print(os, indent, options);
 	os << "]";
 
-	if (debug) {
+	if (options.debug) {
 		os << " " << type;
 	}
 }

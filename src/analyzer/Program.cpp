@@ -283,7 +283,7 @@ std::string Program::execute(VM& vm) {
 
 void Program::print(std::ostream& os, bool debug) const {
 	if (main) {
-		main->default_version->body->print(os, 0, debug, false);
+		main->default_version->body->print(os, 0, { debug, false, false });
 	} else {
 		os << "(ll file)";
 	}

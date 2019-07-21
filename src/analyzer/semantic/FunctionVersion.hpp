@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include "../../constants.h"
+#include "../PrintOptions.hpp"
 #if COMPILER
 #include "../../compiler/Compiler.hpp"
 #endif
@@ -39,7 +40,7 @@ public:
 
 	bool is_compiled() const;
 
-	void print(std::ostream& os, int indent, bool debug, bool condensed) const;
+	void print(std::ostream& os, int indent, PrintOptions options) const;
 
 	const Type* getReturnType();
 	Variable* capture(SemanticAnalyzer* analyzer, Variable* var);

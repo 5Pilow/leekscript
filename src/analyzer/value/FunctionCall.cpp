@@ -30,22 +30,22 @@ FunctionCall::FunctionCall(Token* t) : token(t) {
 	constant = false;
 }
 
-void FunctionCall::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void FunctionCall::print(std::ostream& os, int indent, PrintOptions options) const {
 
-	auto parenthesis = condensed && dynamic_cast<const Function*>(function.get());
+	auto parenthesis = options.condensed && dynamic_cast<const Function*>(function.get());
 	if (parenthesis) os << "(";
-	function->print(os, indent, debug, condensed);
+	function->print(os, indent, options);
 	if (parenthesis) os << ")";
 
 	os << "(";
 	for (unsigned i = 0; i < arguments.size(); ++i) {
-		arguments.at(i)->print(os, indent, debug, condensed);
+		arguments.at(i)->print(os, indent, options);
 		if (i < arguments.size() - 1) {
 			os << ", ";
 		}
 	}
 	os << ")";
-	if (debug) {
+	if (options.debug) {
 		os << " " << type;
 	}
 }

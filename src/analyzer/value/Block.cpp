@@ -14,18 +14,18 @@ namespace ls {
 
 Block::Block(bool is_function_block) : is_function_block(is_function_block) {}
 
-void Block::print(std::ostream& os, int indent, bool debug, bool condensed) const {
-	if (!condensed) {
+void Block::print(std::ostream& os, int indent, PrintOptions options) const {
+	if (!options.condensed) {
 		os << "{";
 		os << std::endl;
 	}
 	for (auto& instruction : instructions) {
-		if (!condensed) os << tabs(indent + 1);
-		instruction->print(os, indent + 1, debug, condensed);
-		if (!condensed) os << std::endl;
+		if (!options.condensed) os << tabs(indent + 1);
+		instruction->print(os, indent + 1, options);
+		if (!options.condensed) os << std::endl;
 	}
-	if (!condensed) os << tabs(indent) << "}";
-	if (debug) {
+	if (!options.condensed) os << tabs(indent) << "}";
+	if (options.debug) {
 		os << " " << type;
 		if (may_return) os << " ==>" << return_type;
 	}

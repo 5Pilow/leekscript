@@ -9,7 +9,7 @@ Continue::Continue() {
 	deepness = 1;
 }
 
-void Continue::print(std::ostream& os, int, bool, bool) const {
+void Continue::print(std::ostream& os, int, PrintOptions) const {
 	os << "continue";
 	if (deepness > 1) {
 		os << " " << deepness;

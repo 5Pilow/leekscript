@@ -10,9 +10,9 @@ Boolean::Boolean(Token* token) : token(token) {
 	constant = true;
 }
 
-void Boolean::print(std::ostream& os, int, bool debug, bool condensed) const {
+void Boolean::print(std::ostream& os, int, PrintOptions options) const {
 	os << (value ? "true" : "false");
-	if (debug) {
+	if (options.debug) {
 		os << " " << type;
 	}
 }

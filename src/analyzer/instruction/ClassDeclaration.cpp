@@ -10,15 +10,15 @@ ClassDeclaration::ClassDeclaration(Token* token) : token(token) {
 	var = nullptr;
 }
 
-void ClassDeclaration::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void ClassDeclaration::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "class " << name << " {" << std::endl;
 	for (const auto& vd : fields) {
 		os << tabs(indent + 1);
-		vd->print(os, indent + 1, debug, condensed);
+		vd->print(os, indent + 1, options);
 		os << std::endl;
 	}
 	os << tabs(indent) << "}";
-	if (debug) os << " " << type;
+	if (options.debug) os << " " << type;
 }
 
 Location ClassDeclaration::location() const {

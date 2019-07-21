@@ -14,7 +14,7 @@ VariableDeclaration::VariableDeclaration() {
 	constant = false;
 }
 
-void VariableDeclaration::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void VariableDeclaration::print(std::ostream& os, int indent, PrintOptions options) const {
 
 	os << (global ? "global " : (constant ? "let " : "var "));
 
@@ -28,7 +28,7 @@ void VariableDeclaration::print(std::ostream& os, int indent, bool debug, bool c
 		}
 		if (expressions[i] != nullptr) {
 			os << " = ";
-			expressions.at(i)->print(os, indent, debug);
+			expressions.at(i)->print(os, indent, options);
 		}
 		if (i < variables.size() - 1) {
 			os << ", ";

@@ -7,34 +7,34 @@
 
 namespace ls {
 
-void For::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void For::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "for";
 	for (const auto& ins : init->instructions) {
 		os << " ";
-		ins->print(os, indent + 1, debug, condensed);
+		ins->print(os, indent + 1, options);
 	}
 	os << "; ";
 	if (condition != nullptr) {
-		condition->print(os, indent + 1, debug);
+		condition->print(os, indent + 1, options);
 	}
 	os << "; ";
-	increment->print(os, indent + 1, debug, true);
+	increment->print(os, indent + 1, { options.debug, true, options.sections });
 
 	if (condition2 or increment2) {
 		os << std::endl << tabs(indent) << "for . . . . . . .; ";
 		if (condition2 != nullptr) {
-			condition2->print(os, indent + 1, debug);
+			condition2->print(os, indent + 1, options);
 		}
 		os << "; ";
 		if (increment2) {
-			increment2->print(os, indent + 1, debug, true);
+			increment2->print(os, indent + 1, { options.debug, true, options.sections });
 		}
 	}
 	os << " ";
-	body->print(os, indent, debug);
+	body->print(os, indent, options);
 	if (body2) {
 		os << " ";
-		body2->print(os, indent, debug);
+		body2->print(os, indent, options);
 	}
 	for (const auto& assignment : assignments) {
 		os << std::endl << tabs(indent) << assignment.first << " " << assignment.first->type << " = " << assignment.second << " " << assignment.second->type;

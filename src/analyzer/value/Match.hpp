@@ -22,7 +22,7 @@ public:
 
 		inline bool is_default() const { return !begin && !end; }
 
-		void print(std::ostream&, int indent, bool debug) const;
+		void print(std::ostream&, int indent, PrintOptions options) const;
 		#if COMPILER
 		Compiler::value match(Compiler &c, Compiler::value v) const;
 		#endif
@@ -38,7 +38,7 @@ public:
 	std::vector<std::vector<Pattern>> pattern_list;
 	std::vector<std::unique_ptr<Value>> returns;
 
-	virtual void print(std::ostream&, int indent, bool debug, bool condensed) const override;
+	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
 
 	virtual void pre_analyze(SemanticAnalyzer*) override;

@@ -13,13 +13,13 @@ namespace ls {
 
 PrefixExpression::PrefixExpression(std::shared_ptr<Operator> op, std::unique_ptr<Value> expression) : operatorr(op), expression(std::move(expression)) {}
 
-void PrefixExpression::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void PrefixExpression::print(std::ostream& os, int indent, PrintOptions options) const {
 	operatorr->print(os);
 	if (operatorr->type == TokenType::NEW) {
 		os << " ";
 	}
-	expression->print(os, indent, debug);
-	if (debug) {
+	expression->print(os, indent, options);
+	if (options.debug) {
 		os << " " << type;
 	}
 }

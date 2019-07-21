@@ -2,6 +2,7 @@
 #define PROGRAM_HPP
 
 #include "../analyzer/value/Function.hpp"
+#include "PrintOptions.hpp"
 #if COMPILER
 #include "../vm/VM.hpp"
 #endif

@@ -19,18 +19,18 @@ namespace ls {
 
 FunctionVersion::FunctionVersion(std::unique_ptr<Block> body) : body(std::move(body)), type(Type::void_) {}
 
-void FunctionVersion::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void FunctionVersion::print(std::ostream& os, int indent, PrintOptions options) const {
 	if (parent->arguments.size() != 1) {
 		os << "(";
 	}
 	for (unsigned i = 0; i < parent->arguments.size(); ++i) {
 		if (i > 0) os << ", ";
-		if (debug and initial_arguments.find(parent->arguments.at(i)->content) != initial_arguments.end()) {
+		if (options.debug and initial_arguments.find(parent->arguments.at(i)->content) != initial_arguments.end()) {
 			os << initial_arguments.at(parent->arguments.at(i)->content);
 		} else {
 			os << parent->arguments.at(i)->content;
 		}
-		if (debug)
+		if (options.debug)
 			os << " " << this->type->arguments().at(i);
 
 		if (parent->defaultValues.at(i) != nullptr) {
@@ -41,7 +41,7 @@ void FunctionVersion::print(std::ostream& os, int indent, bool debug, bool conde
 	if (parent->arguments.size() != 1) {
 		os << ")";
 	}
-	if (debug and placeholder_type) {
+	if (options.debug and placeholder_type) {
 		os << " " << placeholder_type;
 	}
 	if (recursive) {
@@ -51,9 +51,9 @@ void FunctionVersion::print(std::ostream& os, int indent, bool debug, bool conde
 		os << BLUE_BOLD << " throws" << END_COLOR;
 	}
 	os << " => ";
-	body->print(os, indent, debug, condensed);
+	body->print(os, indent, options);
 
-	if (debug) {
+	if (options.debug) {
 		// os << " [" << parent->versions.size() << " versions, " << std::boolalpha << parent->has_version << "]";
 		// os << "<";
 		// int i = 0;
@@ -72,7 +72,7 @@ void FunctionVersion::print(std::ostream& os, int indent, bool debug, bool conde
 		}
 		os << "]";
 	}
-	if (debug and type->return_type() != body->type) {
+	if (options.debug and type->return_type() != body->type) {
 		os << " : " << type->return_type();
 	}
 }

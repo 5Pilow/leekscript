@@ -8,7 +8,7 @@ Break::Break() {
 	deepness = 1;
 }
 
-void Break::print(std::ostream& os, int, bool, bool) const {
+void Break::print(std::ostream& os, int, PrintOptions) const {
 	os << "break";
 	if (deepness > 1) {
 		os << " " << deepness;

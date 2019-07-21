@@ -11,10 +11,10 @@ PostfixExpression::PostfixExpression() {
 	return_value = true;
 }
 
-void PostfixExpression::print(std::ostream& os, int indent, bool debug, bool condensed) const {
-	expression->print(os, indent, debug);
+void PostfixExpression::print(std::ostream& os, int indent, PrintOptions options) const {
+	expression->print(os, indent, options);
 	operatorr->print(os);
-	if (debug) {
+	if (options.debug) {
 		os << " " << type;
 	}
 }

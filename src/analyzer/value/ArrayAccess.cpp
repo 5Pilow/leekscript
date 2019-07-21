@@ -20,18 +20,18 @@ bool ArrayAccess::isLeftValue() const {
 	return key2 == nullptr; // Range access is not left-value (yet)
 }
 
-void ArrayAccess::print(std::ostream& os, int indent, bool debug, bool condensed) const {
-	array->print(os, indent, debug, condensed);
+void ArrayAccess::print(std::ostream& os, int indent, PrintOptions options) const {
+	array->print(os, indent, options);
 	os << "[";
 	if (key != nullptr) {
-		key->print(os, indent, debug, condensed);
+		key->print(os, indent, options);
 	}
 	if (key2 != nullptr) {
 		os << ":";
-		key2->print(os, indent, debug, condensed);
+		key2->print(os, indent, options);
 	}
 	os << "]";
-	if (debug) {
+	if (options.debug) {
 		os << " " << type;
 	}
 }

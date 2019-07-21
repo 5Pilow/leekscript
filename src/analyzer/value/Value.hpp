@@ -8,6 +8,7 @@
 #include "../lexical/Location.hpp"
 #include "../semantic/Call.hpp"
 #include "../semantic/Assignment.hpp"
+#include "../PrintOptions.hpp"
 #if COMPILER
 #include "../../compiler/Compiler.hpp"
 #endif
@@ -38,7 +39,7 @@ public:
 	virtual bool is_zero() const;
 
 	// TODO PrintOptions to merge parameters
-	virtual void print(std::ostream&, int indent = 0, bool debug = false, bool condensed = false) const = 0;
+	virtual void print(std::ostream&, int indent = 0, PrintOptions options = {}) const = 0;
 	std::string to_string() const;
 
 	virtual Location location() const = 0;

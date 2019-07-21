@@ -15,9 +15,9 @@ Number::~Number() {
 	}
 }
 
-void Number::print(std::ostream& os, int, bool debug, bool condensed) const {
+void Number::print(std::ostream& os, int, PrintOptions options) const {
 	os << value;
-	if (debug) {
+	if (options.debug) {
 		os << " " << type;
 	}
 }

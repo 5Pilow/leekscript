@@ -29,13 +29,13 @@ bool VariableValue::isLeftValue() const {
 	return scope != VarScope::INTERNAL; // Internal variables are not left-value
 }
 
-void VariableValue::print(std::ostream& os, int, bool debug, bool condensed) const {
-	if (var != nullptr and debug) {
+void VariableValue::print(std::ostream& os, int, PrintOptions options) const {
+	if (var != nullptr and options.debug) {
 		os << var;
 	} else {
 		os << token->content;
 	}
-	if (debug) {
+	if (options.debug) {
 		os << " ";
 		if (has_version && var != nullptr && var->value != nullptr)
 			os << var->value->version_type(version);

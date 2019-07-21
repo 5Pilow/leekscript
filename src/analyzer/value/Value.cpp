@@ -68,12 +68,12 @@ std::string Value::tabs(int indent) {
 
 std::string Value::to_string() const {
 	std::ostringstream oss;
-	print(oss, 0, false, true);
+	print(oss, 0, { false, true, false });
 	return oss.str();
 }
 
 std::ostream& operator << (std::ostream& os, const Value* v) {
-	v->print(os, 0, false, true);
+	v->print(os, 0, { false, true, false });
 	return os;
 }
 

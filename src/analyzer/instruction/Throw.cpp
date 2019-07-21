@@ -9,11 +9,11 @@ Throw::Throw(Token* token, std::unique_ptr<Value> v) : token(token), expression(
 	throws = true;
 }
 
-void Throw::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void Throw::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "throw";
 	if (expression != nullptr) {
 		os << " ";
-		expression->print(os, indent, debug);
+		expression->print(os, indent, options);
 	}
 }
 

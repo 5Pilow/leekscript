@@ -14,7 +14,7 @@ public:
 
 	Nulll(Token* token);
 
-	virtual void print(std::ostream&, int indent, bool debug, bool condensed) const override;
+	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
 
 	#if COMPILER

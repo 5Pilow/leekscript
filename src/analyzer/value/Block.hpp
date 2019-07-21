@@ -33,7 +33,7 @@ public:
 
 	Block(bool is_function_block = false);
 
-	virtual void print(std::ostream&, int indent = 0, bool debug = false, bool condensed = false) const override;
+	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
 
 	void analyze_global_functions(SemanticAnalyzer* analyzer);

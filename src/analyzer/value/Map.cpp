@@ -5,20 +5,20 @@
 
 namespace ls {
 
-void Map::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void Map::print(std::ostream& os, int indent, PrintOptions options) const {
 	if (values.empty()) {
 		os << "[:]";
 	} else {
 		os << "[";
 		for (size_t i = 0; i < values.size(); ++i) {
 			if (i > 0) os << ", ";
-			keys[i]->print(os, indent + 1, debug);
+			keys[i]->print(os, indent + 1, options);
 			os << ": ";
-			values[i]->print(os, indent + 1, debug);
+			values[i]->print(os, indent + 1, options);
 		}
 		os << "]";
 	}
-	if (debug) {
+	if (options.debug) {
 		os << " " << type;
 	}
 }

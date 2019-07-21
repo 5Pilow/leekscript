@@ -9,9 +9,9 @@ Nulll::Nulll(Token* token) : token(token) {
 	constant = true;
 }
 
-void Nulll::print(std::ostream& os, int, bool debug, bool condensed) const {
+void Nulll::print(std::ostream& os, int, PrintOptions options) const {
 	os << "null";
-	if (debug) {
+	if (options.debug) {
 		os << " " << type;
 	}
 }

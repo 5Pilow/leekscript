@@ -10,9 +10,9 @@ String::String(Token* token) : token(token) {
 	constant = true;
 }
 
-void String::print(std::ostream& os, int, bool debug, bool condensed) const {
+void String::print(std::ostream& os, int, PrintOptions options) const {
 	os << "'" << token->content << "'";
-	if (debug) {
+	if (options.debug) {
 		os << " " << type;
 	}
 }

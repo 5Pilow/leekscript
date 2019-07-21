@@ -10,13 +10,13 @@ Interval::Interval() {
 	type = Type::interval;
 }
 
-void Interval::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void Interval::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "[";
-	start->print(os, indent, debug);
+	start->print(os, indent, options);
 	os << "..";
-	end->print(os, indent, debug);
+	end->print(os, indent, options);
 	os << "]";
-	if (debug) {
+	if (options.debug) {
 		os << " " << type;
 	}
 }

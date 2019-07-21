@@ -10,18 +10,18 @@ Object::Object() {
 	type = Type::tmp_object;
 }
 
-void Object::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void Object::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "{";
 	for (unsigned i = 0; i < keys.size(); ++i) {
 		os << keys.at(i)->content;
 		os << ": ";
-		values.at(i)->print(os, indent, debug);
+		values.at(i)->print(os, indent, options);
 		if (i < keys.size() - 1) {
 			os << ", ";
 		}
 	}
 	os << "}";
-	if (debug) {
+	if (options.debug) {
 		os << " " << type;
 	}
 }

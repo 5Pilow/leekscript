@@ -13,14 +13,14 @@ While::While() {
 	body = nullptr;
 }
 
-void While::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void While::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "while ";
-	condition->print(os, indent + 1, debug);
+	condition->print(os, indent + 1, options);
 	os << " ";
-	body->print(os, indent, debug);
+	body->print(os, indent, options);
 	if (body2_activated) {
 		os << " ";
-		body2->print(os, indent, debug);
+		body2->print(os, indent, options);
 	}
 	for (const auto& assignment : assignments) {
 		os << std::endl << tabs(indent) << assignment.first << " " << assignment.first->type << " = " << assignment.second << " " << assignment.second->type;

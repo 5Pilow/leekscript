@@ -14,7 +14,7 @@ Foreach::Foreach() {
 	value_var = nullptr;
 }
 
-void Foreach::print(std::ostream& os, int indent, bool debug, bool condensed) const {
+void Foreach::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "for ";
 
 	if (key != nullptr) {
@@ -24,13 +24,13 @@ void Foreach::print(std::ostream& os, int indent, bool debug, bool condensed) co
 	os << value->content << " " << container->type->element();
 
 	os << " in ";
-	container->print(os, indent + 1, debug);
+	container->print(os, indent + 1, options);
 
 	os << " ";
-	body->print(os, indent, debug);
+	body->print(os, indent, options);
 	if (body2_activated) {
 		os << " ";
-		body2->print(os, indent, debug);
+		body2->print(os, indent, options);
 	}
 	for (const auto& assignment : assignments) {
 		os << std::endl << tabs(indent) << assignment.first << " " << assignment.first->type << " = " << assignment.second << " " << assignment.second->type;
