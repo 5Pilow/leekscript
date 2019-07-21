@@ -95,7 +95,7 @@ NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
 		{Type::mpz, Type::integer, Type::tmp_mpz_ptr, ADDR(mul_tmp_mpz_int)},
 	});
 	operator_("*=", {
-		{Type::mpz, Type::mpz, Type::tmp_mpz, ADDR(mul_eq_mpz_mpz)},
+		{Type::mpz_ptr, Type::mpz_ptr, Type::tmp_mpz, ADDR(mul_eq_mpz_mpz)},
 		{Type::mpz_ptr, Type::integer, Type::tmp_mpz_ptr, ADDR(mul_eq_mpz_int)},
 		{Type::real, Type::real, Type::real, ADDR(mul_eq_real), 0, {}, true},
 		{Type::integer, Type::integer, Type::integer, ADDR(mul_eq_real), 0, {}, true}
