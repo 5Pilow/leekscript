@@ -1,0 +1,15 @@
+function sumDiv(n) {
+	var num = 0
+	for (var i = 1; i < n; ++i)
+		if (n % i == 0) {
+			num += i
+		}
+	num
+}
+
+function isAmicable(i) {
+	var sum = sumDiv(i)
+	sum != i && sumDiv(sum) == i
+}
+
+[1..10000].filter(isAmicable).sum()
