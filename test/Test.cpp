@@ -5,6 +5,7 @@
 #include "../src/colors.h"
 #include "../src/analyzer/Program.hpp"
 #include "../src/leekscript.h"
+#include <omp.h>
 
 std::vector<std::string> Test::failed_tests;
 std::vector<std::string> Test::disabled_tests;
@@ -31,28 +32,35 @@ int main(int, char**) {
 
 int Test::all() {
 
-	test_types();
-	test_general();
-	test_booleans();
-	test_numbers();
-	test_strings();
-	test_arrays();
-	test_intervals();
-	test_map();
-	test_set();
-	test_objects();
-	test_functions();
-	test_classes();
-	test_loops();
-	test_operators();
-	test_exceptions();
-	test_operations();
-	test_system();
-	test_json();
-	test_files();
-	test_toplevel();
-	test_doc();
-	test_utils();
+	std::vector<std::function<void(Test*)>> tests = {
+		&Test::test_types,
+		&Test::test_general,
+		&Test::test_booleans,
+		&Test::test_numbers,
+		&Test::test_strings,
+		&Test::test_arrays,
+		&Test::test_intervals,
+		&Test::test_map,
+		&Test::test_set,
+		&Test::test_objects,
+		&Test::test_functions,
+		&Test::test_classes,
+		&Test::test_loops,
+		&Test::test_operators,
+		&Test::test_exceptions,
+		&Test::test_operations,
+		&Test::test_system,
+		&Test::test_json,
+		&Test::test_files,
+		&Test::test_toplevel,
+		&Test::test_doc,
+		&Test::test_utils,
+	};
+	omp_set_num_threads(1);
+	#pragma omp parallel for
+	for (size_t i = 0; i < tests.size(); ++i) {
+        tests[i](this);
+    };
 
 	double total_time = parse_time + compilation_time + execution_time;
 	int errors = (total - success_count - disabled);

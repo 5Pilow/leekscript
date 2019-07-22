@@ -36,6 +36,7 @@ COMPILER := g++
 OPTIM := -O0 -Wall
 DEBUG := -g3
 FLAGS := -std=c++17 -Wno-pmf-conversions
+FLAGS_TEST := -fopenmp
 SANITIZE_FLAGS := -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -fsanitize=float-divide-by-zero # -fsanitize=float-cast-overflow
 LIBS := -lm -lgmp -lstdc++fs `llvm-config --cxxflags --ldflags --system-libs --libs core orcjit native`
 MAKEFLAGS += --jobs=$(shell nproc)
@@ -130,7 +131,7 @@ build/leekscript-coverage: $(BUILD_DIR) $(OBJ_COVERAGE) $(OBJ_TEST)
 	@echo "--------------------------"
 
 # Run tests
-test: FLAGS += -DDEBUG_LEAKS
+test: FLAGS += -DDEBUG_LEAKS $(FLAGS_TEST)
 test: build/leekscript-test
 	@build/leekscript-test
 
