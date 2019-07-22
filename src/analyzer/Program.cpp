@@ -42,7 +42,7 @@ Program::~Program() {
 }
 
 #if COMPILER
-VM::Result Program::compile_leekscript(VM& vm, Context* ctx, bool debug, bool bitcode, bool pseudo_code, bool optimized_ir) {
+VM::Result Program::compile_leekscript(VM& vm, Context* ctx, bool format, bool debug, bool bitcode, bool pseudo_code, bool optimized_ir) {
 
 	auto parse_start = std::chrono::high_resolution_clock::now();
 
@@ -68,9 +68,11 @@ VM::Result Program::compile_leekscript(VM& vm, Context* ctx, bool debug, bool bi
 	sem.vm = &vm;
 	sem.analyze(this, ctx);
 
-	std::ostringstream oss;
-	print(oss, debug);
-	result.program = oss.str();
+	if (format or debug) {
+		std::ostringstream oss;
+		print(oss, debug);
+		result.program = oss.str();
+	}
 
 	if (sem.errors.size()) {
 		result.compilation_success = false;
@@ -179,7 +181,7 @@ VM::Result Program::compile_bitcode_file(VM& vm) {
 	return result;
 }
 
-VM::Result Program::compile(VM& vm, Context* ctx, bool debug, bool export_bitcode, bool pseudo_code, bool optimized_ir, bool ir, bool bitcode) {
+VM::Result Program::compile(VM& vm, Context* ctx, bool format, bool debug, bool export_bitcode, bool pseudo_code, bool optimized_ir, bool ir, bool bitcode) {
 	this->vm = &vm;
 
 	if (ir) {
@@ -187,7 +189,7 @@ VM::Result Program::compile(VM& vm, Context* ctx, bool debug, bool export_bitcod
 	} else if (bitcode) {
 		return compile_bitcode_file(vm);
 	} else {
-		return compile_leekscript(vm, ctx, debug, export_bitcode, pseudo_code, optimized_ir);
+		return compile_leekscript(vm, ctx, format, debug, export_bitcode, pseudo_code, optimized_ir);
 	}
 }
 #endif

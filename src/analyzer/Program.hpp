@@ -41,8 +41,8 @@ public:
 	 * Compile the program with a VM and a context (json)
 	 */
 	#if COMPILER
-	VM::Result compile(VM& vm, Context* context = nullptr, bool debug = false, bool assembly = false, bool pseudo_code = false, bool optimized_ir = false, bool ir = false, bool bitcode = false);
-	VM::Result compile_leekscript(VM& vm, Context* ctx, bool debug, bool assembly, bool pseudo_code, bool optimized_ir);
+	VM::Result compile(VM& vm, Context* context = nullptr, bool format = false, bool debug = false, bool assembly = false, bool pseudo_code = false, bool optimized_ir = false, bool ir = false, bool bitcode = false);
+	VM::Result compile_leekscript(VM& vm, Context* ctx, bool format, bool debug, bool assembly, bool pseudo_code, bool optimized_ir);
 	VM::Result compile_ir_file(VM& vm);
 	VM::Result compile_bitcode_file(VM& vm);
 	#endif

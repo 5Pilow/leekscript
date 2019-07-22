@@ -113,7 +113,7 @@ VM::Result VM::execute(const std::string code, Context* ctx, std::string file_na
 	auto program = new Program(code, file_name);
 
 	// Compile
-	auto result = program->compile(*this, ctx, debug, assembly, pseudo_code, optimized_ir, execute_ir, execute_bitcode);
+	auto result = program->compile(*this, ctx, format, debug, assembly, pseudo_code, optimized_ir, execute_ir, execute_bitcode);
 
 	if (format or debug) {
 		std::cout << "main() ";

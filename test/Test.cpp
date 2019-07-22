@@ -147,7 +147,7 @@ ls::VM::Result Test::Input::run(bool display_errors, bool ops) {
 
 	auto vm = v1 ? &test->vmv1 : &test->vm;
 	vm->operation_limit = this->operation_limit > 0 ? this->operation_limit : ls::VM::DEFAULT_OPERATION_LIMIT;
-	auto result = vm->execute(code, ctx, file_name, false, ops or this->operation_limit > 0);
+	auto result = vm->execute(code, ctx, file_name, false, false, ops or this->operation_limit > 0);
 	vm->operation_limit = ls::VM::DEFAULT_OPERATION_LIMIT;
 
 	this->result = result;
