@@ -21,6 +21,9 @@
 #include "util/Util.hpp"
 #include "../test/Test.hpp"
 #include "analyzer/resolver/File.hpp"
+#include "util/CLI11.hpp"
+
+namespace CLI11 = CLI;
 
 namespace ls {
 
@@ -53,10 +56,15 @@ public:
 	void seed_random();
 	void vm_init();
 
-	int start(int argc, char* argv[]);
+	void setup_options(CLI11::App& app, CLI_options& options, int argc, char* argv[]);
 
-	int snippet(std::string, CLI_options options);
-	int file(std::string, CLI_options options);
+	int start_analyzer(int argc, char* argv[]);
+	int start_full(int argc, char* argv[]);
+
+	int analyze_snippet(std::string, CLI_options options);
+	int analyze_file(std::string, CLI_options options);
+	int execute_snippet(std::string, CLI_options options);
+	int execute_file(std::string, CLI_options options);
 	int repl(CLI_options);
 
 	void print_errors(ls::VM::Result& result, std::ostream& os, bool json);

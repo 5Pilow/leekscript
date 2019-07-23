@@ -1,13 +1,13 @@
 SRC_DIR := src/vm src/vm/value src/vm/standard src/doc \
 src/analyzer src/analyzer/lexical src/analyzer/syntaxic src/analyzer/semantic src/analyzer/resolver src/analyzer/error src/analyzer/value src/analyzer/instruction \
 src/compiler src/standard src/standard/class src/type src/util
-WEB_DIR := src/analyzer src/analyzer/lexical src/analyzer/syntaxic src/analyzer/semantic src/analyzer/resolver src/analyzer/error \
-src/analyzer/value src/analyzer/instruction src/standard src/standard/class src/type src/util
+ANALYZER_DIR := src/analyzer src/analyzer/lexical src/analyzer/syntaxic src/analyzer/semantic src/analyzer/resolver src/analyzer/error \
+src/analyzer/value src/analyzer/instruction src/standard src/standard/class src/type src/util src/doc
 TEST_DIR := test
 
 SRC := $(foreach d,$(SRC_DIR),$(wildcard $(d)/*.cpp))
 TEST_SRC := $(foreach d,$(TEST_DIR),$(wildcard $(d)/*.cpp))
-SRC_WEB := $(foreach d,$(WEB_DIR),$(wildcard $(d)/*.cpp))
+SRC_ANALYZER := $(foreach d,$(ANALYZER_DIR),$(wildcard $(d)/*.cpp))
 
 BUILD_DIR := $(addprefix build/default/,$(SRC_DIR))
 BUILD_DIR += $(addprefix build/default/,$(TEST_DIR))
@@ -17,7 +17,7 @@ BUILD_DIR += $(addprefix build/profile/,$(SRC_DIR))
 BUILD_DIR += $(addprefix build/sanitized/,$(SRC_DIR))
 BUILD_DIR += $(addprefix build/deps/,$(SRC_DIR))
 BUILD_DIR += $(addprefix build/deps/,$(TEST_DIR))
-BUILD_DIR += $(addprefix build/web/,$(SRC_WEB))
+BUILD_DIR += $(addprefix build/analyzer/,$(SRC_ANALYZER))
 
 OBJ := $(patsubst %.cpp,build/default/%.o,$(SRC))
 DEPS := $(patsubst %.cpp,build/deps/%.d,$(SRC))
@@ -29,8 +29,7 @@ OBJ_LIB := $(patsubst %.cpp,build/shared/%.o,$(SRC))
 OBJ_COVERAGE := $(patsubst %.cpp,build/coverage/%.o,$(SRC))
 OBJ_PROFILE := $(patsubst %.cpp,build/profile/%.o,$(SRC))
 OBJ_SANITIZED := $(patsubst %.cpp,build/sanitized/%.o,$(SRC))
-OBJ_WEB := $(patsubst %.cpp,build/web/%.o,$(SRC_WEB))
-OBJ_WEB += build/web/src/MainWeb.o
+OBJ_ANALYZER := $(patsubst %.cpp,build/analyzer/%.o,$(SRC_ANALYZER)) build/analyzer/src/CLI.o build/analyzer/src/MainAnalyzer.o
 
 COMPILER := g++
 OPTIM := -O0 -Wall
@@ -68,7 +67,7 @@ build/default/%.o: %.cpp
 	$(COMPILER) -c $(OPTIM) $(FLAGS) $(DEBUG) -o $@ $<
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
 
-build/web/%.o: %.cpp
+build/analyzer/%.o: %.cpp
 	$(COMPILER) -c $(OPTIM) $(FLAGS) $(DEBUG) -o $@ $<
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
 
@@ -98,11 +97,11 @@ build/leekscript-test: $(BUILD_DIR) $(OBJ) $(OBJ_TEST)
 	@echo "Build (test) finished!"
 	@echo "--------------------------"
 
-# Build web target
-build/leekscript-web: $(BUILD_DIR) $(OBJ_WEB)
-	$(COMPILER) $(FLAGS) -o build/leekscript-web $(OBJ_WEB) $(LIBS)
+# Build analyzer target
+build/leekscript-analyzer: $(BUILD_DIR) $(OBJ_ANALYZER)
+	$(COMPILER) $(FLAGS) -o build/leekscript-analyzer $(OBJ_ANALYZER) $(LIBS)
 	@echo "--------------------------"
-	@echo "Build (web) finished!"
+	@echo "Build (analyzer) finished!"
 	@echo "--------------------------"
 
 # Build the shared library version of the leekscript
@@ -140,8 +139,8 @@ opti: OPTIM := -O2
 opti: DEBUG :=
 opti: test
 
-web: FLAGS += -DCOMPILER=0
-web: build/leekscript-web
+analyzer: FLAGS += -DCOMPILER=0
+analyzer: build/leekscript-analyzer
 
 # Benchmark
 benchmark-dir:

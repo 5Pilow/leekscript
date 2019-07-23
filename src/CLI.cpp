@@ -8,8 +8,9 @@
 #include "constants.h"
 #include "vm/VM.hpp"
 #include "util/CLI11.hpp"
-
-namespace CLI11 = CLI;
+#include "analyzer/resolver/Resolver.hpp"
+#include "analyzer/syntaxic/SyntaxicAnalyzer.hpp"
+#include "analyzer/semantic/SemanticAnalyzer.hpp"
 
 namespace ls {
 
@@ -27,10 +28,8 @@ void CLI::vm_init() {
 	#endif
 }
 
-int CLI::start(int argc, char* argv[]) {
-
-	CLI11::App app("~~~ LeekScript v2.0 ~~~");
-	CLI_options options;
+void CLI::setup_options(CLI11::App& app, CLI_options& options, int argc, char* argv[]) {
+	app.name("~~~ LeekScript v2.0 ~~~");
 	app.allow_extras();
     app.add_flag("-f,--format", options.format, "Format code nicely");
     app.add_flag("-d,--debug", options.debug, "Output debug information");
@@ -47,13 +46,41 @@ int CLI::start(int argc, char* argv[]) {
     try {
         app.parse(argc, argv);
     } catch (const CLI11::ParseError& e) {
-        return app.exit(e);
+		app.exit(e);
     }
+}
+
+int CLI::start_analyzer(int argc, char* argv[]) {
+
+	CLI11::App app;
+	CLI_options options;
+	setup_options(app, options, argc, argv);
+
+	if (not app.remaining().size()) {
+		std::cout << "Input code|file missing" << std::endl;
+		return 0;
+	}
+	auto file_or_code = app.remaining().at(0);
+	/** Input file or code snippet? */
+	if (Util::is_file_name(file_or_code)) {
+		return analyze_file(file_or_code, options);
+	} else {
+		return analyze_snippet(file_or_code, options);
+	}
+}
+
+int CLI::start_full(int argc, char* argv[]) {
+
+	CLI11::App app;
+	CLI_options options;
+	setup_options(app, options, argc, argv);
 
 	/** Generate the standard functions documentation */
 	if (options.documentation) {
+		#if COMPILER
 		ls::VM vm {};
 		ls::Documentation().generate(&vm, std::cout);
+		#endif
 		return 0;
 	}
 
@@ -73,17 +100,57 @@ int CLI::start(int argc, char* argv[]) {
 		auto file_or_code = app.remaining().at(0);
 		/** Input file or code snippet? */
 		if (Util::is_file_name(file_or_code)) {
-			return file(file_or_code, options);
+			return execute_file(file_or_code, options);
 		} else {
-			return snippet(file_or_code, options);
+			return execute_snippet(file_or_code, options);
 		}
 	} else {
 		return repl(options);
 	}
 }
 
-int CLI::snippet(std::string code, CLI_options options) {
-	/** Execute **/
+int CLI::analyze_snippet(std::string code, CLI_options options) {
+	ls::Program program { code, "snippet" };
+
+	auto resolver = new ls::Resolver();
+	VM::Result result;
+	auto main_file = new File("snippet", code, new FileContext());
+	ls::SyntaxicAnalyzer syn { resolver };
+	auto block = syn.analyze(main_file);
+
+	if (main_file->errors.size() > 0) {
+		result.compilation_success = false;
+		result.errors = main_file->errors;
+		return 0;
+	}
+
+	auto token = new Token(TokenType::FUNCTION, main_file, 0, 0, 0, "function");
+	program.main = std::make_unique<Function>(std::move(token));
+	program.main->body = block;
+	program.main->is_main_function = true;
+
+	// Semantical analysis
+	ls::SemanticAnalyzer sem;
+	sem.analyze(&program, nullptr);
+
+	std::ostringstream oss;
+	program.print(oss, true);
+	result.program = oss.str();
+
+	if (sem.errors.size()) {
+		result.compilation_success = false;
+		result.errors = sem.errors;
+		return 0;
+	}
+	return 0;
+}
+
+int CLI::analyze_file(std::string, CLI_options options) {
+
+}
+
+int CLI::execute_snippet(std::string code, CLI_options options) {
+	#if COMPILER
 	ls::VM vm { options.legacy };
 	OutputStringStream oss;
 	if (options.json_output)
@@ -91,10 +158,12 @@ int CLI::snippet(std::string code, CLI_options options) {
 	auto result = vm.execute(code, nullptr, "snippet", options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
 	vm.output = ls::VM::default_output;
 	print_result(result, oss.str(), options.json_output, options.display_time, options.operations);
+	#endif
 	return 0;
 }
 
-int CLI::file(std::string file, CLI_options options) {
+int CLI::execute_file(std::string file, CLI_options options) {
+	#if COMPILER
 	std::ifstream ifs(file.data());
 	if (!ifs.good()) {
 		std::cout << "[" << C_YELLOW << "warning" << END_COLOR << "] File '" << BOLD << file << END_STYLE << "' does not exist." << std::endl;
@@ -110,11 +179,13 @@ int CLI::file(std::string file, CLI_options options) {
 	auto result = vm.execute(code, nullptr, file_name, options.format, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
 	vm.output = ls::VM::default_output;
 	print_result(result, oss.str(), options.json_output, options.display_time, options.operations);
+	#endif
 	return 0;
 }
 
 int CLI::repl(CLI_options options) {
 	/** Interactive console mode */
+	#if COMPILER
 	std::cout << "~~~ LeekScript v2.0 ~~~" << std::endl;
 	std::string code;
 	ls::Context ctx;
@@ -129,6 +200,7 @@ int CLI::repl(CLI_options options) {
 		print_result(result, "", options.json_output, options.display_time, options.operations);
 		// std::cout << &ctx << std::endl;
 	}
+	#endif
 	return 0;
 }
 
@@ -167,9 +239,11 @@ void CLI::print_errors(ls::VM::Result& result, std::ostream& os, bool json) {
 		os << "    " << BOLD << "> " << e.location.file->path << ":" << e.location.start.line << END_COLOR << ": " << e.underline_code << std::endl;
 		first = false;
 	}
+	#if COMPILER
 	if (result.exception.type != ls::vm::Exception::NO_EXCEPTION) {
 		os << result.exception.to_string(json ? false : true);
 	}
+	#endif
 }
 
 }
