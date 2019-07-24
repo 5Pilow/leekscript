@@ -65,9 +65,6 @@ public:
 	std::vector<Class*> class_created;
 	std::unordered_map<std::string, Compiler::value> internals;
 	Compiler compiler;
-	std::unique_ptr<LSNull> null_value;
-	std::unique_ptr<LSBoolean> true_value;
-	std::unique_ptr<LSBoolean> false_value;
 	unsigned int operations = 0;
 	bool enable_operations = true;
 	unsigned int operation_limit;

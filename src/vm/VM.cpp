@@ -41,13 +41,6 @@ VM::VM(bool legacy) : compiler(this), legacy(legacy) {
 
 	operation_limit = VM::DEFAULT_OPERATION_LIMIT;
 	stdLib = new StandardLibrary(legacy);
-
-	null_value = std::unique_ptr<LSNull>(LSNull::create());
-	true_value = std::unique_ptr<LSBoolean>(LSBoolean::create(true));
-	false_value = std::unique_ptr<LSBoolean>(LSBoolean::create(false));
-	LSNull::set_null_value(null_value.get());
-	LSBoolean::set_true_value(true_value.get());
-	LSBoolean::set_false_value(false_value.get());
 }
 
 VM::~VM() {}
@@ -61,6 +54,10 @@ void VM::static_init() {
 	llvm::InitializeNativeTarget();
 	llvm::InitializeNativeTargetAsmPrinter();
 	llvm::InitializeNativeTargetAsmParser();
+
+	LSNull::set_null_value(LSNull::create());
+	LSBoolean::set_true_value(LSBoolean::create(true));
+	LSBoolean::set_false_value(LSBoolean::create(false));
 }
 
 #if COMPILER
@@ -69,9 +66,6 @@ VM::Result VM::execute(const std::string code, Context* ctx, std::string file_na
 	// Reset
 	this->file_name = file_name;
 	VM::current_vm = this;
-	LSNull::set_null_value(null_value.get());
-	LSBoolean::set_true_value(true_value.get());
-	LSBoolean::set_false_value(false_value.get());
 	LSValue::obj_count = 0;
 	LSValue::obj_deleted = 0;
 	VM::mpz_created = 0;
