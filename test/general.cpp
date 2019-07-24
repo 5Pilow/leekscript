@@ -10,6 +10,7 @@
 #include "../src/analyzer/Program.hpp"
 #include "../src/vm/value/LSNumber.hpp"
 #include "../src/vm/value/LSObject.hpp"
+#include "../src/standard/StandardLibrary.hpp"
 
 void Test::test_general() {
 
@@ -20,7 +21,7 @@ void Test::test_general() {
 	delete error;
 	// Print a program
 	auto program = new ls::Program("2 + 2", "test");
-	program->compile(vm);
+	program->compile(vm, new ls::StandardLibrary());
 	std::cout << program << std::endl;
 	delete program;
 	// LSObject getField

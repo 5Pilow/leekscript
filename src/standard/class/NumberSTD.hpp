@@ -17,7 +17,7 @@ public:
 		}
 	};
 
-	NumberSTD(VM* vm);
+	NumberSTD(StandardLibrary* stdLib);
 
 	/*
 	 * Operators

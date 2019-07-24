@@ -3,7 +3,7 @@
 
 namespace ls {
 
-NullSTD::NullSTD(VM* vm) : Module(vm, "Null") {
+NullSTD::NullSTD(StandardLibrary* stdLib) : Module(stdLib, "Null") {
 	#if COMPILER
 	LSNull::clazz = lsclass.get();
 	#endif

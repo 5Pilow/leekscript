@@ -7,7 +7,7 @@
 
 namespace ls {
 
-SystemSTD::SystemSTD(VM* vm) : Module(vm, "System") {
+SystemSTD::SystemSTD(StandardLibrary* stdLib) : Module(stdLib, "System") {
 
 	static_field("version", Type::integer, ADDR(version));
 	static_field("operations", Type::integer, ADDR([&](ls::Compiler& c) {

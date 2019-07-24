@@ -9,7 +9,7 @@
 
 namespace ls {
 
-IntervalSTD::IntervalSTD(VM* vm) : Module(vm, "Interval") {
+IntervalSTD::IntervalSTD(StandardLibrary* stdLib) : Module(stdLib, "Interval") {
 
 	#if COMPILER
 	LSInterval::clazz = lsclass.get();

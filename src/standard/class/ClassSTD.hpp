@@ -7,7 +7,7 @@ namespace ls {
 
 class ClassSTD : public Module {
 public:
-	ClassSTD(VM* vm);
+	ClassSTD(StandardLibrary* stdLib);
 
 	static void add_field(LSClass* clazz, char* field_name, LSValue* default_value);
 };

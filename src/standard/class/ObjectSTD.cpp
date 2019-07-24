@@ -13,7 +13,7 @@ LSObject* ObjectSTD::readonly = new LSObject();
 LSNumber* ObjectSTD::readonly_value = LSNumber::get(12);
 #endif
 
-ObjectSTD::ObjectSTD(VM* vm) : Module(vm, "Object") {
+ObjectSTD::ObjectSTD(StandardLibrary* stdLib) : Module(stdLib, "Object") {
 
 	#if COMPILER
 	LSObject::object_class = lsclass.get();

@@ -43,7 +43,7 @@ const Callable* Class::getOperator(SemanticAnalyzer* analyzer, std::string& name
 		}
 	}
 	if (this->name != "Value") {
-		auto value_class = (Class*) analyzer->vm->internal_vars["Value"]->clazz;
+		auto value_class = analyzer->globals["Value"]->clazz;
 		auto i = value_class->operators.find(name);
 		if (i != value_class->operators.end()) {
 			for (const auto& impl : i->second) {

@@ -7,7 +7,7 @@ namespace ls {
 
 class BooleanSTD : public Module {
 public:
-	BooleanSTD(VM* vm);
+	BooleanSTD(StandardLibrary* stdLib);
 
 	static LSString* add(int boolean, LSString* string);
 	static LSString* add_tmp(int boolean, LSString* string);

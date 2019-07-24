@@ -74,7 +74,7 @@ LSString* iterator_get(unsigned int c, LSString* previous) {
 }
 #endif
 
-StringSTD::StringSTD(VM* vm) : Module(vm, "String") {
+StringSTD::StringSTD(StandardLibrary* stdLib) : Module(stdLib, "String") {
 
 	#if COMPILER
 	LSString::string_class = lsclass.get();

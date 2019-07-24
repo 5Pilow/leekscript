@@ -8,7 +8,7 @@
 
 namespace ls {
 
-FunctionSTD::FunctionSTD(VM* vm) : Module(vm, "Function") {
+FunctionSTD::FunctionSTD(StandardLibrary* stdLib) : Module(stdLib, "Function") {
 
 	#if COMPILER
 	LSFunction::clazz = lsclass.get();

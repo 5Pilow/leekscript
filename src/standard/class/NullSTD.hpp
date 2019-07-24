@@ -9,7 +9,7 @@ class LSNull;
 
 class NullSTD : public Module {
 public:
-	NullSTD(VM* vm);
+	NullSTD(StandardLibrary* stdLib);
 };
 
 }

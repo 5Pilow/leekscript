@@ -44,7 +44,7 @@ std::map<int, int>::iterator end(LSMap<int, int>* map) {
 }
 #endif
 
-MapSTD::MapSTD(VM* vm) : Module(vm, "Map") {
+MapSTD::MapSTD(StandardLibrary* stdLib) : Module(stdLib, "Map") {
 
 	#if COMPILER
 	LSMap<LSValue*, LSValue*>::clazz = lsclass.get();

@@ -121,9 +121,9 @@ Call VariableValue::get_callable(SemanticAnalyzer* analyzer, int argument_count)
 		}
 	} else {
 		Call call { new Callable() };
-		for (const auto& clazz : analyzer->vm->internal_vars) {
-			if (clazz.second->type->is_class()) {
-				const auto& cl = (Class*) clazz.second->clazz;
+		for (const auto& variable : analyzer->globals) {
+			if (variable.second->type->is_class()) {
+				const auto& cl = variable.second->clazz;
 				auto m = cl->methods.find(name);
 				if (m != cl->methods.end()) {
 					for (auto& i : m->second.versions) {
@@ -170,15 +170,15 @@ void VariableValue::analyze(SemanticAnalyzer* analyzer) {
 		scope = var->scope;
 	} else {
 		bool found = false;
-		for (const auto& clazz : analyzer->vm->internal_vars) {
-			if (clazz.second->type->is_class()) {
-				const auto& cl = (Class*) clazz.second->clazz;
+		for (const auto& variable : analyzer->globals) {
+			if (variable.second->type->is_class()) {
+				const auto& cl = variable.second->clazz;
 				for (const auto& m : cl->methods) {
 					if (m.first == name) {
 						type = m.second.versions.at(0)->type;
 						found = true;
 						for (const auto& i : m.second.versions) {
-							versions.insert({i->type->arguments(), clazz.first + "." + name});
+							versions.insert({ i->type->arguments(), variable.first + "." + name });
 						}
 						class_method = true;
 						break;

@@ -8,7 +8,7 @@
 
 namespace ls {
 
-BooleanSTD::BooleanSTD(VM* vm) : Module(vm, "Boolean") {
+BooleanSTD::BooleanSTD(StandardLibrary* stdLib) : Module(stdLib, "Boolean") {
 
 	#if COMPILER
 	LSBoolean::clazz = lsclass.get();

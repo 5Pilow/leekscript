@@ -40,6 +40,7 @@ OutputStream* VM::default_output = new OutputStream();
 VM::VM(bool legacy) : compiler(this), legacy(legacy) {
 
 	operation_limit = VM::DEFAULT_OPERATION_LIMIT;
+	stdLib = new StandardLibrary(legacy);
 
 	null_value = std::unique_ptr<LSNull>(LSNull::create());
 	true_value = std::unique_ptr<LSBoolean>(LSBoolean::create(true));
@@ -47,27 +48,6 @@ VM::VM(bool legacy) : compiler(this), legacy(legacy) {
 	LSNull::set_null_value(null_value.get());
 	LSBoolean::set_true_value(true_value.get());
 	LSBoolean::set_false_value(false_value.get());
-
-	// Include STD modules
-	add_module(std::make_unique<ValueSTD>(this));
-	add_module(std::make_unique<NullSTD>(this));
-	add_module(std::make_unique<BooleanSTD>(this));
-	add_module(std::make_unique<NumberSTD>(this));
-	add_module(std::make_unique<StringSTD>(this));
-	add_module(std::make_unique<ArraySTD>(this));
-	add_module(std::make_unique<MapSTD>(this));
-	add_module(std::make_unique<SetSTD>(this));
-	add_module(std::make_unique<ObjectSTD>(this));
-	add_module(std::make_unique<FunctionSTD>(this));
-	add_module(std::make_unique<ClassSTD>(this));
-	add_module(std::make_unique<SystemSTD>(this));
-	add_module(std::make_unique<IntervalSTD>(this));
-	add_module(std::make_unique<JsonSTD>(this));
-
-	auto ptr_type = Type::fun(Type::tmp_any, {Type::any});
-	add_internal_var("ptr", ptr_type, nullptr, nullptr, {
-		new CallableVersion {"Value.ptr", ptr_type }
-	});
 }
 
 VM::~VM() {}
@@ -81,12 +61,6 @@ void VM::static_init() {
 	llvm::InitializeNativeTarget();
 	llvm::InitializeNativeTargetAsmPrinter();
 	llvm::InitializeNativeTargetAsmParser();
-}
-
-void VM::add_module(std::unique_ptr<Module> m) {
-	auto const_class = Type::const_class(m->name);
-	add_internal_var(m->name, const_class, m->clazz.get(), m->lsclass.get());
-	modules.push_back(std::move(m));
 }
 
 #if COMPILER
@@ -113,7 +87,7 @@ VM::Result VM::execute(const std::string code, Context* ctx, std::string file_na
 	auto program = new Program(code, file_name);
 
 	// Compile
-	auto result = program->compile(*this, ctx, format, debug, assembly, pseudo_code, optimized_ir, execute_ir, execute_bitcode);
+	auto result = program->compile(*this, stdLib, ctx, format, debug, assembly, pseudo_code, optimized_ir, execute_ir, execute_bitcode);
 
 	if (format or debug) {
 		std::cout << "main() ";
@@ -190,16 +164,6 @@ VM::Result VM::execute(const std::string code, Context* ctx, std::string file_na
 }
 #endif
 
-void VM::add_internal_var(std::string name, const Type* type, Class* clazz, LSClass* lsclass, Call call) {
-	// std::cout << "add_interval_var "<< name << " " << type << " " << value << std::endl;
-	internal_vars.insert({ name, std::make_unique<Variable>(name, VarScope::INTERNAL, type, 0, nullptr, nullptr, nullptr, clazz, lsclass, call) });
-}
-
-void VM::add_internal_var(std::string name, const Type* type, Function* function) {
-	// std::cout << "add_interval_var "<< name << " " << type << " " << value << std::endl;
-	internal_vars.insert({ name, std::make_unique<Variable>(name, VarScope::INTERNAL, type, 0, function, nullptr, nullptr, nullptr) });
-}
-
 #if COMPILER
 void* VM::resolve_symbol(std::string name) {
 	// std::cout << "VM::resolve_symbol " << name << std::endl;
@@ -218,8 +182,8 @@ void* VM::resolve_symbol(std::string name) {
 		// std::cout << "version = " << version << std::endl;
 		if (module == "ctx") {
 			return &context->vars.at(method).value;
-		} else if (internal_vars.find(module) != internal_vars.end()) {
-			const auto& clazz = (Class*) internal_vars.at(module)->clazz;
+		} else if (stdLib->classes.find(module) != stdLib->classes.end()) {
+			const auto& clazz = stdLib->classes.at(module)->clazz;
 			if (method.substr(0, 8) == "operator") {
 				const auto& op = method.substr(8);
 				const auto& implems = clazz->operators.at(op);
@@ -240,8 +204,8 @@ void* VM::resolve_symbol(std::string name) {
 			}
 		}
 	} else {
-		if (internal_vars.find(name) != internal_vars.end()) {
-			return internal_vars.at(name)->lsclass;
+		if (stdLib->classes.find(name) != stdLib->classes.end()) {
+			return stdLib->classes.at(name)->lsclass.get();
 		}
 	}
 	return nullptr;

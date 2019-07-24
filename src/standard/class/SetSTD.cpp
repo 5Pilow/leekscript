@@ -16,7 +16,7 @@ LSSet<int>::iterator iterator_inc(LSSet<int>::iterator it) {
 }
 #endif
 
-SetSTD::SetSTD(VM* vm) : Module(vm, "Set") {
+SetSTD::SetSTD(StandardLibrary* stdLib) : Module(stdLib, "Set") {
 
 	#if COMPILER
 	LSSet<LSValue*>::clazz = lsclass.get();

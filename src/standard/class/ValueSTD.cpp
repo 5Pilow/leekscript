@@ -10,7 +10,7 @@
 
 namespace ls {
 
-ValueSTD::ValueSTD(VM* vm) : Module(vm, "Value") {
+ValueSTD::ValueSTD(StandardLibrary* stdLib) : Module(stdLib, "Value") {
 
 	#if COMPILER
 	LSValue::ValueClass = lsclass.get();
@@ -209,7 +209,7 @@ ValueSTD::ValueSTD(VM* vm) : Module(vm, "Value") {
 		{Type::any, {Type::const_any}, ADDR((void*) &LSValue::move_inc)}
 	});
 	method("ptr", {
-		{Type::any, {Type::const_any}, ADDR((void*) &LSValue::move)}
+		{Type::tmp_any, {Type::const_any}, ADDR((void*) &LSValue::move)}
 	});
 	method("absolute", {
 		{Type::integer, {Type::const_any}, ADDR((void*) absolute), THROWS}

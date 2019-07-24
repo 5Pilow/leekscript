@@ -195,7 +195,7 @@ void Expression::analyze(SemanticAnalyzer* analyzer) {
 	// std::cout << "Expression " << v1_type << " " << op->token->content << " " << v2_type << std::endl;
 
 	if (v1_type->class_name().size()) {
-		auto object_class = (Class*) analyzer->vm->internal_vars[v1_type->class_name()]->clazz;
+		auto object_class = analyzer->globals[v1_type->class_name()]->clazz;
 		auto callable = object_class->getOperator(analyzer, op->character);
 		if (callable) {
 			// std::cout << "Callable : " << callable << std::endl;

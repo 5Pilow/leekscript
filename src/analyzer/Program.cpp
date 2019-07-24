@@ -42,7 +42,7 @@ Program::~Program() {
 }
 
 #if COMPILER
-VM::Result Program::compile_leekscript(VM& vm, Context* ctx, bool format, bool debug, bool bitcode, bool pseudo_code, bool optimized_ir) {
+VM::Result Program::compile_leekscript(VM& vm, StandardLibrary* stdLib, Context* ctx, bool format, bool debug, bool bitcode, bool pseudo_code, bool optimized_ir) {
 
 	auto parse_start = std::chrono::high_resolution_clock::now();
 
@@ -64,8 +64,7 @@ VM::Result Program::compile_leekscript(VM& vm, Context* ctx, bool format, bool d
 	this->main->is_main_function = true;
 
 	// Semantical analysis
-	SemanticAnalyzer sem;
-	sem.vm = &vm;
+	SemanticAnalyzer sem { stdLib };
 	sem.analyze(this, ctx);
 
 	if (format or debug) {
@@ -181,7 +180,7 @@ VM::Result Program::compile_bitcode_file(VM& vm) {
 	return result;
 }
 
-VM::Result Program::compile(VM& vm, Context* ctx, bool format, bool debug, bool export_bitcode, bool pseudo_code, bool optimized_ir, bool ir, bool bitcode) {
+VM::Result Program::compile(VM& vm, StandardLibrary* stdLib, Context* ctx, bool format, bool debug, bool export_bitcode, bool pseudo_code, bool optimized_ir, bool ir, bool bitcode) {
 	this->vm = &vm;
 
 	if (ir) {
@@ -189,7 +188,7 @@ VM::Result Program::compile(VM& vm, Context* ctx, bool format, bool debug, bool 
 	} else if (bitcode) {
 		return compile_bitcode_file(vm);
 	} else {
-		return compile_leekscript(vm, ctx, format, debug, export_bitcode, pseudo_code, optimized_ir);
+		return compile_leekscript(vm, stdLib, ctx, format, debug, export_bitcode, pseudo_code, optimized_ir);
 	}
 }
 #endif
@@ -204,7 +203,7 @@ Variable* Program::get_operator(const std::string& name) {
 
 	std::vector<std::string> ops = {"+", "-", "*", "×", "/", "÷", "**", "%", "\\", "~", ">", "<", ">=", "<="};
 	std::vector<TokenType> token_types = {TokenType::PLUS, TokenType::MINUS, TokenType::TIMES, TokenType::TIMES, TokenType::DIVIDE, TokenType::DIVIDE, TokenType::POWER, TokenType::MODULO, TokenType::INT_DIV, TokenType::TILDE, TokenType::GREATER, TokenType::LOWER, TokenType::GREATER_EQUALS, TokenType::LOWER_EQUALS};
-	
+
 	auto o = std::find(ops.begin(), ops.end(), name);
 	if (o == ops.end()) return nullptr;
 

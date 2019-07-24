@@ -27,7 +27,7 @@ int mpz_log(__mpz_struct* n) {
 }
 #endif
 
-NumberSTD::NumberSTD(VM* vm) : Module(vm, "Number") {
+NumberSTD::NumberSTD(StandardLibrary* stdLib) : Module(stdLib, "Number") {
 
 	#if COMPILER
 	LSNumber::clazz = lsclass.get();
@@ -647,7 +647,7 @@ Compiler::value NumberSTD::sub_mpz_int(Compiler& c, std::vector<Compiler::value>
 	c.insn_call(Type::void_, {r2, a, b}, "Number.mpz_sub_ui");
 	c.insn_branch(&label_end);
 	label_else.block = c.builder.GetInsertBlock();
-	
+
 	c.insn_label(&label_end);
 	auto PN = c.builder.CreatePHI(Type::mpz_ptr->llvm(c), 2);
 	PN->addIncoming(r1.v, label_then.block);

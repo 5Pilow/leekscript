@@ -9,7 +9,7 @@ class LSObject;
 
 class ObjectSTD : public Module {
 public:
-	ObjectSTD(VM* vm);
+	ObjectSTD(StandardLibrary* stdLib);
 
 	#if COMPILER
 	static LSObject* readonly;

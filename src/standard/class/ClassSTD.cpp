@@ -6,7 +6,7 @@
 
 namespace ls {
 
-ClassSTD::ClassSTD(VM* vm) : Module(vm, "Class") {
+ClassSTD::ClassSTD(StandardLibrary* stdLib) : Module(stdLib, "Class") {
 
 	#if COMPILER
 	LSClass::_clazz = lsclass.get();

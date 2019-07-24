@@ -10,7 +10,7 @@
 
 namespace ls {
 
-JsonSTD::JsonSTD(VM* vm) : Module(vm, "Json") {
+JsonSTD::JsonSTD(StandardLibrary* stdLib) : Module(stdLib, "Json") {
 
 	method("encode", {
 		{Type::tmp_string, {Type::const_any}, ADDR(encode)}

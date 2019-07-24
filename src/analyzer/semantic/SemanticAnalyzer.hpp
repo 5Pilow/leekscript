@@ -7,6 +7,7 @@
 #include "../../vm/VM.hpp"
 #include "../error/Error.hpp"
 #include "../semantic/Call.hpp"
+#include "../../standard/StandardLibrary.hpp"
 
 namespace ls {
 
@@ -26,14 +27,14 @@ class SemanticAnalyzer {
 public:
 
 	Program* program;
-	VM* vm;
 	std::vector<Function*> functions;
 	std::vector<std::vector<Block*>> blocks;
 	std::vector<FunctionVersion*> functions_stack;
 	std::stack<int> loops;
 	std::vector<Error> errors;
+	std::unordered_map<std::string, std::unique_ptr<Variable>> globals;
 
-	SemanticAnalyzer();
+	SemanticAnalyzer(StandardLibrary*);
 
 	void analyze(Program*, Context*);
 

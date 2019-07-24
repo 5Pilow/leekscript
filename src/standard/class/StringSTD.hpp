@@ -10,7 +10,7 @@ class LSNumber;
 
 class StringSTD : public Module {
 public:
-	StringSTD(VM* vm);
+	StringSTD(StandardLibrary* stdLib);
 	virtual ~StringSTD();
 
 	static Compiler::value lt(Compiler& c, std::vector<Compiler::value> args, int);
@@ -24,9 +24,9 @@ public:
 
 	static LSString* replace(LSString*, LSString*, LSString*);
 	static LSValue* v1_replace(LSString* string, LSString* from, LSString* to);
-	
+
 	static Compiler::value fold_fun(Compiler& c, std::vector<Compiler::value> args, int);
-	
+
 	static LSValue* string_right(LSString* string, int pos);
 	static LSValue* string_left(LSString* string, int pos);
 	static LSValue* string_right_tmp(LSString* string, int pos);

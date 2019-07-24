@@ -11,7 +11,7 @@
 
 namespace ls {
 
-ArraySTD::ArraySTD(VM* vm) : Module(vm, "Array") {
+ArraySTD::ArraySTD(StandardLibrary* stdLib) : Module(stdLib, "Array") {
 
 	#if COMPILER
 	LSArray<LSValue*>::clazz = lsclass.get();

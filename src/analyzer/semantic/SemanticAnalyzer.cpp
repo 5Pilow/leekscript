@@ -11,8 +11,12 @@
 
 namespace ls {
 
-SemanticAnalyzer::SemanticAnalyzer() {
+SemanticAnalyzer::SemanticAnalyzer(StandardLibrary* standardLibrary) {
 	program = nullptr;
+	for (const auto& clazz : standardLibrary->classes) {
+		auto const_class = Type::const_class(clazz.first);
+		globals.insert({ clazz.first, std::make_unique<Variable>(clazz.first, VarScope::INTERNAL, const_class, 0, nullptr, nullptr, nullptr, clazz.second->clazz.get()) });
+	}
 }
 
 void SemanticAnalyzer::analyze(Program* program, Context* context) {
@@ -83,9 +87,9 @@ bool SemanticAnalyzer::in_loop(int deepness) const {
 
 Variable* SemanticAnalyzer::get_var(const std::string& v) {
 
-	// Search in interval variables : global for the program
-	auto i = vm->internal_vars.find(v);
-	if (i != vm->internal_vars.end()) {
+	// Search in global variables
+	auto i = globals.find(v);
+	if (i != globals.end()) {
 		return i->second.get();
 	}
 
@@ -130,7 +134,7 @@ Variable* SemanticAnalyzer::get_var(const std::string& v) {
 }
 
 Variable* SemanticAnalyzer::add_var(Token* v, const Type* type, Value* value) {
-	if (vm->internal_vars.find(v->content) != vm->internal_vars.end()) {
+	if (globals.find(v->content) != globals.end()) {
 		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
 		return nullptr;
 	}

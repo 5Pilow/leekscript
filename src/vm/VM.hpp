@@ -31,6 +31,7 @@ class LSFunction;
 class Callable;
 class Call;
 class Class;
+class StandardLibrary;
 
 class VM {
 public:
@@ -62,7 +63,6 @@ public:
 	std::vector<std::unique_ptr<Module>> modules;
 	std::vector<LSValue*> function_created;
 	std::vector<Class*> class_created;
-	std::unordered_map<std::string, std::unique_ptr<Variable>> internal_vars;
 	std::unordered_map<std::string, Compiler::value> internals;
 	Compiler compiler;
 	std::unique_ptr<LSNull> null_value;
@@ -77,6 +77,7 @@ public:
 	std::string file_name;
 	bool legacy;
 	Context* context = nullptr;
+	StandardLibrary* stdLib = nullptr;
 
 	VM(bool legacy = false);
 	~VM();
@@ -89,9 +90,7 @@ public:
 
 	/** Add a module **/
 	void add_module(std::unique_ptr<Module> m);
-	void add_internal_var(std::string name, const Type* type, Class* clazz, LSClass* lsclass, Call call = {});
-	void add_internal_var(std::string name, const Type* type, Function* function);
-	
+
 	void* resolve_symbol(std::string name);
 };
 

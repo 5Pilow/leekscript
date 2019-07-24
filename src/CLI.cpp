@@ -11,6 +11,7 @@
 #include "analyzer/resolver/Resolver.hpp"
 #include "analyzer/syntaxic/SyntaxicAnalyzer.hpp"
 #include "analyzer/semantic/SemanticAnalyzer.hpp"
+#include "standard/StandardLibrary.hpp"
 
 namespace ls {
 
@@ -112,15 +113,13 @@ int CLI::start_full(int argc, char* argv[]) {
 int CLI::analyze_snippet(std::string code, CLI_options options) {
 	ls::Program program { code, "snippet" };
 
+	auto standardLibrary = new StandardLibrary();
 	auto resolver = new ls::Resolver();
-	VM::Result result;
 	auto main_file = new File("snippet", code, new FileContext());
 	ls::SyntaxicAnalyzer syn { resolver };
 	auto block = syn.analyze(main_file);
 
 	if (main_file->errors.size() > 0) {
-		result.compilation_success = false;
-		result.errors = main_file->errors;
 		return 0;
 	}
 
@@ -130,16 +129,13 @@ int CLI::analyze_snippet(std::string code, CLI_options options) {
 	program.main->is_main_function = true;
 
 	// Semantical analysis
-	ls::SemanticAnalyzer sem;
+	ls::SemanticAnalyzer sem { standardLibrary };
 	sem.analyze(&program, nullptr);
 
 	std::ostringstream oss;
 	program.print(oss, true);
-	result.program = oss.str();
 
 	if (sem.errors.size()) {
-		result.compilation_success = false;
-		result.errors = sem.errors;
 		return 0;
 	}
 	return 0;
