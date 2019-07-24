@@ -1601,7 +1601,7 @@ void Compiler::iterator_rincrement(const Type* collectionType, Compiler::value i
 }
 
 Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* output, Variable* var, Variable* key, std::function<Compiler::value(Compiler::value, Compiler::value)> body, bool reversed, std::function<Compiler::value(Compiler::value, Compiler::value)> body2) {
-	
+
 	enter_block(new Block()); // { for x in [1, 2] {} }<-- this block
 
 	// Potential output [for ...]
@@ -1611,7 +1611,7 @@ Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* ou
 		insn_inc_refs(output_v);
 		add_temporary_value(output_v); // Why create variable? in case of `break 2` the output must be deleted
 	}
-	
+
 	insn_inc_refs(container);
 	add_temporary_value(container);
 
@@ -1680,7 +1680,7 @@ Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* ou
 	reversed ? iterator_rincrement(container.t, it) : iterator_increment(container.t, it);
 	// jump to cond
 	insn_branch(body2 ? &cond2_label : &cond_label);
-	
+
 	// cond2 label:
 	if (body2) {
 		insn_label(&cond2_label);
