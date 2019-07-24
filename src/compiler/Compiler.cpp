@@ -256,7 +256,7 @@ Compiler::value Compiler::get_vm() const {
 }
 
 Compiler::value Compiler::to_int(Compiler::value v) {
-	assert(v.t->llvm(*this) == v.v->getType());
+	assert(check_value(v));
 	if (v.t->is_integer()) {
 		return v;
 	}
@@ -273,7 +273,7 @@ Compiler::value Compiler::to_int(Compiler::value v) {
 }
 
 Compiler::value Compiler::to_real(Compiler::value x, bool delete_temporary) {
-	assert(x.t->llvm(*this) == x.v->getType());
+	assert(check_value(x));
 	if (x.t->is_real()) {
 		return x;
 	}
@@ -291,7 +291,7 @@ Compiler::value Compiler::to_real(Compiler::value x, bool delete_temporary) {
 }
 
 Compiler::value Compiler::to_long(Compiler::value v) {
-	assert(v.t->llvm(*this) == v.v->getType());
+	assert(check_value(v));
 	if (v.t->is_long()) {
 		return v;
 	}
@@ -400,7 +400,7 @@ Compiler::value Compiler::to_numeric(Compiler::value v) {
 
 // Operators wrapping
 Compiler::value Compiler::insn_not(Compiler::value v) {
-	assert(v.t->llvm(*this) == v.v->getType());
+	assert(check_value(v));
 	return { builder.CreateNot(to_int(v).v), Type::integer };
 }
 
@@ -409,7 +409,7 @@ Compiler::value Compiler::insn_not_bool(Compiler::value v) {
 }
 
 Compiler::value Compiler::insn_neg(Compiler::value v) {
-	assert(v.t->llvm(*this) == v.v->getType());
+	assert(check_value(v));
 	if (v.t->is_real()) {
 		return {builder.CreateFNeg(v.v), v.t};
 	} else {
@@ -418,21 +418,21 @@ Compiler::value Compiler::insn_neg(Compiler::value v) {
 }
 
 Compiler::value Compiler::insn_and(Compiler::value a, Compiler::value b) {
-	assert(a.t->llvm(*this) == a.v->getType());
-	assert(b.t->llvm(*this) == b.v->getType());
+	assert(check_value(a));
+	assert(check_value(b));
 	return {builder.CreateAnd(a.v, b.v), Type::boolean};
 }
 
 Compiler::value Compiler::insn_or(Compiler::value a, Compiler::value b) {
-	assert(a.t->llvm(*this) == a.v->getType());
-	assert(b.t->llvm(*this) == b.v->getType());
+	assert(check_value(a));
+	assert(check_value(b));
 	return {builder.CreateOr(a.v, b.v), Type::boolean};
 }
 
 Compiler::value Compiler::insn_add(Compiler::value a, Compiler::value b) {
 	// std::cout << "insn_add(" << a.t << ", " << b.t << ")" << std::endl;
-	assert(a.t->llvm(*this) == a.v->getType());
-	assert(b.t->llvm(*this) == b.v->getType());
+	assert(check_value(a));
+	assert(check_value(b));
 	auto a_type = a.t->fold();
 	auto b_type = b.t->fold();
 	if (a_type->is_polymorphic() or b_type->is_polymorphic()) {
@@ -447,8 +447,8 @@ Compiler::value Compiler::insn_add(Compiler::value a, Compiler::value b) {
 }
 
 Compiler::value Compiler::insn_sub(Compiler::value a, Compiler::value b) {
-	assert(a.t->llvm(*this) == a.v->getType());
-	assert(b.t->llvm(*this) == b.v->getType());
+	assert(check_value(a));
+	assert(check_value(b));
 	auto a_type = a.t->fold();
 	auto b_type = b.t->fold();
 	if (a_type->is_polymorphic() or b_type->is_polymorphic()) {
@@ -462,8 +462,8 @@ Compiler::value Compiler::insn_sub(Compiler::value a, Compiler::value b) {
 
 Compiler::value Compiler::insn_eq(Compiler::value a, Compiler::value b) {
 	// std::cout << "insn_eq " << a.t << " == " << b.t << std::endl;
-	assert(a.t->llvm(*this) == a.v->getType());
-	assert(b.t->llvm(*this) == b.v->getType());
+	assert(check_value(a));
+	assert(check_value(b));
 	auto a_type = a.t->fold();
 	auto b_type = b.t->fold();
 	if (a_type->is_polymorphic() or b_type->is_polymorphic()) {
@@ -498,8 +498,8 @@ Compiler::value Compiler::insn_eq(Compiler::value a, Compiler::value b) {
 }
 
 Compiler::value Compiler::insn_pointer_eq(Compiler::value a, Compiler::value b) {
-	assert(a.t->llvm(*this) == a.v->getType());
-	assert(b.t->llvm(*this) == b.v->getType());
+	assert(check_value(a));
+	assert(check_value(b));
 	assert(a.t->is_pointer());
 	assert(b.t->is_pointer());
 	auto p1 = builder.CreatePointerCast(a.v, llvm::Type::getInt8PtrTy(getContext()));
@@ -508,8 +508,8 @@ Compiler::value Compiler::insn_pointer_eq(Compiler::value a, Compiler::value b) 
 }
 
 Compiler::value Compiler::insn_ne(Compiler::value a, Compiler::value b) {
-	assert(a.t->llvm(*this) == a.v->getType());
-	assert(b.t->llvm(*this) == b.v->getType());
+	assert(check_value(a));
+	assert(check_value(b));
 	if (a.t->is_real() or b.t->is_real()) {
 		return {builder.CreateFCmpONE(to_real(a).v, to_real(b).v), Type::boolean};
 	} else if (a.t->is_long() or b.t->is_long()) {
@@ -521,8 +521,8 @@ Compiler::value Compiler::insn_ne(Compiler::value a, Compiler::value b) {
 
 Compiler::value Compiler::insn_lt(Compiler::value a, Compiler::value b) {
 	// std::cout << "insn_lt " << a.t << " < " << b.t << std::endl;
-	assert(a.t->llvm(*this) == a.v->getType());
-	assert(b.t->llvm(*this) == b.v->getType());
+	assert(check_value(a));
+	assert(check_value(b));
 	if (a.t->is_polymorphic() or b.t->is_polymorphic()) {
 		auto ap = insn_to_any(a);
 		auto bp = insn_to_any(b);
@@ -556,8 +556,8 @@ Compiler::value Compiler::insn_lt(Compiler::value a, Compiler::value b) {
 }
 
 Compiler::value Compiler::insn_le(Compiler::value a, Compiler::value b) {
-	assert(a.t->llvm(*this) == a.v->getType());
-	assert(b.t->llvm(*this) == b.v->getType());
+	assert(check_value(a));
+	assert(check_value(b));
 	Compiler::value r;
 	if (a.t->is_polymorphic() or b.t->is_polymorphic()) {
 		auto ap = insn_to_any(a);
@@ -577,8 +577,8 @@ Compiler::value Compiler::insn_le(Compiler::value a, Compiler::value b) {
 }
 
 Compiler::value Compiler::insn_gt(Compiler::value a, Compiler::value b) {
-	assert(a.t->llvm(*this) == a.v->getType());
-	assert(b.t->llvm(*this) == b.v->getType());
+	assert(check_value(a));
+	assert(check_value(b));
 	Compiler::value r;
 	if (a.t->is_mpz_ptr() and b.t->is_integer()) {
 		auto res = insn_call(Type::integer, {a, b}, "Number._mpz_cmp_si");
@@ -971,17 +971,17 @@ Compiler::value Compiler::insn_to_bool(Compiler::value v) {
 
 Compiler::value Compiler::insn_load(Compiler::value v) {
 	// std::cout << "insn_load " << v.t << " " << v.v->getType() << std::endl;
-	assert(v.t->llvm(*this) == v.v->getType());
+	assert(check_value(v));
 	assert(v.t->is_pointer());
 	Compiler::value r { builder.CreateLoad(v.v), v.t->pointed() };
 	assert(r.t == v.t->pointed());
-	assert(r.t->llvm(*this) == r.v->getType());
+	assert(check_value(r));
 	if (v.t->temporary) r.t = r.t->add_temporary();
 	return r;
 }
 Compiler::value Compiler::insn_load_member(Compiler::value v, int pos) {
 	auto type = v.t->fold();
-	assert(type->llvm(*this) == v.v->getType());
+	assert(check_value(v));
 	assert(type->is_pointer());
 	assert(type->pointed()->is_struct());
 	auto s = builder.CreateStructGEP(type->pointed()->llvm(*this), v.v, pos);
@@ -990,7 +990,7 @@ Compiler::value Compiler::insn_load_member(Compiler::value v, int pos) {
 
 void Compiler::insn_store(Compiler::value x, Compiler::value y) {
 	// std::cout << "insn_store " << x.t << " " << x.v->getType() << " " << y.t << std::endl;
-	assert(x.t->llvm(*this) == x.v->getType());
+	assert(check_value(x));
 	// assert(y.t->llvm(*this) == y.v->getType());
 	// std::cout << x.t->pointed()->fold() << " = " << y.t->fold()->not_temporary() << std::endl;
 	// assert(x.t->pointed()->fold() == y.t->fold()->not_temporary());
@@ -1090,8 +1090,8 @@ Compiler::value Compiler::insn_get_capture_l(int index, const Type* type) {
 }
 
 void Compiler::insn_push_array(Compiler::value array, Compiler::value value) {
-	assert(array.t->llvm(*this) == array.v->getType());
-	assert(value.t->llvm(*this) == value.v->getType());
+	assert(check_value(array));
+	assert(check_value(value));
 	auto element_type = array.t->element()->fold();
 	if (element_type->is_bool()) {
 		insn_call(Type::void_, {array, value}, "Array.vpush.0");
@@ -1106,8 +1106,8 @@ void Compiler::insn_push_array(Compiler::value array, Compiler::value value) {
 }
 
 Compiler::value Compiler::insn_array_at(Compiler::value array, Compiler::value index) {
-	assert(array.t->llvm(*this) == array.v->getType());
-	assert(index.t->llvm(*this) == index.v->getType());
+	assert(check_value(array));
+	assert(check_value(index));
 	assert(array.t->is_array());
 	assert(index.t->is_number());
 	auto array_type = array.v->getType()->getPointerElementType();
@@ -1121,12 +1121,12 @@ Compiler::value Compiler::insn_array_at(Compiler::value array, Compiler::value i
 }
 
 Compiler::value Compiler::insn_array_end(Compiler::value array) {
-	assert(array.t->llvm(*this) == array.v->getType());
+	assert(check_value(array));
 	return insn_load_member(array, 6);
 }
 
 Compiler::value Compiler::insn_move_inc(Compiler::value value) {
-	assert(value.t->llvm(*this) == value.v->getType());
+	assert(check_value(value));
 	if (value.t->is_mpz_ptr()) {
 		return insn_clone_mpz(value);
 	}
@@ -1142,7 +1142,7 @@ Compiler::value Compiler::insn_move_inc(Compiler::value value) {
 }
 
 Compiler::value Compiler::insn_clone_mpz(Compiler::value mpz) {
-	assert(mpz.t->llvm(*this) == mpz.v->getType());
+	assert(check_value(mpz));
 	if (mpz.t->temporary) {
 		return mpz;
 	}
@@ -1153,13 +1153,13 @@ Compiler::value Compiler::insn_clone_mpz(Compiler::value mpz) {
 
 void Compiler::insn_delete_mpz(Compiler::value mpz) {
 	// std::cout << "delete mpz " << mpz.t << std::endl;
-	assert(mpz.t->llvm(*this) == mpz.v->getType());
+	assert(check_value(mpz));
 	insn_call(Type::void_, {mpz}, "Number.mpz_clear");
 	increment_mpz_deleted();
 }
 
 Compiler::value Compiler::insn_inc_refs(Compiler::value v) {
-	assert(v.t->llvm(*this) == v.v->getType());
+	assert(check_value(v));
 	if (v.t->must_manage_memory()) {
 		auto previous = insn_refs(v);
 		auto new_refs = insn_add(previous, new_integer(1));
@@ -1179,18 +1179,18 @@ Compiler::value Compiler::insn_move(Compiler::value v) {
 	return v;
 }
 Compiler::value Compiler::insn_refs(Compiler::value v) {
-	assert(v.t->llvm(*this) == v.v->getType());
+	assert(check_value(v));
 	assert(v.t->is_polymorphic());
 	return insn_load_member(v, 3);
 }
 Compiler::value Compiler::insn_native(Compiler::value v) {
-	assert(v.t->llvm(*this) == v.v->getType());
+	assert(check_value(v));
 	assert(v.t->is_polymorphic());
 	return insn_load_member(v, 4);
 }
 
 Compiler::value Compiler::iterator_begin(Compiler::value v) {
-	assert(v.t->llvm(*this) == v.v->getType());
+	assert(check_value(v));
 	if (v.t->is_array()) {
 		auto it = create_entry("it", v.t->iterator());
 		insn_store(it, insn_load_member(v, 5));
@@ -1248,7 +1248,7 @@ Compiler::value Compiler::iterator_begin(Compiler::value v) {
 }
 
 Compiler::value Compiler::iterator_rbegin(Compiler::value v) {
-	assert(v.t->llvm(*this) == v.v->getType());
+	assert(check_value(v));
 	if (v.t->is_array()) {
 		auto it = create_entry("it", v.t->iterator());
 		auto end = insn_load_member(v, 6);
@@ -1284,8 +1284,8 @@ Compiler::value Compiler::iterator_rbegin(Compiler::value v) {
 }
 
 Compiler::value Compiler::iterator_end(Compiler::value v, Compiler::value it) {
-	assert(v.t->llvm(*this) == v.v->getType());
-	assert(it.t->llvm(*this) == it.v->getType());
+	assert(check_value(v));
+	assert(check_value(it));
 	if (v.t->is_array()) {
 		return insn_pointer_eq(insn_load(it), insn_array_end(v));
 	}
