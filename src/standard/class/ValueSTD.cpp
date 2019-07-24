@@ -898,16 +898,16 @@ int ValueSTD::get_int(LSNumber* x) {
 LSValue* ValueSTD::get_class(LSValue* x) {
 	return x->getClass();
 }
-void ValueSTD::export_context_variable_int(char* name, int v) {
-	VM::current()->context->add_variable(name, reinterpret_cast<void*&>(v), Type::integer);
+void ValueSTD::export_context_variable_int(VM* vm, char* name, int v) {
+	vm->context->add_variable(name, reinterpret_cast<void*&>(v), Type::integer);
 }
-void ValueSTD::export_context_variable_long(char* name, long v) {
-	VM::current()->context->add_variable(name, (void*) v, Type::long_);
+void ValueSTD::export_context_variable_long(VM* vm, char* name, long v) {
+	vm->context->add_variable(name, (void*) v, Type::long_);
 }
-void ValueSTD::export_context_variable_real(char* name, double v) {
-	VM::current()->context->add_variable(name, reinterpret_cast<void*&>(v), Type::real);
+void ValueSTD::export_context_variable_real(VM* vm, char* name, double v) {
+	vm->context->add_variable(name, reinterpret_cast<void*&>(v), Type::real);
 }
-void ValueSTD::export_context_variable(char* name, LSValue* v) {
+void ValueSTD::export_context_variable(VM* vm, char* name, LSValue* v) {
 	// std::cout << "export context variable " << name << " " << (void*) v << " " << v->refs << std::endl;
 	auto n = LSValue::obj_count;
 	v = v->move_inc();
@@ -915,7 +915,7 @@ void ValueSTD::export_context_variable(char* name, LSValue* v) {
 	if (LSValue::obj_count > n) {
 		LSValue::obj_count = n;
 	}
-	VM::current()->context->add_variable(name, v, Type::any);
+	vm->context->add_variable(name, v, Type::any);
 }
 
 #endif

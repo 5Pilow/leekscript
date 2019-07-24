@@ -14,7 +14,7 @@ namespace ls {
 class LSClosure : public LSFunction {
 public:
 
-	static LSClosure* constructor(void* f);
+	static LSClosure* constructor(VM* vm, void* f);
 
 	std::vector<LSValue*> captures;
 	std::vector<bool> captures_native; // TODO check if necessary

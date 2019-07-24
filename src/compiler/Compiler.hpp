@@ -156,6 +156,7 @@ public:
 	value new_set();
 	value create_entry(const std::string& name, const Type* type);
 	value get_symbol(const std::string& name, const Type* type) const;
+	value get_vm() const;
 
 	// Conversions
 	value to_int(value);

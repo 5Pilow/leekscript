@@ -8,9 +8,9 @@
 
 namespace ls {
 
-LSClosure* LSClosure::constructor(void* f) {
+LSClosure* LSClosure::constructor(VM* vm, void* f) {
 	auto c = new LSClosure(f);
-	VM::current()->function_created.push_back(c);
+	vm->function_created.push_back(c);
 	return c;
 }
 

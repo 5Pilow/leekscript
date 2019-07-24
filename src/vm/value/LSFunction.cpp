@@ -9,9 +9,9 @@ namespace ls {
 
 LSClass* LSFunction::clazz;
 
-LSFunction* LSFunction::constructor(void* f) {
+LSFunction* LSFunction::constructor(VM* vm, void* f) {
 	auto fun = new LSFunction(f);
-	VM::current()->function_created.push_back(fun);
+	vm->function_created.push_back(fun);
 	return fun;
 }
 

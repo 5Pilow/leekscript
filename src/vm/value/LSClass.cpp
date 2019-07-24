@@ -14,10 +14,10 @@ namespace ls {
 
 LSValue* LSClass::_clazz;
 
-LSClass* LSClass::constructor(char* name) {
+LSClass* LSClass::constructor(VM* vm, char* name) {
 	auto clazz = new LSClass(new Class(name));
-	VM::current()->function_created.push_back(clazz);
-	VM::current()->class_created.push_back(clazz->clazz);
+	vm->function_created.push_back(clazz);
+	vm->class_created.push_back(clazz->clazz);
 	return clazz;
 }
 LSClass::LSClass(Class* clazz) : LSValue(CLASS, 1, true), clazz(clazz) {}

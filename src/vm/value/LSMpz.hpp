@@ -10,21 +10,23 @@
 namespace ls {
 
 class LSClass;
+class VM;
 
 class LSMpz : public LSValue {
 public:
-
+	
 	__mpz_struct value;
+	VM* vm; // For ref-counting
 
 	static LSClass* clazz;
-	static LSMpz* get_from_mpz(__mpz_struct);
-	static LSMpz* get_from_tmp(__mpz_struct);
-	static LSMpz* get();
-	static LSMpz* get(long);
+	static LSMpz* get_from_mpz(VM* vm, __mpz_struct);
+	static LSMpz* get_from_tmp(VM* vm, __mpz_struct);
+	static LSMpz* get(VM* vm);
+	static LSMpz* get(VM* vm, long);
 
-	LSMpz();
-	LSMpz(__mpz_struct value);
-	LSMpz(long value);
+	LSMpz(VM* vm);
+	LSMpz(VM* vm, __mpz_struct value);
+	LSMpz(VM* vm, long value);
 
 	virtual ~LSMpz();
 

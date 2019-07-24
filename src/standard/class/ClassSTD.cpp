@@ -15,7 +15,7 @@ ClassSTD::ClassSTD(StandardLibrary* stdLib) : Module(stdLib, "Class") {
 	field("name", Type::string);
 
 	constructor_({
-		{Type::clazz(), {Type::i8_ptr}, ADDR((void*) LSClass::constructor)},
+		{Type::clazz(), {Type::i8_ptr, Type::i8_ptr}, ADDR((void*) LSClass::constructor)},
 	});
 
 	/** Internal **/

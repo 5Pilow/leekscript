@@ -52,6 +52,7 @@ Compiler::Compiler(VM* vm) : builder(*Ctx.getContext()), vm(vm),
 				if (s) {
 					return llvm::JITSymbol((llvm::JITTargetAddress) s, llvm::JITSymbolFlags(llvm::JITSymbolFlags::FlagNames::None));
 				}
+				if (Name == "vm") return llvm::JITSymbol((llvm::JITTargetAddress) this->vm, llvm::JITSymbolFlags(llvm::JITSymbolFlags::FlagNames::None));
 				if (Name == "null") return llvm::JITSymbol((llvm::JITTargetAddress) LSNull::get(), llvm::JITSymbolFlags(llvm::JITSymbolFlags::FlagNames::None));
 				if (Name == "true") return llvm::JITSymbol((llvm::JITTargetAddress) LSBoolean::get(true), llvm::JITSymbolFlags(llvm::JITSymbolFlags::FlagNames::None));
 				if (Name == "false") return llvm::JITSymbol((llvm::JITTargetAddress) LSBoolean::get(false), llvm::JITSymbolFlags(llvm::JITSymbolFlags::FlagNames::None));
@@ -169,30 +170,30 @@ Compiler::value Compiler::new_null_pointer(const Type* type) const {
 }
 Compiler::value Compiler::new_function(const Type* type) {
 	assert(dynamic_cast<const Function_type*>(type));
-	return insn_call(Type::fun_object(type->return_type(), type->arguments()), {new_integer(0)}, "Function.new");
+	return insn_call(Type::fun_object(type->return_type(), type->arguments()), {get_vm(), new_integer(0)}, "Function.new");
 }
 Compiler::value Compiler::new_function(Compiler::value fun) {
 	assert(fun.t->is_function() or fun.t->is_function_pointer());
 	auto f = insn_convert(fun, Type::i8_ptr);
-	return insn_call(Type::fun_object(fun.t->return_type(), fun.t->arguments()), {f}, "Function.new");
+	return insn_call(Type::fun_object(fun.t->return_type(), fun.t->arguments()), {get_vm(), f}, "Function.new");
 }
 Compiler::value Compiler::new_function(std::string name, const Type* type) {
 	assert(dynamic_cast<const Function_type*>(type));
 	auto ptr = get_symbol(name, type);
 	auto fun = insn_convert(ptr, Type::i8_ptr);
-	return insn_call(Type::fun_object(type->return_type(), type->arguments()), {fun}, "Function.new");
+	return insn_call(Type::fun_object(type->return_type(), type->arguments()), {get_vm(), fun}, "Function.new");
 }
 Compiler::value Compiler::new_closure(Compiler::value f, std::vector<Compiler::value> captures) {
 	// std::cout << "new_closure " << captures << std::endl;
 	auto fun = insn_convert(f, Type::i8_ptr);
-	auto closure = insn_call(Type::closure(f.t->return_type(), f.t->arguments()), {fun}, "Function.new.1");
+	auto closure = insn_call(Type::closure(f.t->return_type(), f.t->arguments()), {get_vm(), fun}, "Function.new.1");
 	for (const auto& capture : captures) {
 		function_add_capture(closure, capture);
 	}
 	return closure;
 }
 Compiler::value Compiler::new_class(std::string name) {
-	return insn_call(Type::clazz(), {new_const_string(name)}, "Class.new");
+	return insn_call(Type::clazz(), {get_vm(), new_const_string(name)}, "Class.new");
 }
 
 Compiler::value Compiler::new_object() {
@@ -248,6 +249,10 @@ Compiler::value Compiler::get_symbol(const std::string& name, const Type* type) 
 		assert(ptr.v->getType() == type->llvm(*this));
 		return ptr;
 	}
+}
+
+Compiler::value Compiler::get_vm() const {
+	return get_symbol("vm", Type::i8->pointer());
 }
 
 Compiler::value Compiler::to_int(Compiler::value v) {
@@ -309,12 +314,12 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 			return { builder.CreatePointerCast(v.v, t->llvm(*this)), t };
 		} else if (t->is_function_object()) {
 			auto f = insn_convert(v, Type::i8_ptr);
-			return insn_call(Type::fun_object(v.t->return_type(), v.t->arguments()), {f}, "Function.new");
+			return insn_call(Type::fun_object(v.t->return_type(), v.t->arguments()), { get_vm(), f }, "Function.new");
 		}
 	}
 	if (v.t->is_function_pointer() and t->is_function_object()) {
 		auto f = insn_convert(v, Type::i8_ptr);
-		return insn_call(Type::fun_object(v.t->return_type(), v.t->arguments()), {f}, "Function.new");
+		return insn_call(Type::fun_object(v.t->return_type(), v.t->arguments()), { get_vm(), f }, "Function.new");
 	}
 	if (v.t->is_array() and t->is_array()) {
 		// std::cout << "Convert " << v.t << " to " << t << std::endl;
@@ -925,9 +930,9 @@ Compiler::value Compiler::insn_to_any(Compiler::value v) {
 		return { builder.CreateSelect(v.v, get_symbol("true", Type::tmp_any).v, get_symbol("false", Type::tmp_any).v), Type::tmp_any };
 	} else if (v.t->is_mpz_ptr()) {
 		if (v.t->temporary) {
-			return insn_call(Type::tmp_any, {insn_load(v)}, "Number.new.1");
+			return insn_call(Type::tmp_any, {get_vm(), insn_load(v)}, "Number.new.1");
 		} else {
-			return insn_call(Type::tmp_any, {insn_load(v)}, "Number.new.2");
+			return insn_call(Type::tmp_any, {get_vm(), insn_load(v)}, "Number.new.2");
 		}
 	} else if (v.t->is_function_pointer()) {
 		return new_function(v);
@@ -2107,7 +2112,7 @@ void Compiler::export_context_variable(const std::string& name, Compiler::value 
 		if (v.t->is_real()) return "Value.export_ctx_var.3";
 		return "Value.export_ctx_var";
 	}();
-	insn_call(Type::void_, {new_const_string(name), v}, f);
+	insn_call(Type::void_, {get_vm(), new_const_string(name), v}, f);
 }
 
 void Compiler::add_temporary_variable(Variable* variable) {

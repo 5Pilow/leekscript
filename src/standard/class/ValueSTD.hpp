@@ -120,10 +120,10 @@ public:
 	static void delete_previous(LSValue* x);
 	static int get_int(LSNumber* x);
 	static LSValue* get_class(LSValue* x);
-	static void export_context_variable(char* name, LSValue* v);
-	static void export_context_variable_int(char* name, int v);
-	static void export_context_variable_long(char* name, long v);
-	static void export_context_variable_real(char* name, double v);
+	static void export_context_variable(VM* vm, char* name, LSValue* v);
+	static void export_context_variable_int(VM* vm, char* name, int v);
+	static void export_context_variable_long(VM* vm, char* name, long v);
+	static void export_context_variable_real(VM* vm, char* name, double v);
 };
 
 }

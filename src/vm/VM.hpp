@@ -37,8 +37,9 @@ class VM {
 public:
 
 	static const unsigned long int DEFAULT_OPERATION_LIMIT;
-	static VM* current_vm;
 	static OutputStream* default_output;
+	
+	static void static_init();
 
 	struct Result {
 		bool compilation_success = false;
@@ -78,9 +79,6 @@ public:
 
 	VM(bool legacy = false);
 	~VM();
-
-	static VM* current();
-	static void static_init();
 
 	/** Main execution function **/
 	Result execute(const std::string code, Context* ctx, std::string file_name = "unamed", bool format = false, bool debug = false, bool ops = true, bool assembly = false, bool pseudo_code = false, bool optimized_ir = false, bool execute_ir = false, bool execute_bitcode = false);

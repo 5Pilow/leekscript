@@ -43,8 +43,8 @@ NumberSTD::NumberSTD(StandardLibrary* stdLib) : Module(stdLib, "Number") {
 	 */
 	constructor_({
 		{Type::any, {Type::real}, ADDR((void*) &LSNumber::get)},
-		{Type::any, {Type::tmp_mpz}, ADDR((void*) &LSMpz::get_from_tmp)},
-		{Type::any, {Type::mpz}, ADDR((void*) &LSMpz::get_from_mpz)},
+		{Type::any, {Type::i8->pointer(), Type::tmp_mpz}, ADDR((void*) &LSMpz::get_from_tmp)},
+		{Type::any, {Type::i8->pointer(), Type::mpz}, ADDR((void*) &LSMpz::get_from_mpz)},
 	});
 
 	/*

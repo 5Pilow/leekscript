@@ -34,7 +34,6 @@
 namespace ls {
 
 const unsigned long int VM::DEFAULT_OPERATION_LIMIT = 20000000;
-VM* VM::current_vm = nullptr;
 OutputStream* VM::default_output = new OutputStream();
 
 VM::VM(bool legacy) : compiler(this), legacy(legacy) {
@@ -44,10 +43,6 @@ VM::VM(bool legacy) : compiler(this), legacy(legacy) {
 }
 
 VM::~VM() {}
-
-VM* VM::current() {
-	return current_vm;
-}
 
 void VM::static_init() {
 	// Global initialization
@@ -65,7 +60,6 @@ VM::Result VM::execute(const std::string code, Context* ctx, std::string file_na
 
 	// Reset
 	this->file_name = file_name;
-	VM::current_vm = this;
 	LSValue::obj_count = 0;
 	LSValue::obj_deleted = 0;
 	VM::mpz_created = 0;

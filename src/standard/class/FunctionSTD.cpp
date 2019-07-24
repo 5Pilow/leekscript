@@ -18,8 +18,8 @@ FunctionSTD::FunctionSTD(StandardLibrary* stdLib) : Module(stdLib, "Function") {
 	field("args", Type::array(Type::clazz()), ADDR(field_args));
 
 	constructor_({
-		{Type::fun_object(Type::void_, {}), {Type::i8_ptr}, ADDR((void*) LSFunction::constructor)},
-		{Type::closure(Type::void_, {}), {Type::i8_ptr}, ADDR((void*) LSClosure::constructor)},
+		{Type::fun_object(Type::void_, {}), {Type::i8_ptr, Type::i8_ptr}, ADDR((void*) LSFunction::constructor)},
+		{Type::closure(Type::void_, {}), {Type::i8_ptr, Type::i8_ptr}, ADDR((void*) LSClosure::constructor)},
 	});
 
 	/** Internal **/

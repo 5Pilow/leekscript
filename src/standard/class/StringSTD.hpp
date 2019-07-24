@@ -31,6 +31,8 @@ public:
 	static LSValue* string_left(LSString* string, int pos);
 	static LSValue* string_right_tmp(LSString* string, int pos);
 	static LSValue* string_left_tmp(LSString* string, int pos);
+
+	static Compiler::value plus_mpz_tmp(Compiler& c, std::vector<Compiler::value> args, int);
 };
 
 }

@@ -8,13 +8,15 @@
 
 namespace ls {
 
+class VM;
+
 template <class R, class ...A> R call(LSFunction* function, A... args);
 
 class LSFunction : public LSValue {
 public:
 
 	static LSClass* clazz;
-	static LSFunction* constructor(void* f);
+	static LSFunction* constructor(VM* vm, void* f);
 
 	void* function;
 	// For reflexion

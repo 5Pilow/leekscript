@@ -14,40 +14,40 @@ namespace ls {
 
 LSClass* LSMpz::clazz;
 
-LSMpz* LSMpz::get_from_mpz(__mpz_struct i) {
-	return new LSMpz(i);
+LSMpz* LSMpz::get_from_mpz(VM* vm, __mpz_struct i) {
+	return new LSMpz(vm, i);
 }
-LSMpz* LSMpz::get_from_tmp(__mpz_struct i) {
-	auto mpz = new LSMpz();
+LSMpz* LSMpz::get_from_tmp(VM* vm, __mpz_struct i) {
+	auto mpz = new LSMpz(vm);
 	mpz->value = i;
 	return mpz;
 }
-LSMpz* LSMpz::get() {
-	auto mpz = new LSMpz();
+LSMpz* LSMpz::get(VM* vm) {
+	auto mpz = new LSMpz(vm);
 	mpz_init(&mpz->value);
-	VM::current()->mpz_created++;
+	vm->mpz_created++;
 	return mpz;
 }
-LSMpz* LSMpz::get(long i) {
-	return new LSMpz(i);
+LSMpz* LSMpz::get(VM* vm, long i) {
+	return new LSMpz(vm, i);
 }
 
-LSMpz::LSMpz() : LSValue(MPZ) {
+LSMpz::LSMpz(VM* vm) : LSValue(MPZ), vm(vm) {
 	// Value not initialized
 }
 
-LSMpz::LSMpz(__mpz_struct value) : LSValue(MPZ) {
+LSMpz::LSMpz(VM* vm, __mpz_struct value) : LSValue(MPZ), vm(vm) {
 	mpz_init_set(&this->value, &value);
-	VM::current()->mpz_created++;
+	vm->mpz_created++;
 }
-LSMpz::LSMpz(long l) : LSValue(MPZ) {
+LSMpz::LSMpz(VM* vm, long l) : LSValue(MPZ), vm(vm) {
 	mpz_init_set_si(&value, l);
-	VM::current()->mpz_created++;
+	vm->mpz_created++;
 }
 
 LSMpz::~LSMpz() {
 	mpz_clear(&value);
-	VM::current()->mpz_deleted++;
+	vm->mpz_deleted++;
 }
 
 /*
@@ -68,7 +68,7 @@ LSValue* LSMpz::ls_minus() {
 		mpz_neg(&value, &value);
 		return this;
 	}
-	auto r = new LSMpz();
+	auto r = new LSMpz(vm);
 	mpz_neg(&r->value, &value);
 	return r;
 }
@@ -78,7 +78,7 @@ LSValue* LSMpz::ls_tilde() {
 		mpz_com(&value, &value);
 		return this;
 	}
-	auto r = new LSMpz();
+	auto r = new LSMpz(vm);
 	mpz_com(&r->value, &value);
 	return r;
 }
@@ -89,7 +89,7 @@ LSValue* LSMpz::ls_preinc() {
 }
 
 LSValue* LSMpz::ls_inc() {
-	LSValue* r = LSMpz::get_from_mpz(value);
+	auto r = LSMpz::get_from_mpz(vm, value);
 	mpz_add_ui(&value, &value, 1);
 	return r;
 }
@@ -100,7 +100,7 @@ LSValue* LSMpz::ls_predec() {
 }
 
 LSValue* LSMpz::ls_dec() {
-	LSValue* r = LSMpz::get_from_mpz(value);
+	auto r = LSMpz::get_from_mpz(vm, value);
 	mpz_sub_ui(&value, &value, 1);
 	return r;
 }
@@ -113,7 +113,7 @@ LSValue* LSMpz::add(LSValue* v) {
 			LSValue::delete_temporary(number);
 			return this;
 		}
-		auto r = LSMpz::get();
+		auto r = LSMpz::get(vm);
 		mpz_add_ui(&r->value, &value, number->value);
 		LSValue::delete_temporary(number);
 		return r;
@@ -125,7 +125,7 @@ LSValue* LSMpz::add(LSValue* v) {
 				mpz_add_ui(&value, &value, 1);
 				return this;
 			}
-			auto r = new LSMpz();
+			auto r = new LSMpz(vm);
 			mpz_add_ui(&r->value, &value, 1);
 			return r;
 		}
@@ -215,7 +215,7 @@ LSValue* LSMpz::mul(LSValue* v) {
 			LSValue::delete_temporary(number);
 			return this;
 		}
-		auto r = LSMpz::get();
+		auto r = LSMpz::get(vm);
 		mpz_mul_ui(&r->value, &value, number->value);
 		LSValue::delete_temporary(number);
 		return r;
@@ -229,7 +229,7 @@ LSValue* LSMpz::mul(LSValue* v) {
 			mpz_set_ui(&value, 0);
 			return this;
 		}
-		return LSMpz::get(0);
+		return LSMpz::get(vm, 0);
 	}
 	if (v->type != STRING) {
 		LSValue::delete_temporary(this);
@@ -277,7 +277,7 @@ LSValue* LSMpz::div(LSValue* v) {
 			return this;
 		}
 		if (number->refs == 0) {
-			auto r = new LSMpz();
+			auto r = new LSMpz(vm);
 			mpz_div_ui(&r->value, &value, number->value);
 			delete number;
 			return r;
@@ -348,7 +348,7 @@ LSValue* LSMpz::int_div(LSValue* v) {
 	if (refs == 0) {
 		return this;
 	}
-	return LSMpz::get_from_mpz(value);
+	return LSMpz::get_from_mpz(vm, value);
 }
 
 LSValue* LSMpz::int_div_eq(LSValue* v) {
@@ -384,7 +384,7 @@ LSValue* LSMpz::pow(LSValue* v) {
 			return number;
 		}
 		// return LSMpz::get(std::pow(value, number->value));
-		return LSMpz::get(0);
+		return LSMpz::get(vm, 0);
 	}
 	if (v->type != BOOLEAN) {
 		LSValue::delete_temporary(this);
@@ -399,7 +399,7 @@ LSValue* LSMpz::pow(LSValue* v) {
 		mpz_set_ui(&value, 1);
 		return this;
 	}
-	return LSMpz::get(1);
+	return LSMpz::get(vm, 1);
 }
 
 LSValue* LSMpz::pow_eq(LSValue* v) {
@@ -431,7 +431,7 @@ LSValue* LSMpz::mod(LSValue* v) {
 			return number;
 		}
 		// return LSMpz::get(fmod(value, number->value));
-		return LSMpz::get(0);
+		return LSMpz::get(vm, 0);
 	}
 	if (v->type != BOOLEAN) {
 		LSValue::delete_temporary(this);
@@ -442,7 +442,7 @@ LSValue* LSMpz::mod(LSValue* v) {
 		mpz_set_ui(&value, 0);
 		return this;
 	}
-	return LSMpz::get(0);
+	return LSMpz::get(vm, 0);
 }
 
 LSValue* LSMpz::mod_eq(LSValue* v) {
@@ -473,7 +473,7 @@ LSValue* LSMpz::double_mod(LSValue* v) {
 			return number;
 		}
 		// return LSMpz::get(fmod(fmod(value, number->value) + number->value, number->value));
-		return LSMpz::get(0);
+		return LSMpz::get(vm, 0);
 	}
 	if (v->type != BOOLEAN) {
 		LSValue::delete_temporary(this);
@@ -484,7 +484,7 @@ LSValue* LSMpz::double_mod(LSValue* v) {
 		mpz_set_ui(&value, 0);
 		return this;
 	}
-	return LSMpz::get(0);
+	return LSMpz::get(vm, 0);
 }
 
 LSValue* LSMpz::double_mod_eq(LSValue* v) {
@@ -539,7 +539,7 @@ int LSMpz::abso() const {
 }
 
 LSValue* LSMpz::clone() const {
-	return LSMpz::get_from_mpz(value);
+	return LSMpz::get_from_mpz(vm, value);
 }
 
 std::string LSMpz::json() const {

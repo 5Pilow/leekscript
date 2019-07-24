@@ -44,13 +44,13 @@ LSString* plus_mpz(LSString* s, __mpz_struct* mpz) {
 	return res;
 }
 
-LSString* plus_mpz_tmp(LSString* s, __mpz_struct* mpz) {
+LSString* internal_plus_mpz_tmp(VM* vm, LSString* s, __mpz_struct* mpz) {
 	char buff[1000];
 	mpz_get_str(buff, 10, mpz);
 	LSString* res = new LSString(*s + buff);
 	LSValue::delete_temporary(s);
 	mpz_clear(mpz);
-	VM::current()->mpz_deleted++;
+	vm->mpz_deleted++;
 	return res;
 }
 
@@ -94,7 +94,7 @@ StringSTD::StringSTD(StandardLibrary* stdLib) : Module(stdLib, "String") {
 	operator_("+", {
 		{Type::string, Type::any, Type::tmp_string, ADDR((void*) plus_any)},
 		{Type::string, Type::mpz_ptr, Type::tmp_string, ADDR((void*) plus_mpz)},
-		{Type::string, Type::tmp_mpz_ptr, Type::tmp_string, ADDR((void*) plus_mpz_tmp)},
+		{Type::string, Type::tmp_mpz_ptr, Type::tmp_string, ADDR(plus_mpz_tmp)},
 		{Type::string, Type::real, Type::tmp_string, ADDR((void*) add_real)},
 		{Type::string, Type::integer, Type::tmp_string, ADDR((void*) add_int)},
 		{Type::string, Type::boolean, Type::tmp_string, ADDR((void*) add_bool)},
@@ -233,6 +233,9 @@ StringSTD::StringSTD(StandardLibrary* stdLib) : Module(stdLib, "String") {
 	method("iterator_next", {
 		{Type::void_, {Type::i8_ptr}, ADDR((void*) &LSString::iterator_next)}
 	});
+	method("internal_plus_mpz_tmp", {
+		{Type::string, {Type::i8_ptr, Type::tmp_mpz_ptr, Type::tmp_string}, ADDR((void*) internal_plus_mpz_tmp)}
+	});
 }
 
 StringSTD::~StringSTD() {}
@@ -290,6 +293,10 @@ Compiler::value StringSTD::lt(Compiler& c, std::vector<Compiler::value> args, in
 
 Compiler::value StringSTD::div(Compiler& c, std::vector<Compiler::value> args, int) {
 	return c.insn_call(Type::tmp_array(Type::string), args, "Value.operator/");
+}
+
+Compiler::value StringSTD::plus_mpz_tmp(Compiler& c, std::vector<Compiler::value> args, int) {
+	return c.insn_call(Type::tmp_string, { c.get_vm(), args[0], args[1] }, "String.internal_plus_mpz_tmp");
 }
 
 /*

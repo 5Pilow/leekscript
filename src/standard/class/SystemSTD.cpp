@@ -19,13 +19,13 @@ SystemSTD::SystemSTD(StandardLibrary* stdLib) : Module(stdLib, "System") {
 	static_field_fun("nanoTime", Type::long_, ADDR((void*) nanotime));
 
 	method("print", {
-		{Type::void_, {Type::const_any}, ADDR((void*) print)},
-		{Type::void_, {Type::mpz_ptr}, ADDR((void*) print_mpz)},
-		{Type::void_, {Type::tmp_mpz_ptr}, ADDR((void*) print_mpz_tmp)},
-		{Type::void_, {Type::const_long}, ADDR((void*) print_long)},
-		{Type::void_, {Type::const_real}, ADDR((void*) print_float)},
-		{Type::void_, {Type::const_integer}, ADDR((void*) print_int)},
-		{Type::void_, {Type::const_boolean}, ADDR((void*) print_bool)},
+		{Type::void_, {Type::const_any}, ADDR(print)},
+		{Type::void_, {Type::mpz_ptr}, ADDR(print_mpz)},
+		{Type::void_, {Type::tmp_mpz_ptr}, ADDR(print_mpz_tmp)},
+		{Type::void_, {Type::const_long}, ADDR(print_long)},
+		{Type::void_, {Type::const_real}, ADDR(print_real)},
+		{Type::void_, {Type::const_integer}, ADDR(print_int)},
+		{Type::void_, {Type::const_boolean}, ADDR(print_bool)},
 	});
 
 	method("throw", {
@@ -34,7 +34,17 @@ SystemSTD::SystemSTD(StandardLibrary* stdLib) : Module(stdLib, "System") {
 	});
 
 	method("debug", {
-		{Type::void_, {Type::any}, ADDR((void*) print)}
+		{Type::void_, {Type::any}, ADDR(print)}
+	});
+
+	method("internal_print", {
+		{Type::void_, {Type::i8->pointer(), Type::const_boolean}, ADDR((void*) internal_print_bool)},
+		{Type::void_, {Type::i8->pointer(), Type::const_integer}, ADDR((void*) internal_print_int)},
+		{Type::void_, {Type::i8->pointer(), Type::const_long}, ADDR((void*) internal_print_long)},
+		{Type::void_, {Type::i8->pointer(), Type::const_real}, ADDR((void*) internal_print_real)},
+		{Type::void_, {Type::i8->pointer(), Type::mpz_ptr}, ADDR((void*) internal_print_mpz)},
+		{Type::void_, {Type::i8->pointer(), Type::tmp_mpz_ptr}, ADDR((void*) internal_print_mpz_tmp)},
+		{Type::void_, {Type::i8->pointer(), Type::const_any}, ADDR((void*) internal_print)},
 	});
 }
 
@@ -68,45 +78,68 @@ Compiler::value SystemSTD::version(Compiler& c) {
 	return c.new_integer(LEEKSCRIPT_VERSION);
 }
 
-void SystemSTD::print(LSValue* value) {
-	value->print(VM::current()->output->stream());
-	VM::current()->output->end();
+Compiler::value SystemSTD::print(Compiler& c, std::vector<Compiler::value> args, int) {
+	return c.insn_call(Type::void_, {c.get_vm(), args[0]}, "System.internal_print.6");
+}
+Compiler::value SystemSTD::print_int(Compiler& c, std::vector<Compiler::value> args, int) {
+	return c.insn_call(Type::void_, {c.get_vm(), args[0]}, "System.internal_print.1");
+}
+Compiler::value SystemSTD::print_mpz(Compiler& c, std::vector<Compiler::value> args, int) {
+	return c.insn_call(Type::void_, {c.get_vm(), args[0]}, "System.internal_print.4");
+}
+Compiler::value SystemSTD::print_mpz_tmp(Compiler& c, std::vector<Compiler::value> args, int) {
+	return c.insn_call(Type::void_, {c.get_vm(), args[0]}, "System.internal_print.5");
+}
+Compiler::value SystemSTD::print_long(Compiler& c, std::vector<Compiler::value> args, int) {
+	return c.insn_call(Type::void_, {c.get_vm(), args[0]}, "System.internal_print.2");
+}
+Compiler::value SystemSTD::print_bool(Compiler& c, std::vector<Compiler::value> args, int) {
+	return c.insn_call(Type::void_, {c.get_vm(), args[0]}, "System.internal_print.0");
+}
+Compiler::value SystemSTD::print_real(Compiler& c, std::vector<Compiler::value> args, int) {
+	return c.insn_call(Type::void_, {c.get_vm(), args[0]}, "System.internal_print.3");
+}
+
+void SystemSTD::internal_print(VM* vm, LSValue* value) {
+	std::cout << "print int " << vm << std::endl;
+	value->print(vm->output->stream());
+	vm->output->end();
 	LSValue::delete_temporary(value);
 }
 
-void SystemSTD::print_int(int v) {
-	VM::current()->output->stream() << v;
-	VM::current()->output->end();
+void SystemSTD::internal_print_int(VM* vm, int v) {
+	vm->output->stream() << v;
+	vm->output->end();
 }
 
-void SystemSTD::print_mpz(__mpz_struct* v) {
+void SystemSTD::internal_print_mpz(VM* vm, __mpz_struct* v) {
 	char buff[1000];
 	mpz_get_str(buff, 10, v);
-	VM::current()->output->stream() << buff;
-	VM::current()->output->end();
+	vm->output->stream() << buff;
+	vm->output->end();
 }
-void SystemSTD::print_mpz_tmp(__mpz_struct* v) {
+void SystemSTD::internal_print_mpz_tmp(VM* vm, __mpz_struct* v) {
 	char buff[1000];
 	mpz_get_str(buff, 10, v);
-	VM::current()->output->stream() << buff;
-	VM::current()->output->end();
+	vm->output->stream() << buff;
+	vm->output->end();
 	mpz_clear(v);
-	VM::current()->mpz_deleted++;
+	vm->mpz_deleted++;
 }
 
-void SystemSTD::print_long(long v) {
-	VM::current()->output->stream() << v;
-	VM::current()->output->end();
+void SystemSTD::internal_print_long(VM* vm, long v) {
+	vm->output->stream() << v;
+	vm->output->end();
 }
 
-void SystemSTD::print_bool(bool v) {
-	VM::current()->output->stream() << std::boolalpha << v;
-	VM::current()->output->end();
+void SystemSTD::internal_print_bool(VM* vm, bool v) {
+	vm->output->stream() << std::boolalpha << v;
+	vm->output->end();
 }
 
-void SystemSTD::print_float(double v) {
-	VM::current()->output->stream() << v;
-	VM::current()->output->end();
+void SystemSTD::internal_print_real(VM* vm, double v) {
+	vm->output->stream() << v;
+	vm->output->end();
 }
 
 void SystemSTD::throw1(int type, char* file, char* function, size_t line) {

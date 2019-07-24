@@ -18,7 +18,7 @@ class Class;
 class LSClass : public LSValue {
 public:
 	static LSValue* _clazz;
-	static LSClass* constructor(char* name);
+	static LSClass* constructor(VM* vm, char* name);
 
 	Class* clazz;
 	
