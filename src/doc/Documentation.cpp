@@ -18,6 +18,7 @@
 #include "../standard/class/JsonSTD.hpp"
 #include "../standard/class/NullSTD.hpp"
 #include "../standard/class/ValueSTD.hpp"
+#include "../standard/StandardLibrary.hpp"
 
 namespace ls {
 
@@ -25,41 +26,23 @@ Documentation::Documentation() {}
 
 Documentation::~Documentation() {}
 
-void Documentation::generate(VM* vm, std::ostream& os, std::string lang) {
+void Documentation::generate(std::ostream& os, std::string lang) {
 
-	std::vector<Module*> modules;
-
-	modules.push_back(new NullSTD(vm));
-	modules.push_back(new BooleanSTD(vm));
-	modules.push_back(new NumberSTD(vm));
-	modules.push_back(new ArraySTD(vm));
-	modules.push_back(new MapSTD(vm));
-	modules.push_back(new ObjectSTD(vm));
-	modules.push_back(new StringSTD(vm));
-	modules.push_back(new IntervalSTD(vm));
-	modules.push_back(new SetSTD(vm));
-	modules.push_back(new SystemSTD(vm));
-	modules.push_back(new ClassSTD(vm));
-	modules.push_back(new FunctionSTD(vm));
-	modules.push_back(new JsonSTD(vm));
-	modules.push_back(new ValueSTD(vm));
+	StandardLibrary stdLib;
 
 	os << "{";
 
-	for (unsigned m = 0; m < modules.size(); ++m) {
+	int m = 0;
+	for (const auto& clazz : stdLib.classes) {
 		if (m > 0) os << ",";
 
-		Module* mod = modules[m];
-		std::string file = "src/doc/" + mod->name + "_" + lang + ".json";
+		std::string file = "src/doc/" + clazz.second->name + "_" + lang + ".json";
 
-		mod->generate_doc(os, file);
+		clazz.second->generate_doc(os, file);
+		m++;
 	}
 
 	os << "}\n";
-
-	for (const auto& m : modules) {
-		delete m;
-	}
 }
 
 }
