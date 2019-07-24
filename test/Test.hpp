@@ -6,6 +6,7 @@
 #include "../src/vm/VM.hpp"
 #include "../src/vm/value/LSNumber.hpp"
 #include "../src/colors.h"
+#include <thread>
 
 class OutputStringStream : public ls::OutputStream {
 	std::ostringstream oss;
@@ -23,8 +24,8 @@ public:
 
 class Test {
 private:
-	ls::VM vm;
-	ls::VM vmv1;
+	std::unordered_map<std::thread::id, ls::VM*> vms;
+	std::unordered_map<std::thread::id, ls::VM*> vms_legacy;
 	int total;
 	int success_count;
 	int disabled;
@@ -56,6 +57,8 @@ public:
 	Input file(const std::string& file_name);
 	Input DISABLED_file(const std::string& _code);
 	Input file_v1(const std::string& file_name);
+
+	ls::VM* getVM(bool legacy);
 
 	template <class T1, class T2>
 	void test(const std::string& label, T1 value, T2 expected) {

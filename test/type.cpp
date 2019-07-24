@@ -7,6 +7,8 @@ void Test::test_types() {
 
 	auto p1 = ls::Type::generate_new_placeholder_type();
 
+	auto vm = getVM(false);
+
 	header("Types");
 	section("JSON name");
 	test("long", ls::Type::long_->getJsonName(), "number");
@@ -184,12 +186,12 @@ void Test::test_types() {
 	test("(array<int> | array<real>)&&", ls::Type::compound({ ls::Type::array(ls::Type::integer), ls::Type::array(ls::Type::real) })->add_temporary(), ls::Type::tmp_compound({ ls::Type::array(ls::Type::integer), ls::Type::array(ls::Type::real) }));
 
 	section("LLVM type");
-	test("void", ls::Type::void_->llvm(vm.compiler), llvm::Type::getVoidTy(vm.compiler.getContext()));
-	test("integer", ls::Type::integer->llvm(vm.compiler), llvm::Type::getInt32Ty(vm.compiler.getContext()));
-	test("boolean", ls::Type::boolean->llvm(vm.compiler), llvm::Type::getInt1Ty(vm.compiler.getContext()));
-	test("real", ls::Type::real->llvm(vm.compiler), llvm::Type::getDoubleTy(vm.compiler.getContext()));
-	test("integer | real", ls::Type::compound({ls::Type::integer, ls::Type::real})->llvm(vm.compiler), llvm::Type::getDoubleTy(vm.compiler.getContext()));
-	test("string&&", ls::Type::string->add_temporary()->llvm(vm.compiler), ls::Type::string->llvm(vm.compiler));
+	test("void", ls::Type::void_->llvm(vm->compiler), llvm::Type::getVoidTy(vm->compiler.getContext()));
+	test("integer", ls::Type::integer->llvm(vm->compiler), llvm::Type::getInt32Ty(vm->compiler.getContext()));
+	test("boolean", ls::Type::boolean->llvm(vm->compiler), llvm::Type::getInt1Ty(vm->compiler.getContext()));
+	test("real", ls::Type::real->llvm(vm->compiler), llvm::Type::getDoubleTy(vm->compiler.getContext()));
+	test("integer | real", ls::Type::compound({ls::Type::integer, ls::Type::real})->llvm(vm->compiler), llvm::Type::getDoubleTy(vm->compiler.getContext()));
+	test("string&&", ls::Type::string->add_temporary()->llvm(vm->compiler), ls::Type::string->llvm(vm->compiler));
 
 	section("Program type");
 	code("").type(ls::Type::void_);

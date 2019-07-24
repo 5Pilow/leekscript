@@ -6,11 +6,12 @@
 #include "../src/analyzer/Program.hpp"
 #include "../src/leekscript.h"
 #include <omp.h>
+#include <thread>
 
 std::vector<std::string> Test::failed_tests;
 std::vector<std::string> Test::disabled_tests;
 
-Test::Test() : vmv1(true) {
+Test::Test() {
 	total = 0;
 	success_count = 0;
 	compilation_time = 0;
@@ -148,12 +149,25 @@ Test::Input Test::file_v1(const std::string& file_name) {
 	return Test::Input(this, file_name, file_name, code, true, true);
 }
 
+ls::VM* Test::getVM(bool legacy) {
+	std::thread::id thread = std::this_thread::get_id();
+	auto& map = legacy ? vms_legacy : vms;
+	auto i = map.find(thread);
+	if (i != map.end()) {
+		return i->second;
+	} else {
+		auto vm = new ls::VM(legacy);
+		map.insert({ thread, vm });
+		return vm;
+	}
+}
+
 ls::VM::Result Test::Input::run(bool display_errors, bool ops) {
 	test->total++;
 
 	// std::cout << C_BLUE << "RUN " << END_COLOR << code << C_GREY << "..." << END_COLOR << std::endl;
 
-	auto vm = v1 ? &test->vmv1 : &test->vm;
+	auto vm = test->getVM(v1);
 	vm->operation_limit = this->operation_limit > 0 ? this->operation_limit : ls::VM::DEFAULT_OPERATION_LIMIT;
 	auto result = vm->execute(code, ctx, file_name, false, false, ops or this->operation_limit > 0);
 	vm->operation_limit = ls::VM::DEFAULT_OPERATION_LIMIT;
@@ -278,7 +292,7 @@ void Test::Input::almost(T expected, T delta) {
 void Test::Input::quine() {
 	if (disabled) return disable();
 	OutputStringStream oss;
-	auto vm = v1 ? &test->vmv1 : &test->vm;
+	auto vm = test->getVM(v1);
 	vm->output = &oss;
 	auto result = run();
 	vm->output = ls::VM::default_output;
@@ -292,7 +306,7 @@ void Test::Input::quine() {
 
 void Test::Input::type(const ls::Type* type) {
 	if (disabled) return disable();
-	auto vm = v1 ? &test->vmv1 : &test->vm;
+	auto vm = test->getVM(v1);
 
 	test->total++;
 	auto result = vm->execute(code, ctx, file_name, false, false);
@@ -314,7 +328,7 @@ void Test::Input::output(const std::string& expected) {
 	if (disabled) return disable();
 
 	OutputStringStream oss;
-	auto vm = v1 ? &test->vmv1 : &test->vm;
+	auto vm = test->getVM(v1);
 	vm->output = &oss;
 	auto result = run();
 	vm->output = ls::VM::default_output;
