@@ -384,7 +384,7 @@ Compiler::value FunctionVersion::compile(Compiler& c, bool compile_body) {
 	return value;
 }
 
-void FunctionVersion::compile_return(const Compiler& c, Compiler::value v, bool delete_variables) const {
+void FunctionVersion::compile_return(Compiler& c, Compiler::value v, bool delete_variables) const {
 	assert(c.check_value(v));
 	// Delete temporary mpz arguments
 	for (size_t i = 0; i < type->arguments().size(); ++i) {
@@ -434,7 +434,7 @@ void FunctionVersion::compile_return(const Compiler& c, Compiler::value v, bool 
 	}
 }
 
-llvm::BasicBlock* FunctionVersion::get_landing_pad(const Compiler& c) {
+llvm::BasicBlock* FunctionVersion::get_landing_pad(Compiler& c) {
 	auto catch_block = llvm::BasicBlock::Create(c.getContext(), "catch", c.F);
 	auto savedIP = c.builder.saveAndClearIP();
 	auto landing_pad = llvm::BasicBlock::Create(c.getContext(), "lpad", c.F);

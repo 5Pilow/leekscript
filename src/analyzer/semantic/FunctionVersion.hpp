@@ -51,8 +51,8 @@ public:
 	#if COMPILER
 	void create_function(Compiler& c);
 	Compiler::value compile(Compiler& c, bool compile_body = true);
-	void compile_return(const Compiler& c, Compiler::value v, bool delete_variables = false) const;
-	llvm::BasicBlock* get_landing_pad(const Compiler& c);
+	void compile_return(Compiler& c, Compiler::value v, bool delete_variables = false) const;
+	llvm::BasicBlock* get_landing_pad(Compiler& c);
 	#endif
 };
 

@@ -63,7 +63,7 @@ public:
 	virtual Compiler::value compile_version(Compiler&, std::vector<const Type*>) const override;
 	Compiler::value compile_default_version(Compiler&) const;
 	void compile_captures(Compiler& c) const;
-	void export_context(const Compiler& c) const;
+	void export_context(Compiler& c) const;
 	#endif
 
 	virtual std::unique_ptr<Value> clone() const override;

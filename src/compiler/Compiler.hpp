@@ -80,8 +80,8 @@ public:
 	};
 
 	static llvm::orc::ThreadSafeContext Ctx;
-	static llvm::IRBuilder<> builder;
 
+	llvm::IRBuilder<> builder;
 	llvm::Function* F;
 	FunctionVersion* fun;
 	std::stack<llvm::Function*> functions;
@@ -137,143 +137,143 @@ public:
 	void end();
 
 	// Value creation
-	value clone(value) const;
+	value clone(value);
 	value new_null() const;
 	value new_bool(bool b) const;
 	value new_integer(int i) const;
 	value new_real(double r) const;
 	value new_long(long l) const;
-	value new_mpz() const;
-	value new_const_string(std::string s) const;
+	value new_mpz();
+	value new_const_string(std::string s);
 	value new_null_pointer(const Type* type) const;
-	value new_function(const Type* type) const;
-	value new_function(Compiler::value fun) const;
-	value new_function(std::string name, const Type* type) const;
-	value new_closure(Compiler::value fun, std::vector<value> captures) const;
-	value new_class(std::string name) const;
-	value new_object() const;
-	value new_object_class(value clazz) const;
-	value new_set() const;
-	value create_entry(const std::string& name, const Type* type) const;
+	value new_function(const Type* type);
+	value new_function(Compiler::value fun);
+	value new_function(std::string name, const Type* type);
+	value new_closure(Compiler::value fun, std::vector<value> captures);
+	value new_class(std::string name);
+	value new_object();
+	value new_object_class(value clazz);
+	value new_set();
+	value create_entry(const std::string& name, const Type* type);
 	value get_symbol(const std::string& name, const Type* type) const;
 
 	// Conversions
-	value to_int(value) const;
-	value to_real(value, bool delete_temporary = false) const;
-	value to_long(value) const;
-	value insn_convert(value, const Type*, bool delete_temporary = false) const;
-	value to_numeric(value) const;
+	value to_int(value);
+	value to_real(value, bool delete_temporary = false);
+	value to_long(value);
+	value insn_convert(value, const Type*, bool delete_temporary = false);
+	value to_numeric(value);
 
 	// Operators wrapping
-	value insn_not(value) const;
-	value insn_not_bool(value) const;
-	value insn_neg(value) const;
-	value insn_and(value, value) const;
-	value insn_or(value, value) const;
-	value insn_add(value, value) const;
-	value insn_sub(value, value) const;
-	value insn_eq(value, value) const;
-	value insn_pointer_eq(value, value) const;
-	value insn_ne(value, value) const;
-	value insn_lt(value, value) const;
-	value insn_le(value, value) const;
-	value insn_gt(value, value) const;
-	value insn_ge(value, value) const;
-	value insn_mul(value, value) const;
-	value insn_div(value, value) const;
-	value insn_int_div(value, value) const;
-	value insn_bit_and(value, value) const;
-	value insn_bit_or(value, value) const;
-	value insn_bit_xor(value, value) const;
-	value insn_shl(value, value) const;
-	value insn_lshr(value, value) const;
-	value insn_ashr(value, value) const;
-	value insn_mod(value, value) const;
-	value insn_double_mod(value, value) const;
-	value insn_cmpl(value, value) const;
+	value insn_not(value);
+	value insn_not_bool(value);
+	value insn_neg(value);
+	value insn_and(value, value);
+	value insn_or(value, value);
+	value insn_add(value, value);
+	value insn_sub(value, value);
+	value insn_eq(value, value);
+	value insn_pointer_eq(value, value);
+	value insn_ne(value, value);
+	value insn_lt(value, value);
+	value insn_le(value, value);
+	value insn_gt(value, value);
+	value insn_ge(value, value);
+	value insn_mul(value, value);
+	value insn_div(value, value);
+	value insn_int_div(value, value);
+	value insn_bit_and(value, value);
+	value insn_bit_or(value, value);
+	value insn_bit_xor(value, value);
+	value insn_shl(value, value);
+	value insn_lshr(value, value);
+	value insn_ashr(value, value);
+	value insn_mod(value, value);
+	value insn_double_mod(value, value);
+	value insn_cmpl(value, value);
 
 	// Math Functions
-	value insn_log(value) const;
-	value insn_log10(value) const;
-	value insn_ceil(value) const;
-	value insn_round(value) const;
-	value insn_floor(value) const;
-	value insn_cos(value) const;
-	value insn_sin(value) const;
-	value insn_tan(value) const;
-	value insn_acos(value) const;
-	value insn_asin(value) const;
-	value insn_atan(value) const;
-	value insn_pow(value, value) const;
-	value insn_min(value, value) const;
-	value insn_max(value, value) const;
-	value insn_exp(value) const;
-	value insn_atan2(value, value) const;
-	value insn_abs(value) const;
+	value insn_log(value);
+	value insn_log10(value);
+	value insn_ceil(value);
+	value insn_round(value);
+	value insn_floor(value);
+	value insn_cos(value);
+	value insn_sin(value);
+	value insn_tan(value);
+	value insn_acos(value);
+	value insn_asin(value);
+	value insn_atan(value);
+	value insn_pow(value, value);
+	value insn_min(value, value);
+	value insn_max(value, value);
+	value insn_exp(value);
+	value insn_atan2(value, value);
+	value insn_abs(value);
 
 	// Value management
-	value insn_to_any(value v) const;
-	value insn_to_bool(value v) const;
-	value insn_load(value v) const;
-	value insn_load_member(value v, int pos) const;
-	void  insn_store(value, value) const;
-	void  insn_store_member(value, int, value) const;
-	value insn_typeof(value v) const;
-	value insn_class_of(value v) const;
-	void  insn_delete(value v) const;
-	void  insn_delete_variable(value v) const;
-	void  insn_delete_temporary(value v) const;
-	value insn_get_capture(int index, const Type* type) const;
-	value insn_get_capture_l(int index, const Type* type) const;
-	value insn_move_inc(value) const;
-	value insn_clone_mpz(value mpz) const;
-	void  insn_delete_mpz(value mpz) const;
-	value insn_inc_refs(value v) const;
-	value insn_move(value v) const;
-	value insn_refs(value v) const;
-	value insn_native(value v) const;
+	value insn_to_any(value v);
+	value insn_to_bool(value v);
+	value insn_load(value v);
+	value insn_load_member(value v, int pos);
+	void  insn_store(value, value);
+	void  insn_store_member(value, int, value);
+	value insn_typeof(value v);
+	value insn_class_of(value v);
+	void  insn_delete(value v);
+	void  insn_delete_variable(value v);
+	void  insn_delete_temporary(value v);
+	value insn_get_capture(int index, const Type* type);
+	value insn_get_capture_l(int index, const Type* type);
+	value insn_move_inc(value);
+	value insn_clone_mpz(value mpz);
+	void  insn_delete_mpz(value mpz);
+	value insn_inc_refs(value v);
+	value insn_move(value v);
+	value insn_refs(value v);
+	value insn_native(value v);
 
 	// Arrays
-	value new_array(const Type* type, std::vector<value> elements) const;
-	value insn_array_size(value v) const;
-	void  insn_push_array(value array, value element) const;
-	value insn_array_at(value array, value index) const;
-	value insn_array_end(value array) const;
+	value new_array(const Type* type, std::vector<value> elements);
+	value insn_array_size(value v);
+	void  insn_push_array(value array, value element);
+	value insn_array_at(value array, value index);
+	value insn_array_end(value array);
 
 	// Iterators
-	value iterator_begin(value v) const;
-	value iterator_rbegin(value v) const;
-	value iterator_end(value v, value it) const;
-	value iterator_rend(value v, value it) const;
-	value iterator_get(const Type* collectionType, value it, value previous) const;
-	value iterator_rget(const Type* collectionType, value it, value previous) const;
-	value iterator_key(value v, value it, value previous) const;
-	value iterator_rkey(value v, value it, value previous) const;
-	void iterator_increment(const Type* collectionType, value it) const;
-	void iterator_rincrement(const Type* collectionType, value it) const;
+	value iterator_begin(value v);
+	value iterator_rbegin(value v);
+	value iterator_end(value v, value it);
+	value iterator_rend(value v, value it);
+	value iterator_get(const Type* collectionType, value it, value previous);
+	value iterator_rget(const Type* collectionType, value it, value previous);
+	value iterator_key(value v, value it, value previous);
+	value iterator_rkey(value v, value it, value previous);
+	void iterator_increment(const Type* collectionType, value it);
+	void iterator_rincrement(const Type* collectionType, value it);
 	value insn_foreach(value v, const Type* output, Variable* var, Variable* key, std::function<value(value, value)>, bool reversed = false, std::function<value(value, value)> body2 = nullptr);
 
 	// Controls
 	label insn_init_label(std::string name) const;
-	void insn_if(value v, std::function<void()> then, std::function<void()> elze = nullptr) const;
-	void insn_if_new(value cond, label* then, label* elze) const;
-	void insn_if_not(value v, std::function<void()> then) const;
-	void insn_throw(value v) const;
-	void insn_throw_object(vm::Exception type) const;
-	void insn_label(label*) const;
-	void insn_branch(label* l) const;
-	void insn_return(value v) const;
-	void insn_return_void() const;
-	value insn_phi(const Type* type, value v1, label l1, value v2, label l2) const;
-	value insn_phi(const Type* type, value v1, Block* b1, value v2, Block* b2) const;
+	void insn_if(value v, std::function<void()> then, std::function<void()> elze = nullptr);
+	void insn_if_new(value cond, label* then, label* elze);
+	void insn_if_not(value v, std::function<void()> then);
+	void insn_throw(value v);
+	void insn_throw_object(vm::Exception type);
+	void insn_label(label*);
+	void insn_branch(label* l);
+	void insn_return(value v);
+	void insn_return_void();
+	value insn_phi(const Type* type, value v1, label l1, value v2, label l2);
+	value insn_phi(const Type* type, value v1, Block* b1, value v2, Block* b2);
 
 	// Call functions
-	value insn_invoke(const Type* return_type, std::vector<value> args, std::string name) const;
-	value insn_invoke(const Type* return_type, std::vector<value> args, value func) const;
-	value insn_call(value fun, std::vector<value> args) const;
-	value insn_call(const Type* return_type, std::vector<value> args, std::string name, bool readonly = false) const;
-	void function_add_capture(value fun, value capture) const;
-	void log(const std::string&& str) const;
+	value insn_invoke(const Type* return_type, std::vector<value> args, std::string name);
+	value insn_invoke(const Type* return_type, std::vector<value> args, value func);
+	value insn_call(value fun, std::vector<value> args);
+	value insn_call(const Type* return_type, std::vector<value> args, std::string name, bool readonly = false);
+	void function_add_capture(value fun, value capture);
+	void log(const std::string&& str);
 
 	// Blocks
 	void enter_block(Block* block);
@@ -282,14 +282,14 @@ public:
 	void enter_function(llvm::Function* F, bool is_closure, FunctionVersion* fun);
 	void leave_function();
 	int get_current_function_blocks() const;
-	void delete_function_variables() const;
+	void delete_function_variables();
 	bool is_current_function_closure() const;
-	void insert_new_generation_block() const;
+	void insert_new_generation_block();
 	Block* current_block() const;
 
 	// Variables
 	value add_external_var(Variable*);
-	void export_context_variable(const std::string& name, Compiler::value v) const;
+	void export_context_variable(const std::string& name, Compiler::value v);
 	void add_temporary_variable(Variable* variable);
 	void add_temporary_value(value);
 	void pop_temporary_value();
@@ -304,20 +304,20 @@ public:
 	int get_current_loop_blocks(int deepness) const;
 
 	/** Operations **/
-	void inc_ops(int add) const;
-	void inc_ops_jit(value add) const;
+	void inc_ops(int add);
+	void inc_ops_jit(value add);
 
 	/** Exceptions **/
 	void mark_offset(int line);
 	void insn_try_catch(std::function<void()> try_, std::function<void()> catch_);
-	void insn_check_args(std::vector<value> args, std::vector<LSValueType> types) const;
+	void insn_check_args(std::vector<value> args, std::vector<LSValueType> types);
 	const catcher* find_catcher() const;
 
 	// Utils
 	static void print_mpz(__mpz_struct value);
 	bool check_value(value) const;
-	void increment_mpz_created() const;
-	void increment_mpz_deleted() const;
+	void increment_mpz_created();
+	void increment_mpz_deleted();
 };
 
 }

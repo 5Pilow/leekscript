@@ -328,7 +328,7 @@ void Function::compile_captures(Compiler& c) const {
 	}
 }
 
-void Function::export_context(const Compiler& c) const {
+void Function::export_context(Compiler& c) const {
 	int deepness = c.get_current_function_blocks();
 	for (const auto& variable : c.fun->body->variables) {
 		c.export_context_variable(variable.second->name, c.insn_load(variable.second->val));

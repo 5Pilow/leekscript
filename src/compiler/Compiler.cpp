@@ -32,11 +32,10 @@
 namespace ls {
 
 llvm::orc::ThreadSafeContext Compiler::Ctx(llvm::make_unique<llvm::LLVMContext>());
-llvm::IRBuilder<> Compiler::builder(*Ctx.getContext());
 
 Compiler::value::value() : v(nullptr), t(Type::void_) {}
 
-Compiler::Compiler(VM* vm) : vm(vm),
+Compiler::Compiler(VM* vm) : builder(*Ctx.getContext()), vm(vm),
 	TM(llvm::EngineBuilder().selectTarget()),
 	DL(TM->createDataLayout()),
 	ObjectLayer(ES, [this](llvm::orc::VModuleKey) {
@@ -120,7 +119,7 @@ void Compiler::init() {
 }
 void Compiler::end() {}
 
-Compiler::value Compiler::clone(Compiler::value v) const {
+Compiler::value Compiler::clone(Compiler::value v) {
 	if (v.t->fold()->must_manage_memory()) {
 		if (v.t->reference) {
 			v = insn_load(v);
@@ -133,57 +132,57 @@ Compiler::value Compiler::new_null() const {
 	return get_symbol("null", Type::null);
 }
 Compiler::value Compiler::new_bool(bool b) const {
-	return {llvm::ConstantInt::get(getContext(), llvm::APInt(1, b, false)), Type::boolean};
+	return { llvm::ConstantInt::get(getContext(), llvm::APInt(1, b, false)), Type::boolean };
 }
 
 Compiler::value Compiler::new_integer(int x) const {
-	return {llvm::ConstantInt::get(getContext(), llvm::APInt(32, x, true)), Type::integer};
+	return { llvm::ConstantInt::get(getContext(), llvm::APInt(32, x, true)), Type::integer };
 }
 
 Compiler::value Compiler::new_real(double r) const {
-	return {llvm::ConstantFP::get(getContext(), llvm::APFloat(r)), Type::real};
+	return { llvm::ConstantFP::get(getContext(), llvm::APFloat(r)), Type::real };
 }
 
 Compiler::value Compiler::new_long(long l) const {
-	return {llvm::ConstantInt::get(getContext(), llvm::APInt(64, l, true)), Type::long_};
+	return { llvm::ConstantInt::get(getContext(), llvm::APInt(64, l, true)), Type::long_ };
 }
 
-Compiler::value Compiler::new_mpz() const {
+Compiler::value Compiler::new_mpz() {
 	auto r = create_entry("m", Type::tmp_mpz);
 	increment_mpz_created();
 	insn_call(Type::void_, {r}, "Number.mpz_init");
 	return r;
 }
 
-Compiler::value Compiler::new_const_string(std::string s) const {
+Compiler::value Compiler::new_const_string(std::string s) {
 	auto i = global_strings.find(s);
 	if (i != global_strings.end()) {
 		return i->second;
 	}
 	Compiler::value str { builder.CreateGlobalStringPtr(s, "s"), Type::i8_ptr };
-	((Compiler*) this)->global_strings.insert({ s, str });
+	global_strings.insert({ s, str });
 	return str;
 }
 Compiler::value Compiler::new_null_pointer(const Type* type) const {
 	assert(type->is_pointer());
 	return { llvm::ConstantPointerNull::get((llvm::PointerType*) type->llvm(*this)), type };
 }
-Compiler::value Compiler::new_function(const Type* type) const {
+Compiler::value Compiler::new_function(const Type* type) {
 	assert(dynamic_cast<const Function_type*>(type));
 	return insn_call(Type::fun_object(type->return_type(), type->arguments()), {new_integer(0)}, "Function.new");
 }
-Compiler::value Compiler::new_function(Compiler::value fun) const {
+Compiler::value Compiler::new_function(Compiler::value fun) {
 	assert(fun.t->is_function() or fun.t->is_function_pointer());
 	auto f = insn_convert(fun, Type::i8_ptr);
 	return insn_call(Type::fun_object(fun.t->return_type(), fun.t->arguments()), {f}, "Function.new");
 }
-Compiler::value Compiler::new_function(std::string name, const Type* type) const {
+Compiler::value Compiler::new_function(std::string name, const Type* type) {
 	assert(dynamic_cast<const Function_type*>(type));
 	auto ptr = get_symbol(name, type);
 	auto fun = insn_convert(ptr, Type::i8_ptr);
 	return insn_call(Type::fun_object(type->return_type(), type->arguments()), {fun}, "Function.new");
 }
-Compiler::value Compiler::new_closure(Compiler::value f, std::vector<Compiler::value> captures) const {
+Compiler::value Compiler::new_closure(Compiler::value f, std::vector<Compiler::value> captures) {
 	// std::cout << "new_closure " << captures << std::endl;
 	auto fun = insn_convert(f, Type::i8_ptr);
 	auto closure = insn_call(Type::closure(f.t->return_type(), f.t->arguments()), {fun}, "Function.new.1");
@@ -192,23 +191,23 @@ Compiler::value Compiler::new_closure(Compiler::value f, std::vector<Compiler::v
 	}
 	return closure;
 }
-Compiler::value Compiler::new_class(std::string name) const {
+Compiler::value Compiler::new_class(std::string name) {
 	return insn_call(Type::clazz(), {new_const_string(name)}, "Class.new");
 }
 
-Compiler::value Compiler::new_object() const {
+Compiler::value Compiler::new_object() {
 	return insn_call(Type::tmp_object, {}, "Object.new");
 }
 
-Compiler::value Compiler::new_object_class(Compiler::value clazz) const {
+Compiler::value Compiler::new_object_class(Compiler::value clazz) {
 	return insn_call(Type::tmp_any, {clazz}, "Object.new.1");
 }
 
-Compiler::value Compiler::new_set() const {
+Compiler::value Compiler::new_set() {
 	return insn_call(Type::tmp_set(), {}, "Set.new");
 }
 
-Compiler::value Compiler::new_array(const Type* element_type, std::vector<Compiler::value> elements) const {
+Compiler::value Compiler::new_array(const Type* element_type, std::vector<Compiler::value> elements) {
 	auto folded_type = element_type->fold();
 	auto array_type = Type::tmp_array(element_type);
 	auto array = [&]() { if (folded_type->is_bool()) {
@@ -229,7 +228,7 @@ Compiler::value Compiler::new_array(const Type* element_type, std::vector<Compil
 	return array;
 }
 
-Compiler::value Compiler::create_entry(const std::string& name, const Type* type) const {
+Compiler::value Compiler::create_entry(const std::string& name, const Type* type) {
 	// std::cout << "create_entry " << type << std::endl;
 	return { CreateEntryBlockAlloca(name, type->llvm((Compiler&) *this)), type->pointer() };
 }
@@ -251,7 +250,7 @@ Compiler::value Compiler::get_symbol(const std::string& name, const Type* type) 
 	}
 }
 
-Compiler::value Compiler::to_int(Compiler::value v) const {
+Compiler::value Compiler::to_int(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	if (v.t->is_integer()) {
 		return v;
@@ -268,7 +267,7 @@ Compiler::value Compiler::to_int(Compiler::value v) const {
 	return insn_invoke(Type::integer, {v}, "Value.int");
 }
 
-Compiler::value Compiler::to_real(Compiler::value x, bool delete_temporary) const {
+Compiler::value Compiler::to_real(Compiler::value x, bool delete_temporary) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	if (x.t->is_real()) {
 		return x;
@@ -286,7 +285,7 @@ Compiler::value Compiler::to_real(Compiler::value x, bool delete_temporary) cons
 	}
 }
 
-Compiler::value Compiler::to_long(Compiler::value v) const {
+Compiler::value Compiler::to_long(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	if (v.t->is_long()) {
 		return v;
@@ -300,7 +299,7 @@ Compiler::value Compiler::to_long(Compiler::value v) const {
 	return insn_invoke(Type::long_, {v}, "Value.long");
 }
 
-Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool delete_previous) const {
+Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool delete_previous) {
 	// std::cout << "convert " << v.t << " " << t->is_primitive() << " to " << t << " " << t->is_polymorphic() << std::endl;
 	// assert(v.t->llvm(*this) == v.v->getType());
 	if (!v.v) { return v; }
@@ -385,7 +384,7 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 	return v;
 }
 
-Compiler::value Compiler::to_numeric(Compiler::value v) const {
+Compiler::value Compiler::to_numeric(Compiler::value v) {
 	if (v.t->is_primitive()) return v;
 	if (v.t->is_any()) {
 		return insn_invoke(Type::real, {v}, "Value.real");
@@ -395,16 +394,16 @@ Compiler::value Compiler::to_numeric(Compiler::value v) const {
 }
 
 // Operators wrapping
-Compiler::value Compiler::insn_not(Compiler::value v) const {
+Compiler::value Compiler::insn_not(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
-	return {builder.CreateNot(to_int(v).v), Type::integer};
+	return { builder.CreateNot(to_int(v).v), Type::integer };
 }
 
-Compiler::value Compiler::insn_not_bool(Compiler::value v) const {
+Compiler::value Compiler::insn_not_bool(Compiler::value v) {
 	return { builder.CreateNot(insn_to_bool(v).v), Type::boolean };
 }
 
-Compiler::value Compiler::insn_neg(Compiler::value v) const {
+Compiler::value Compiler::insn_neg(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	if (v.t->is_real()) {
 		return {builder.CreateFNeg(v.v), v.t};
@@ -413,18 +412,19 @@ Compiler::value Compiler::insn_neg(Compiler::value v) const {
 	}
 }
 
-Compiler::value Compiler::insn_and(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_and(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	return {builder.CreateAnd(a.v, b.v), Type::boolean};
 }
-Compiler::value Compiler::insn_or(Compiler::value a, Compiler::value b) const {
+
+Compiler::value Compiler::insn_or(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	return {builder.CreateOr(a.v, b.v), Type::boolean};
 }
 
-Compiler::value Compiler::insn_add(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_add(Compiler::value a, Compiler::value b) {
 	// std::cout << "insn_add(" << a.t << ", " << b.t << ")" << std::endl;
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
@@ -441,7 +441,7 @@ Compiler::value Compiler::insn_add(Compiler::value a, Compiler::value b) const {
 	}
 }
 
-Compiler::value Compiler::insn_sub(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_sub(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	auto a_type = a.t->fold();
@@ -455,7 +455,7 @@ Compiler::value Compiler::insn_sub(Compiler::value a, Compiler::value b) const {
 	}
 }
 
-Compiler::value Compiler::insn_eq(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_eq(Compiler::value a, Compiler::value b) {
 	// std::cout << "insn_eq " << a.t << " == " << b.t << std::endl;
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
@@ -492,7 +492,7 @@ Compiler::value Compiler::insn_eq(Compiler::value a, Compiler::value b) const {
 	}
 }
 
-Compiler::value Compiler::insn_pointer_eq(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_pointer_eq(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	assert(a.t->is_pointer());
@@ -502,7 +502,7 @@ Compiler::value Compiler::insn_pointer_eq(Compiler::value a, Compiler::value b) 
 	return { builder.CreateICmpEQ(p1, p2), Type::boolean };
 }
 
-Compiler::value Compiler::insn_ne(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_ne(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	if (a.t->is_real() or b.t->is_real()) {
@@ -514,7 +514,7 @@ Compiler::value Compiler::insn_ne(Compiler::value a, Compiler::value b) const {
 	}
 }
 
-Compiler::value Compiler::insn_lt(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_lt(Compiler::value a, Compiler::value b) {
 	// std::cout << "insn_lt " << a.t << " < " << b.t << std::endl;
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
@@ -550,7 +550,7 @@ Compiler::value Compiler::insn_lt(Compiler::value a, Compiler::value b) const {
 	return r;
 }
 
-Compiler::value Compiler::insn_le(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_le(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	Compiler::value r;
@@ -571,7 +571,7 @@ Compiler::value Compiler::insn_le(Compiler::value a, Compiler::value b) const {
 	return r;
 }
 
-Compiler::value Compiler::insn_gt(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_gt(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	Compiler::value r;
@@ -593,7 +593,7 @@ Compiler::value Compiler::insn_gt(Compiler::value a, Compiler::value b) const {
 	return r;
 }
 
-Compiler::value Compiler::insn_ge(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_ge(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	if (a.t->is_polymorphic() or b.t->is_polymorphic()) {
@@ -615,7 +615,7 @@ Compiler::value Compiler::insn_ge(Compiler::value a, Compiler::value b) const {
 	return r;
 }
 
-Compiler::value Compiler::insn_mul(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_mul(Compiler::value a, Compiler::value b) {
 	// std::cout << "insn_mul " << a.t << " " << b.t << " " << b.v->getType() << std::endl;
 	assert(check_value(a));
 	assert(check_value(b));
@@ -631,7 +631,7 @@ Compiler::value Compiler::insn_mul(Compiler::value a, Compiler::value b) const {
 	return {builder.CreateMul(to_int(a).v, to_int(b).v), Type::integer};
 }
 
-Compiler::value Compiler::insn_div(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_div(Compiler::value a, Compiler::value b) {
 	if (a.t->is_string() and b.t->is_string()) {
 		return insn_call(Type::array(Type::string), {a, b}, "Value.operator/");
 	}
@@ -647,7 +647,7 @@ Compiler::value Compiler::insn_div(Compiler::value a, Compiler::value b) const {
 	return r;
 }
 
-Compiler::value Compiler::insn_int_div(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_int_div(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	assert(a.t->is_primitive() && b.t->is_primitive());
@@ -657,47 +657,47 @@ Compiler::value Compiler::insn_int_div(Compiler::value a, Compiler::value b) con
 	return {builder.CreateSDiv(a.v, b.v), Type::integer};
 }
 
-Compiler::value Compiler::insn_bit_and(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_bit_and(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	return {builder.CreateAnd(a.v, b.v), Type::integer};
 }
 
-Compiler::value Compiler::insn_bit_or(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_bit_or(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	return {builder.CreateOr(a.v, b.v), Type::integer};
 }
 
-Compiler::value Compiler::insn_bit_xor(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_bit_xor(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	assert(a.t->is_primitive() && b.t->is_primitive());
 	return {builder.CreateXor(a.v, b.v), Type::integer};
 }
 
-Compiler::value Compiler::insn_shl(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_shl(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	assert(a.t->is_primitive() && b.t->is_primitive());
 	return {builder.CreateShl(a.v, b.v), Type::integer};
 }
 
-Compiler::value Compiler::insn_ashr(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_ashr(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	assert(a.t->is_primitive() && b.t->is_primitive());
 	return {builder.CreateAShr(a.v, b.v), Type::integer};
 }
 
-Compiler::value Compiler::insn_lshr(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_lshr(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	assert(a.t->is_primitive() && b.t->is_primitive());
 	return {builder.CreateLShr(a.v, b.v), Type::integer};
 }
 
-Compiler::value Compiler::insn_mod(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_mod(Compiler::value a, Compiler::value b) {
 	assert(check_value(a));
 	assert(check_value(b));
 	insn_if(insn_eq(to_real(b), new_real(0)), [&]() {
@@ -721,7 +721,7 @@ Compiler::value Compiler::insn_mod(Compiler::value a, Compiler::value b) const {
 	}
 }
 
-Compiler::value Compiler::insn_double_mod(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_double_mod(Compiler::value a, Compiler::value b) {
 	if (a.t->is_polymorphic() or b.t->is_polymorphic()) {
 		return insn_invoke(Type::any, {insn_to_any(a), insn_to_any(b)}, "Value.operator%%");
 	} else {
@@ -729,13 +729,13 @@ Compiler::value Compiler::insn_double_mod(Compiler::value a, Compiler::value b) 
 	}
 }
 
-Compiler::value Compiler::insn_cmpl(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_cmpl(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	return {builder.CreateSub(to_int(insn_to_bool(a)).v, to_int(insn_to_bool(b)).v), Type::integer};
 }
 
-Compiler::value Compiler::insn_log(Compiler::value x) const {
+Compiler::value Compiler::insn_log(Compiler::value x) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(x.t->is_primitive());
 	if (x.t->is_integer()) {
@@ -747,7 +747,7 @@ Compiler::value Compiler::insn_log(Compiler::value x) const {
 	return insn_call(Type::real, {x}, "Number.m_log.2");
 }
 
-Compiler::value Compiler::insn_log10(Compiler::value x) const {
+Compiler::value Compiler::insn_log10(Compiler::value x) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(x.t->is_primitive());
 	if (x.t->is_integer()) {
@@ -759,21 +759,21 @@ Compiler::value Compiler::insn_log10(Compiler::value x) const {
 	}
 }
 
-Compiler::value Compiler::insn_ceil(Compiler::value x) const {
+Compiler::value Compiler::insn_ceil(Compiler::value x) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(x.t->is_primitive());
 	if (x.t->is_integer()) return x;
 	return to_int(insn_call(Type::real, {x}, "Number.m_ceil"));
 }
 
-Compiler::value Compiler::insn_round(Compiler::value x) const {
+Compiler::value Compiler::insn_round(Compiler::value x) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(x.t->is_primitive());
 	if (x.t->is_integer()) return x;
 	return to_int(insn_call(Type::real, {x}, "Number.m_round"));
 }
 
-Compiler::value Compiler::insn_floor(Compiler::value x) const {
+Compiler::value Compiler::insn_floor(Compiler::value x) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(x.t->is_primitive());
 	if (x.t->is_integer()) return x;
@@ -781,7 +781,7 @@ Compiler::value Compiler::insn_floor(Compiler::value x) const {
 	return to_long(insn_call(Type::real, {x}, "Number.m_floor"));
 }
 
-Compiler::value Compiler::insn_cos(Compiler::value x) const {
+Compiler::value Compiler::insn_cos(Compiler::value x) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(x.t->is_primitive());
 	if (x.t->is_integer()) {
@@ -790,7 +790,7 @@ Compiler::value Compiler::insn_cos(Compiler::value x) const {
 	return insn_call(Type::real, {x}, "Number.m_cos.2");
 }
 
-Compiler::value Compiler::insn_sin(Compiler::value x) const {
+Compiler::value Compiler::insn_sin(Compiler::value x) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(x.t->is_primitive());
 	if (x.t->is_integer()) {
@@ -799,7 +799,7 @@ Compiler::value Compiler::insn_sin(Compiler::value x) const {
 	return insn_call(Type::real, {x}, "Number.m_sin.2");
 }
 
-Compiler::value Compiler::insn_tan(Compiler::value x) const {
+Compiler::value Compiler::insn_tan(Compiler::value x) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(x.t->is_primitive());
 	if (x.t->is_integer()) {
@@ -808,7 +808,7 @@ Compiler::value Compiler::insn_tan(Compiler::value x) const {
 	return insn_call(Type::real, {x}, "Number.m_tan.2");
 }
 
-Compiler::value Compiler::insn_acos(Compiler::value x) const {
+Compiler::value Compiler::insn_acos(Compiler::value x) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(x.t->is_primitive());
 	if (x.t->is_integer()) {
@@ -817,7 +817,7 @@ Compiler::value Compiler::insn_acos(Compiler::value x) const {
 	return insn_call(Type::real, {x}, "Number.m_acos.2");
 }
 
-Compiler::value Compiler::insn_asin(Compiler::value x) const {
+Compiler::value Compiler::insn_asin(Compiler::value x) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(x.t->is_primitive());
 	if (x.t->is_integer()) {
@@ -826,7 +826,7 @@ Compiler::value Compiler::insn_asin(Compiler::value x) const {
 	return insn_call(Type::real, {x}, "Number.m_asin.2");
 }
 
-Compiler::value Compiler::insn_atan(Compiler::value x) const {
+Compiler::value Compiler::insn_atan(Compiler::value x) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(x.t->is_primitive());
 	if (x.t->is_integer()) {
@@ -835,7 +835,7 @@ Compiler::value Compiler::insn_atan(Compiler::value x) const {
 	return insn_call(Type::real, {x}, "Number.m_atan.2");
 }
 
-Compiler::value Compiler::insn_pow(Compiler::value a, Compiler::value b) const {
+Compiler::value Compiler::insn_pow(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	assert(a.t->is_primitive() && b.t->is_primitive());
@@ -850,7 +850,7 @@ Compiler::value Compiler::insn_pow(Compiler::value a, Compiler::value b) const {
 	return r;
 }
 
-Compiler::value Compiler::insn_min(Compiler::value x, Compiler::value y) const {
+Compiler::value Compiler::insn_min(Compiler::value x, Compiler::value y) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(y.t->llvm(*this) == y.v->getType());
 	assert(x.t->is_primitive() && y.t->is_primitive());
@@ -863,7 +863,7 @@ Compiler::value Compiler::insn_min(Compiler::value x, Compiler::value y) const {
 	return insn_call(Type::real, {to_real(x), to_real(y)}, "Number.m_min.2");
 }
 
-Compiler::value Compiler::insn_max(Compiler::value x, Compiler::value y) const {
+Compiler::value Compiler::insn_max(Compiler::value x, Compiler::value y) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(y.t->llvm(*this) == y.v->getType());
 	assert(x.t->is_primitive() && y.t->is_primitive());
@@ -876,7 +876,7 @@ Compiler::value Compiler::insn_max(Compiler::value x, Compiler::value y) const {
 	return insn_call(Type::real, {to_real(x), to_real(y)}, "Number.m_max.2");
 }
 
-Compiler::value Compiler::insn_exp(Compiler::value x) const {
+Compiler::value Compiler::insn_exp(Compiler::value x) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(x.t->is_primitive());
 	if (x.t->is_integer()) {
@@ -885,7 +885,7 @@ Compiler::value Compiler::insn_exp(Compiler::value x) const {
 	return insn_call(Type::real, {x}, "Number.m_exp.1");
 }
 
-Compiler::value Compiler::insn_atan2(Compiler::value x, Compiler::value y) const {
+Compiler::value Compiler::insn_atan2(Compiler::value x, Compiler::value y) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(y.t->llvm(*this) == y.v->getType());
 	assert(x.t->is_primitive() && y.t->is_primitive());
@@ -895,7 +895,7 @@ Compiler::value Compiler::insn_atan2(Compiler::value x, Compiler::value y) const
 	return insn_call(Type::real, {to_real(x), to_real(y)}, "Number.m_atan2.2");
 }
 
-Compiler::value Compiler::insn_abs(Compiler::value x) const {
+Compiler::value Compiler::insn_abs(Compiler::value x) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	if (x.t->is_polymorphic()) {
 		return insn_call(Type::real, {to_real(x)}, "Number.m_abs.2");
@@ -908,7 +908,7 @@ Compiler::value Compiler::insn_abs(Compiler::value x) const {
 	}
 }
 
-Compiler::value Compiler::insn_to_any(Compiler::value v) const {
+Compiler::value Compiler::insn_to_any(Compiler::value v) {
 	// std::cout << "to_any " << v.t << std::endl;
 	if (v.t->is_polymorphic()) {
 		return v; // already any
@@ -936,7 +936,7 @@ Compiler::value Compiler::insn_to_any(Compiler::value v) const {
 	}
 }
 
-Compiler::value Compiler::insn_to_bool(Compiler::value v) const {
+Compiler::value Compiler::insn_to_bool(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	if (v.t->is_bool()) {
 		return v;
@@ -964,7 +964,7 @@ Compiler::value Compiler::insn_to_bool(Compiler::value v) const {
 	return insn_call(Type::boolean, {v}, "Value.to_bool");
 }
 
-Compiler::value Compiler::insn_load(Compiler::value v) const {
+Compiler::value Compiler::insn_load(Compiler::value v) {
 	// std::cout << "insn_load " << v.t << " " << v.v->getType() << std::endl;
 	assert(v.t->llvm(*this) == v.v->getType());
 	assert(v.t->is_pointer());
@@ -974,7 +974,7 @@ Compiler::value Compiler::insn_load(Compiler::value v) const {
 	if (v.t->temporary) r.t = r.t->add_temporary();
 	return r;
 }
-Compiler::value Compiler::insn_load_member(Compiler::value v, int pos) const {
+Compiler::value Compiler::insn_load_member(Compiler::value v, int pos) {
 	auto type = v.t->fold();
 	assert(type->llvm(*this) == v.v->getType());
 	assert(type->is_pointer());
@@ -983,7 +983,7 @@ Compiler::value Compiler::insn_load_member(Compiler::value v, int pos) const {
 	return { builder.CreateLoad(s), type->pointed()->member(pos) };
 }
 
-void Compiler::insn_store(Compiler::value x, Compiler::value y) const {
+void Compiler::insn_store(Compiler::value x, Compiler::value y) {
 	// std::cout << "insn_store " << x.t << " " << x.v->getType() << " " << y.t << std::endl;
 	assert(x.t->llvm(*this) == x.v->getType());
 	// assert(y.t->llvm(*this) == y.v->getType());
@@ -991,7 +991,7 @@ void Compiler::insn_store(Compiler::value x, Compiler::value y) const {
 	// assert(x.t->pointed()->fold() == y.t->fold()->not_temporary());
 	builder.CreateStore(y.v, x.v);
 }
-void Compiler::insn_store_member(Compiler::value x, int pos, Compiler::value y) const {
+void Compiler::insn_store_member(Compiler::value x, int pos, Compiler::value y) {
 	assert(x.t->llvm(*this) == x.v->getType());
 	assert(y.t->llvm(*this) == y.v->getType());
 	assert(x.t->is_pointer());
@@ -1001,7 +1001,7 @@ void Compiler::insn_store_member(Compiler::value x, int pos, Compiler::value y) 
 	builder.CreateStore(y.v, s);
 }
 
-Compiler::value Compiler::insn_typeof(Compiler::value v) const {
+Compiler::value Compiler::insn_typeof(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	if (v.t->fold()->is_any()) {
 		return insn_call(Type::integer, {v}, "Value.type");
@@ -1009,7 +1009,7 @@ Compiler::value Compiler::insn_typeof(Compiler::value v) const {
 	return new_integer(v.t->id());
 }
 
-Compiler::value Compiler::insn_class_of(Compiler::value v) const {
+Compiler::value Compiler::insn_class_of(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	auto clazz = v.t->class_name();
 	if (clazz.size() and clazz != "Value") {
@@ -1019,7 +1019,7 @@ Compiler::value Compiler::insn_class_of(Compiler::value v) const {
 	}
 }
 
-void Compiler::insn_delete(Compiler::value v) const {
+void Compiler::insn_delete(Compiler::value v) {
 	// std::cout << "insn_delete " << v.t << " " << v.v->getType() << std::endl;
 	assert(v.t->llvm(*this) == v.v->getType());
 	if (v.t->must_manage_memory()) {
@@ -1029,7 +1029,7 @@ void Compiler::insn_delete(Compiler::value v) const {
 	}
 }
 
-void Compiler::insn_delete_variable(Compiler::value v) const {
+void Compiler::insn_delete_variable(Compiler::value v) {
 	// std::cout << "delete variable " << v.t << std::endl;
 	assert(check_value(v));
 	if (v.t->is_mpz_ptr()) {
@@ -1041,7 +1041,7 @@ void Compiler::insn_delete_variable(Compiler::value v) const {
 	}
 }
 
-void Compiler::insn_delete_temporary(Compiler::value v) const {
+void Compiler::insn_delete_temporary(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	if (not v.t->temporary) return;
 	if (v.t == Type::tmp_mpz_ptr) {
@@ -1051,7 +1051,7 @@ void Compiler::insn_delete_temporary(Compiler::value v) const {
 	}
 }
 
-Compiler::value Compiler::insn_array_size(Compiler::value v) const {
+Compiler::value Compiler::insn_array_size(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	if (v.t->is_string()) {
 		return insn_call(Type::integer, {v}, "String.isize");
@@ -1070,21 +1070,21 @@ Compiler::value Compiler::insn_array_size(Compiler::value v) const {
 	return insn_call(Type::integer, {v}, "Array.isize");
 }
 
-Compiler::value Compiler::insn_get_capture(int index, const Type* type) const {
+Compiler::value Compiler::insn_get_capture(int index, const Type* type) {
 	// std::cout << "get_capture " << fun->type << " " << fun->captures.size() << " captures " << F->arg_size() << " " << type << " " << index << std::endl;
 	assert(fun->parent->captures.size() > 0);
 	Compiler::value closure = { F->arg_begin(), Type::any };
 	return insn_call(Type::any, {closure, new_integer(index)}, "Function.get_capture");
 }
 
-Compiler::value Compiler::insn_get_capture_l(int index, const Type* type) const {
+Compiler::value Compiler::insn_get_capture_l(int index, const Type* type) {
 	assert(type->is_polymorphic());
 	Compiler::value arg0 = {F->arg_begin(), Type::any};
 	auto jit_index = new_integer(index);
 	return insn_call(type->pointer(), {arg0, jit_index}, "Function.get_capture_l", true);
 }
 
-void Compiler::insn_push_array(Compiler::value array, Compiler::value value) const {
+void Compiler::insn_push_array(Compiler::value array, Compiler::value value) {
 	assert(array.t->llvm(*this) == array.v->getType());
 	assert(value.t->llvm(*this) == value.v->getType());
 	auto element_type = array.t->element()->fold();
@@ -1100,7 +1100,7 @@ void Compiler::insn_push_array(Compiler::value array, Compiler::value value) con
 	}
 }
 
-Compiler::value Compiler::insn_array_at(Compiler::value array, Compiler::value index) const {
+Compiler::value Compiler::insn_array_at(Compiler::value array, Compiler::value index) {
 	assert(array.t->llvm(*this) == array.v->getType());
 	assert(index.t->llvm(*this) == index.v->getType());
 	assert(array.t->is_array());
@@ -1115,12 +1115,12 @@ Compiler::value Compiler::insn_array_at(Compiler::value array, Compiler::value i
 	return r;
 }
 
-Compiler::value Compiler::insn_array_end(Compiler::value array) const {
+Compiler::value Compiler::insn_array_end(Compiler::value array) {
 	assert(array.t->llvm(*this) == array.v->getType());
 	return insn_load_member(array, 6);
 }
 
-Compiler::value Compiler::insn_move_inc(Compiler::value value) const {
+Compiler::value Compiler::insn_move_inc(Compiler::value value) {
 	assert(value.t->llvm(*this) == value.v->getType());
 	if (value.t->is_mpz_ptr()) {
 		return insn_clone_mpz(value);
@@ -1136,7 +1136,7 @@ Compiler::value Compiler::insn_move_inc(Compiler::value value) const {
 	return value;
 }
 
-Compiler::value Compiler::insn_clone_mpz(Compiler::value mpz) const {
+Compiler::value Compiler::insn_clone_mpz(Compiler::value mpz) {
 	assert(mpz.t->llvm(*this) == mpz.v->getType());
 	if (mpz.t->temporary) {
 		return mpz;
@@ -1146,14 +1146,14 @@ Compiler::value Compiler::insn_clone_mpz(Compiler::value mpz) const {
 	return r;
 }
 
-void Compiler::insn_delete_mpz(Compiler::value mpz) const {
+void Compiler::insn_delete_mpz(Compiler::value mpz) {
 	// std::cout << "delete mpz " << mpz.t << std::endl;
 	assert(mpz.t->llvm(*this) == mpz.v->getType());
 	insn_call(Type::void_, {mpz}, "Number.mpz_clear");
 	increment_mpz_deleted();
 }
 
-Compiler::value Compiler::insn_inc_refs(Compiler::value v) const {
+Compiler::value Compiler::insn_inc_refs(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	if (v.t->must_manage_memory()) {
 		auto previous = insn_refs(v);
@@ -1166,25 +1166,25 @@ Compiler::value Compiler::insn_inc_refs(Compiler::value v) const {
 	return new_integer(0);
 }
 
-Compiler::value Compiler::insn_move(Compiler::value v) const {
+Compiler::value Compiler::insn_move(Compiler::value v) {
 	assert(check_value(v));
 	if (v.t->fold()->must_manage_memory() and !v.t->temporary and !v.t->reference) {
 		return insn_call(v.t->add_temporary(), {v}, "Value.move");
 	}
 	return v;
 }
-Compiler::value Compiler::insn_refs(Compiler::value v) const {
+Compiler::value Compiler::insn_refs(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	assert(v.t->is_polymorphic());
 	return insn_load_member(v, 3);
 }
-Compiler::value Compiler::insn_native(Compiler::value v) const {
+Compiler::value Compiler::insn_native(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	assert(v.t->is_polymorphic());
 	return insn_load_member(v, 4);
 }
 
-Compiler::value Compiler::iterator_begin(Compiler::value v) const {
+Compiler::value Compiler::iterator_begin(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	if (v.t->is_array()) {
 		auto it = create_entry("it", v.t->iterator());
@@ -1242,7 +1242,7 @@ Compiler::value Compiler::iterator_begin(Compiler::value v) const {
 	assert(false);
 }
 
-Compiler::value Compiler::iterator_rbegin(Compiler::value v) const {
+Compiler::value Compiler::iterator_rbegin(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	if (v.t->is_array()) {
 		auto it = create_entry("it", v.t->iterator());
@@ -1278,7 +1278,7 @@ Compiler::value Compiler::iterator_rbegin(Compiler::value v) const {
 	assert(false);
 }
 
-Compiler::value Compiler::iterator_end(Compiler::value v, Compiler::value it) const {
+Compiler::value Compiler::iterator_end(Compiler::value v, Compiler::value it) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	assert(it.t->llvm(*this) == it.v->getType());
 	if (v.t->is_array()) {
@@ -1312,7 +1312,7 @@ Compiler::value Compiler::iterator_end(Compiler::value v, Compiler::value it) co
 	assert(false);
 }
 
-Compiler::value Compiler::iterator_rend(Compiler::value v, Compiler::value it) const {
+Compiler::value Compiler::iterator_rend(Compiler::value v, Compiler::value it) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	assert(it.t->llvm(*this) == it.v->getType());
 	if (v.t->is_array()) {
@@ -1342,7 +1342,7 @@ Compiler::value Compiler::iterator_rend(Compiler::value v, Compiler::value it) c
 	assert(false);
 }
 
-Compiler::value Compiler::iterator_get(const Type* collectionType, Compiler::value it, Compiler::value previous) const {
+Compiler::value Compiler::iterator_get(const Type* collectionType, Compiler::value it, Compiler::value previous) {
 	assert(it.t->llvm(*this) == it.v->getType());
 	assert(previous.t->llvm(*this) == previous.v->getType());
 	if (collectionType->is_array()) {
@@ -1388,7 +1388,7 @@ Compiler::value Compiler::iterator_get(const Type* collectionType, Compiler::val
 	assert(false);
 }
 
-Compiler::value Compiler::iterator_rget(const Type* collectionType, Compiler::value it, Compiler::value previous) const {
+Compiler::value Compiler::iterator_rget(const Type* collectionType, Compiler::value it, Compiler::value previous) {
 	assert(it.t->llvm(*this) == it.v->getType());
 	assert(previous.t->llvm(*this) == previous.v->getType());
 	if (collectionType->is_array()) {
@@ -1442,7 +1442,7 @@ Compiler::value Compiler::iterator_rget(const Type* collectionType, Compiler::va
 	assert(false);
 }
 
-Compiler::value Compiler::iterator_key(Compiler::value v, Compiler::value it, Compiler::value previous) const {
+Compiler::value Compiler::iterator_key(Compiler::value v, Compiler::value it, Compiler::value previous) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	assert(it.t->llvm(*this) == it.v->getType());
 	// assert(previous.t->llvm(*this) == previous.v->getType());
@@ -1481,7 +1481,7 @@ Compiler::value Compiler::iterator_key(Compiler::value v, Compiler::value it, Co
 	assert(false);
 }
 
-Compiler::value Compiler::iterator_rkey(Compiler::value v, Compiler::value it, Compiler::value previous) const {
+Compiler::value Compiler::iterator_rkey(Compiler::value v, Compiler::value it, Compiler::value previous) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	assert(it.t->llvm(*this) == it.v->getType());
 	// assert(previous.t->llvm(*this) == previous.v->getType());
@@ -1520,7 +1520,7 @@ Compiler::value Compiler::iterator_rkey(Compiler::value v, Compiler::value it, C
 	assert(false);
 }
 
-void Compiler::iterator_increment(const Type* collectionType, Compiler::value it) const {
+void Compiler::iterator_increment(const Type* collectionType, Compiler::value it) {
 	assert(it.t->llvm(*this) == it.v->getType());
 	if (collectionType->is_array()) {
 		auto it2 = insn_load(it);
@@ -1569,7 +1569,7 @@ void Compiler::iterator_increment(const Type* collectionType, Compiler::value it
 	assert(false);
 }
 
-void Compiler::iterator_rincrement(const Type* collectionType, Compiler::value it) const {
+void Compiler::iterator_rincrement(const Type* collectionType, Compiler::value it) {
 	assert(it.t->llvm(*this) == it.v->getType());
 	if (collectionType->is_array()) {
 		auto it2 = insn_load(it);
@@ -1715,9 +1715,9 @@ Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* ou
 
 // Controls
 Compiler::label Compiler::insn_init_label(std::string name) const {
-	return {llvm::BasicBlock::Create(getContext(), name)};
+	return { llvm::BasicBlock::Create(getContext(), name) };
 }
-void Compiler::insn_if(Compiler::value condition, std::function<void()> then, std::function<void()> elze) const {
+void Compiler::insn_if(Compiler::value condition, std::function<void()> then, std::function<void()> elze) {
 	assert(condition.t->llvm(*this) == condition.v->getType());
 	auto label_then = insn_init_label("then");
 	auto label_else = insn_init_label("else");
@@ -1732,14 +1732,14 @@ void Compiler::insn_if(Compiler::value condition, std::function<void()> then, st
 		insn_branch(&label_end);
 	}
 	insn_label(&label_end);
-	((Compiler*) this)->current_block()->blocks.push_back(label_end.block);
+	current_block()->blocks.push_back(label_end.block);
 }
-void Compiler::insn_if_new(Compiler::value cond, label* then, label* elze) const {
+void Compiler::insn_if_new(Compiler::value cond, label* then, label* elze) {
 	assert(cond.t->llvm(*this) == cond.v->getType());
 	builder.CreateCondBr(cond.v, then->block, elze->block);
 }
 
-void Compiler::insn_if_not(Compiler::value condition, std::function<void()> then) const {
+void Compiler::insn_if_not(Compiler::value condition, std::function<void()> then) {
 	assert(condition.t->llvm(*this) == condition.v->getType());
 	auto label_then = insn_init_label("then");
 	auto label_end = insn_init_label("ifcont");
@@ -1750,7 +1750,7 @@ void Compiler::insn_if_not(Compiler::value condition, std::function<void()> then
 	insn_label(&label_end);
 }
 
-void Compiler::insn_throw(Compiler::value v) const {
+void Compiler::insn_throw(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	// Throw inside a try { ... } catch { ... }, jump to catch block directly
 	auto catcher = find_catcher();
@@ -1761,7 +1761,7 @@ void Compiler::insn_throw(Compiler::value v) const {
 			if (fun_catchers.at(b - 1).size()) { break; }
 		}
 		if (deepness > 0) {
-			((Compiler*) this)->delete_variables_block(deepness);
+			delete_variables_block(deepness);
 		}
 		builder.CreateBr(catcher->handler);
 		insert_new_generation_block();
@@ -1774,29 +1774,29 @@ void Compiler::insn_throw(Compiler::value v) const {
 	}
 }
 
-void Compiler::insn_throw_object(vm::Exception type) const {
+void Compiler::insn_throw_object(vm::Exception type) {
 	insn_throw(new_integer(type));
 }
 
-void Compiler::insn_label(label* l) const {
+void Compiler::insn_label(label* l) {
 	F->getBasicBlockList().push_back(l->block);
 	builder.SetInsertPoint(l->block);
 }
 
-void Compiler::insn_branch(label* l) const {
+void Compiler::insn_branch(label* l) {
 	builder.CreateBr(l->block);
 }
 
-void Compiler::insn_return(Compiler::value v) const {
+void Compiler::insn_return(Compiler::value v) {
 	assert(check_value(v));
 	assert(v.v != nullptr);
 	builder.CreateRet(v.v);
 }
-void Compiler::insn_return_void() const {
+void Compiler::insn_return_void() {
 	builder.CreateRetVoid();
 }
 
-Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Compiler::label l1, Compiler::value v2, Compiler::label l2) const {
+Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Compiler::label l1, Compiler::value v2, Compiler::label l2) {
 	if (!v2.v) {
 		return v1;
 	}
@@ -1823,7 +1823,7 @@ Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Compile
 	return {phi, folded_type};
 }
 
-Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Block* b1, Compiler::value v2, Block* b2) const {
+Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Block* b1, Compiler::value v2, Block* b2) {
 	if (!v2.v) return v1;
 	if (!v1.v) return v2;
 	const auto folded_type = type->fold();
@@ -1841,7 +1841,7 @@ Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Block* 
 }
 
 // Call functions
-Compiler::value Compiler::insn_invoke(const Type* return_type, std::vector<Compiler::value> args, std::string name) const {
+Compiler::value Compiler::insn_invoke(const Type* return_type, std::vector<Compiler::value> args, std::string name) {
 	std::vector<llvm::Value*> llvm_args;
 	std::vector<llvm::Type*> llvm_types;
 	for (unsigned i = 0, e = args.size(); i != e; ++i) {
@@ -1855,7 +1855,7 @@ Compiler::value Compiler::insn_invoke(const Type* return_type, std::vector<Compi
 	if (p == mappings.end()) {
 		auto fun_type = llvm::FunctionType::get(return_type->llvm(*this), llvm_types, false);
 		lambda = llvm::Function::Create(fun_type, llvm::Function::ExternalLinkage, name2, program->module);
-		((Compiler*) this)->mappings.insert({{ name2, return_type }, {(llvm::JITTargetAddress) nullptr, lambda}});
+		mappings.insert({{ name2, return_type }, {(llvm::JITTargetAddress) nullptr, lambda}});
 	} else {
 		lambda = p->second.function;
 	}
@@ -1871,7 +1871,7 @@ Compiler::value Compiler::insn_invoke(const Type* return_type, std::vector<Compi
 	}
 }
 
-Compiler::value Compiler::insn_call(Compiler::value fun, std::vector<Compiler::value> args) const {
+Compiler::value Compiler::insn_call(Compiler::value fun, std::vector<Compiler::value> args) {
 	// std::cout << "insn_call " << fun.t << " " << fun.v->getType() << std::endl;
 	std::vector<llvm::Value*> llvm_args;
 	if (fun.t->is_closure()) {
@@ -1909,7 +1909,7 @@ Compiler::value Compiler::insn_call(Compiler::value fun, std::vector<Compiler::v
 	}
 }
 
-Compiler::value Compiler::insn_call(const Type* return_type, std::vector<Compiler::value> args, std::string name, bool readonly) const {
+Compiler::value Compiler::insn_call(const Type* return_type, std::vector<Compiler::value> args, std::string name, bool readonly) {
 	std::vector<llvm::Value*> llvm_args;
 	for (unsigned i = 0, e = args.size(); i != e; ++i) {
 		assert(check_value(args[i]));
@@ -1928,7 +1928,7 @@ Compiler::value Compiler::insn_call(const Type* return_type, std::vector<Compile
 		if (readonly) {
 			lambda->addFnAttr(llvm::Attribute::ReadNone);
 		}
-		((Compiler*) this)->mappings.insert({{ name2, return_type }, {(llvm::JITTargetAddress) nullptr, lambda}});
+		mappings.insert({{ name2, return_type }, {(llvm::JITTargetAddress) nullptr, lambda}});
 	} else {
 		lambda = p->second.function;
 	}
@@ -1942,7 +1942,7 @@ Compiler::value Compiler::insn_call(const Type* return_type, std::vector<Compile
 	}
 }
 
-Compiler::value Compiler::insn_invoke(const Type* return_type, std::vector<Compiler::value> args, Compiler::value func) const {
+Compiler::value Compiler::insn_invoke(const Type* return_type, std::vector<Compiler::value> args, Compiler::value func) {
 	if (func.t->is_closure()) {
 		args.insert(args.begin(), func);
 	}
@@ -1975,7 +1975,7 @@ Compiler::value Compiler::insn_invoke(const Type* return_type, std::vector<Compi
 	}
 }
 
-void Compiler::function_add_capture(Compiler::value fun, Compiler::value capture) const {
+void Compiler::function_add_capture(Compiler::value fun, Compiler::value capture) {
 	assert(fun.t->llvm(*this) == fun.v->getType());
 	assert(capture.t->llvm(*this) == capture.v->getType());
 	assert(fun.t->is_closure());
@@ -1984,7 +1984,7 @@ void Compiler::function_add_capture(Compiler::value fun, Compiler::value capture
 	insn_call(Type::void_, {fun, capture}, "Function.add_capture");
 }
 
-void Compiler::log(const std::string&& str) const { assert(false); }
+void Compiler::log(const std::string&& str) { assert(false); }
 
 // Blocks
 void Compiler::enter_block(Block* block) {
@@ -2078,13 +2078,13 @@ void Compiler::leave_function() {
 int Compiler::get_current_function_blocks() const {
 	return functions_blocks.back();
 }
-void Compiler::delete_function_variables() const {
-	((Compiler*) this)->delete_variables_block(get_current_function_blocks());
+void Compiler::delete_function_variables() {
+	delete_variables_block(get_current_function_blocks());
 }
 bool Compiler::is_current_function_closure() const {
 	return function_is_closure.size() ? function_is_closure.top() : false;
 }
-void Compiler::insert_new_generation_block() const {
+void Compiler::insert_new_generation_block() {
 	auto block = llvm::BasicBlock::Create(getContext(), "new.block", F);
 	builder.SetInsertPoint(block);
 }
@@ -2100,7 +2100,7 @@ Compiler::value Compiler::add_external_var(Variable* variable) {
 	return variable->val;
 }
 
-void Compiler::export_context_variable(const std::string& name, Compiler::value v) const {
+void Compiler::export_context_variable(const std::string& name, Compiler::value v) {
 	auto f = [&]() {
 		if (v.t->is_integer()) return "Value.export_ctx_var.1";
 		if (v.t->is_long()) return "Value.export_ctx_var.2";
@@ -2153,11 +2153,11 @@ int Compiler::get_current_loop_blocks(int deepness) const {
 }
 
 /** Operations **/
-void Compiler::inc_ops(int amount) const {
+void Compiler::inc_ops(int amount) {
 	if (not vm->enable_operations) return;
 	inc_ops_jit(new_integer(amount));
 }
-void Compiler::inc_ops_jit(Compiler::value amount) const {
+void Compiler::inc_ops_jit(Compiler::value amount) {
 	assert(amount.t->llvm(*this) == amount.v->getType());
 	assert(amount.t->is_number());
 
@@ -2201,7 +2201,7 @@ void Compiler::insn_try_catch(std::function<void()> try_, std::function<void()> 
 	builder.SetInsertPoint(ContBB);
 }
 
-void Compiler::insn_check_args(std::vector<Compiler::value> args, std::vector<LSValueType> types) const {
+void Compiler::insn_check_args(std::vector<Compiler::value> args, std::vector<LSValueType> types) {
 	// TODO too much cheks sometimes
 	for (size_t i = 0; i < args.size(); ++i) {
 		auto arg = args[i];
@@ -2247,14 +2247,14 @@ bool Compiler::check_value(value v) const {
 	}
 }
 
-void Compiler::increment_mpz_created() const {
+void Compiler::increment_mpz_created() {
 	// Get the mpz_created counter global variable
 	auto mpz = get_symbol("mpzc", Type::integer->pointer());
 	// Increment counter
 	auto v = insn_load(mpz);
 	insn_store(mpz, insn_add(v, new_integer(1)));
 }
-void Compiler::increment_mpz_deleted() const {
+void Compiler::increment_mpz_deleted() {
 	// Get the mpz_deleted counter global variable
 	auto mpz = get_symbol("mpzd", Type::integer->pointer());
 	// Increment counter
