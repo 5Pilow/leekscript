@@ -58,6 +58,7 @@ Compiler::Compiler(VM* vm) : vm(vm),
 				if (Name == "false") return llvm::JITSymbol((llvm::JITTargetAddress) LSBoolean::get(false), llvm::JITSymbolFlags(llvm::JITSymbolFlags::FlagNames::None));
 				if (Name == "mpzc") return llvm::JITSymbol((llvm::JITTargetAddress) &this->vm->mpz_created, llvm::JITSymbolFlags(llvm::JITSymbolFlags::FlagNames::None));
 				if (Name == "mpzd") return llvm::JITSymbol((llvm::JITTargetAddress) &this->vm->mpz_deleted, llvm::JITSymbolFlags(llvm::JITSymbolFlags::FlagNames::None));
+				if (Name == "operations") return llvm::JITSymbol((llvm::JITTargetAddress) &this->vm->operations, llvm::JITSymbolFlags(llvm::JITSymbolFlags::FlagNames::None));
 
 				if (auto SymAddr = llvm::RTDyldMemoryManager::getSymbolAddressInProcess(Name)) {
 					return llvm::JITSymbol(SymAddr, llvm::JITSymbolFlags::Exported);
@@ -2164,7 +2165,7 @@ void Compiler::inc_ops_jit(Compiler::value amount) const {
 	if (not vm->enable_operations) return;
 
 	// Get the operations counter global variable
-	auto ops_ptr = get_symbol("System.operations", Type::integer->pointer());
+	auto ops_ptr = get_symbol("operations", Type::integer->pointer());
 
 	// Increment counter
 	auto jit_ops = insn_load(ops_ptr);

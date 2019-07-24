@@ -10,7 +10,9 @@ namespace ls {
 SystemSTD::SystemSTD(VM* vm) : Module(vm, "System") {
 
 	static_field("version", Type::integer, ADDR(version));
-	static_field("operations", Type::integer, ADDR((void*) &vm->operations));
+	static_field("operations", Type::integer, ADDR([&](ls::Compiler& c) {
+		return c.insn_load(c.get_symbol("operations", Type::integer->pointer()));
+	}));
 	static_field_fun("time", Type::long_, ADDR((void*) time));
 	static_field_fun("milliTime", Type::long_, ADDR((void*) millitime));
 	static_field_fun("microTime", Type::long_, ADDR((void*) microtime));
