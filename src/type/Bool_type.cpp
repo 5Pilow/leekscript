@@ -26,7 +26,7 @@ int Bool_type::distance(const Type* type) const {
 	return -1;
 }
 #if COMPILER
-llvm::Type* Bool_type::llvm(const Compiler& c) const {
+llvm::Type* Bool_type::llvm(Compiler& c) const {
 	return llvm::Type::getInt1Ty(c.getContext());
 }
 #endif

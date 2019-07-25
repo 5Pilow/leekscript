@@ -58,7 +58,7 @@ public:
 	virtual const Type* add_constant() const;
 	virtual const Type* not_constant() const;
 	#if COMPILER
-	virtual llvm::Type* llvm(const Compiler& c) const = 0;
+	virtual llvm::Type* llvm(Compiler& c) const = 0;
 	#endif
 	virtual const Type* iterator() const { assert(false); }
 	const Type* pointer() const;

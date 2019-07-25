@@ -46,7 +46,7 @@ void Compound_type::implement(const Type* type) const {
 	}
 }
 #if COMPILER
-llvm::Type* Compound_type::llvm(const Compiler& c) const {
+llvm::Type* Compound_type::llvm(Compiler& c) const {
 	return folded->llvm(c);
 }
 #endif

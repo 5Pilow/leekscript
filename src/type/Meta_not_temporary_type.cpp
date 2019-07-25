@@ -11,7 +11,7 @@ int Meta_not_temporary_type::distance(const Type* type) const {
 	return -1;
 }
 #if COMPILER
-llvm::Type* Meta_not_temporary_type::llvm(const Compiler& c) const {
+llvm::Type* Meta_not_temporary_type::llvm(Compiler& c) const {
 	return llvm::Type::getVoidTy(c.getContext());
 }
 #endif

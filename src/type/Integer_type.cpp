@@ -39,7 +39,7 @@ int Integer_type::distance(const Type* type) const {
 	return -1;
 }
 #if COMPILER
-llvm::Type* Integer_type::llvm(const Compiler& c) const {
+llvm::Type* Integer_type::llvm(Compiler& c) const {
 	return llvm::Type::getInt32Ty(c.getContext());
 }
 #endif

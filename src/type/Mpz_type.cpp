@@ -31,7 +31,7 @@ int Mpz_type::distance(const Type* type) const {
 	return -1;
 }
 #if COMPILER
-llvm::Type* Mpz_type::llvm(const Compiler& c) const {
+llvm::Type* Mpz_type::llvm(Compiler& c) const {
 	return get_mpz_type(c);
 }
 #endif
@@ -47,7 +47,7 @@ Type* Mpz_type::clone() const {
 }
 
 #if COMPILER
-llvm::Type* Mpz_type::get_mpz_type(const Compiler& c) {
+llvm::Type* Mpz_type::get_mpz_type(Compiler& c) {
 	if (mpz_type == nullptr) {
 		mpz_type = llvm::StructType::create({ llvm::Type::getInt128Ty(c.getContext()) }, "mpz");
 	}

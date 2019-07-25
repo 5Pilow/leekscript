@@ -18,7 +18,7 @@ bool Template_type::operator == (const Type* type) const {
 	return _implementation->operator == (type);
 }
 #if COMPILER
-llvm::Type* Template_type::llvm(const Compiler& c) const {
+llvm::Type* Template_type::llvm(Compiler& c) const {
 	// assert(_implementation._types.size() > 0);
 	// return _implementation._types[0]->llvm();
 	return llvm::Type::getInt32Ty(c.getContext());

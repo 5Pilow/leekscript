@@ -29,7 +29,7 @@ int Struct_type::distance(const Type* type) const {
 	return -1;
 }
 #if COMPILER
-llvm::Type* Struct_type::llvm(const Compiler& c) const {
+llvm::Type* Struct_type::llvm(Compiler& c) const {
 	if (_llvm_type == nullptr) {
 		std::vector<llvm::Type*> llvm_types;
 		for (const auto& type : _types) {

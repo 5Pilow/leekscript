@@ -28,7 +28,7 @@ int I8_type::distance(const Type* type) const {
 	return -1;
 }
 #if COMPILER
-llvm::Type* I8_type::llvm(const Compiler& c) const {
+llvm::Type* I8_type::llvm(Compiler& c) const {
 	return llvm::Type::getInt8Ty(c.getContext());
 }
 #endif

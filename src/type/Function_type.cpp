@@ -60,7 +60,7 @@ const Type* Function_type::argument(size_t i) const {
 	return Type::any;
 }
 #if COMPILER
-llvm::Type* Function_type::llvm(const Compiler& c) const {
+llvm::Type* Function_type::llvm(Compiler& c) const {
 	if (llvm_type) return llvm_type;
 	std::vector<llvm::Type*> llvm_types;
 	for (const auto& a : _arguments) {

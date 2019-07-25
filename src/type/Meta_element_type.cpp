@@ -11,7 +11,7 @@ int Meta_element_type::distance(const Type* type) const {
 	return 0;
 }
 #if COMPILER
-llvm::Type* Meta_element_type::llvm(const Compiler& c) const {
+llvm::Type* Meta_element_type::llvm(Compiler& c) const {
 	return llvm::Type::getVoidTy(c.getContext());
 }
 #endif

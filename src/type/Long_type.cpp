@@ -39,7 +39,7 @@ int Long_type::distance(const Type* type) const {
 	return -1;
 }
 #if COMPILER
-llvm::Type* Long_type::llvm(const Compiler& c) const {
+llvm::Type* Long_type::llvm(Compiler& c) const {
 	return llvm::Type::getInt64Ty(c.getContext());
 }
 #endif

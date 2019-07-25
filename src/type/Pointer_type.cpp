@@ -55,7 +55,7 @@ std::string Pointer_type::class_name() const {
 	return _type->class_name();
 }
 #if COMPILER
-llvm::Type* Pointer_type::llvm(const Compiler& c) const {
+llvm::Type* Pointer_type::llvm(Compiler& c) const {
 	if (_llvm_type == nullptr) {
 		((Pointer_type*) this)->_llvm_type = _type->llvm(c)->getPointerTo();
 	}

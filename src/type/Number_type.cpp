@@ -32,7 +32,7 @@ std::string Number_type::class_name() const {
 	return "Number";
 }
 #if COMPILER
-llvm::Type* Number_type::llvm(const Compiler& c) const {
+llvm::Type* Number_type::llvm(Compiler& c) const {
 	assert(false);
 }
 #endif
