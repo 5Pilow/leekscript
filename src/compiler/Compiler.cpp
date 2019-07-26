@@ -31,11 +31,9 @@
 
 namespace ls {
 
-llvm::orc::ThreadSafeContext Compiler::Ctx(llvm::make_unique<llvm::LLVMContext>());
-
 Compiler::value::value() : v(nullptr), t(Type::void_) {}
 
-Compiler::Compiler(VM* vm) : builder(*Ctx.getContext()), vm(vm),
+Compiler::Compiler(VM* vm) : Ctx(llvm::make_unique<llvm::LLVMContext>()), builder(*Ctx.getContext()), vm(vm),
 	TM(llvm::EngineBuilder().selectTarget()),
 	DL(TM->createDataLayout()),
 	ObjectLayer(ES, [this](llvm::orc::VModuleKey) {
@@ -129,22 +127,22 @@ Compiler::value Compiler::clone(Compiler::value v) {
 	}
 	return v;
 }
-Compiler::value Compiler::new_null() const {
+Compiler::value Compiler::new_null() {
 	return get_symbol("null", Type::null);
 }
-Compiler::value Compiler::new_bool(bool b) const {
+Compiler::value Compiler::new_bool(bool b) {
 	return { llvm::ConstantInt::get(getContext(), llvm::APInt(1, b, false)), Type::boolean };
 }
 
-Compiler::value Compiler::new_integer(int x) const {
+Compiler::value Compiler::new_integer(int x) {
 	return { llvm::ConstantInt::get(getContext(), llvm::APInt(32, x, true)), Type::integer };
 }
 
-Compiler::value Compiler::new_real(double r) const {
+Compiler::value Compiler::new_real(double r) {
 	return { llvm::ConstantFP::get(getContext(), llvm::APFloat(r)), Type::real };
 }
 
-Compiler::value Compiler::new_long(long l) const {
+Compiler::value Compiler::new_long(long l) {
 	return { llvm::ConstantInt::get(getContext(), llvm::APInt(64, l, true)), Type::long_ };
 }
 
@@ -164,7 +162,7 @@ Compiler::value Compiler::new_const_string(std::string s) {
 	global_strings.insert({ s, str });
 	return str;
 }
-Compiler::value Compiler::new_null_pointer(const Type* type) const {
+Compiler::value Compiler::new_null_pointer(const Type* type) {
 	assert(type->is_pointer());
 	return { llvm::ConstantPointerNull::get((llvm::PointerType*) type->llvm(*this)), type };
 }
@@ -231,10 +229,10 @@ Compiler::value Compiler::new_array(const Type* element_type, std::vector<Compil
 
 Compiler::value Compiler::create_entry(const std::string& name, const Type* type) {
 	// std::cout << "create_entry " << type << std::endl;
-	return { CreateEntryBlockAlloca(name, type->llvm((Compiler&) *this)), type->pointer() };
+	return { CreateEntryBlockAlloca(name, type->llvm(*this)), type->pointer() };
 }
 
-Compiler::value Compiler::get_symbol(const std::string& name, const Type* type) const {
+Compiler::value Compiler::get_symbol(const std::string& name, const Type* type) {
 	// std::cout << "get_symbol(" << name << ", " << type << ")" << std::endl;
 	if (dynamic_cast<const Function_type*>(type)) {
 		auto fun = llvm::Function::Create((llvm::FunctionType*) type->llvm(*this), llvm::Function::ExternalLinkage, name, program->module);
@@ -251,7 +249,7 @@ Compiler::value Compiler::get_symbol(const std::string& name, const Type* type) 
 	}
 }
 
-Compiler::value Compiler::get_vm() const {
+Compiler::value Compiler::get_vm() {
 	return get_symbol("vm", Type::i8->pointer());
 }
 
@@ -1719,7 +1717,7 @@ Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* ou
 }
 
 // Controls
-Compiler::label Compiler::insn_init_label(std::string name) const {
+Compiler::label Compiler::insn_init_label(std::string name) {
 	return { llvm::BasicBlock::Create(getContext(), name) };
 }
 void Compiler::insn_if(Compiler::value condition, std::function<void()> then, std::function<void()> elze) {

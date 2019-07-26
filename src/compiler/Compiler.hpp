@@ -78,9 +78,8 @@ public:
 		llvm::JITTargetAddress addr;
 		llvm::Function* function;
 	};
-
-	static llvm::orc::ThreadSafeContext Ctx;
-
+	
+	llvm::orc::ThreadSafeContext Ctx;
 	llvm::IRBuilder<> builder;
 	llvm::Function* F;
 	FunctionVersion* fun;
@@ -115,7 +114,7 @@ public:
 
 	const llvm::DataLayout& getDataLayout() const { return DL; }
 
-	llvm::LLVMContext& getContext() const { return *Ctx.getContext(); }
+	llvm::LLVMContext& getContext() { return *Ctx.getContext(); }
 
 	std::unique_ptr<llvm::Module> optimizeModule(std::unique_ptr<llvm::Module> M);
 	llvm::orc::VModuleKey addModule(std::unique_ptr<llvm::Module> M, bool optimize, bool export_bitcode = false, bool export_optimized_ir = false);
@@ -138,14 +137,14 @@ public:
 
 	// Value creation
 	value clone(value);
-	value new_null() const;
-	value new_bool(bool b) const;
-	value new_integer(int i) const;
-	value new_real(double r) const;
-	value new_long(long l) const;
+	value new_null();
+	value new_bool(bool b);
+	value new_integer(int i);
+	value new_real(double r);
+	value new_long(long l);
 	value new_mpz();
 	value new_const_string(std::string s);
-	value new_null_pointer(const Type* type) const;
+	value new_null_pointer(const Type* type);
 	value new_function(const Type* type);
 	value new_function(Compiler::value fun);
 	value new_function(std::string name, const Type* type);
@@ -155,8 +154,8 @@ public:
 	value new_object_class(value clazz);
 	value new_set();
 	value create_entry(const std::string& name, const Type* type);
-	value get_symbol(const std::string& name, const Type* type) const;
-	value get_vm() const;
+	value get_symbol(const std::string& name, const Type* type);
+	value get_vm();
 
 	// Conversions
 	value to_int(value);
@@ -255,7 +254,7 @@ public:
 	value insn_foreach(value v, const Type* output, Variable* var, Variable* key, std::function<value(value, value)>, bool reversed = false, std::function<value(value, value)> body2 = nullptr);
 
 	// Controls
-	label insn_init_label(std::string name) const;
+	label insn_init_label(std::string name);
 	void insn_if(value v, std::function<void()> then, std::function<void()> elze = nullptr);
 	void insn_if_new(value cond, label* then, label* elze);
 	void insn_if_not(value v, std::function<void()> then);
