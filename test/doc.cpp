@@ -2,7 +2,6 @@
 #include "../src/doc/Documentation.hpp"
 
 void Test::test_doc() {
-	ls::VM vm;
 
 	header("Documentation");
 	ls::Documentation doc;
