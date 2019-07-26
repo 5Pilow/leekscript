@@ -43,6 +43,7 @@ public:
 	static void static_init();
 
 	struct Result {
+		bool analyzed = false;
 		bool compilation_success = false;
 		bool execution_success = false;
 		std::vector<Error> errors;
@@ -59,10 +60,11 @@ public:
 		int mpz_objects_deleted = 0;
 		std::string assembly;
 		std::string pseudo_code;
-		const Type* type;
+		const Type* type = nullptr;
 	};
 
 	Environment& env;
+	StandardLibrary& std;
 	std::vector<std::unique_ptr<Module>> modules;
 	std::vector<LSValue*> function_created;
 	std::vector<Class*> class_created;
@@ -77,11 +79,10 @@ public:
 	bool legacy;
 	Context* context = nullptr;
 
-	VM(Environment& env);
+	VM(Environment& env, StandardLibrary& std);
 	~VM();
 
-	/** Main execution function **/
-	Result execute(const std::string code, Context* ctx, std::string file_name = "unamed", bool format = false, bool debug = false, bool ops = true, bool assembly = false, bool pseudo_code = false, bool optimized_ir = false, bool execute_ir = false, bool execute_bitcode = false);
+	void execute(Program& program, bool format = false, bool debug = false, bool ops = true, bool assembly = false, bool pseudo_code = false, bool optimized_ir = false, bool execute_ir = false, bool execute_bitcode = false);
 
 	/** Add a module **/
 	void add_module(std::unique_ptr<Module> m);

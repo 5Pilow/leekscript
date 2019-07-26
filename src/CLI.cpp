@@ -109,36 +109,13 @@ int CLI::start_full(int argc, char* argv[]) {
 }
 
 int CLI::analyze_snippet(std::string code, CLI_options options) {
-
 	ls::Environment env;
-
 	ls::Program program { env, code, "snippet" };
-
-	auto standardLibrary = new StandardLibrary();
-	auto resolver = new ls::Resolver();
-	auto main_file = new File("snippet", code, new FileContext());
-	ls::SyntaxicAnalyzer syn { resolver };
-	auto block = syn.analyze(main_file);
-
-	if (main_file->errors.size() > 0) {
-		return 0;
-	}
-
-	auto token = new Token(TokenType::FUNCTION, main_file, 0, 0, 0, "function");
-	program.main = std::make_unique<Function>(std::move(token));
-	program.main->body = block;
-	program.main->is_main_function = true;
-
-	// Semantical analysis
-	ls::SemanticAnalyzer sem { env };
-	sem.analyze(&program, nullptr);
+	env.analyze(program, options.format, options.debug);
 
 	std::ostringstream oss;
 	program.print(oss, true);
 
-	if (sem.errors.size()) {
-		return 0;
-	}
 	return 0;
 }
 
@@ -149,12 +126,17 @@ int CLI::analyze_file(std::string, CLI_options options) {
 int CLI::execute_snippet(std::string code, CLI_options options) {
 	#if COMPILER
 	ls::Environment env { options.legacy };
+	ls::Program program { env, code, "snippet" };
+
 	OutputStringStream oss;
-	if (options.json_output)
-		env.vm.output = &oss;
-	auto result = env.vm.execute(code, nullptr, "snippet", options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
-	env.vm.output = ls::VM::default_output;
-	print_result(result, oss.str(), options.json_output, options.display_time, options.operations);
+	if (options.json_output) {
+		env.output = &oss;
+	}
+	env.analyze(program, options.format, options.debug);
+	env.compile(program, options.format, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
+	env.execute(program, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
+
+	print_result(program.result, oss.str(), options.json_output, options.display_time, options.operations);
 	#endif
 	return 0;
 }
@@ -169,13 +151,15 @@ int CLI::execute_file(std::string file, CLI_options options) {
 	std::string code = std::string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
 	ifs.close();
 	auto file_name = Util::file_short_name(file);
-	ls::VM vm { options.legacy };
+	ls::Environment env { options.legacy };
 	OutputStringStream oss;
 	if (options.json_output)
-		vm.output = &oss;
-	auto result = vm.execute(code, nullptr, file_name, options.format, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
-	vm.output = ls::VM::default_output;
-	print_result(result, oss.str(), options.json_output, options.display_time, options.operations);
+		env.output = &oss;
+	Program program { env, code, file_name };
+	env.analyze(program, options.format, options.debug);
+	env.compile(program, options.format, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
+	env.execute(program, options.format, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
+	print_result(program.result, oss.str(), options.json_output, options.display_time, options.operations);
 	#endif
 	return 0;
 }
@@ -185,16 +169,18 @@ int CLI::repl(CLI_options options) {
 	#if COMPILER
 	std::cout << "~~~ LeekScript v2.0 ~~~" << std::endl;
 	std::string code;
-	ls::Context ctx;
-	ls::VM vm(options.legacy);
+	ls::Environment env { options.legacy };
+	ls::Context ctx { env };
 
 	while (!std::cin.eof()) {
 		// Get a instruction
 		std::cout << ">> ";
 		std::getline(std::cin, code);
 		// Execute
-		auto result = vm.execute(code, &ctx, "(top-level)", options.debug, options.operations, options.assembly, options.intermediate);
-		print_result(result, "", options.json_output, options.display_time, options.operations);
+		Program program { env, code, "(top-level)" };
+		program.context = &ctx;
+		env.execute(program, options.debug, options.operations, options.assembly, options.intermediate);
+		print_result(program.result, "", options.json_output, options.display_time, options.operations);
 		// std::cout << &ctx << std::endl;
 	}
 	#endif

@@ -37,7 +37,7 @@ namespace ls {
 const unsigned long int VM::DEFAULT_OPERATION_LIMIT = 20000000;
 OutputStream* VM::default_output = new OutputStream();
 
-VM::VM(Environment& env) : env(env) {
+VM::VM(Environment& env, StandardLibrary& std) : env(env), std(std) {
 	operation_limit = VM::DEFAULT_OPERATION_LIMIT;
 }
 
@@ -55,7 +55,7 @@ void VM::static_init() {
 }
 
 #if COMPILER
-VM::Result VM::execute(const std::string code, Context* ctx, std::string file_name, bool format, bool debug, bool ops, bool assembly, bool pseudo_code, bool optimized_ir, bool execute_ir, bool execute_bitcode) {
+void VM::execute(Program& program, bool format, bool debug, bool ops, bool assembly, bool pseudo_code, bool optimized_ir, bool execute_ir, bool execute_bitcode) {
 
 	// Reset
 	this->file_name = file_name;
@@ -69,49 +69,39 @@ VM::Result VM::execute(const std::string code, Context* ctx, std::string file_na
 	#if DEBUG_LEAKS
 		LSValue::objs().clear();
 	#endif
-	this->context = ctx;
+	this->context = program.context;
 
-	auto program = new Program(env, code, file_name);
-
-	// Compile
-	auto result = program->compile(*this, ctx, format, debug, assembly, pseudo_code, optimized_ir, execute_ir, execute_bitcode);
-
-	if (format or debug) {
-		std::cout << "main() ";
-		std::cout << result.program << std::endl; // LCOV_EXCL_LINE
-	}
 	if (pseudo_code) {
 		if (debug) std::cout << std::endl;
-		std::cout << result.pseudo_code;
+		std::cout << program.result.pseudo_code;
 	}
 	if (assembly) {
 		if (debug) std::cout << std::endl;
-		std::cout << result.assembly;
+		std::cout << program.result.assembly;
 	}
 
 	// Execute
-	if (result.compilation_success) {
+	if (program.result.compilation_success) {
 		std::string value = "";
 		auto exe_start = std::chrono::high_resolution_clock::now();
 		try {
-			value = program->execute(*this);
-			result.execution_success = true;
+			value = program.execute(*this);
+			program.result.execution_success = true;
 		} catch (vm::ExceptionObj& ex) {
-			result.exception = ex;
+			program.result.exception = ex;
 		}
 		auto exe_end = std::chrono::high_resolution_clock::now();
 
 		auto execution_time = std::chrono::duration_cast<std::chrono::nanoseconds>(exe_end - exe_start).count();
-		result.execution_time = (((double) execution_time / 1000) / 1000);
-		result.value = value;
-		result.type = program->type;
+		program.result.execution_time = (((double) execution_time / 1000) / 1000);
+		program.result.value = value;
+		program.result.type = program.type;
 	}
 
 	// Set results
-	result.operations = VM::operations;
+	program.result.operations = VM::operations;
 
 	// Cleaning
-	delete program;
 	for (const auto& f : function_created) {
 		delete f;
 	}
@@ -121,13 +111,13 @@ VM::Result VM::execute(const std::string code, Context* ctx, std::string file_na
 	}
 	class_created.clear();
 	VM::enable_operations = true;
-	Type::clear_placeholder_types();
+	env.clear_placeholder_types();
 
 	// Results
-	result.objects_created = LSValue::obj_count;
-	result.objects_deleted = LSValue::obj_deleted;
-	result.mpz_objects_created = VM::mpz_created;
-	result.mpz_objects_deleted = VM::mpz_deleted;
+	program.result.objects_created = LSValue::obj_count;
+	program.result.objects_deleted = LSValue::obj_deleted;
+	program.result.mpz_objects_created = VM::mpz_created;
+	program.result.mpz_objects_deleted = VM::mpz_deleted;
 
 	if (ls::LSValue::obj_deleted != ls::LSValue::obj_count) {
 		// LCOV_EXCL_START
@@ -147,7 +137,6 @@ VM::Result VM::execute(const std::string code, Context* ctx, std::string file_na
 	if (VM::mpz_deleted != VM::mpz_created) {
 		std::cout << C_RED << "/!\\ " << VM::mpz_deleted << " / " << VM::mpz_created << " (" << (VM::mpz_created - VM::mpz_deleted) << " mpz leaked)" << END_COLOR << std::endl; // LCOV_EXCL_LINE
 	}
-	return result;
 }
 #endif
 
@@ -169,8 +158,8 @@ void* VM::resolve_symbol(std::string name) {
 		// std::cout << "version = " << version << std::endl;
 		if (module == "ctx") {
 			return &context->vars.at(method).value;
-		} else if (env.std.classes.find(module) != env.std.classes.end()) {
-			const auto& clazz = env.std.classes.at(module)->clazz;
+		} else if (std.classes.find(module) != std.classes.end()) {
+			const auto& clazz = std.classes.at(module)->clazz;
 			if (method.substr(0, 8) == "operator") {
 				const auto& op = method.substr(8);
 				const auto& implems = clazz->operators.at(op);
@@ -191,8 +180,8 @@ void* VM::resolve_symbol(std::string name) {
 			}
 		}
 	} else {
-		if (env.std.classes.find(name) != env.std.classes.end()) {
-			return env.std.classes.at(name)->lsclass.get();
+		if (std.classes.find(name) != std.classes.end()) {
+			return std.classes.at(name)->lsclass.get();
 		}
 	}
 	return nullptr;

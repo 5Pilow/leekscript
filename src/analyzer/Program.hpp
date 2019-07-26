@@ -11,22 +11,26 @@ namespace ls {
 
 class File;
 class StandardLibrary;
+class SyntaxicAnalyzer;
 
 class Program {
 private:
 
-	std::string code; // The program code
-	void* closure;
+	void* closure = nullptr;
 
 public:
 
 	Environment& env;
+	std::string code; // The program code
+	Compiler* compiler; // Keep compiler pointer to free module handle
 	std::unique_ptr<Function> main;
 	const Type* type;
 	std::vector<Function*> functions;
 	std::string file_name;
 	std::unordered_map<std::string, Variable*> operators;
-	File* main_file;
+	File* main_file = nullptr;
+	Context* context = nullptr;
+	VM::Result result;
 	#if COMPILER
 	bool handle_created = false;
 	llvm::Module* module = nullptr;
@@ -36,16 +40,16 @@ public:
 	Program(Environment& env, const std::string& code, const std::string& file_name);
 	virtual ~Program();
 
-	void analyze(SemanticAnalyzer* analyzer);
+	void analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format, bool debug);
 
 	/*
 	 * Compile the program with a VM and a context (json)
 	 */
 	#if COMPILER
-	VM::Result compile(VM& vm, Context* context = nullptr, bool format = false, bool debug = false, bool assembly = false, bool pseudo_code = false, bool optimized_ir = false, bool ir = false, bool bitcode = false);
-	VM::Result compile_leekscript(VM& vm, Context* ctx, bool format, bool debug, bool assembly, bool pseudo_code, bool optimized_ir);
-	VM::Result compile_ir_file(VM& vm);
-	VM::Result compile_bitcode_file(VM& vm);
+	void compile(Compiler& c, bool format = false, bool debug = false, bool assembly = false, bool pseudo_code = false, bool optimized_ir = false, bool ir = false, bool bitcode = false);
+	void compile_leekscript(Compiler& c, bool format, bool debug, bool assembly, bool pseudo_code, bool optimized_ir);
+	void compile_ir_file(Compiler& c);
+	void compile_bitcode_file(Compiler& c);
 	#endif
 
 	Variable* get_operator(const std::string& name);
