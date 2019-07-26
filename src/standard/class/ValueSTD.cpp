@@ -7,10 +7,11 @@
 #include "../../vm/VM.hpp"
 #include "../../analyzer/Context.hpp"
 #include "../../type/Type.hpp"
+#include "../../environment/Environment.hpp"
 
 namespace ls {
 
-ValueSTD::ValueSTD(StandardLibrary* stdLib) : Module(stdLib, "Value") {
+ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
 
 	#if COMPILER
 	LSValue::ValueClass = lsclass.get();
@@ -19,168 +20,168 @@ ValueSTD::ValueSTD(StandardLibrary* stdLib) : Module(stdLib, "Value") {
 	/*
 	 * Static attributes
 	 */
-	static_field("unknown", Type::any, ADDR(unknown));
+	static_field("unknown", env.any, ADDR(unknown));
 
 	/*
 	 * Attributes
 	 */
-	field("class", Type::clazz(), ADDR(attr_class));
+	field("class", env.clazz(), ADDR(attr_class));
 
 	/*
 	 * Operators
 	 */
-	auto sV = Type::template_("V");
-	auto sT = Type::template_("T");
+	auto sV = env.template_("V");
+	auto sT = env.template_("T");
 	template_(sV, sT).
 	operator_("=", {
 		{sV, sT, sT, ADDR(op_store), 0, { new ChangeValueMutator() }, true}
 	});
 
 	operator_("is", {
-		{Type::const_any, Type::const_class(), Type::boolean, ADDR(op_instanceof)}
+		{env.const_any, env.const_class(), env.boolean, ADDR(op_instanceof)}
 	});
 	operator_("==", {
-		{Type::const_any, Type::const_any, Type::boolean, ADDR((void*) eq)},
-		{Type::const_any, Type::const_any, Type::boolean, ADDR(op_equals)}
+		{env.const_any, env.const_any, env.boolean, ADDR((void*) eq)},
+		{env.const_any, env.const_any, env.boolean, ADDR(op_equals)}
 	});
 	operator_("===", {
-		{Type::const_any, Type::const_any, Type::boolean, ADDR((void*) triple_eq), LEGACY},
-		{Type::const_any, Type::const_any, Type::boolean, ADDR(op_triple_equals), LEGACY}
+		{env.const_any, env.const_any, env.boolean, ADDR((void*) triple_eq), LEGACY},
+		{env.const_any, env.const_any, env.boolean, ADDR(op_triple_equals), LEGACY}
 	});
 	operator_("!=", {
-		{Type::const_any, Type::const_any, Type::boolean, ADDR(op_not_equals)}
+		{env.const_any, env.const_any, env.boolean, ADDR(op_not_equals)}
 	});
 	operator_("<", {
-		{Type::const_any, Type::const_any, Type::boolean, ADDR((void*) lt)},
-		{Type::const_any, Type::const_any, Type::boolean, ADDR(op_lt)},
+		{env.const_any, env.const_any, env.boolean, ADDR((void*) lt)},
+		{env.const_any, env.const_any, env.boolean, ADDR(op_lt)},
 	});
 	operator_("<=", {
-		{Type::const_any, Type::const_any, Type::boolean, ADDR((void*) le)},
-		{Type::const_any, Type::const_any, Type::boolean, ADDR(op_le)}
+		{env.const_any, env.const_any, env.boolean, ADDR((void*) le)},
+		{env.const_any, env.const_any, env.boolean, ADDR(op_le)}
 	});
 	operator_(">", {
-		{Type::const_any, Type::const_any, Type::boolean, ADDR((void*) gt)},
-		{Type::const_any, Type::const_any, Type::boolean, ADDR(op_gt)}
+		{env.const_any, env.const_any, env.boolean, ADDR((void*) gt)},
+		{env.const_any, env.const_any, env.boolean, ADDR(op_gt)}
 	});
 	operator_(">=", {
-		{Type::const_any, Type::const_any, Type::boolean, ADDR((void*) ge)},
-		{Type::const_any, Type::const_any, Type::boolean, ADDR(op_ge)}
+		{env.const_any, env.const_any, env.boolean, ADDR((void*) ge)},
+		{env.const_any, env.const_any, env.boolean, ADDR(op_ge)}
 	});
 	operator_("and", {
-		{Type::const_any, Type::const_any, Type::boolean, ADDR(op_and)}
+		{env.const_any, env.const_any, env.boolean, ADDR(op_and)}
 	});
 	operator_("&&", {
-		{Type::const_any, Type::const_any, Type::boolean, ADDR(op_and)}
+		{env.const_any, env.const_any, env.boolean, ADDR(op_and)}
 	});
 	operator_("or", {
-		{Type::const_any, Type::const_any, Type::boolean, ADDR(op_or)}
+		{env.const_any, env.const_any, env.boolean, ADDR(op_or)}
 	});
 	operator_("||", {
-		{Type::const_any, Type::const_any, Type::boolean, ADDR(op_or)}
+		{env.const_any, env.const_any, env.boolean, ADDR(op_or)}
 	});
 	operator_("xor", {
-		{Type::const_any, Type::const_any, Type::boolean, ADDR(op_xor)}
+		{env.const_any, env.const_any, env.boolean, ADDR(op_xor)}
 	});
 	operator_("+", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_add), THROWS},
-		{Type::const_any, Type::const_any, Type::any, ADDR(op_add), THROWS},
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_add), THROWS},
+		{env.const_any, env.const_any, env.any, ADDR(op_add), THROWS},
 	});
 	operator_("+=", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_add_eq), THROWS, { new ConvertMutator() }, true}
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_add_eq), THROWS, { new ConvertMutator() }, true}
 	});
 	operator_("-", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_sub), THROWS},
-		{Type::const_any, Type::const_any, Type::any, ADDR(op_sub), THROWS},
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_sub), THROWS},
+		{env.const_any, env.const_any, env.any, ADDR(op_sub), THROWS},
 	});
 	operator_("-=", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_sub_eq), THROWS, {}, true}
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_sub_eq), THROWS, {}, true}
 	});
 	operator_("*", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_mul), THROWS},
-		{Type::const_any, Type::const_any, Type::any, ADDR(op_mul), THROWS}
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_mul), THROWS},
+		{env.const_any, env.const_any, env.any, ADDR(op_mul), THROWS}
 	});
 	operator_("*=", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_mul_eq), THROWS, {}, true}
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_mul_eq), THROWS, {}, true}
 	});
 	operator_("**", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_pow), THROWS},
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_pow), THROWS},
 	});
 	operator_("**=", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_pow_eq), THROWS, {}, true}
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_pow_eq), THROWS, {}, true}
 	});
 	operator_("/", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_div), THROWS},
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_div), THROWS},
 	});
 	operator_("/=", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_div_eq), THROWS, {}, true}
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_div_eq), THROWS, {}, true}
 	});
 	operator_("\\", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_int_div), THROWS}
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_int_div), THROWS}
 	});
 	operator_("\\=", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_int_div_eq), THROWS, {}, true}
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_int_div_eq), THROWS, {}, true}
 	});
 	operator_("%", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_mod), THROWS}
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_mod), THROWS}
 	});
 	operator_("%=", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_mod_eq), THROWS, {}, true}
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_mod_eq), THROWS, {}, true}
 	});
 	operator_("%%", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_double_mod)},
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_double_mod)},
 	});
 	operator_("%%=", {
-		{Type::const_any, Type::const_any, Type::any, ADDR((void*) ls_double_mod_eq), THROWS, {}, true}
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_double_mod_eq), THROWS, {}, true}
 	});
 	operator_("&", {
-		{Type::const_any, Type::const_any, Type::integer, ADDR((void*) ls_bit_and), THROWS}
+		{env.const_any, env.const_any, env.integer, ADDR((void*) ls_bit_and), THROWS}
 	});
 	operator_("&=", {
-		{Type::any, Type::const_any, Type::integer, ADDR((void*) ls_bit_and_eq), THROWS, {}, true}
+		{env.any, env.const_any, env.integer, ADDR((void*) ls_bit_and_eq), THROWS, {}, true}
 	});
 	operator_("|", {
-		{Type::const_any, Type::const_any, Type::integer, ADDR((void*) ls_bit_or), THROWS}
+		{env.const_any, env.const_any, env.integer, ADDR((void*) ls_bit_or), THROWS}
 	});
 	operator_("|=", {
-		{Type::any, Type::const_any, Type::integer, ADDR((void*) ls_bit_or_eq), THROWS, {}, true}
+		{env.any, env.const_any, env.integer, ADDR((void*) ls_bit_or_eq), THROWS, {}, true}
 	});
 	operator_("^", {
-		{Type::const_any, Type::const_any, Type::integer, ADDR((void*) ls_bit_xor), THROWS}
+		{env.const_any, env.const_any, env.integer, ADDR((void*) ls_bit_xor), THROWS}
 	});
 	operator_("^=", {
-		{Type::any, Type::const_any, Type::integer, ADDR((void*) ls_bit_xor_eq), THROWS, {}, true}
+		{env.any, env.const_any, env.integer, ADDR((void*) ls_bit_xor_eq), THROWS, {}, true}
 	});
 	operator_("<<", {
-		{Type::const_any, Type::const_any, Type::integer, ADDR(bit_shift_left), THROWS}
+		{env.const_any, env.const_any, env.integer, ADDR(bit_shift_left), THROWS}
 	});
 	operator_("<<=", {
-		{Type::const_any, Type::const_any, Type::integer, ADDR((void*) ls_bit_shift_left_eq), 0, {}, true},
-		{Type::integer, Type::const_integer, Type::integer, ADDR(bit_shift_left_eq), 0, {}, true},
+		{env.const_any, env.const_any, env.integer, ADDR((void*) ls_bit_shift_left_eq), 0, {}, true},
+		{env.integer, env.const_integer, env.integer, ADDR(bit_shift_left_eq), 0, {}, true},
 	});
 	operator_(">>", {
-		{Type::const_integer, Type::const_integer, Type::integer, ADDR(bit_shift_right), THROWS}
+		{env.const_integer, env.const_integer, env.integer, ADDR(bit_shift_right), THROWS}
 	});
 	operator_(">>=", {
-		{Type::const_any, Type::const_any, Type::integer, ADDR((void*) ls_bit_shift_right_eq), 0, {}, true},
-		{Type::const_integer, Type::const_integer, Type::integer, ADDR(bit_shift_right_eq), 0, {}, true},
+		{env.const_any, env.const_any, env.integer, ADDR((void*) ls_bit_shift_right_eq), 0, {}, true},
+		{env.const_integer, env.const_integer, env.integer, ADDR(bit_shift_right_eq), 0, {}, true},
 	});
 	operator_(">>>", {
-		{Type::const_integer, Type::const_integer, Type::integer, ADDR(bit_shift_uright), THROWS}
+		{env.const_integer, env.const_integer, env.integer, ADDR(bit_shift_uright), THROWS}
 	});
 	operator_(">>>=", {
-		{Type::const_any, Type::const_any, Type::integer, ADDR((void*) ls_bit_shift_uright_eq), 0, {}, true},
-		{Type::const_integer, Type::const_integer, Type::integer, ADDR(bit_shift_uright_eq), 0, {}, true}
+		{env.const_any, env.const_any, env.integer, ADDR((void*) ls_bit_shift_uright_eq), 0, {}, true},
+		{env.const_integer, env.const_integer, env.integer, ADDR(bit_shift_uright_eq), 0, {}, true}
 	});
 	operator_("in", {
-		{Type::const_any, Type::const_any, Type::boolean, ADDR((void*) in)},
-		{Type::const_any, Type::const_any, Type::boolean, ADDR(op_in)},
+		{env.const_any, env.const_any, env.boolean, ADDR((void*) in)},
+		{env.const_any, env.const_any, env.boolean, ADDR(op_in)},
 	});
 	operator_("<=>", {
-		{Type::any, Type::any, Type::any, ADDR((void*) &op_swap_ptr), 0, {}, true, true},
-		{Type::integer, Type::integer, Type::integer, ADDR(op_swap_val), 0, {}, true, true},
+		{env.any, env.any, env.any, ADDR((void*) &op_swap_ptr), 0, {}, true, true},
+		{env.integer, env.integer, env.integer, ADDR(op_swap_val), 0, {}, true, true},
 	});
-	auto T = Type::template_("T");
-	auto R = Type::template_("R");
+	auto T = env.template_("T");
+	auto R = env.template_("R");
 	template_(T, R).
 	operator_("~", {
 		{T, Type::fun(R, {T}), R, ADDR(op_call)},
@@ -190,134 +191,134 @@ ValueSTD::ValueSTD(StandardLibrary* stdLib) : Module(stdLib, "Value") {
 	 * Methods
 	 */
 	method("copy", {
-		{Type::any, {Type::const_any}, ADDR(copy)}
+		{env.any, {env.const_any}, ADDR(copy)}
 	});
 	method("string", {
-		{Type::string, {Type::const_any}, ADDR(to_string)}
+		{env.string, {env.const_any}, ADDR(to_string)}
 	});
 	method("json", {
-		{Type::tmp_string, {Type::const_any}, ADDR((void*) &LSValue::ls_json)},
-		{Type::tmp_string, {Type::const_any}, ADDR(JsonSTD::encode)},
+		{env.tmp_string, {env.const_any}, ADDR((void*) &LSValue::ls_json)},
+		{env.tmp_string, {env.const_any}, ADDR(JsonSTD::encode)},
 	});
 	method("typeID", {
-		{Type::integer, {Type::const_any}, ADDR(typeID)}
+		{env.integer, {env.const_any}, ADDR(typeID)}
 	});
 	method("move", {
-		{Type::any, {Type::const_any}, ADDR((void*) &LSValue::move)}
+		{env.any, {env.const_any}, ADDR((void*) &LSValue::move)}
 	});
 	method("move_inc", {
-		{Type::any, {Type::const_any}, ADDR((void*) &LSValue::move_inc)}
+		{env.any, {env.const_any}, ADDR((void*) &LSValue::move_inc)}
 	});
 	method("ptr", {
-		{Type::tmp_any, {Type::const_any}, ADDR((void*) &LSValue::move)}
+		{env.tmp_any, {env.const_any}, ADDR((void*) &LSValue::move)}
 	});
 	method("absolute", {
-		{Type::integer, {Type::const_any}, ADDR((void*) absolute), THROWS}
+		{env.integer, {env.const_any}, ADDR((void*) absolute), THROWS}
 	});
 	method("clone", {
-		{Type::any, {Type::const_any}, ADDR((void*) clone)}
+		{env.any, {env.const_any}, ADDR((void*) clone)}
 	});
 	method("delete", {
-		{Type::void_, {Type::const_any}, ADDR((void*) &LSValue::free)}
+		{env.void_, {env.const_any}, ADDR((void*) &LSValue::free)}
 	});
 	method("delete_tmp", {
-		{Type::void_, {Type::const_any}, ADDR((void*) &LSValue::delete_temporary)}
+		{env.void_, {env.const_any}, ADDR((void*) &LSValue::delete_temporary)}
 	});
 	method("dec_refs", {
-		{Type::void_, {Type::const_any}, ADDR((void*) &LSValue::delete_ref)}
+		{env.void_, {env.const_any}, ADDR((void*) &LSValue::delete_ref)}
 	});
 	method("delete_ref", {
-		{Type::void_, {Type::const_any}, ADDR((void*) &LSValue::delete_ref2)}
+		{env.void_, {env.const_any}, ADDR((void*) &LSValue::delete_ref2)}
 	});
 	method("not", {
-		{Type::boolean, {Type::const_any}, ADDR((void*) ls_not)}
+		{env.boolean, {env.const_any}, ADDR((void*) ls_not)}
 	});
 	method("minus", {
-		{Type::any, {Type::const_any}, ADDR((void*) ls_minus)}
+		{env.any, {env.const_any}, ADDR((void*) ls_minus)}
 	});
 	method("dec", {
-		{Type::any, {Type::const_any}, ADDR((void*) ls_dec)}
+		{env.any, {env.const_any}, ADDR((void*) ls_dec)}
 	});
 	method("pre_dec", {
-		{Type::any, {Type::const_any}, ADDR((void*) ls_pre_dec)}
+		{env.any, {env.const_any}, ADDR((void*) ls_pre_dec)}
 	});
 	method("decl", {
-		{Type::any, {Type::const_any}, ADDR((void*) ls_decl)}
+		{env.any, {env.const_any}, ADDR((void*) ls_decl)}
 	});
 	method("pre_decl", {
-		{Type::any, {Type::const_any}, ADDR((void*) ls_pre_decl)}
+		{env.any, {env.const_any}, ADDR((void*) ls_pre_decl)}
 	});
 	method("inc", {
-		{Type::any, {Type::const_any}, ADDR((void*) ls_inc)}
+		{env.any, {env.const_any}, ADDR((void*) ls_inc)}
 	});
 	method("pre_inc", {
-		{Type::any, {Type::const_any}, ADDR((void*) ls_pre_inc)}
+		{env.any, {env.const_any}, ADDR((void*) ls_pre_inc)}
 	});
 	method("incl", {
-		{Type::any, {Type::const_any}, ADDR((void*) ls_incl)}
+		{env.any, {env.const_any}, ADDR((void*) ls_incl)}
 	});
 	method("pre_incl", {
-		{Type::any, {Type::const_any}, ADDR((void*) ls_pre_incl)}
+		{env.any, {env.const_any}, ADDR((void*) ls_pre_incl)}
 	});
 	method("pre_tilde", {
-		{Type::any, {Type::const_any}, ADDR((void*) ls_pre_tilde)}
+		{env.any, {env.const_any}, ADDR((void*) ls_pre_tilde)}
 	});
 	method("attr", {
-		{Type::any, {Type::any, Type::i8_ptr}, ADDR((void*) attr)},
+		{env.any, {env.any, env.i8_ptr}, ADDR((void*) attr)},
 	});
 	method("attrL", {
-		{Type::any, {Type::any, Type::i8_ptr}, ADDR((void*) attrL)},
+		{env.any, {env.any, env.i8_ptr}, ADDR((void*) attrL)},
 	});
 	method("int", {
-		{Type::integer, {Type::const_any}, ADDR((void*) integer)}
+		{env.integer, {env.const_any}, ADDR((void*) integer)}
 	});
 	method("real", {
-		{Type::real, {Type::const_any}, ADDR((void*) real)}
+		{env.real, {env.const_any}, ADDR((void*) real)}
 	});
 	method("real_delete", {
-		{Type::real, {Type::const_any}, ADDR((void*) real_delete)}
+		{env.real, {env.const_any}, ADDR((void*) real_delete)}
 	});
 	method("long", {
-		{Type::long_, {Type::const_any}, ADDR((void*) long_)}
+		{env.long_, {env.const_any}, ADDR((void*) long_)}
 	});
 	method("range", {
-		{Type::any, {Type::const_any, Type::integer, Type::integer}, ADDR((void*) range)}
+		{env.any, {env.const_any, env.integer, env.integer}, ADDR((void*) range)}
 	});
 	method("at", {
-		{Type::any, {Type::const_any, Type::const_any}, ADDR((void*) at)}
+		{env.any, {env.const_any, env.const_any}, ADDR((void*) at)}
 	});
 	method("atl", {
-		{Type::any, {Type::const_any, Type::const_any}, ADDR((void*) atl)}
+		{env.any, {env.const_any, env.const_any}, ADDR((void*) atl)}
 	});
 	method("in_i", {
-		{Type::boolean, {Type::const_any, Type::integer}, ADDR((void*) in_i)}
+		{env.boolean, {env.const_any, env.integer}, ADDR((void*) in_i)}
 	});
 	method("in", {
-		{Type::boolean, {Type::const_any, Type::const_any}, ADDR((void*) in)}
+		{env.boolean, {env.const_any, env.const_any}, ADDR((void*) in)}
 	});
 	method("is_null", {
-		{Type::boolean, {Type::const_any}, ADDR((void*) is_null)}
+		{env.boolean, {env.const_any}, ADDR((void*) is_null)}
 	});
 	method("to_bool", {
-		{Type::boolean, {Type::const_any}, ADDR((void*) to_bool)}
+		{env.boolean, {env.const_any}, ADDR((void*) to_bool)}
 	});
 	method("type", {
-		{Type::integer, {Type::const_any}, ADDR((void*) type)}
+		{env.integer, {env.const_any}, ADDR((void*) type)}
 	});
 	method("delete_previous", {
-		{Type::void_, {Type::any}, ADDR((void*) delete_previous)}
+		{env.void_, {env.any}, ADDR((void*) delete_previous)}
 	});
 	method("get_int", {
-		{Type::integer, {Type::any}, ADDR((void*) get_int)}
+		{env.integer, {env.any}, ADDR((void*) get_int)}
 	});
 	method("get_class", {
-		{Type::clazz(), {Type::any}, ADDR((void*) get_class)}
+		{env.clazz(), {env.any}, ADDR((void*) get_class)}
 	});
 	method("export_ctx_var", {
-		{Type::void_, {Type::i8_ptr, Type::any}, ADDR((void*) export_context_variable)},
-		{Type::void_, {Type::i8_ptr, Type::integer}, ADDR((void*) export_context_variable_int)},
-		{Type::void_, {Type::i8_ptr, Type::long_}, ADDR((void*) export_context_variable_long)},
-		{Type::void_, {Type::i8_ptr, Type::real}, ADDR((void*) export_context_variable_real)},
+		{env.void_, {env.i8_ptr, env.any}, ADDR((void*) export_context_variable)},
+		{env.void_, {env.i8_ptr, env.integer}, ADDR((void*) export_context_variable_int)},
+		{env.void_, {env.i8_ptr, env.long_}, ADDR((void*) export_context_variable_long)},
+		{env.void_, {env.i8_ptr, env.real}, ADDR((void*) export_context_variable_real)},
 	});
 }
 
@@ -326,7 +327,7 @@ ValueSTD::ValueSTD(StandardLibrary* stdLib) : Module(stdLib, "Value") {
  * Static attributes
  */
 Compiler::value ValueSTD::unknown(Compiler& c) {
-	return c.insn_call(Type::any, {c.new_real(floor(1 + ((double) rand() / RAND_MAX) * 100))}, "Number.new");
+	return c.insn_call(c.env.any, {c.new_real(floor(1 + ((double) rand() / RAND_MAX) * 100))}, "Number.new");
 }
 
 /*
@@ -358,7 +359,7 @@ Compiler::value ValueSTD::op_store(Compiler& c, std::vector<Compiler::value> arg
 		c.insn_store(x, ny);
 	}
 	if (flags & NO_RETURN) {
-		return {};
+		return { c.env };
 	} else {
 		if (y.t->is_mpz_ptr()) {
 			y.t = y.t->not_temporary();
@@ -398,7 +399,7 @@ Compiler::value ValueSTD::op_lt(Compiler& c, std::vector<Compiler::value> args, 
 	if (args[0].t->id() == args[1].t->id() or args[0].t->id() == 0 or args[1].t->id() == 0) {
 		auto ap = c.insn_to_any(args[0]);
 		auto bp = c.insn_to_any(args[1]);
-		auto res = c.insn_call(Type::boolean, {ap, bp}, "Value.operator<");
+		auto res = c.insn_call(c.env.boolean, {ap, bp}, "Value.operator<");
 		c.insn_delete_temporary(ap);
 		c.insn_delete_temporary(bp);
 		return res;
@@ -414,7 +415,7 @@ Compiler::value ValueSTD::op_le(Compiler& c, std::vector<Compiler::value> args, 
 	if (args[0].t->id() == args[1].t->id() or args[0].t->id() == 0 or args[1].t->id() == 0) {
 		auto ap = c.insn_to_any(args[0]);
 		auto bp = c.insn_to_any(args[1]);
-		auto res = c.insn_call(Type::boolean, {ap, bp}, "Value.operator<");
+		auto res = c.insn_call(c.env.boolean, {ap, bp}, "Value.operator<");
 		c.insn_delete_temporary(ap);
 		c.insn_delete_temporary(bp);
 		return res;
@@ -430,7 +431,7 @@ Compiler::value ValueSTD::op_gt(Compiler& c, std::vector<Compiler::value> args, 
 	if (args[0].t->id() == args[1].t->id() or args[0].t->id() == 0	or args[1].t->id() == 0) {
 		auto ap = c.insn_to_any(args[0]);
 		auto bp = c.insn_to_any(args[1]);
-		auto res = c.insn_call(Type::boolean, {ap, bp}, "Value.operator>");
+		auto res = c.insn_call(c.env.boolean, {ap, bp}, "Value.operator>");
 		c.insn_delete_temporary(ap);
 		c.insn_delete_temporary(bp);
 		return res;
@@ -444,7 +445,7 @@ Compiler::value ValueSTD::op_gt(Compiler& c, std::vector<Compiler::value> args, 
 
 Compiler::value ValueSTD::op_ge(Compiler& c, std::vector<Compiler::value> args, bool) {
 	if (args[0].t->id() == args[1].t->id() or args[0].t->id() == 0 or args[1].t->id() == 0) {
-		auto res = c.insn_call(Type::boolean, {c.insn_to_any(args[0]), c.insn_to_any(args[1])}, "Value.operator>=");
+		auto res = c.insn_call(c.env.boolean, {c.insn_to_any(args[0]), c.insn_to_any(args[1])}, "Value.operator>=");
 		c.insn_delete_temporary(args[0]);
 		c.insn_delete_temporary(args[1]);
 		return res;
@@ -584,7 +585,7 @@ Compiler::value ValueSTD::bit_shift_left_eq(Compiler& c, std::vector<Compiler::v
 		c.insn_store(args[0], res);
 		return res;
 	} else {
-		return c.insn_invoke(Type::integer, {args[0], c.insn_to_any(args[1])}, "Value.operator<<=");
+		return c.insn_invoke(c.env.integer, {args[0], c.insn_to_any(args[1])}, "Value.operator<<=");
 	}
 }
 int ValueSTD::ls_bit_shift_left_eq(LSValue** x, LSValue* y) {
@@ -610,7 +611,7 @@ Compiler::value ValueSTD::bit_shift_right_eq(Compiler& c, std::vector<Compiler::
 		c.insn_store(args[0], res);
 		return res;
 	} else {
-		return c.insn_invoke(Type::integer, {args[0], c.insn_to_any(args[1])}, "Value.operator>>=");
+		return c.insn_invoke(c.env.integer, {args[0], c.insn_to_any(args[1])}, "Value.operator>>=");
 	}
 }
 int ValueSTD::ls_bit_shift_right_eq(LSValue** x, LSValue* y) {
@@ -637,7 +638,7 @@ Compiler::value ValueSTD::bit_shift_uright_eq(Compiler& c, std::vector<Compiler:
 		c.insn_store(args[0], res);
 		return res;
 	} else {
-		return c.insn_invoke(Type::integer, {args[0], c.insn_to_any(args[1])}, "Value.operator>>>=");
+		return c.insn_invoke(c.env.integer, {args[0], c.insn_to_any(args[1])}, "Value.operator>>>=");
 	}
 }
 int ValueSTD::ls_bit_shift_uright_eq(LSValue** x, LSValue* y) {
@@ -654,9 +655,9 @@ int ValueSTD::ls_bit_shift_uright_eq(LSValue** x, LSValue* y) {
 
 Compiler::value ValueSTD::op_in(Compiler& c, std::vector<Compiler::value> args, bool) {
 	if (args[1].t->is_integer()) {
-		return c.insn_invoke(Type::boolean, args, "Value.in_i");
+		return c.insn_invoke(c.env.boolean, args, "Value.in_i");
 	} else {
-		return c.insn_invoke(Type::boolean, args, "Value.in");
+		return c.insn_invoke(c.env.boolean, args, "Value.in");
 	}
 }
 bool ValueSTD::in_i(LSValue* x, int k) {
@@ -697,20 +698,20 @@ Compiler::value ValueSTD::copy(Compiler& c, std::vector<Compiler::value> args, b
 
 Compiler::value ValueSTD::to_string(Compiler& c, std::vector<Compiler::value> args, bool) {
 	if (args[0].t->is_bool()) {
-		return c.insn_call(Type::tmp_string, args, "Boolean.to_string");
+		return c.insn_call(c.env.tmp_string, args, "Boolean.to_string");
 	} else if (args[0].t->is_integer()) {
-		return c.insn_call(Type::tmp_string, args, "Number.int_to_string");
+		return c.insn_call(c.env.tmp_string, args, "Number.int_to_string");
 	} else if (args[0].t->is_long()) {
-		return c.insn_call(Type::tmp_string, args, "Number.long_to_string");
+		return c.insn_call(c.env.tmp_string, args, "Number.long_to_string");
 	} else if (args[0].t->is_mpz_ptr()) {
-		auto s = c.insn_call(Type::tmp_string, args, "Number.mpz_to_string");
+		auto s = c.insn_call(c.env.tmp_string, args, "Number.mpz_to_string");
 		c.insn_delete_temporary(args[0]);
 		return s;
 	} else if (args[0].t->is_real()) {
-		return c.insn_call(Type::tmp_string, args, "Number.real_to_string");
+		return c.insn_call(c.env.tmp_string, args, "Number.real_to_string");
 	} else {
 		// Default type : pointer
-		return c.insn_call(Type::tmp_string, args, "Value.json");
+		return c.insn_call(c.env.tmp_string, args, "Value.json");
 	}
 }
 
@@ -899,13 +900,13 @@ LSValue* ValueSTD::get_class(LSValue* x) {
 	return x->getClass();
 }
 void ValueSTD::export_context_variable_int(VM* vm, char* name, int v) {
-	vm->context->add_variable(name, reinterpret_cast<void*&>(v), Type::integer);
+	vm->context->add_variable(name, reinterpret_cast<void*&>(v), vm->env.integer);
 }
 void ValueSTD::export_context_variable_long(VM* vm, char* name, long v) {
-	vm->context->add_variable(name, (void*) v, Type::long_);
+	vm->context->add_variable(name, (void*) v, vm->env.long_);
 }
 void ValueSTD::export_context_variable_real(VM* vm, char* name, double v) {
-	vm->context->add_variable(name, reinterpret_cast<void*&>(v), Type::real);
+	vm->context->add_variable(name, reinterpret_cast<void*&>(v), vm->env.real);
 }
 void ValueSTD::export_context_variable(VM* vm, char* name, LSValue* v) {
 	// std::cout << "export context variable " << name << " " << (void*) v << " " << v->refs << std::endl;
@@ -915,7 +916,7 @@ void ValueSTD::export_context_variable(VM* vm, char* name, LSValue* v) {
 	if (LSValue::obj_count > n) {
 		LSValue::obj_count = n;
 	}
-	vm->context->add_variable(name, v, Type::any);
+	vm->context->add_variable(name, v, vm->env.any);
 }
 
 #endif

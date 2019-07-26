@@ -16,21 +16,21 @@
 
 namespace ls {
 
-StandardLibrary::StandardLibrary(bool legacy) : legacy(legacy) {
-	add_class(std::make_unique<ValueSTD>(this));
-	add_class(std::make_unique<NullSTD>(this));
-	add_class(std::make_unique<BooleanSTD>(this));
-	add_class(std::make_unique<NumberSTD>(this));
-	add_class(std::make_unique<StringSTD>(this));
-	add_class(std::make_unique<ArraySTD>(this));
-	add_class(std::make_unique<MapSTD>(this));
-	add_class(std::make_unique<SetSTD>(this));
-	add_class(std::make_unique<ObjectSTD>(this));
-	add_class(std::make_unique<FunctionSTD>(this));
-	add_class(std::make_unique<ClassSTD>(this));
-	add_class(std::make_unique<SystemSTD>(this));
-	add_class(std::make_unique<IntervalSTD>(this));
-	add_class(std::make_unique<JsonSTD>(this));
+StandardLibrary::StandardLibrary(Environment& env, bool legacy) : env(env), legacy(legacy) {
+	add_class(std::make_unique<ValueSTD>(env));
+	add_class(std::make_unique<NullSTD>(env));
+	add_class(std::make_unique<BooleanSTD>(env));
+	add_class(std::make_unique<NumberSTD>(env));
+	add_class(std::make_unique<StringSTD>(env));
+	add_class(std::make_unique<ArraySTD>(env));
+	add_class(std::make_unique<MapSTD>(env));
+	add_class(std::make_unique<SetSTD>(env));
+	add_class(std::make_unique<ObjectSTD>(env));
+	add_class(std::make_unique<FunctionSTD>(env));
+	add_class(std::make_unique<ClassSTD>(env));
+	add_class(std::make_unique<SystemSTD>(env));
+	add_class(std::make_unique<IntervalSTD>(env));
+	add_class(std::make_unique<JsonSTD>(env));
 }
 
 void StandardLibrary::add_class(std::unique_ptr<Module> m) {

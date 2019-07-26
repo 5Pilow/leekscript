@@ -1,6 +1,7 @@
 #include "MapSTD.hpp"
 #include "../../type/Type.hpp"
 #include "../../analyzer/semantic/Variable.hpp"
+#include "../../environment/Environment.hpp"
 #if COMPILER
 #include "../../vm/value/LSMap.hpp"
 #endif
@@ -44,7 +45,7 @@ std::map<int, int>::iterator end(LSMap<int, int>* map) {
 }
 #endif
 
-MapSTD::MapSTD(StandardLibrary* stdLib) : Module(stdLib, "Map") {
+MapSTD::MapSTD(Environment& env) : Module(env, "Map") {
 
 	#if COMPILER
 	LSMap<LSValue*, LSValue*>::clazz = lsclass.get();
@@ -62,142 +63,142 @@ MapSTD::MapSTD(StandardLibrary* stdLib) : Module(stdLib, "Map") {
 	 * Constructor
 	 */
 	constructor_({
-		{Type::tmp_map(Type::any, Type::any), {}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::constructor))},
-		{Type::tmp_map(Type::any, Type::real), {}, ADDR(((void*) &LSMap<LSValue*, double>::constructor))},
-		{Type::tmp_map(Type::any, Type::integer), {}, ADDR(((void*) &LSMap<LSValue*, int>::constructor))},
-		{Type::tmp_map(Type::real, Type::any), {}, ADDR(((void*) &LSMap<double, LSValue*>::constructor))},
-		{Type::tmp_map(Type::real, Type::real), {}, ADDR(((void*) &LSMap<double, double>::constructor))},
-		{Type::tmp_map(Type::real, Type::integer), {}, ADDR(((void*) &LSMap<double, int>::constructor))},
-		{Type::tmp_map(Type::integer, Type::any), {}, ADDR(((void*) &LSMap<int, LSValue*>::constructor))},
-		{Type::tmp_map(Type::integer, Type::real), {}, ADDR(((void*) &LSMap<int, double>::constructor))},
-		{Type::tmp_map(Type::integer, Type::integer), {}, ADDR(((void*) &LSMap<int, int>::constructor))},
+		{Type::tmp_map(env.any, env.any), {}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::constructor))},
+		{Type::tmp_map(env.any, env.real), {}, ADDR(((void*) &LSMap<LSValue*, double>::constructor))},
+		{Type::tmp_map(env.any, env.integer), {}, ADDR(((void*) &LSMap<LSValue*, int>::constructor))},
+		{Type::tmp_map(env.real, env.any), {}, ADDR(((void*) &LSMap<double, LSValue*>::constructor))},
+		{Type::tmp_map(env.real, env.real), {}, ADDR(((void*) &LSMap<double, double>::constructor))},
+		{Type::tmp_map(env.real, env.integer), {}, ADDR(((void*) &LSMap<double, int>::constructor))},
+		{Type::tmp_map(env.integer, env.any), {}, ADDR(((void*) &LSMap<int, LSValue*>::constructor))},
+		{Type::tmp_map(env.integer, env.real), {}, ADDR(((void*) &LSMap<int, double>::constructor))},
+		{Type::tmp_map(env.integer, env.integer), {}, ADDR(((void*) &LSMap<int, int>::constructor))},
 	});
 
 	operator_("in", {
-		{Type::const_map(Type::any, Type::any), Type::any, Type::boolean, ADDR(((void*) &LSMap<LSValue*, LSValue*>::in))},
-		{Type::const_map(Type::any, Type::real), Type::any, Type::boolean, ADDR(((void*) &LSMap<LSValue*, double>::in))},
-		{Type::const_map(Type::any, Type::integer), Type::any, Type::boolean, ADDR(((void*) &LSMap<LSValue*, int>::in))},
-		{Type::const_map(Type::real, Type::any), Type::real, Type::boolean, ADDR(((void*) &LSMap<double, LSValue*>::in))},
-		{Type::const_map(Type::real, Type::real), Type::real, Type::boolean, ADDR(((void*) &LSMap<double, double>::in))},
-		{Type::const_map(Type::real, Type::integer), Type::real, Type::boolean, ADDR(((void*) &LSMap<double, int>::in))},
-		{Type::const_map(Type::integer, Type::any), Type::integer, Type::boolean, ADDR(((void*) &LSMap<int, LSValue*>::in))},
-		{Type::const_map(Type::integer, Type::real), Type::integer, Type::boolean, ADDR(((void*) &LSMap<int, double>::in))},
-		{Type::const_map(Type::integer, Type::integer), Type::long_, Type::boolean, ADDR(((void*) &LSMap<int, int>::in))},
+		{Type::const_map(env.any, env.any), env.any, env.boolean, ADDR(((void*) &LSMap<LSValue*, LSValue*>::in))},
+		{Type::const_map(env.any, env.real), env.any, env.boolean, ADDR(((void*) &LSMap<LSValue*, double>::in))},
+		{Type::const_map(env.any, env.integer), env.any, env.boolean, ADDR(((void*) &LSMap<LSValue*, int>::in))},
+		{Type::const_map(env.real, env.any), env.real, env.boolean, ADDR(((void*) &LSMap<double, LSValue*>::in))},
+		{Type::const_map(env.real, env.real), env.real, env.boolean, ADDR(((void*) &LSMap<double, double>::in))},
+		{Type::const_map(env.real, env.integer), env.real, env.boolean, ADDR(((void*) &LSMap<double, int>::in))},
+		{Type::const_map(env.integer, env.any), env.integer, env.boolean, ADDR(((void*) &LSMap<int, LSValue*>::in))},
+		{Type::const_map(env.integer, env.real), env.integer, env.boolean, ADDR(((void*) &LSMap<int, double>::in))},
+		{Type::const_map(env.integer, env.integer), env.long_, env.boolean, ADDR(((void*) &LSMap<int, int>::in))},
 	});
 
 	method("size", {
-		{Type::integer, {Type::const_map(Type::any, Type::any)}, ADDR((void*) map_size)},
-		{Type::integer, {Type::const_map(Type::any, Type::real)}, ADDR((void*) map_size)},
-		{Type::integer, {Type::const_map(Type::any, Type::integer)}, ADDR((void*) map_size)},
-		{Type::integer, {Type::const_map(Type::integer, Type::any)}, ADDR((void*) map_size)},
-		{Type::integer, {Type::const_map(Type::integer, Type::real)}, ADDR((void*) map_size)},
-		{Type::integer, {Type::const_map(Type::integer, Type::integer)}, ADDR((void*) map_size)},
+		{env.integer, {Type::const_map(env.any, env.any)}, ADDR((void*) map_size)},
+		{env.integer, {Type::const_map(env.any, env.real)}, ADDR((void*) map_size)},
+		{env.integer, {Type::const_map(env.any, env.integer)}, ADDR((void*) map_size)},
+		{env.integer, {Type::const_map(env.integer, env.any)}, ADDR((void*) map_size)},
+		{env.integer, {Type::const_map(env.integer, env.real)}, ADDR((void*) map_size)},
+		{env.integer, {Type::const_map(env.integer, env.integer)}, ADDR((void*) map_size)},
     });
 
 	method("values", {
-		{Type::array(Type::any), {Type::const_map(Type::any, Type::any)}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::values))},
-		{Type::array(Type::real), {Type::const_map(Type::any, Type::real)}, ADDR(((void*) &LSMap<LSValue*, double>::values))},
-		{Type::array(Type::integer), {Type::const_map(Type::any, Type::integer)}, ADDR(((void*) &LSMap<LSValue*, int>::values))},
-		{Type::array(Type::any), {Type::const_map(Type::real, Type::any)}, ADDR(((void*) &LSMap<double, LSValue*>::values))},
-		{Type::array(Type::real), {Type::const_map(Type::real, Type::real)}, ADDR(((void*) &LSMap<double, double>::values))},
-		{Type::array(Type::integer), {Type::const_map(Type::real, Type::integer)}, ADDR(((void*) &LSMap<double, int>::values))},
-		{Type::array(Type::any), {Type::const_map(Type::integer, Type::any)}, ADDR(((void*) &LSMap<int, LSValue*>::values))},
-		{Type::array(Type::real), {Type::const_map(Type::integer, Type::real)}, ADDR(((void*) &LSMap<int, double>::values))},
-		{Type::array(Type::integer), {Type::const_map(Type::integer, Type::integer)}, ADDR(((void*) &LSMap<int, int>::values))}
+		{Type::array(env.any), {Type::const_map(env.any, env.any)}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::values))},
+		{Type::array(env.real), {Type::const_map(env.any, env.real)}, ADDR(((void*) &LSMap<LSValue*, double>::values))},
+		{Type::array(env.integer), {Type::const_map(env.any, env.integer)}, ADDR(((void*) &LSMap<LSValue*, int>::values))},
+		{Type::array(env.any), {Type::const_map(env.real, env.any)}, ADDR(((void*) &LSMap<double, LSValue*>::values))},
+		{Type::array(env.real), {Type::const_map(env.real, env.real)}, ADDR(((void*) &LSMap<double, double>::values))},
+		{Type::array(env.integer), {Type::const_map(env.real, env.integer)}, ADDR(((void*) &LSMap<double, int>::values))},
+		{Type::array(env.any), {Type::const_map(env.integer, env.any)}, ADDR(((void*) &LSMap<int, LSValue*>::values))},
+		{Type::array(env.real), {Type::const_map(env.integer, env.real)}, ADDR(((void*) &LSMap<int, double>::values))},
+		{Type::array(env.integer), {Type::const_map(env.integer, env.integer)}, ADDR(((void*) &LSMap<int, int>::values))}
 	});
 
 	method("insert", {
-		{Type::boolean, {Type::map(Type::any, Type::any), Type::any, Type::any}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::ls_insert))},
-		{Type::boolean, {Type::map(Type::any, Type::real), Type::any, Type::real}, ADDR(((void*) &LSMap<LSValue*, double>::ls_insert))},
-		{Type::boolean, {Type::map(Type::any, Type::integer), Type::any, Type::integer}, ADDR(((void*) &LSMap<LSValue*, int>::ls_insert))},
-		{Type::boolean, {Type::map(Type::integer, Type::any), Type::integer, Type::any}, ADDR(((void*) &LSMap<int, LSValue*>::ls_insert))},
-		{Type::boolean, {Type::map(Type::integer, Type::real), Type::integer, Type::real}, ADDR(((void*) &LSMap<int, double>::ls_insert))},
-		{Type::boolean, {Type::map(Type::integer, Type::integer), Type::integer, Type::integer}, ADDR(((void*) &LSMap<int, int>::ls_insert))},
+		{env.boolean, {Type::map(env.any, env.any), env.any, env.any}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::ls_insert))},
+		{env.boolean, {Type::map(env.any, env.real), env.any, env.real}, ADDR(((void*) &LSMap<LSValue*, double>::ls_insert))},
+		{env.boolean, {Type::map(env.any, env.integer), env.any, env.integer}, ADDR(((void*) &LSMap<LSValue*, int>::ls_insert))},
+		{env.boolean, {Type::map(env.integer, env.any), env.integer, env.any}, ADDR(((void*) &LSMap<int, LSValue*>::ls_insert))},
+		{env.boolean, {Type::map(env.integer, env.real), env.integer, env.real}, ADDR(((void*) &LSMap<int, double>::ls_insert))},
+		{env.boolean, {Type::map(env.integer, env.integer), env.integer, env.integer}, ADDR(((void*) &LSMap<int, int>::ls_insert))},
     });
 
 	method("clear", {
-		{Type::map(Type::any, Type::any), {Type::map()}, ADDR(((void*) &LSMap<LSValue*,LSValue*>::ls_clear))},
-		{Type::map(Type::any, Type::real), {Type::map(Type::any, Type::real)}, ADDR(((void*) &LSMap<LSValue*,double>::ls_clear))},
-		{Type::map(Type::any, Type::integer), {Type::map(Type::any, Type::integer)}, ADDR(((void*) &LSMap<LSValue*,int>::ls_clear))},
-		{Type::map(Type::integer, Type::any), {Type::map(Type::integer, Type::any)}, ADDR(((void*) &LSMap<int,LSValue*>::ls_clear))},
-		{Type::map(Type::integer, Type::real), {Type::map(Type::integer, Type::real)}, ADDR(((void*) &LSMap<int,double>::ls_clear))},
-		{Type::map(Type::integer, Type::integer), {Type::map(Type::integer, Type::integer)}, ADDR(((void*) &LSMap<int,int>::ls_clear))},
+		{Type::map(env.any, env.any), {Type::map(env.void_, env.void_)}, ADDR(((void*) &LSMap<LSValue*,LSValue*>::ls_clear))},
+		{Type::map(env.any, env.real), {Type::map(env.any, env.real)}, ADDR(((void*) &LSMap<LSValue*,double>::ls_clear))},
+		{Type::map(env.any, env.integer), {Type::map(env.any, env.integer)}, ADDR(((void*) &LSMap<LSValue*,int>::ls_clear))},
+		{Type::map(env.integer, env.any), {Type::map(env.integer, env.any)}, ADDR(((void*) &LSMap<int,LSValue*>::ls_clear))},
+		{Type::map(env.integer, env.real), {Type::map(env.integer, env.real)}, ADDR(((void*) &LSMap<int,double>::ls_clear))},
+		{Type::map(env.integer, env.integer), {Type::map(env.integer, env.integer)}, ADDR(((void*) &LSMap<int,int>::ls_clear))},
 	});
 
 	method("erase", {
-		{Type::boolean, {Type::map(Type::any, Type::any), Type::any}, ADDR(((void*) &LSMap<LSValue*,LSValue*>::ls_erase))},
-		{Type::boolean, {Type::map(Type::any, Type::real), Type::any}, ADDR(((void*) &LSMap<LSValue*,double>::ls_erase))},
-		{Type::boolean, {Type::map(Type::any, Type::integer), Type::any}, ADDR(((void*) &LSMap<LSValue*,int>::ls_erase))},
-		{Type::boolean, {Type::map(Type::integer, Type::any), Type::integer}, ADDR(((void*) &LSMap<int,LSValue*>::ls_erase))},
-		{Type::boolean, {Type::map(Type::integer, Type::real), Type::integer}, ADDR(((void*) &LSMap<int,double>::ls_erase))},
-		{Type::boolean, {Type::map(Type::integer, Type::integer), Type::integer}, ADDR(((void*) &LSMap<int,int>::ls_erase))},
+		{env.boolean, {Type::map(env.any, env.any), env.any}, ADDR(((void*) &LSMap<LSValue*,LSValue*>::ls_erase))},
+		{env.boolean, {Type::map(env.any, env.real), env.any}, ADDR(((void*) &LSMap<LSValue*,double>::ls_erase))},
+		{env.boolean, {Type::map(env.any, env.integer), env.any}, ADDR(((void*) &LSMap<LSValue*,int>::ls_erase))},
+		{env.boolean, {Type::map(env.integer, env.any), env.integer}, ADDR(((void*) &LSMap<int,LSValue*>::ls_erase))},
+		{env.boolean, {Type::map(env.integer, env.real), env.integer}, ADDR(((void*) &LSMap<int,double>::ls_erase))},
+		{env.boolean, {Type::map(env.integer, env.integer), env.integer}, ADDR(((void*) &LSMap<int,int>::ls_erase))},
 	});
 
-	auto lK = Type::template_("K");
-	auto lV = Type::template_("V");
+	auto lK = env.template_("K");
+	auto lV = env.template_("V");
 	template_(lK, lV).
 	method("look", {
 		{lV, {Type::const_map(lK, lV), lK, lV}, ADDR(look)},
 	});
 
 	method("min", {
-		{Type::any, {Type::const_map(Type::any, Type::any)}, ADDR(((void*) &LSMap<LSValue*,LSValue*>::ls_min)), THROWS},
-		{Type::real, {Type::const_map(Type::any, Type::real)}, ADDR(((void*) &LSMap<LSValue*,double>::ls_min)), THROWS},
-		{Type::integer, {Type::const_map(Type::any, Type::integer)}, ADDR(((void*) &LSMap<LSValue*,int>::ls_min)), THROWS},
-		{Type::any, {Type::const_map(Type::integer, Type::any)}, ADDR(((void*) &LSMap<int,LSValue*>::ls_min)), THROWS},
-		{Type::real, {Type::const_map(Type::integer, Type::real)}, ADDR(((void*) &LSMap<int,double>::ls_min)), THROWS},
-		{Type::integer, {Type::const_map(Type::integer, Type::integer)}, ADDR(((void*) &LSMap<int,int>::ls_min)), THROWS},
+		{env.any, {Type::const_map(env.any, env.any)}, ADDR(((void*) &LSMap<LSValue*,LSValue*>::ls_min)), THROWS},
+		{env.real, {Type::const_map(env.any, env.real)}, ADDR(((void*) &LSMap<LSValue*,double>::ls_min)), THROWS},
+		{env.integer, {Type::const_map(env.any, env.integer)}, ADDR(((void*) &LSMap<LSValue*,int>::ls_min)), THROWS},
+		{env.any, {Type::const_map(env.integer, env.any)}, ADDR(((void*) &LSMap<int,LSValue*>::ls_min)), THROWS},
+		{env.real, {Type::const_map(env.integer, env.real)}, ADDR(((void*) &LSMap<int,double>::ls_min)), THROWS},
+		{env.integer, {Type::const_map(env.integer, env.integer)}, ADDR(((void*) &LSMap<int,int>::ls_min)), THROWS},
 	});
 
 	method("minKey", {
-		{Type::any, {Type::const_map(Type::any, Type::any)}, ADDR(((void*) &LSMap<LSValue*,LSValue*>::ls_minKey)), THROWS},
-		{Type::any, {Type::const_map(Type::any, Type::real)}, ADDR(((void*) &LSMap<LSValue*,double>::ls_minKey)), THROWS},
-		{Type::any, {Type::const_map(Type::any, Type::integer)}, ADDR(((void*) &LSMap<LSValue*,int>::ls_minKey)), THROWS},
-		{Type::integer, {Type::const_map(Type::integer, Type::any)}, ADDR(((void*) &LSMap<int,LSValue*>::ls_minKey)), THROWS},
-		{Type::integer, {Type::const_map(Type::integer, Type::real)}, ADDR(((void*) &LSMap<int,double>::ls_minKey)), THROWS},
-		{Type::integer, {Type::const_map(Type::integer, Type::integer)}, ADDR(((void*) &LSMap<int,int>::ls_minKey)), THROWS},
+		{env.any, {Type::const_map(env.any, env.any)}, ADDR(((void*) &LSMap<LSValue*,LSValue*>::ls_minKey)), THROWS},
+		{env.any, {Type::const_map(env.any, env.real)}, ADDR(((void*) &LSMap<LSValue*,double>::ls_minKey)), THROWS},
+		{env.any, {Type::const_map(env.any, env.integer)}, ADDR(((void*) &LSMap<LSValue*,int>::ls_minKey)), THROWS},
+		{env.integer, {Type::const_map(env.integer, env.any)}, ADDR(((void*) &LSMap<int,LSValue*>::ls_minKey)), THROWS},
+		{env.integer, {Type::const_map(env.integer, env.real)}, ADDR(((void*) &LSMap<int,double>::ls_minKey)), THROWS},
+		{env.integer, {Type::const_map(env.integer, env.integer)}, ADDR(((void*) &LSMap<int,int>::ls_minKey)), THROWS},
 	});
 
 	method("max", {
-		{Type::any, {Type::const_map(Type::any, Type::any)}, ADDR(((void*) &LSMap<LSValue*,LSValue*>::ls_max)), THROWS},
-		{Type::real, {Type::const_map(Type::any, Type::real)}, ADDR(((void*) &LSMap<LSValue*,double>::ls_max)), THROWS},
-		{Type::integer, {Type::const_map(Type::any, Type::integer)}, ADDR(((void*) &LSMap<LSValue*,int>::ls_max)), THROWS},
-		{Type::any, {Type::const_map(Type::integer, Type::any)}, ADDR(((void*) &LSMap<int,LSValue*>::ls_max)), THROWS},
-		{Type::real, {Type::const_map(Type::integer, Type::real)}, ADDR(((void*) &LSMap<int,double>::ls_max)), THROWS},
-		{Type::integer, {Type::const_map(Type::integer, Type::integer)}, ADDR(((void*) &LSMap<int,int>::ls_max)), THROWS},
+		{env.any, {Type::const_map(env.any, env.any)}, ADDR(((void*) &LSMap<LSValue*,LSValue*>::ls_max)), THROWS},
+		{env.real, {Type::const_map(env.any, env.real)}, ADDR(((void*) &LSMap<LSValue*,double>::ls_max)), THROWS},
+		{env.integer, {Type::const_map(env.any, env.integer)}, ADDR(((void*) &LSMap<LSValue*,int>::ls_max)), THROWS},
+		{env.any, {Type::const_map(env.integer, env.any)}, ADDR(((void*) &LSMap<int,LSValue*>::ls_max)), THROWS},
+		{env.real, {Type::const_map(env.integer, env.real)}, ADDR(((void*) &LSMap<int,double>::ls_max)), THROWS},
+		{env.integer, {Type::const_map(env.integer, env.integer)}, ADDR(((void*) &LSMap<int,int>::ls_max)), THROWS},
 	});
 
 	method("maxKey", {
-		{Type::any, {Type::const_map(Type::any, Type::any)}, ADDR(((void*) &LSMap<LSValue*,LSValue*>::ls_maxKey)), THROWS},
-		{Type::any, {Type::const_map(Type::any, Type::real)}, ADDR(((void*) &LSMap<LSValue*,double>::ls_maxKey)), THROWS},
-		{Type::any, {Type::const_map(Type::any, Type::integer)}, ADDR(((void*) &LSMap<LSValue*,int>::ls_maxKey)), THROWS},
-		{Type::integer, {Type::const_map(Type::integer, Type::any)}, ADDR(((void*) &LSMap<int,LSValue*>::ls_maxKey)), THROWS},
-		{Type::integer, {Type::const_map(Type::integer, Type::real)}, ADDR(((void*) &LSMap<int,double>::ls_maxKey)), THROWS},
-		{Type::integer, {Type::const_map(Type::integer, Type::integer)}, ADDR(((void*) &LSMap<int,int>::ls_maxKey)), THROWS},
+		{env.any, {Type::const_map(env.any, env.any)}, ADDR(((void*) &LSMap<LSValue*,LSValue*>::ls_maxKey)), THROWS},
+		{env.any, {Type::const_map(env.any, env.real)}, ADDR(((void*) &LSMap<LSValue*,double>::ls_maxKey)), THROWS},
+		{env.any, {Type::const_map(env.any, env.integer)}, ADDR(((void*) &LSMap<LSValue*,int>::ls_maxKey)), THROWS},
+		{env.integer, {Type::const_map(env.integer, env.any)}, ADDR(((void*) &LSMap<int,LSValue*>::ls_maxKey)), THROWS},
+		{env.integer, {Type::const_map(env.integer, env.real)}, ADDR(((void*) &LSMap<int,double>::ls_maxKey)), THROWS},
+		{env.integer, {Type::const_map(env.integer, env.integer)}, ADDR(((void*) &LSMap<int,int>::ls_maxKey)), THROWS},
 	});
 
 	auto iter_ptr = ADDR((&LSMap<LSValue*, LSValue*>::ls_iter<LSFunction*>));
-	auto iK = Type::template_("K");
-	auto iV = Type::template_("V");
+	auto iK = env.template_("K");
+	auto iV = env.template_("V");
 	template_(iK, iV).
 	method("iter", {
-		{Type::void_, {Type::const_map(Type::any, Type::any), Type::fun(Type::void_, {Type::any, Type::any})}, ADDR((void*) iter_ptr), THROWS},
-		{Type::void_, {Type::const_map(iK, iV), Type::fun(Type::void_, {iK, iV})}, ADDR(iter), THROWS},
+		{env.void_, {Type::const_map(env.any, env.any), Type::fun(env.void_, {env.any, env.any})}, ADDR((void*) iter_ptr), THROWS},
+		{env.void_, {Type::const_map(iK, iV), Type::fun(env.void_, {iK, iV})}, ADDR(iter), THROWS},
 	});
 
-	auto flT = Type::template_("T");
-	auto flK = Type::template_("K");
-	auto flI = Type::template_("I");
-	auto flR = Type::template_("R");
+	auto flT = env.template_("T");
+	auto flK = env.template_("K");
+	auto flI = env.template_("I");
+	auto flR = env.template_("R");
 	template_(flT, flK, flI, flR).
 	method("foldLeft", {
 		{flR, {Type::const_map(flK, flT), Type::fun(flR, {Type::meta_add(flI, flR), flK, flT}), flI}, ADDR(fold_left)},
 	});
 
-	auto frT = Type::template_("T");
-	auto frK = Type::template_("K");
-	auto frI = Type::template_("I");
-	auto frR = Type::template_("R");
+	auto frT = env.template_("T");
+	auto frK = env.template_("K");
+	auto frI = env.template_("I");
+	auto frR = env.template_("R");
 	template_(frT, frK, frI, frR).
 	method("foldRight", {
 		{frR, {Type::const_map(frK, frT), Type::fun(frR, {frK, frT, Type::meta_add(frI, frR)}), frI}, ADDR(fold_right)},
@@ -205,67 +206,67 @@ MapSTD::MapSTD(StandardLibrary* stdLib) : Module(stdLib, "Map") {
 
 	/** Internal **/
 	method("at", {
-		{Type::integer, {Type::map(Type::integer, Type::integer), Type::integer}, ADDR(((void*) &LSMap<int, int>::at))},
-		{Type::real, {Type::map(Type::integer, Type::real), Type::integer}, ADDR(((void*) &LSMap<int, double>::at))},
-		{Type::any, {Type::map(Type::integer, Type::any), Type::integer}, ADDR(((void*) &LSMap<int, LSValue*>::at))},
-		{Type::integer, {Type::map(Type::real, Type::integer), Type::real}, ADDR(((void*) &LSMap<double, int>::at))},
-		{Type::real, {Type::map(Type::real, Type::real), Type::real}, ADDR(((void*) &LSMap<double, double>::at))},
-		{Type::any, {Type::map(Type::real, Type::any), Type::real}, ADDR(((void*) &LSMap<double, LSValue*>::at))},
-		{Type::integer, {Type::map(Type::any, Type::integer), Type::any}, ADDR(((void*) &LSMap<LSValue*, int>::at))},
-		{Type::real, {Type::map(Type::any, Type::real), Type::any}, ADDR(((void*) &LSMap<LSValue*, double>::at))},
-		{Type::any, {Type::map(Type::any, Type::any), Type::any}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::at))},
+		{env.integer, {Type::map(env.integer, env.integer), env.integer}, ADDR(((void*) &LSMap<int, int>::at))},
+		{env.real, {Type::map(env.integer, env.real), env.integer}, ADDR(((void*) &LSMap<int, double>::at))},
+		{env.any, {Type::map(env.integer, env.any), env.integer}, ADDR(((void*) &LSMap<int, LSValue*>::at))},
+		{env.integer, {Type::map(env.real, env.integer), env.real}, ADDR(((void*) &LSMap<double, int>::at))},
+		{env.real, {Type::map(env.real, env.real), env.real}, ADDR(((void*) &LSMap<double, double>::at))},
+		{env.any, {Type::map(env.real, env.any), env.real}, ADDR(((void*) &LSMap<double, LSValue*>::at))},
+		{env.integer, {Type::map(env.any, env.integer), env.any}, ADDR(((void*) &LSMap<LSValue*, int>::at))},
+		{env.real, {Type::map(env.any, env.real), env.any}, ADDR(((void*) &LSMap<LSValue*, double>::at))},
+		{env.any, {Type::map(env.any, env.any), env.any}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::at))},
 	});
 	method("insert_fun", {
-		{Type::void_, {Type::map(Type::any, Type::any), Type::any, Type::any}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::ls_emplace))},
-		{Type::void_, {Type::map(Type::any, Type::real), Type::any, Type::real}, ADDR(((void*) &LSMap<LSValue*, double>::ls_emplace))},
-		{Type::void_, {Type::map(Type::any, Type::integer), Type::any, Type::integer}, ADDR(((void*) &LSMap<LSValue*, int>::ls_emplace))},
-		{Type::void_, {Type::map(Type::real, Type::any), Type::real, Type::any}, ADDR(((void*) &LSMap<double, LSValue*>::ls_emplace))},
-		{Type::void_, {Type::map(Type::real, Type::real), Type::real, Type::real}, ADDR(((void*) &LSMap<double, double>::ls_emplace))},
-		{Type::void_, {Type::map(Type::real, Type::integer), Type::real, Type::integer}, ADDR(((void*) &LSMap<double, int>::ls_emplace))},
-		{Type::void_, {Type::map(Type::integer, Type::any), Type::integer, Type::any}, ADDR(((void*) &LSMap<int, LSValue*>::ls_emplace))},
-		{Type::void_, {Type::map(Type::integer, Type::real), Type::integer, Type::real}, ADDR(((void*) &LSMap<int, double>::ls_emplace))},
-		{Type::void_, {Type::map(Type::integer, Type::integer), Type::integer, Type::integer}, ADDR(((void*) &LSMap<int, int>::ls_emplace))},
+		{env.void_, {Type::map(env.any, env.any), env.any, env.any}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::ls_emplace))},
+		{env.void_, {Type::map(env.any, env.real), env.any, env.real}, ADDR(((void*) &LSMap<LSValue*, double>::ls_emplace))},
+		{env.void_, {Type::map(env.any, env.integer), env.any, env.integer}, ADDR(((void*) &LSMap<LSValue*, int>::ls_emplace))},
+		{env.void_, {Type::map(env.real, env.any), env.real, env.any}, ADDR(((void*) &LSMap<double, LSValue*>::ls_emplace))},
+		{env.void_, {Type::map(env.real, env.real), env.real, env.real}, ADDR(((void*) &LSMap<double, double>::ls_emplace))},
+		{env.void_, {Type::map(env.real, env.integer), env.real, env.integer}, ADDR(((void*) &LSMap<double, int>::ls_emplace))},
+		{env.void_, {Type::map(env.integer, env.any), env.integer, env.any}, ADDR(((void*) &LSMap<int, LSValue*>::ls_emplace))},
+		{env.void_, {Type::map(env.integer, env.real), env.integer, env.real}, ADDR(((void*) &LSMap<int, double>::ls_emplace))},
+		{env.void_, {Type::map(env.integer, env.integer), env.integer, env.integer}, ADDR(((void*) &LSMap<int, int>::ls_emplace))},
 	});
 	method("atL", {
-		{Type::void_, {Type::map(Type::any, Type::any), Type::any, Type::any}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::atL_base))},
-		{Type::void_, {Type::map(Type::any, Type::real), Type::any, Type::real}, ADDR(((void*) &LSMap<LSValue*, double>::atL_base))},
-		{Type::void_, {Type::map(Type::any, Type::integer), Type::any, Type::integer}, ADDR(((void*) &LSMap<LSValue*, int>::atL_base))},
-		{Type::void_, {Type::map(Type::real, Type::any), Type::real, Type::any}, ADDR(((void*) &LSMap<double, LSValue*>::atL_base))},
-		{Type::void_, {Type::map(Type::real, Type::real), Type::real, Type::real}, ADDR(((void*) &LSMap<double, double>::atL_base))},
-		{Type::void_, {Type::map(Type::real, Type::integer), Type::real, Type::integer}, ADDR(((void*) &LSMap<double, int>::atL_base))},
-		{Type::void_, {Type::map(Type::integer, Type::any), Type::integer, Type::any}, ADDR(((void*) &LSMap<int, LSValue*>::atL_base))},
-		{Type::void_, {Type::map(Type::integer, Type::real), Type::integer, Type::real}, ADDR(((void*) &LSMap<int, double>::atL_base))},
-		{Type::void_, {Type::map(Type::integer, Type::integer), Type::integer, Type::integer}, ADDR(((void*) &LSMap<int, int>::atL_base))},
+		{env.void_, {Type::map(env.any, env.any), env.any, env.any}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::atL_base))},
+		{env.void_, {Type::map(env.any, env.real), env.any, env.real}, ADDR(((void*) &LSMap<LSValue*, double>::atL_base))},
+		{env.void_, {Type::map(env.any, env.integer), env.any, env.integer}, ADDR(((void*) &LSMap<LSValue*, int>::atL_base))},
+		{env.void_, {Type::map(env.real, env.any), env.real, env.any}, ADDR(((void*) &LSMap<double, LSValue*>::atL_base))},
+		{env.void_, {Type::map(env.real, env.real), env.real, env.real}, ADDR(((void*) &LSMap<double, double>::atL_base))},
+		{env.void_, {Type::map(env.real, env.integer), env.real, env.integer}, ADDR(((void*) &LSMap<double, int>::atL_base))},
+		{env.void_, {Type::map(env.integer, env.any), env.integer, env.any}, ADDR(((void*) &LSMap<int, LSValue*>::atL_base))},
+		{env.void_, {Type::map(env.integer, env.real), env.integer, env.real}, ADDR(((void*) &LSMap<int, double>::atL_base))},
+		{env.void_, {Type::map(env.integer, env.integer), env.integer, env.integer}, ADDR(((void*) &LSMap<int, int>::atL_base))},
 	});
 	// std::map<int, int>::iterator (LSMap<int, int>::*mapend)() = &LSMap<int, int>::end;
 	method("end", {
-		{Type::map()->iterator(), {Type::map()}, ADDR((void*) end)}
+		{Type::map(env.void_, env.void_)->iterator(), {Type::map(env.void_, env.void_)}, ADDR((void*) end)}
 	});
 	method("iterator_end", {
-		{Type::map()->iterator(), {Type::map()}, ADDR((void*) iterator_end)}
+		{Type::map(env.void_, env.void_)->iterator(), {Type::map(env.void_, env.void_)}, ADDR((void*) iterator_end)}
 	});
 	method("iterator_inc", {
-		{Type::map()->iterator(), {Type::map()->iterator()}, ADDR((void*) iterator_inc)}
+		{Type::map(env.void_, env.void_)->iterator(), {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_inc)}
 	});
 	method("iterator_dec", {
-		{Type::map()->iterator(), {Type::map()->iterator()}, ADDR((void*) iterator_dec)}
+		{Type::map(env.void_, env.void_)->iterator(), {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_dec)}
 	});
 	method("iterator_rkey", {
-		{Type::i8_ptr, {Type::map()->iterator()}, ADDR((void*) iterator_rkey)}
+		{env.i8_ptr, {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rkey)}
 	});
 	method("iterator_rget", {
-		{Type::integer, {Type::map()->iterator()}, ADDR((void*) iterator_rget_ii)},
-		{Type::integer, {Type::map()->iterator()}, ADDR((void*) iterator_rget_vi)},
-		{Type::real, {Type::map()->iterator()}, ADDR((void*) iterator_rget_ir)},
-		{Type::any, {Type::map()->iterator()}, ADDR((void*) iterator_rget_vv)},
+		{env.integer, {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_ii)},
+		{env.integer, {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_vi)},
+		{env.real, {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_ir)},
+		{env.any, {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_vv)},
 	});
 	method("look_fun", {
-		{Type::any, {Type::const_map(Type::any, Type::any), Type::any, Type::any}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::ls_look))},
-		{Type::real, {Type::const_map(Type::any, Type::real), Type::any, Type::real}, ADDR(((void*) &LSMap<LSValue*, double>::ls_look))},
-		{Type::integer, {Type::const_map(Type::any, Type::integer), Type::any, Type::integer}, ADDR(((void*) &LSMap<LSValue*, int>::ls_look))},
-		{Type::any, {Type::const_map(Type::integer, Type::any), Type::integer, Type::any}, ADDR(((void*) &LSMap<int, LSValue*>::ls_look))},
-		{Type::real, {Type::const_map(Type::integer, Type::real), Type::integer, Type::real}, ADDR(((void*) &LSMap<int, double>::ls_look))},
-		{Type::integer, {Type::const_map(Type::integer, Type::integer), Type::integer, Type::integer}, ADDR(((void*) &LSMap<int, int>::ls_look))},
+		{env.any, {Type::const_map(env.any, env.any), env.any, env.any}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::ls_look))},
+		{env.real, {Type::const_map(env.any, env.real), env.any, env.real}, ADDR(((void*) &LSMap<LSValue*, double>::ls_look))},
+		{env.integer, {Type::const_map(env.any, env.integer), env.any, env.integer}, ADDR(((void*) &LSMap<LSValue*, int>::ls_look))},
+		{env.any, {Type::const_map(env.integer, env.any), env.integer, env.any}, ADDR(((void*) &LSMap<int, LSValue*>::ls_look))},
+		{env.real, {Type::const_map(env.integer, env.real), env.integer, env.real}, ADDR(((void*) &LSMap<int, double>::ls_look))},
+		{env.integer, {Type::const_map(env.integer, env.integer), env.integer, env.integer}, ADDR(((void*) &LSMap<int, int>::ls_look))},
 	});
 }
 
@@ -299,9 +300,9 @@ Compiler::value MapSTD::fold_left(Compiler& c, std::vector<Compiler::value> args
 	k->create_entry(c);
 	c.add_temporary_variable(v);
 	c.add_temporary_variable(k);
-	c.insn_foreach(args[0], Type::void_, v, k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
+	c.insn_foreach(args[0], c.env.void_, v, k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
 		c.insn_store(result->val, c.insn_call(function, {c.insn_load(result->val), k, v}));
-		return {};
+		return { c.env };
 	});
 	return c.insn_load(result->val);
 }
@@ -319,9 +320,9 @@ Compiler::value MapSTD::fold_right(Compiler& c, std::vector<Compiler::value> arg
 	k->create_entry(c);
 	c.add_temporary_variable(v);
 	c.add_temporary_variable(k);
-	c.insn_foreach(args[0], Type::void_, v, k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
+	c.insn_foreach(args[0], c.env.void_, v, k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
 		c.insn_store(result->val, c.insn_call(function, {k, v, c.insn_load(result->val)}));
-		return {};
+		return { c.env };
 	}, true);
 	return c.insn_load(result->val);
 }
@@ -334,10 +335,10 @@ Compiler::value MapSTD::iter(Compiler& c, std::vector<Compiler::value> args, int
 	k->create_entry(c);
 	c.add_temporary_variable(v);
 	c.add_temporary_variable(k);
-	c.insn_foreach(args[0], Type::void_, v, k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
+	c.insn_foreach(args[0], c.env.void_, v, k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
 		return c.insn_call(function, {k, v});
 	});
-	return {};
+	return { c.env };
 }
 
 #endif

@@ -17,7 +17,7 @@ public:
 		}
 	};
 
-	NumberSTD(StandardLibrary* stdLib);
+	NumberSTD(Environment& env);
 
 	/*
 	 * Operators

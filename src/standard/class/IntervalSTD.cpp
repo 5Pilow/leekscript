@@ -2,6 +2,7 @@
 #include "ValueSTD.hpp"
 #include "../../type/Type.hpp"
 #include "ArraySTD.hpp"
+#include "../../environment/Environment.hpp"
 #if COMPILER
 #include "../../vm/value/LSInterval.hpp"
 #include "../../vm/value/LSClosure.hpp"
@@ -9,60 +10,60 @@
 
 namespace ls {
 
-IntervalSTD::IntervalSTD(StandardLibrary* stdLib) : Module(stdLib, "Interval") {
+IntervalSTD::IntervalSTD(Environment& env) : Module(env, "Interval") {
 
 	#if COMPILER
 	LSInterval::clazz = lsclass.get();
 	#endif
 
 	constructor_({
-		{Type::tmp_interval, {Type::integer, Type::integer}, ADDR((void*) &LSInterval::constructor)}
+		{env.tmp_interval, {env.integer, env.integer}, ADDR((void*) &LSInterval::constructor)}
 	});
 
 	/*
 	 * Operators
 	 */
 	operator_("in", {
-		{Type::interval, Type::integer, Type::boolean, ADDR((void*) &LSInterval::in_i)}
+		{env.interval, env.integer, env.boolean, ADDR((void*) &LSInterval::in_i)}
 	});
 
-	auto ttR = Type::template_("R");
+	auto ttR = env.template_("R");
 	template_(ttR).
 	operator_("~~", {
-		{Type::tmp_array(ttR), {Type::const_interval, Type::fun(ttR, {Type::integer})}, ADDR(ArraySTD::map)},
+		{Type::tmp_array(ttR), {env.const_interval, Type::fun(ttR, {env.integer})}, ADDR(ArraySTD::map)},
 	});
 
 	/*
 	 * Methods
 	 */
 	method("copy", {
-		{Type::interval, {Type::interval}, ADDR(ValueSTD::copy)}
+		{env.interval, {env.interval}, ADDR(ValueSTD::copy)}
 	});
-	auto pred_fun_type_int = Type::fun_object(Type::boolean, {Type::integer});
-	auto pred_clo_type_int = Type::closure(Type::boolean, {Type::integer});
+	auto pred_fun_type_int = Type::fun_object(env.boolean, {env.integer});
+	auto pred_clo_type_int = Type::closure(env.boolean, {env.integer});
 	auto filter_fun = ADDR(&LSInterval::ls_filter<LSFunction*>);
 	auto filter_clo = ADDR(&LSInterval::ls_filter<LSClosure*>);
 	method("filter", {
-		{Type::tmp_array(Type::integer), {Type::interval, pred_fun_type_int}, (void*) filter_fun},
-		{Type::tmp_array(Type::integer), {Type::interval, pred_clo_type_int}, (void*) filter_clo}
+		{Type::tmp_array(env.integer), {env.interval, pred_fun_type_int}, (void*) filter_fun},
+		{Type::tmp_array(env.integer), {env.interval, pred_clo_type_int}, (void*) filter_clo}
 	});
 
-	auto mapR = Type::template_("R");
+	auto mapR = env.template_("R");
 	template_(mapR).
 	method("map", {
-		{Type::tmp_array(mapR), {Type::const_interval, Type::fun(mapR, {Type::integer})}, ADDR(ArraySTD::map)},
+		{Type::tmp_array(mapR), {env.const_interval, Type::fun(mapR, {env.integer})}, ADDR(ArraySTD::map)},
 	});
 
 	method("sum", {
-		{Type::long_, {Type::interval}, ADDR((void*) &LSInterval::ls_sum)},
+		{env.long_, {env.interval}, ADDR((void*) &LSInterval::ls_sum)},
 	});
 	method("product", {
-		{Type::long_, {Type::interval}, ADDR((void*) &LSInterval::ls_product)},
+		{env.long_, {env.interval}, ADDR((void*) &LSInterval::ls_product)},
 	});
 
 	/** Interval **/
 	method("atv", {
-		{Type::boolean, {Type::interval, Type::integer}, ADDR((void*) &LSInterval::atv)}
+		{env.boolean, {env.interval, env.integer}, ADDR((void*) &LSInterval::atv)}
 	});
 }
 

@@ -7,7 +7,7 @@ namespace ls {
 
 class ValueSTD : public Module {
 public:
-	ValueSTD(StandardLibrary* stdLib);
+	ValueSTD(Environment& env);
 
 	/*
 	 * Static fields

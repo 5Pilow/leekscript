@@ -7,7 +7,7 @@ namespace ls {
 
 class IntervalSTD : public Module {
 public:
-	IntervalSTD(StandardLibrary* stdLib);
+	IntervalSTD(Environment& env);
 	virtual ~IntervalSTD();
 };
 

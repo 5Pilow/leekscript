@@ -7,6 +7,7 @@
 #include "ValueSTD.hpp"
 #include "../../type/Type.hpp"
 #include "../../analyzer/semantic/Variable.hpp"
+#include "../../environment/Environment.hpp"
 #if COMPILER
 #include "../../vm/value/LSNumber.hpp"
 #include "../../vm/value/LSArray.hpp"
@@ -74,7 +75,7 @@ LSString* iterator_get(unsigned int c, LSString* previous) {
 }
 #endif
 
-StringSTD::StringSTD(StandardLibrary* stdLib) : Module(stdLib, "String") {
+StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 
 	#if COMPILER
 	LSString::string_class = lsclass.get();
@@ -84,157 +85,157 @@ StringSTD::StringSTD(StandardLibrary* stdLib) : Module(stdLib, "String") {
 	 * Constructor
 	 */
 	constructor_({
-		{Type::tmp_string, {}, ADDR((void*) &LSString::constructor_1)},
-		{Type::tmp_string, {Type::i8_ptr}, ADDR((void*) &LSString::constructor_2)},
+		{env.tmp_string, {}, ADDR((void*) &LSString::constructor_1)},
+		{env.tmp_string, {env.i8_ptr}, ADDR((void*) &LSString::constructor_2)},
 	});
 
 	/*
 	 * Operators
 	 */
 	operator_("+", {
-		{Type::string, Type::any, Type::tmp_string, ADDR((void*) plus_any)},
-		{Type::string, Type::mpz_ptr, Type::tmp_string, ADDR((void*) plus_mpz)},
-		{Type::string, Type::tmp_mpz_ptr, Type::tmp_string, ADDR(plus_mpz_tmp)},
-		{Type::string, Type::real, Type::tmp_string, ADDR((void*) add_real)},
-		{Type::string, Type::integer, Type::tmp_string, ADDR((void*) add_int)},
-		{Type::string, Type::boolean, Type::tmp_string, ADDR((void*) add_bool)},
+		{env.string, env.any, env.tmp_string, ADDR((void*) plus_any)},
+		{env.string, env.mpz_ptr, env.tmp_string, ADDR((void*) plus_mpz)},
+		{env.string, env.tmp_mpz_ptr, env.tmp_string, ADDR(plus_mpz_tmp)},
+		{env.string, env.real, env.tmp_string, ADDR((void*) add_real)},
+		{env.string, env.integer, env.tmp_string, ADDR((void*) add_int)},
+		{env.string, env.boolean, env.tmp_string, ADDR((void*) add_bool)},
 	});
 
-	auto aeT = Type::template_("T");
+	auto aeT = env.template_("T");
 	template_(aeT).
 	operator_("+=", {
-		{Type::string, aeT, Type::string, ADDR(add_eq), 0, {}, true},
+		{env.string, aeT, env.string, ADDR(add_eq), 0, {}, true},
 	});
 
 	operator_("<", {
-		{Type::string, Type::string, Type::boolean, ADDR(lt)}
+		{env.string, env.string, env.boolean, ADDR(lt)}
 	});
 	operator_("/", {
-		{Type::string, Type::string, Type::tmp_array(Type::string), ADDR(div)}
+		{env.string, env.string, Type::tmp_array(env.string), ADDR(div)}
 	});
 
 	/*
 	 * Methods
 	 */
 	method("copy", {
-		{Type::string, {Type::const_string}, ADDR(ValueSTD::copy)}
+		{env.string, {env.const_string}, ADDR(ValueSTD::copy)}
 	});
 	method("charAt", {
-		{Type::string, {Type::const_string, Type::const_integer}, ADDR((void*) string_charAt)},
+		{env.string, {env.const_string, env.const_integer}, ADDR((void*) string_charAt)},
 	});
 	method("contains", {
-		{Type::boolean, {Type::string, Type::const_string}, ADDR((void*) string_contains)},
+		{env.boolean, {env.string, env.const_string}, ADDR((void*) string_contains)},
 	});
 	method("endsWith", {
-		{Type::boolean, {Type::string, Type::string}, ADDR((void*) string_endsWith)},
+		{env.boolean, {env.string, env.string}, ADDR((void*) string_endsWith)},
 	});
-	auto fold_fun_type = Type::fun(Type::any, {Type::any, Type::string});
-	auto fold_clo_type = Type::closure(Type::any, {Type::any, Type::string});
+	auto fold_fun_type = Type::fun(env.any, {env.any, env.string});
+	auto fold_clo_type = Type::closure(env.any, {env.any, env.string});
 	method("fold", {
-		{Type::any, {Type::string, fold_fun_type, Type::any}, ADDR(fold_fun)},
-		{Type::any, {Type::string, fold_clo_type, Type::any}, ADDR(fold_fun)},
+		{env.any, {env.string, fold_fun_type, env.any}, ADDR(fold_fun)},
+		{env.any, {env.string, fold_clo_type, env.any}, ADDR(fold_fun)},
 	});
 	method("indexOf", {
-		{Type::integer, {Type::string, Type::string}, ADDR((void*) string_indexOf)},
+		{env.integer, {env.string, env.string}, ADDR((void*) string_indexOf)},
 	});
 	method("isPermutation", {
-		{Type::boolean, {Type::string, Type::const_any}, ADDR((void*) &LSString::is_permutation)},
+		{env.boolean, {env.string, env.const_any}, ADDR((void*) &LSString::is_permutation)},
 	});
 	method("isPalindrome", {
-		{Type::boolean, {Type::string}, ADDR((void*) &LSString::is_palindrome)},
+		{env.boolean, {env.string}, ADDR((void*) &LSString::is_palindrome)},
 	});
 	method("left", {
-		{Type::tmp_string, {Type::string, Type::integer}, ADDR((void*) string_left)},
-		{Type::tmp_string, {Type::tmp_string, Type::integer}, ADDR((void*) string_left_tmp)},
+		{env.tmp_string, {env.string, env.integer}, ADDR((void*) string_left)},
+		{env.tmp_string, {env.tmp_string, env.integer}, ADDR((void*) string_left_tmp)},
 	});
 	method("length", {
-		{Type::integer, {Type::string}, ADDR((void*) string_length)},
+		{env.integer, {env.string}, ADDR((void*) string_length)},
 	});
 	method("lines", {
-		{Type::tmp_array(Type::string), {Type::string}, ADDR((void*) &LSString::ls_lines)},
+		{Type::tmp_array(env.string), {env.string}, ADDR((void*) &LSString::ls_lines)},
 	});
 	method("size", {
-		{Type::any, {Type::string}, ADDR((void*) &LSString::ls_size_ptr)},
-		{Type::integer, {Type::string}, ADDR((void*) &LSString::ls_size)},
+		{env.any, {env.string}, ADDR((void*) &LSString::ls_size_ptr)},
+		{env.integer, {env.string}, ADDR((void*) &LSString::ls_size)},
 	});
 	method("replace", {
-		{Type::tmp_string, {Type::string, Type::string, Type::string}, ADDR((void*) replace)},
-		{Type::tmp_string, {Type::string, Type::string, Type::string}, ADDR((void*) v1_replace), LEGACY},
+		{env.tmp_string, {env.string, env.string, env.string}, ADDR((void*) replace)},
+		{env.tmp_string, {env.string, env.string, env.string}, ADDR((void*) v1_replace), LEGACY},
 	});
 	method("reverse", {
-		{Type::tmp_string, {Type::string}, ADDR((void*) &LSString::ls_tilde)},
+		{env.tmp_string, {env.string}, ADDR((void*) &LSString::ls_tilde)},
 	});
 	method("right", {
-		{Type::tmp_string, {Type::string, Type::integer}, ADDR((void*) string_right)},
-		{Type::tmp_string, {Type::tmp_string, Type::integer}, ADDR((void*) string_right_tmp)},
+		{env.tmp_string, {env.string, env.integer}, ADDR((void*) string_right)},
+		{env.tmp_string, {env.tmp_string, env.integer}, ADDR((void*) string_right_tmp)},
 	});
 	method("substring", {
-		{Type::tmp_string, {Type::string, Type::const_integer, Type::const_integer}, ADDR((void*) string_substring)},
+		{env.tmp_string, {env.string, env.const_integer, env.const_integer}, ADDR((void*) string_substring)},
 	});
 	method("toArray", {
-		{Type::tmp_array(Type::any), {Type::string}, ADDR((void*) string_toArray)},
+		{Type::tmp_array(env.any), {env.string}, ADDR((void*) string_toArray)},
 	});
 	method("toLower", {
-		{Type::tmp_string, {Type::string}, ADDR((void*) string_toLower)},
+		{env.tmp_string, {env.string}, ADDR((void*) string_toLower)},
 	});
 	method("toUpper", {
-		{Type::tmp_string, {Type::string}, ADDR((void*) string_toUpper)},
+		{env.tmp_string, {env.string}, ADDR((void*) string_toUpper)},
 	});
 	method("split", {
-		{Type::tmp_array(Type::string), {Type::string, Type::string}, ADDR((void*) string_split)},
-		{Type::tmp_array(Type::string), {Type::const_any, Type::const_any}, ADDR((void*) string_split)},
+		{Type::tmp_array(env.string), {env.string, env.string}, ADDR((void*) string_split)},
+		{Type::tmp_array(env.string), {env.const_any, env.const_any}, ADDR((void*) string_split)},
 	});
 	method("startsWith", {
-		{Type::boolean, {Type::string, Type::string}, ADDR((void*) string_startsWith)},
+		{env.boolean, {env.string, env.string}, ADDR((void*) string_startsWith)},
 	});
 	method("code", {
-		{Type::integer, {Type::const_string}, ADDR((void*) string_begin_code)},
-		{Type::integer, {Type::const_string, Type::const_integer}, ADDR((void*) string_code)},
+		{env.integer, {env.const_string}, ADDR((void*) string_begin_code)},
+		{env.integer, {env.const_string, env.const_integer}, ADDR((void*) string_code)},
 	});
 	method("number", {
-		{Type::long_, {Type::string}, ADDR((void*) string_number)},
-		{Type::long_, {Type::const_any}, ADDR((void*) string_number)},
+		{env.long_, {env.string}, ADDR((void*) string_number)},
+		{env.long_, {env.const_any}, ADDR((void*) string_number)},
 	});
 	auto map_fun = ADDR(&LSString::ls_map<LSFunction*>);
 	method("map", {
-		{Type::tmp_string, {Type::string, Type::fun_object(Type::string, {Type::string})}, (void*) map_fun},
+		{env.tmp_string, {env.string, Type::fun_object(env.string, {env.string})}, (void*) map_fun},
 	});
 	method("sort", {
-		{Type::tmp_string, {Type::string}, ADDR((void*) &LSString::sort)},
+		{env.tmp_string, {env.string}, ADDR((void*) &LSString::sort)},
 	});
 	method("wordCount", {
-		{Type::any, {Type::string}, ADDR((void*) &LSString::word_count_ptr)},
-		{Type::integer, {Type::string}, ADDR((void*) &LSString::word_count)},
+		{env.any, {env.string}, ADDR((void*) &LSString::word_count_ptr)},
+		{env.integer, {env.string}, ADDR((void*) &LSString::word_count)},
 	});
 
 	/** Internal **/
 	method("to_bool", {
-		{Type::boolean, {Type::string}, ADDR((void*) &LSString::to_bool)}
+		{env.boolean, {env.string}, ADDR((void*) &LSString::to_bool)}
 	});
 	method("codePointAt", {
-		{Type::tmp_string, {Type::string, Type::integer}, ADDR((void*) &LSString::codePointAt)}
+		{env.tmp_string, {env.string, env.integer}, ADDR((void*) &LSString::codePointAt)}
 	});
 	method("isize", {
-		{Type::integer, {Type::string}, ADDR((void*) &LSString::int_size)}
+		{env.integer, {env.string}, ADDR((void*) &LSString::int_size)}
 	});
 	method("iterator_begin", {
-		{Type::void_, {Type::string, Type::i8_ptr}, ADDR((void*) iterator_begin)}
+		{env.void_, {env.string, env.i8_ptr}, ADDR((void*) iterator_begin)}
 	});
 	method("iterator_end", {
-		{Type::void_, {Type::i8_ptr}, ADDR((void*) &LSString::iterator_end)}
+		{env.void_, {env.i8_ptr}, ADDR((void*) &LSString::iterator_end)}
 	});
 	method("iterator_get", {
-		{Type::integer, {Type::i8_ptr}, ADDR((void*) &LSString::iterator_get)},
-		{Type::tmp_string, {Type::integer, Type::string}, ADDR((void*) iterator_get)},
+		{env.integer, {env.i8_ptr}, ADDR((void*) &LSString::iterator_get)},
+		{env.tmp_string, {env.integer, env.string}, ADDR((void*) iterator_get)},
 	});
 	method("iterator_key", {
-		{Type::integer, {Type::i8_ptr}, ADDR((void*) &LSString::iterator_key)}
+		{env.integer, {env.i8_ptr}, ADDR((void*) &LSString::iterator_key)}
 	});
 	method("iterator_next", {
-		{Type::void_, {Type::i8_ptr}, ADDR((void*) &LSString::iterator_next)}
+		{env.void_, {env.i8_ptr}, ADDR((void*) &LSString::iterator_next)}
 	});
 	method("internal_plus_mpz_tmp", {
-		{Type::string, {Type::i8_ptr, Type::tmp_mpz_ptr, Type::tmp_string}, ADDR((void*) internal_plus_mpz_tmp)}
+		{env.string, {env.i8_ptr, env.tmp_mpz_ptr, env.tmp_string}, ADDR((void*) internal_plus_mpz_tmp)}
 	});
 }
 
@@ -281,22 +282,22 @@ LSString* StringSTD::add_real(LSString* s, double i) {
 
 Compiler::value StringSTD::add_eq(Compiler& c, std::vector<Compiler::value> args, int) {
 	args[1] = c.insn_to_any(args[1]);
-	return c.insn_call(Type::any, args, "Value.operator+=");
+	return c.insn_call(c.env.any, args, "Value.operator+=");
 }
 
 Compiler::value StringSTD::lt(Compiler& c, std::vector<Compiler::value> args, int) {
-	auto res = c.insn_call(Type::boolean, args, "Value.operator<");
+	auto res = c.insn_call(c.env.boolean, args, "Value.operator<");
 	c.insn_delete_temporary(args[0]);
 	c.insn_delete_temporary(args[1]);
 	return res;
 }
 
 Compiler::value StringSTD::div(Compiler& c, std::vector<Compiler::value> args, int) {
-	return c.insn_call(Type::tmp_array(Type::string), args, "Value.operator/");
+	return c.insn_call(Type::tmp_array(c.env.string), args, "Value.operator/");
 }
 
 Compiler::value StringSTD::plus_mpz_tmp(Compiler& c, std::vector<Compiler::value> args, int) {
-	return c.insn_call(Type::tmp_string, { c.get_vm(), args[0], args[1] }, "String.internal_plus_mpz_tmp");
+	return c.insn_call(c.env.tmp_string, { c.get_vm(), args[0], args[1] }, "String.internal_plus_mpz_tmp");
 }
 
 /*
@@ -495,11 +496,11 @@ Compiler::value StringSTD::fold_fun(Compiler& c, std::vector<Compiler::value> ar
 	auto v = Variable::new_temporary("v", args[0].t->element());
 	v->create_entry(c);
 	c.add_temporary_variable(v);
-	c.insn_foreach(args[0], Type::void_, v, nullptr, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
+	c.insn_foreach(args[0], c.env.void_, v, nullptr, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
 		auto r = c.insn_call(function, {c.insn_load(result->val), v});
 		c.insn_delete(c.insn_load(result->val));
 		c.insn_store(result->val, c.insn_move_inc(r));
-		return {};
+		return { c.env };
 	});
 	return c.insn_load(result->val);
 }

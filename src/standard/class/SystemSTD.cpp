@@ -4,47 +4,48 @@
 #include "../../constants.h"
 #include "../../vm/VM.hpp"
 #include "../../type/Type.hpp"
+#include "../../environment/Environment.hpp"
 
 namespace ls {
 
-SystemSTD::SystemSTD(StandardLibrary* stdLib) : Module(stdLib, "System") {
+SystemSTD::SystemSTD(Environment& env) : Module(env, "System") {
 
-	static_field("version", Type::integer, ADDR(version));
-	static_field("operations", Type::integer, ADDR([&](ls::Compiler& c) {
-		return c.insn_load(c.get_symbol("operations", Type::integer->pointer()));
+	static_field("version", env.integer, ADDR(version));
+	static_field("operations", env.integer, ADDR([&](ls::Compiler& c) {
+		return c.insn_load(c.get_symbol("operations", env.integer->pointer()));
 	}));
-	static_field_fun("time", Type::long_, ADDR((void*) time));
-	static_field_fun("milliTime", Type::long_, ADDR((void*) millitime));
-	static_field_fun("microTime", Type::long_, ADDR((void*) microtime));
-	static_field_fun("nanoTime", Type::long_, ADDR((void*) nanotime));
+	static_field_fun("time", env.long_, ADDR((void*) time));
+	static_field_fun("milliTime", env.long_, ADDR((void*) millitime));
+	static_field_fun("microTime", env.long_, ADDR((void*) microtime));
+	static_field_fun("nanoTime", env.long_, ADDR((void*) nanotime));
 
 	method("print", {
-		{Type::void_, {Type::const_any}, ADDR(print)},
-		{Type::void_, {Type::mpz_ptr}, ADDR(print_mpz)},
-		{Type::void_, {Type::tmp_mpz_ptr}, ADDR(print_mpz_tmp)},
-		{Type::void_, {Type::const_long}, ADDR(print_long)},
-		{Type::void_, {Type::const_real}, ADDR(print_real)},
-		{Type::void_, {Type::const_integer}, ADDR(print_int)},
-		{Type::void_, {Type::const_boolean}, ADDR(print_bool)},
+		{env.void_, {env.const_any}, ADDR(print)},
+		{env.void_, {env.mpz_ptr}, ADDR(print_mpz)},
+		{env.void_, {env.tmp_mpz_ptr}, ADDR(print_mpz_tmp)},
+		{env.void_, {env.const_long}, ADDR(print_long)},
+		{env.void_, {env.const_real}, ADDR(print_real)},
+		{env.void_, {env.const_integer}, ADDR(print_int)},
+		{env.void_, {env.const_boolean}, ADDR(print_bool)},
 	});
 
 	method("throw", {
-		{Type::void_, {Type::integer, Type::i8_ptr, Type::i8_ptr, Type::long_}, ADDR((void*) throw1)},
-		{Type::void_, {Type::long_, Type::long_, Type::i8_ptr, Type::i8_ptr}, ADDR((void*) throw2)},
+		{env.void_, {env.integer, env.i8_ptr, env.i8_ptr, env.long_}, ADDR((void*) throw1)},
+		{env.void_, {env.long_, env.long_, env.i8_ptr, env.i8_ptr}, ADDR((void*) throw2)},
 	});
 
 	method("debug", {
-		{Type::void_, {Type::any}, ADDR(print)}
+		{env.void_, {env.any}, ADDR(print)}
 	});
 
 	method("internal_print", {
-		{Type::void_, {Type::i8->pointer(), Type::const_boolean}, ADDR((void*) internal_print_bool)},
-		{Type::void_, {Type::i8->pointer(), Type::const_integer}, ADDR((void*) internal_print_int)},
-		{Type::void_, {Type::i8->pointer(), Type::const_long}, ADDR((void*) internal_print_long)},
-		{Type::void_, {Type::i8->pointer(), Type::const_real}, ADDR((void*) internal_print_real)},
-		{Type::void_, {Type::i8->pointer(), Type::mpz_ptr}, ADDR((void*) internal_print_mpz)},
-		{Type::void_, {Type::i8->pointer(), Type::tmp_mpz_ptr}, ADDR((void*) internal_print_mpz_tmp)},
-		{Type::void_, {Type::i8->pointer(), Type::const_any}, ADDR((void*) internal_print)},
+		{env.void_, {env.i8->pointer(), env.const_boolean}, ADDR((void*) internal_print_bool)},
+		{env.void_, {env.i8->pointer(), env.const_integer}, ADDR((void*) internal_print_int)},
+		{env.void_, {env.i8->pointer(), env.const_long}, ADDR((void*) internal_print_long)},
+		{env.void_, {env.i8->pointer(), env.const_real}, ADDR((void*) internal_print_real)},
+		{env.void_, {env.i8->pointer(), env.mpz_ptr}, ADDR((void*) internal_print_mpz)},
+		{env.void_, {env.i8->pointer(), env.tmp_mpz_ptr}, ADDR((void*) internal_print_mpz_tmp)},
+		{env.void_, {env.i8->pointer(), env.const_any}, ADDR((void*) internal_print)},
 	});
 }
 
@@ -79,29 +80,28 @@ Compiler::value SystemSTD::version(Compiler& c) {
 }
 
 Compiler::value SystemSTD::print(Compiler& c, std::vector<Compiler::value> args, int) {
-	return c.insn_call(Type::void_, {c.get_vm(), args[0]}, "System.internal_print.6");
+	return c.insn_call(c.env.void_, {c.get_vm(), args[0]}, "System.internal_print.6");
 }
 Compiler::value SystemSTD::print_int(Compiler& c, std::vector<Compiler::value> args, int) {
-	return c.insn_call(Type::void_, {c.get_vm(), args[0]}, "System.internal_print.1");
+	return c.insn_call(c.env.void_, {c.get_vm(), args[0]}, "System.internal_print.1");
 }
 Compiler::value SystemSTD::print_mpz(Compiler& c, std::vector<Compiler::value> args, int) {
-	return c.insn_call(Type::void_, {c.get_vm(), args[0]}, "System.internal_print.4");
+	return c.insn_call(c.env.void_, {c.get_vm(), args[0]}, "System.internal_print.4");
 }
 Compiler::value SystemSTD::print_mpz_tmp(Compiler& c, std::vector<Compiler::value> args, int) {
-	return c.insn_call(Type::void_, {c.get_vm(), args[0]}, "System.internal_print.5");
+	return c.insn_call(c.env.void_, {c.get_vm(), args[0]}, "System.internal_print.5");
 }
 Compiler::value SystemSTD::print_long(Compiler& c, std::vector<Compiler::value> args, int) {
-	return c.insn_call(Type::void_, {c.get_vm(), args[0]}, "System.internal_print.2");
+	return c.insn_call(c.env.void_, {c.get_vm(), args[0]}, "System.internal_print.2");
 }
 Compiler::value SystemSTD::print_bool(Compiler& c, std::vector<Compiler::value> args, int) {
-	return c.insn_call(Type::void_, {c.get_vm(), args[0]}, "System.internal_print.0");
+	return c.insn_call(c.env.void_, {c.get_vm(), args[0]}, "System.internal_print.0");
 }
 Compiler::value SystemSTD::print_real(Compiler& c, std::vector<Compiler::value> args, int) {
-	return c.insn_call(Type::void_, {c.get_vm(), args[0]}, "System.internal_print.3");
+	return c.insn_call(c.env.void_, {c.get_vm(), args[0]}, "System.internal_print.3");
 }
 
 void SystemSTD::internal_print(VM* vm, LSValue* value) {
-	std::cout << "print int " << vm << std::endl;
 	value->print(vm->output->stream());
 	vm->output->end();
 	LSValue::delete_temporary(value);

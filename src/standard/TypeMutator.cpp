@@ -150,7 +150,8 @@ int ChangeValueMutator::compile(Compiler& c, CallableVersion* callable, std::vec
 #endif
 
 void WillTakeMutator::apply(SemanticAnalyzer* analyzer, std::vector<Value*> values, const Type* return_type) const {
-	values[1]->will_take(analyzer, {Type::any}, 1);
+	auto& env = analyzer->env;
+	values[1]->will_take(analyzer, { env.any }, 1);
 	// std::vector<Type> args;
 	// for (const auto& extractor : types) {
 	// 	args.push_back(extractor->extract(analyzer, values));
@@ -158,7 +159,7 @@ void WillTakeMutator::apply(SemanticAnalyzer* analyzer, std::vector<Value*> valu
 }
 
 const Type* TypeExtractor::extract(SemanticAnalyzer* analyzer, std::vector<Value*> values) const {
-	return Type::void_;
+	return analyzer->env.void_;
 }
 
 const Type* ElementExtractor::extract(SemanticAnalyzer* analyzer, std::vector<Value*> values) const {

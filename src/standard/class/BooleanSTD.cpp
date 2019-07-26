@@ -1,5 +1,6 @@
 #include "BooleanSTD.hpp"
 #include "../../type/Type.hpp"
+#include "../../environment/Environment.hpp"
 #if COMPILER
 #include "../../vm/value/LSBoolean.hpp"
 #include "../../vm/value/LSString.hpp"
@@ -8,40 +9,40 @@
 
 namespace ls {
 
-BooleanSTD::BooleanSTD(StandardLibrary* stdLib) : Module(stdLib, "Boolean") {
+BooleanSTD::BooleanSTD(Environment& env) : Module(env, "Boolean") {
 
 	#if COMPILER
 	LSBoolean::clazz = lsclass.get();
 	#endif
 
 	operator_("+", {
-		{Type::const_boolean, Type::const_string, Type::tmp_string, ADDR((void*) add)},
-		{Type::const_boolean, Type::tmp_string, Type::tmp_string, ADDR((void*) add_tmp)},
-		{Type::const_boolean, Type::const_boolean, Type::integer, ADDR(add_bool)},
-		{Type::const_boolean, Type::const_real, Type::real, ADDR(add_bool)},
-		{Type::const_boolean, Type::const_integer, Type::integer, ADDR(add_bool)}
+		{env.const_boolean, env.const_string, env.tmp_string, ADDR((void*) add)},
+		{env.const_boolean, env.tmp_string, env.tmp_string, ADDR((void*) add_tmp)},
+		{env.const_boolean, env.const_boolean, env.integer, ADDR(add_bool)},
+		{env.const_boolean, env.const_real, env.real, ADDR(add_bool)},
+		{env.const_boolean, env.const_integer, env.integer, ADDR(add_bool)}
 	});
 
 	operator_("-", {
-		{Type::const_boolean, Type::const_boolean, Type::integer, ADDR(sub_bool)},
-		{Type::const_boolean, Type::const_real, Type::real, ADDR(sub_bool)},
-		{Type::const_boolean, Type::const_integer, Type::integer, ADDR(sub_bool)}
+		{env.const_boolean, env.const_boolean, env.integer, ADDR(sub_bool)},
+		{env.const_boolean, env.const_real, env.real, ADDR(sub_bool)},
+		{env.const_boolean, env.const_integer, env.integer, ADDR(sub_bool)}
 	});
 
 	operator_("*", {
-		{Type::const_boolean, Type::const_boolean, Type::integer, ADDR(mul_bool)},
-		{Type::const_boolean, Type::const_real, Type::real, ADDR(mul_bool)},
-		{Type::const_boolean, Type::const_integer, Type::integer, ADDR(mul_bool)}
+		{env.const_boolean, env.const_boolean, env.integer, ADDR(mul_bool)},
+		{env.const_boolean, env.const_real, env.real, ADDR(mul_bool)},
+		{env.const_boolean, env.const_integer, env.integer, ADDR(mul_bool)}
 	});
 
 	method("compare", {
-		{Type::any, {Type::const_any, Type::const_any}, ADDR((void*) compare_ptr_ptr_ptr)},
-		{Type::integer, {Type::const_boolean, Type::const_any}, ADDR(compare_val_val)}
+		{env.any, {env.const_any, env.const_any}, ADDR((void*) compare_ptr_ptr_ptr)},
+		{env.integer, {env.const_boolean, env.const_any}, ADDR(compare_val_val)}
 	});
 
 	/** Internal **/
 	method("to_string", {
-		{Type::tmp_string, {Type::boolean}, ADDR((void*) to_string)}
+		{env.tmp_string, {env.boolean}, ADDR((void*) to_string)}
 	});
 }
 

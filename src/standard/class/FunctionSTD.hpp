@@ -7,7 +7,7 @@ namespace ls {
 
 class FunctionSTD : public Module {
 public:
-	FunctionSTD(StandardLibrary* stdLib);
+	FunctionSTD(Environment& env);
 
 	static Compiler::value field_return(Compiler& c, Compiler::value a);
 	static Compiler::value field_args(Compiler& c, Compiler::value a);

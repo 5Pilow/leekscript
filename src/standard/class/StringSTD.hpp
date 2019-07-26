@@ -10,7 +10,7 @@ class LSNumber;
 
 class StringSTD : public Module {
 public:
-	StringSTD(StandardLibrary* stdLib);
+	StringSTD(Environment& env);
 	virtual ~StringSTD();
 
 	static Compiler::value lt(Compiler& c, std::vector<Compiler::value> args, int);
