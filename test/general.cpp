@@ -13,6 +13,7 @@
 #include "../src/standard/StandardLibrary.hpp"
 
 void Test::test_general() {
+	auto& env = getEnv(false);
 
 	header("General");
 	// Print a syntaxical error
@@ -20,8 +21,9 @@ void Test::test_general() {
 	std::cout << error->message() << std::endl;
 	delete error;
 	// Print a program
-	auto program = new ls::Program("2 + 2", "test");
-	program->compile(*getVM(false), new ls::StandardLibrary());
+	auto program = new ls::Program { env, "2 + 2", "test" };
+	env.analyze(*program);
+	env.compile(*program);
 	std::cout << program << std::endl;
 	delete program;
 	// LSObject getField
