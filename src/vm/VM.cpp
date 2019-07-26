@@ -30,16 +30,15 @@
 #include "../analyzer/semantic/Callable.hpp"
 #include "../analyzer/semantic/CallableVersion.hpp"
 #include "../analyzer/semantic/Variable.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
 const unsigned long int VM::DEFAULT_OPERATION_LIMIT = 20000000;
 OutputStream* VM::default_output = new OutputStream();
 
-VM::VM(bool legacy) : compiler(this), legacy(legacy) {
-
+VM::VM(Environment& env) : env(env) {
 	operation_limit = VM::DEFAULT_OPERATION_LIMIT;
-	stdLib = new StandardLibrary(legacy);
 }
 
 VM::~VM() {}
@@ -72,10 +71,10 @@ VM::Result VM::execute(const std::string code, Context* ctx, std::string file_na
 	#endif
 	this->context = ctx;
 
-	auto program = new Program(code, file_name);
+	auto program = new Program(env, code, file_name);
 
 	// Compile
-	auto result = program->compile(*this, stdLib, ctx, format, debug, assembly, pseudo_code, optimized_ir, execute_ir, execute_bitcode);
+	auto result = program->compile(*this, ctx, format, debug, assembly, pseudo_code, optimized_ir, execute_ir, execute_bitcode);
 
 	if (format or debug) {
 		std::cout << "main() ";
@@ -170,8 +169,8 @@ void* VM::resolve_symbol(std::string name) {
 		// std::cout << "version = " << version << std::endl;
 		if (module == "ctx") {
 			return &context->vars.at(method).value;
-		} else if (stdLib->classes.find(module) != stdLib->classes.end()) {
-			const auto& clazz = stdLib->classes.at(module)->clazz;
+		} else if (env.std.classes.find(module) != env.std.classes.end()) {
+			const auto& clazz = env.std.classes.at(module)->clazz;
 			if (method.substr(0, 8) == "operator") {
 				const auto& op = method.substr(8);
 				const auto& implems = clazz->operators.at(op);
@@ -192,8 +191,8 @@ void* VM::resolve_symbol(std::string name) {
 			}
 		}
 	} else {
-		if (stdLib->classes.find(name) != stdLib->classes.end()) {
-			return stdLib->classes.at(name)->lsclass.get();
+		if (env.std.classes.find(name) != env.std.classes.end()) {
+			return env.std.classes.at(name)->lsclass.get();
 		}
 	}
 	return nullptr;

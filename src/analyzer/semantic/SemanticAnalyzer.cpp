@@ -11,7 +11,7 @@
 
 namespace ls {
 
-SemanticAnalyzer::SemanticAnalyzer(StandardLibrary* standardLibrary) {
+SemanticAnalyzer::SemanticAnalyzer(Environment& env) : env(env) {
 	program = nullptr;
 	for (const auto& clazz : standardLibrary->classes) {
 		auto const_class = Type::const_class(clazz.first);

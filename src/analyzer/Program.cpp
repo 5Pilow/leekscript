@@ -24,10 +24,11 @@
 #include "llvm/Bitcode/BitcodeReader.h"
 #include "../analyzer/semantic/Variable.hpp"
 #include "../analyzer/semantic/FunctionVersion.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
-Program::Program(const std::string& code, const std::string& file_name) {
+Program::Program(Environment& env, const std::string& code, const std::string& file_name) : env(env) {
 	this->code = code;
 	this->file_name = file_name;
 	closure = nullptr;
@@ -36,13 +37,13 @@ Program::Program(const std::string& code, const std::string& file_name) {
 Program::~Program() {
 	#if COMPILER
 	if (handle_created) {
-		vm->compiler.removeModule(module_handle);
+		env.compiler.removeModule(module_handle);
 	}
 	#endif
 }
 
 #if COMPILER
-VM::Result Program::compile_leekscript(VM& vm, StandardLibrary* stdLib, Context* ctx, bool format, bool debug, bool bitcode, bool pseudo_code, bool optimized_ir) {
+VM::Result Program::compile_leekscript(VM& vm, Context* ctx, bool format, bool debug, bool bitcode, bool pseudo_code, bool optimized_ir) {
 
 	auto parse_start = std::chrono::high_resolution_clock::now();
 
@@ -64,7 +65,7 @@ VM::Result Program::compile_leekscript(VM& vm, StandardLibrary* stdLib, Context*
 	this->main->is_main_function = true;
 
 	// Semantical analysis
-	SemanticAnalyzer sem { stdLib };
+	SemanticAnalyzer sem { env };
 	sem.analyze(this, ctx);
 
 	if (format or debug) {
@@ -82,14 +83,14 @@ VM::Result Program::compile_leekscript(VM& vm, StandardLibrary* stdLib, Context*
 	// print(std::cout, true); std::cout << std::endl;
 
 	// Compilation
-	vm.internals.clear();
-	vm.compiler.program = this;
-	vm.compiler.init();
+	env.vm.internals.clear();
+	env.compiler.program = this;
+	env.compiler.init();
 
-	module = new llvm::Module(file_name, vm.compiler.getContext());
-	module->setDataLayout(vm.compiler.DL);
+	module = new llvm::Module(file_name, env.compiler.getContext());
+	module->setDataLayout(env.compiler.DL);
 
-	main->compile(vm.compiler);
+	main->compile(env.compiler);
 
 	auto parse_end = std::chrono::high_resolution_clock::now();
 	auto parse_time = std::chrono::duration_cast<std::chrono::nanoseconds>(parse_end - parse_start).count();
@@ -104,9 +105,9 @@ VM::Result Program::compile_leekscript(VM& vm, StandardLibrary* stdLib, Context*
 
 	auto compilation_start = std::chrono::high_resolution_clock::now();
 
-	module_handle = vm.compiler.addModule(std::unique_ptr<llvm::Module>(module), true, bitcode, optimized_ir);
+	module_handle = env.compiler.addModule(std::unique_ptr<llvm::Module>(module), true, bitcode, optimized_ir);
 	handle_created = true;
-	auto ExprSymbol = vm.compiler.findSymbol("main");
+	auto ExprSymbol = env.compiler.findSymbol("main");
 	assert(ExprSymbol && "Function not found");
 	closure = (void*) cantFail(ExprSymbol.getAddress());
 	// std::cout << "program type " << main->type->return_type() << std::endl;
@@ -125,7 +126,7 @@ VM::Result Program::compile_leekscript(VM& vm, StandardLibrary* stdLib, Context*
 VM::Result Program::compile_ir_file(VM& vm) {
 	VM::Result result;
 	llvm::SMDiagnostic Err;
-	auto Mod = llvm::parseIRFile(file_name, Err, vm.compiler.getContext());
+	auto Mod = llvm::parseIRFile(file_name, Err, env.compiler.getContext());
 	if (!Mod) {
 		Err.print("main", llvm::errs());
 		result.compilation_success = false;
@@ -133,20 +134,20 @@ VM::Result Program::compile_ir_file(VM& vm) {
 		return result;
 	}
 	auto llvm_type = Mod->getFunction("main")->getReturnType();
-	vm.compiler.addModule(std::move(Mod), true);
-	auto symbol = vm.compiler.findSymbol("main");
+	env.compiler.addModule(std::move(Mod), true);
+	auto symbol = env.compiler.findSymbol("main");
 	closure = (void*) cantFail(symbol.getAddress());
 
 	if (llvm_type->isPointerTy() and llvm_type->getPointerElementType()->isFunctionTy()) {
-		type = Type::fun();
+		type = env.fun();
 	} else if (llvm_type->isPointerTy()) {
-		type = Type::any;
+		type = env.any;
 	} else if (llvm_type->isStructTy()) {
-		type = Type::mpz;
+		type = env.mpz;
 	} else if (llvm_type->isFloatingPointTy()) {
-		type = Type::real;
+		type = env.real;
 	} else {
-		type = Type::integer;
+		type = env.integer;
 	}
 
 	result.compilation_success = true;
@@ -158,7 +159,7 @@ VM::Result Program::compile_ir_file(VM& vm) {
 
 VM::Result Program::compile_bitcode_file(VM& vm) {
 	VM::Result result;
-	auto EMod = llvm::parseBitcodeFile(llvm::MemoryBufferRef { *llvm::MemoryBuffer::getFile(file_name).get() }, vm.compiler.getContext());
+	auto EMod = llvm::parseBitcodeFile(llvm::MemoryBufferRef { *llvm::MemoryBuffer::getFile(file_name).get() }, env.compiler.getContext());
 	if (!EMod) {
 		llvm::errs() << EMod.takeError() << '\n';
 		result.compilation_success = false;
@@ -167,11 +168,11 @@ VM::Result Program::compile_bitcode_file(VM& vm) {
 	}
 	auto Mod = std::move(EMod.get());
 	auto llvm_type = Mod->getFunction("main")->getReturnType();
-	vm.compiler.addModule(std::move(Mod), false); // Already optimized
-	auto symbol = vm.compiler.findSymbol("main");
+	env.compiler.addModule(std::move(Mod), false); // Already optimized
+	auto symbol = env.compiler.findSymbol("main");
 	closure = (void*) cantFail(symbol.getAddress());
 
-	type = llvm_type->isPointerTy() ? Type::any : (llvm_type->isStructTy() ? Type::mpz : Type::integer);
+	type = llvm_type->isPointerTy() ? env.any : (llvm_type->isStructTy() ? env.mpz : env.integer);
 
 	result.compilation_success = true;
 	std::ostringstream oss;
@@ -180,15 +181,13 @@ VM::Result Program::compile_bitcode_file(VM& vm) {
 	return result;
 }
 
-VM::Result Program::compile(VM& vm, StandardLibrary* stdLib, Context* ctx, bool format, bool debug, bool export_bitcode, bool pseudo_code, bool optimized_ir, bool ir, bool bitcode) {
-	this->vm = &vm;
-
+VM::Result Program::compile(VM& vm, Context* ctx, bool format, bool debug, bool export_bitcode, bool pseudo_code, bool optimized_ir, bool ir, bool bitcode) {
 	if (ir) {
 		return compile_ir_file(vm);
 	} else if (bitcode) {
 		return compile_bitcode_file(vm);
 	} else {
-		return compile_leekscript(vm, stdLib, ctx, format, debug, export_bitcode, pseudo_code, optimized_ir);
+		return compile_leekscript(vm, ctx, format, debug, export_bitcode, pseudo_code, optimized_ir);
 	}
 }
 #endif
@@ -217,7 +216,7 @@ Variable* Program::get_operator(const std::string& name) {
 	ex->v2 = std::make_unique<VariableValue>(new Token(TokenType::IDENT, main_file, 2, 1, 2, "y"));
 	ex->op = std::make_shared<Operator>(new Token(token_types.at(std::distance(ops.begin(), o)), main_file, 1, 1, 1, name));
 	f->body->instructions.emplace_back(new ExpressionInstruction(std::move(ex)));
-	auto type = Type::fun(Type::any, {Type::any, Type::any});
+	auto type = env.fun(env.any, { env.any, env.any });
 
 	auto var = new Variable(name, VarScope::INTERNAL, type, 0, f, nullptr, nullptr, nullptr);
 	operators.insert({name, var});

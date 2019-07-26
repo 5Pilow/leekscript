@@ -12,6 +12,7 @@
 #include "analyzer/syntaxic/SyntaxicAnalyzer.hpp"
 #include "analyzer/semantic/SemanticAnalyzer.hpp"
 #include "standard/StandardLibrary.hpp"
+#include "environment/Environment.hpp"
 
 namespace ls {
 
@@ -111,7 +112,10 @@ int CLI::start_full(int argc, char* argv[]) {
 }
 
 int CLI::analyze_snippet(std::string code, CLI_options options) {
-	ls::Program program { code, "snippet" };
+
+	ls::Environment env;
+
+	ls::Program program { env, code, "snippet" };
 
 	auto standardLibrary = new StandardLibrary();
 	auto resolver = new ls::Resolver();
@@ -129,7 +133,7 @@ int CLI::analyze_snippet(std::string code, CLI_options options) {
 	program.main->is_main_function = true;
 
 	// Semantical analysis
-	ls::SemanticAnalyzer sem { standardLibrary };
+	ls::SemanticAnalyzer sem { env };
 	sem.analyze(&program, nullptr);
 
 	std::ostringstream oss;
@@ -147,12 +151,12 @@ int CLI::analyze_file(std::string, CLI_options options) {
 
 int CLI::execute_snippet(std::string code, CLI_options options) {
 	#if COMPILER
-	ls::VM vm { options.legacy };
+	ls::Environment env { options.legacy };
 	OutputStringStream oss;
 	if (options.json_output)
-		vm.output = &oss;
-	auto result = vm.execute(code, nullptr, "snippet", options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
-	vm.output = ls::VM::default_output;
+		env.vm.output = &oss;
+	auto result = env.vm.execute(code, nullptr, "snippet", options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
+	env.vm.output = ls::VM::default_output;
 	print_result(result, oss.str(), options.json_output, options.display_time, options.operations);
 	#endif
 	return 0;

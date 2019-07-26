@@ -8,6 +8,7 @@
 #include "../error/Error.hpp"
 #include "../semantic/Call.hpp"
 #include "../../standard/StandardLibrary.hpp"
+#include "../../environment/Environment.hpp"
 
 namespace ls {
 
@@ -26,6 +27,7 @@ class Block;
 class SemanticAnalyzer {
 public:
 
+	Environment& env;
 	Program* program;
 	std::vector<Function*> functions;
 	std::vector<std::vector<Block*>> blocks;
@@ -34,7 +36,7 @@ public:
 	std::vector<Error> errors;
 	std::unordered_map<std::string, std::unique_ptr<Variable>> globals;
 
-	SemanticAnalyzer(StandardLibrary*);
+	SemanticAnalyzer(Environment& env);
 
 	void analyze(Program*, Context*);
 

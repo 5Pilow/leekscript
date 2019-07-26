@@ -32,13 +32,14 @@ class Callable;
 class Call;
 class Class;
 class StandardLibrary;
+class Environment;
 
 class VM {
 public:
 
 	static const unsigned long int DEFAULT_OPERATION_LIMIT;
 	static OutputStream* default_output;
-	
+
 	static void static_init();
 
 	struct Result {
@@ -61,11 +62,11 @@ public:
 		const Type* type;
 	};
 
+	Environment& env;
 	std::vector<std::unique_ptr<Module>> modules;
 	std::vector<LSValue*> function_created;
 	std::vector<Class*> class_created;
 	std::unordered_map<std::string, Compiler::value> internals;
-	Compiler compiler;
 	unsigned int operations = 0;
 	bool enable_operations = true;
 	unsigned int operation_limit;
@@ -75,9 +76,8 @@ public:
 	std::string file_name;
 	bool legacy;
 	Context* context = nullptr;
-	StandardLibrary* stdLib = nullptr;
 
-	VM(bool legacy = false);
+	VM(Environment& env);
 	~VM();
 
 	/** Main execution function **/

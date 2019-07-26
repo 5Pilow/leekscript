@@ -20,6 +20,7 @@ private:
 
 public:
 
+	Environment& env;
 	std::unique_ptr<Function> main;
 	const Type* type;
 	std::vector<Function*> functions;
@@ -27,13 +28,12 @@ public:
 	std::unordered_map<std::string, Variable*> operators;
 	File* main_file;
 	#if COMPILER
-	VM* vm;
 	bool handle_created = false;
 	llvm::Module* module = nullptr;
 	llvm::orc::VModuleKey module_handle;
 	#endif
 
-	Program(const std::string& code, const std::string& file_name);
+	Program(Environment& env, const std::string& code, const std::string& file_name);
 	virtual ~Program();
 
 	void analyze(SemanticAnalyzer* analyzer);
@@ -42,8 +42,8 @@ public:
 	 * Compile the program with a VM and a context (json)
 	 */
 	#if COMPILER
-	VM::Result compile(VM& vm, StandardLibrary* stdLib, Context* context = nullptr, bool format = false, bool debug = false, bool assembly = false, bool pseudo_code = false, bool optimized_ir = false, bool ir = false, bool bitcode = false);
-	VM::Result compile_leekscript(VM& vm, StandardLibrary* stdLib, Context* ctx, bool format, bool debug, bool assembly, bool pseudo_code, bool optimized_ir);
+	VM::Result compile(VM& vm, Context* context = nullptr, bool format = false, bool debug = false, bool assembly = false, bool pseudo_code = false, bool optimized_ir = false, bool ir = false, bool bitcode = false);
+	VM::Result compile_leekscript(VM& vm, Context* ctx, bool format, bool debug, bool assembly, bool pseudo_code, bool optimized_ir);
 	VM::Result compile_ir_file(VM& vm);
 	VM::Result compile_bitcode_file(VM& vm);
 	#endif
