@@ -53,6 +53,7 @@ class Type;
 class FunctionVersion;
 class Variable;
 class Block;
+class Environment;
 
 class Compiler {
 public:
@@ -65,7 +66,7 @@ public:
 		bool operator != (const value& o) const {
 			return v != o.v or t != o.t;
 		}
-		value();
+		value(Environment& env);
 		value(llvm::Value* v, const Type* t) : v(v), t(t) {}
 	};
 	struct label {
@@ -78,7 +79,8 @@ public:
 		llvm::JITTargetAddress addr;
 		llvm::Function* function;
 	};
-	
+
+	Environment& env;
 	llvm::orc::ThreadSafeContext Ctx;
 	llvm::IRBuilder<> builder;
 	llvm::Function* F;
@@ -109,8 +111,8 @@ public:
 	llvm::orc::LegacyIRCompileLayer<decltype(ObjectLayer), llvm::orc::SimpleCompiler> CompileLayer;
 	using OptimizeFunction = std::function<std::unique_ptr<llvm::Module>(std::unique_ptr<llvm::Module>)>;
 	llvm::orc::LegacyIRTransformLayer<decltype(CompileLayer), OptimizeFunction> OptimizeLayer;
-	
-	Compiler(VM* vm);
+
+	Compiler(Environment& env, VM* vm);
 
 	const llvm::DataLayout& getDataLayout() const { return DL; }
 

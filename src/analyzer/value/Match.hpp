@@ -38,6 +38,8 @@ public:
 	std::vector<std::vector<Pattern>> pattern_list;
 	std::vector<std::unique_ptr<Value>> returns;
 
+	Match(Environment& env);
+
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
 

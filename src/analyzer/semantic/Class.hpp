@@ -42,6 +42,7 @@ public:
 		#endif
 	};
 
+	Environment& env;
 	std::string name;
 	Class* parent;
 	std::unordered_map<std::string, field> fields;
@@ -50,7 +51,7 @@ public:
 	std::unordered_map<std::string, std::vector<CallableVersion>> operators;
 	std::unordered_map<std::string, Callable*> operators_callables;
 
-	Class(std::string name);
+	Class(Environment& env, std::string name);
 	~Class();
 
 	void addMethod(std::string, std::initializer_list<CallableVersion>, std::vector<const Type*> templates = {}, bool legacy = false);

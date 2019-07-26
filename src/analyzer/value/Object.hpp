@@ -13,7 +13,7 @@ public:
 	std::vector<Token*> keys;
 	std::vector<std::unique_ptr<Value>> values;
 
-	Object();
+	Object(Environment& env);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;

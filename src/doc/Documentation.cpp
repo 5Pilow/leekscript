@@ -19,6 +19,7 @@
 #include "../standard/class/NullSTD.hpp"
 #include "../standard/class/ValueSTD.hpp"
 #include "../standard/StandardLibrary.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
@@ -28,7 +29,8 @@ Documentation::~Documentation() {}
 
 void Documentation::generate(std::ostream& os, std::string lang) {
 
-	StandardLibrary stdLib;
+	Environment env;
+	StandardLibrary stdLib { env };
 
 	os << "{";
 

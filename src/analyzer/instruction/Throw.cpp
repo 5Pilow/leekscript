@@ -5,7 +5,7 @@
 
 namespace ls {
 
-Throw::Throw(Token* token, std::unique_ptr<Value> v) : token(token), expression(std::move(v)) {
+Throw::Throw(Environment& env, Token* token, std::unique_ptr<Value> v) : Instruction(env), token(token), expression(std::move(v)) {
 	throws = true;
 }
 
@@ -48,13 +48,13 @@ Compiler::value Throw::compile(Compiler& c) const {
 
 	c.insn_throw(exception);
 
-	return {};
+	return { c.env };
 }
 #endif
 
 std::unique_ptr<Instruction> Throw::clone() const {
 	auto ex = expression ? expression->clone() : nullptr;
-	return std::make_unique<Throw>(token, std::move(ex));
+	return std::make_unique<Throw>(type->env, token, std::move(ex));
 }
 
 }

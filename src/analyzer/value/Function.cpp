@@ -25,7 +25,7 @@ namespace ls {
 
 int Function::id_counter = 0;
 
-Function::Function(Token* token) : token(token) {
+Function::Function(Environment& env, Token* token) : Value(env), token(token) {
 	parent = nullptr;
 	constant = true;
 	function_added = false;
@@ -80,8 +80,9 @@ Location Function::location() const {
 
 void Function::create_default_version(SemanticAnalyzer* analyzer) {
 	if (default_version) return;
+	auto& env = analyzer->env;
 
-	default_version = new FunctionVersion(std::unique_ptr<Block>(body));
+	default_version = new FunctionVersion(analyzer->env, std::unique_ptr<Block>(body));
 	default_version->parent = this;
 
 	std::vector<const Type*> args;
@@ -90,13 +91,13 @@ void Function::create_default_version(SemanticAnalyzer* analyzer) {
 			defaultValues[i]->analyze(analyzer);
 		}
 		if (!default_version->placeholder_type) {
-			default_version->placeholder_type = Type::generate_new_placeholder_type();
+			default_version->placeholder_type = env.generate_new_placeholder_type();
 		}
 		args.push_back(default_version->placeholder_type);
 	}
-	type = Type::fun(Type::any, args, this);
+	type = Type::fun(env.any, args, this);
 
-	default_version->type = Type::fun(default_version->getReturnType(), args, this);
+	default_version->type = Type::fun(default_version->getReturnType(env), args, this);
 }
 
 void Function::pre_analyze(SemanticAnalyzer* analyzer) {
@@ -159,12 +160,12 @@ void Function::analyze(SemanticAnalyzer* analyzer) {
 void Function::analyse_default_method(SemanticAnalyzer* analyzer) {
 	analyzed = true;
 	default_version->analyze(analyzer, type->arguments());
-	type = Type::fun_object(default_version->getReturnType(), default_version->type->arguments());
+	type = Type::fun_object(default_version->getReturnType(analyzer->env), default_version->type->arguments());
 }
 
 void Function::create_version(SemanticAnalyzer* analyzer, const std::vector<const Type*>& args) {
 	// std::cout << "Function::create_version(" << args << ")" << std::endl;
-	auto version = new FunctionVersion(unique_static_cast<Block>(default_version->body->clone()));
+	auto version = new FunctionVersion(analyzer->env, unique_static_cast<Block>(default_version->body->clone()));
 	version->parent = this;
 	versions.insert({args, version});
 
@@ -319,8 +320,8 @@ void Function::compile_captures(Compiler& c) const {
 				capture->val = capture->parent->val;
 				// c.insn_inc_refs(c.insn_load(capture->val));
 			} else {
-				capture->val = c.create_entry(capture->name, Type::any);
-				auto value = c.insn_convert(c.insn_load(capture->parent->val), Type::any);
+				capture->val = c.create_entry(capture->name, c.env.any);
+				auto value = c.insn_convert(c.insn_load(capture->parent->val), c.env.any);
 				c.insn_inc_refs(value);
 				c.insn_store(capture->val, value);
 			}
@@ -329,7 +330,7 @@ void Function::compile_captures(Compiler& c) const {
 }
 
 void Function::export_context(Compiler& c) const {
-	int deepness = c.get_current_function_blocks();
+	// int deepness = c.get_current_function_blocks();
 	for (const auto& variable : c.fun->body->variables) {
 		c.export_context_variable(variable.second->name, c.insn_load(variable.second->val));
 	}
@@ -337,10 +338,10 @@ void Function::export_context(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> Function::clone() const {
-	auto f = std::make_unique<Function>(token);
+	auto f = std::make_unique<Function>(type->env, token);
 	f->lambda = lambda;
 	f->name = name;
-	f->default_version = new FunctionVersion(unique_static_cast<Block>(default_version->body->clone()));
+	f->default_version = new FunctionVersion(type->env, unique_static_cast<Block>(default_version->body->clone()));
 	f->default_version->parent = f.get();
 	f->default_version->type = default_version->type;
 	for (const auto& a : arguments) {
@@ -355,7 +356,7 @@ std::unique_ptr<Value> Function::clone() const {
 	}
 	f->default_values_count = default_values_count;
 	for (const auto& v : versions) {
-		auto v2 = new FunctionVersion(unique_static_cast<Block>(v.second->body->clone()));
+		auto v2 = new FunctionVersion(v.second->type->env, unique_static_cast<Block>(v.second->body->clone()));
 		v2->parent = f.get();
 		v2->type = v.second->type;
 		v2->recursive = v.second->recursive;

@@ -15,7 +15,7 @@ public:
 	Token* closing_bracket;
 	std::vector<std::unique_ptr<Value>> expressions;
 
-	Array();
+	Array(Environment& env);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;

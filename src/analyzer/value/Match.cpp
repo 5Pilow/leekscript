@@ -1,7 +1,10 @@
 #include "Match.hpp"
 #include "../../vm/LSValue.hpp"
+#include "../semantic/SemanticAnalyzer.hpp"
 
 namespace ls {
+
+Match::Match(Environment& env) : Value(env) {}
 
 void Match::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "match ";
@@ -42,6 +45,7 @@ void Match::pre_analyze(ls::SemanticAnalyzer* analyzer) {
 }
 
 void Match::analyze(ls::SemanticAnalyzer* analyzer) {
+	const auto& env = analyzer->env;
 
 	bool has_default = false;
 
@@ -63,13 +67,13 @@ void Match::analyze(ls::SemanticAnalyzer* analyzer) {
 	}
 	if (!has_default) {
 		// Return type is always pointer because in the default case, null is return
-		type = Type::any;
+		type = env.any;
 		for (const auto& r : returns) {
 			r->analyze(analyzer);
 			throws |= r->throws;
 		}
 	} else {
-		type = Type::void_;
+		type = env.void_;
 		for (const auto& ret : returns) {
 			ret->analyze(analyzer);
 			throws |= ret->throws;
@@ -103,7 +107,7 @@ Compiler::value Match::construct_branch(Compiler& c, Compiler::value v, size_t i
 
 	auto cond = get_pattern_condition(c, v, pattern_list[i]);
 	c.insn_if_new(cond, &label_then, &label_else);
-	
+
 	c.insn_label(&label_then);
 	auto value = c.insn_convert(returns[i]->compile(c), type);
 	returns[i]->compile_end(c);
@@ -148,12 +152,12 @@ void Match::Pattern::print(std::ostream &os, int indent, PrintOptions options) c
 #if COMPILER
 Compiler::value Match::Pattern::match(Compiler &c, Compiler::value v) const {
 	if (interval) {
-		Compiler::value ge;
+		Compiler::value ge { c.env };
 		if (begin) {
 			auto b = begin->compile(c);
 			ge = c.insn_ge(v, b);
 		}
-		Compiler::value lt;
+		Compiler::value lt { c.env };
 		if (end) {
 			auto e = end->compile(c);
 			lt = c.insn_lt(v, e);
@@ -175,7 +179,7 @@ Compiler::value Match::Pattern::match(Compiler &c, Compiler::value v) const {
 #endif
 
 std::unique_ptr<Value> Match::clone() const {
-	auto match = std::make_unique<Match>();
+	auto match = std::make_unique<Match>(type->env);
 	match->value = value->clone();
 	for (const auto& pl : pattern_list) {
 		match->pattern_list.push_back({});

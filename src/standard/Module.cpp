@@ -13,6 +13,7 @@
 #include "../vm/VM.hpp"
 #include "../type/Type.hpp"
 #include "../standard/StandardLibrary.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
@@ -24,11 +25,10 @@ int Module::EMPTY_VARIABLE = 16;
 
 bool Module::STORE_ARRAY_SIZE = true;
 
-Module::Module(StandardLibrary* std, std::string name) : name(name) {
-	clazz = std::make_unique<Class>(name);
-	stdLib = std;
+Module::Module(Environment& env, std::string name) : env(env), name(name) {
+	clazz = std::make_unique<Class>(env, name);
 	if (name != "Value") {
-		clazz->parent = std->classes["Value"]->clazz.get();
+		clazz->parent = env.std.classes["Value"]->clazz.get();
 	}
 	#if COMPILER
 	lsclass = std::make_unique<LSClass>(clazz.get());
@@ -36,7 +36,7 @@ Module::Module(StandardLibrary* std, std::string name) : name(name) {
 }
 
 void Module::operator_(std::string name, std::initializer_list<CallableVersion> impl, std::vector<const Type*> templates) {
-	clazz->addOperator(name, impl, templates, stdLib->legacy);
+	clazz->addOperator(name, impl, templates, env.legacy);
 }
 void Module::field(std::string name, const Type* type) {
 	clazz->addField(name, type, nullptr);
@@ -66,13 +66,13 @@ void Module::constructor_(std::initializer_list<CallableVersion> methods) {
 	clazz->addMethod("new", methods);
 }
 void Module::method(std::string name, std::initializer_list<CallableVersion> methods, std::vector<const Type*> templates, bool legacy) {
-	clazz->addMethod(name, methods, templates, stdLib->legacy);
+	clazz->addMethod(name, methods, templates, env.legacy);
 }
 void Template::operator_(std::string name, std::initializer_list<CallableVersion> impl) {
-	module->clazz->addOperator(name, impl, templates, module->stdLib->legacy);
+	module->clazz->addOperator(name, impl, templates, module->env.legacy);
 }
 void Template::method(std::string name, std::initializer_list<CallableVersion> methods) {
-	module->method(name, methods, templates, module->stdLib->legacy);
+	module->method(name, methods, templates, module->env.legacy);
 }
 
 void Module::generate_doc(std::ostream& os, std::string translation_file) {

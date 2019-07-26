@@ -31,11 +31,11 @@ public:
 	std::function<Compiler::value(Compiler&, Compiler::value)> access_function = nullptr;
 	#endif
 
-	ObjectAccess(Token* token);
+	ObjectAccess(Environment& env, Token* token);
 	virtual ~ObjectAccess();
 
 	virtual bool isLeftValue() const override;
-	
+
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
 

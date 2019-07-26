@@ -43,7 +43,9 @@ class SyntaxicAnalyzer {
 
 public:
 
-	SyntaxicAnalyzer(Resolver* resolver);
+	Environment& env;
+
+	SyntaxicAnalyzer(Environment& env, Resolver* resolver);
 
 	Block* analyze(File* file);
 

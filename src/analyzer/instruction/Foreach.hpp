@@ -19,13 +19,13 @@ public:
 	bool body2_activated = false;
 	std::vector<std::pair<Variable*, Variable*>> assignments;
 	std::vector<Variable*> mutations;
-	
+
 	const Type* key_type;
 	const Type* value_type;
 	Variable* value_var;
 	Variable* key_var;
 
-	Foreach();
+	Foreach(Environment& env);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;

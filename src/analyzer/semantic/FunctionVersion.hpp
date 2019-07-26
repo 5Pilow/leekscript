@@ -18,6 +18,7 @@ class SemanticAnalyzer;
 class Variable;
 class Function_type;
 class Type;
+class Environment;
 
 class FunctionVersion {
 public:
@@ -36,13 +37,13 @@ public:
 	llvm::BasicBlock* block = nullptr;
 	#endif
 
-	FunctionVersion(std::unique_ptr<Block> body);
+	FunctionVersion(Environment& env, std::unique_ptr<Block> body);
 
 	bool is_compiled() const;
 
 	void print(std::ostream& os, int indent, PrintOptions options) const;
 
-	const Type* getReturnType();
+	const Type* getReturnType(Environment& env);
 	Variable* capture(SemanticAnalyzer* analyzer, Variable* var);
 	void analyze_global_functions(SemanticAnalyzer* analyzer);
 	void pre_analyze(SemanticAnalyzer* analyzer, const std::vector<const Type*>& args);

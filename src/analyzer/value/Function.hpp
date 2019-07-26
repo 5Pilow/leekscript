@@ -39,7 +39,7 @@ public:
 	std::unordered_map<std::string, Variable*> captures_map;
 	bool captures_compiled = false;
 
-	Function(Token* token);
+	Function(Environment& env, Token* token);
 	virtual ~Function();
 
 	void addArgument(Token* token, Value* defaultValue);

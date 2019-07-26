@@ -31,7 +31,7 @@ public:
 	std::vector<Compiler::value> temporary_expression_values;
 	#endif
 
-	Block(bool is_function_block = false);
+	Block(Environment& env, bool is_function_block = false);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
@@ -41,7 +41,7 @@ public:
 	virtual void pre_analyze(SemanticAnalyzer* analyzer) override;
 	void create_assignments(SemanticAnalyzer* analyzer);
 	virtual void analyze(SemanticAnalyzer* analyzer) override;
-	
+
 	#if COMPILER
 	Compiler::value compile(Compiler&) const override;
 	#endif

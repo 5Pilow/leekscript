@@ -17,13 +17,13 @@ public:
 	std::unique_ptr<Value> key2;
 	Token* open_bracket;
 	Token* close_bracket;
-	const Type* map_key_type = Type::void_;
+	const Type* map_key_type;
 	#if COMPILER
 	Compiler::value compiled_array;
 	#endif
 
-	ArrayAccess();
-	
+	ArrayAccess(Environment& env);
+
 	virtual bool isLeftValue() const override;
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;

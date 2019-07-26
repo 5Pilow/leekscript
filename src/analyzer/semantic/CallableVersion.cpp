@@ -16,32 +16,32 @@
 namespace ls {
 
 CallableVersion::CallableVersion(std::string name, const Type* type, std::vector<TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool unknown, bool v1_addr, bool v2_addr, int flags)
-	: name(name), type(type), object(object), symbol(true), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags) {
+	: name(name), type(type), object(object), symbol(true), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags), extra_arg(type->env) {
 		assert(name.find(".") != std::string::npos);
 	}
 #if COMPILER
 CallableVersion::CallableVersion(std::string name, const Type* type, std::function<Compiler::value(Compiler&, std::vector<Compiler::value>, int)> func, std::vector<TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool unknown, bool v1_addr, bool v2_addr, int flags)
-	: name(name), type(type), object(object), func(func), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags) {}
+	: name(name), type(type), object(object), func(func), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags), extra_arg(type->env) {}
 #endif
 CallableVersion::CallableVersion(std::string name, const Type* type, void* addr, std::vector<TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool unknown, bool v1_addr, bool v2_addr, int flags)
-	: name(name), type(type), addr(addr), value(value), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags) {}
+	: name(name), type(type), addr(addr), value(value), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags), extra_arg(type->env) {}
 CallableVersion::CallableVersion(std::string name, const Type* type, const Value* value, std::vector<TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool unknown, bool v1_addr, bool v2_addr, int flags)
-	: name(name), type(type), object(object), value(value), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags) {}
+	: name(name), type(type), object(object), value(value), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags), extra_arg(type->env) {}
 CallableVersion::CallableVersion(std::string name, const Type* type, FunctionVersion* f, std::vector<TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool unknown, bool v1_addr, bool v2_addr, int flags)
-	: name(name), type(type), object(object), user_fun(f), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags) {}
+	: name(name), type(type), object(object), user_fun(f), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags), extra_arg(type->env) {}
 
 CallableVersion::CallableVersion(const Type* return_type, std::initializer_list<const Type*> arguments, void* addr, int flags, std::vector<TypeMutator*> mutators)
-	: type(Type::fun(return_type, arguments)), symbol(true), mutators(mutators), flags(flags), addr(addr) {}
+	: type(Type::fun(return_type, arguments)), symbol(true), mutators(mutators), flags(flags), addr(addr), extra_arg(return_type->env) {}
 #if COMPILER
 CallableVersion::CallableVersion(const Type* return_type, std::initializer_list<const Type*> arguments, std::function<Compiler::value(Compiler&, std::vector<Compiler::value>, int)> func, int flags, std::vector<TypeMutator*> mutators)
-	: type(Type::fun(return_type, arguments)), func(func), mutators(mutators), flags(flags) {}
+	: type(Type::fun(return_type, arguments)), func(func), mutators(mutators), flags(flags), extra_arg(return_type->env) {}
 #endif
 
 CallableVersion::CallableVersion(const Type* v1_type, const Type* v2_type, const Type* return_type, void* addr, int flags, std::vector<TypeMutator*> mutators, bool v1_addr, bool v2_addr)
-	: type(Type::fun(return_type, {v1_type, v2_type})), symbol(true), mutators(mutators), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags), addr(addr) {}
+	: type(Type::fun(return_type, {v1_type, v2_type})), symbol(true), mutators(mutators), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags), addr(addr), extra_arg(v1_type->env) {}
 #if COMPILER
 CallableVersion::CallableVersion(const Type* v1_type, const Type* v2_type, const Type* return_type, std::function<Compiler::value(Compiler&, std::vector<Compiler::value>, int)> func, int flags, std::vector<TypeMutator*> mutators, bool v1_addr, bool v2_addr)
-	: type(Type::fun(return_type, {v1_type, v2_type})), func(func), mutators(mutators), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags) {}
+	: type(Type::fun(return_type, {v1_type, v2_type})), func(func), mutators(mutators), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags), extra_arg(v1_type->env) {}
 #endif
 
 const Type* build(const Type* type) {
@@ -84,8 +84,8 @@ const Type* build(const Type* type) {
 			return ((Meta_baseof_type*) baseof)->result = t;
 		} else {
 			return ((Meta_baseof_type*) baseof)->result = [&]() {
-				if (t == Type::boolean) return Type::integer;
-				return Type::real;
+				if (t == t->env.boolean) return t->env.integer;
+				return t->env.real;
 			}();
 		}
 	}
@@ -94,7 +94,7 @@ const Type* build(const Type* type) {
 
 std::pair<int, const CallableVersion*> CallableVersion::get_score(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const {
 	// std::cout << "CallableVersion::get_score(" << arguments << ") " << type << std::endl;
-	
+
 	// Template resolution
 	const CallableVersion* new_version = this;
 	if (templates.size()) {
@@ -193,7 +193,6 @@ void CallableVersion::resolve_templates(SemanticAnalyzer* analyzer, std::vector<
 		const auto& t1 = type->argument(i);
 		if (not t1->is_template()) {
 			const auto& t2 = arguments.at(i);
-			// std::cout << t1 << " <=> " << t2 << std::endl;
 			solve(analyzer, t1, t2);
 		}
 	}
@@ -256,7 +255,7 @@ Compiler::value CallableVersion::compile_call(Compiler& c, std::vector<Compiler:
 			if (fun.t->is_closure()) {
 				args.insert(args.begin(), fun);
 			}
-			return c.insn_call(Type::any, args, "Function.call");
+			return c.insn_call(c.env.any, args, "Function.call");
 		} else {
 			if (full_flags & Module::THROWS) {
 				return c.insn_invoke(type->return_type(), args, fun);

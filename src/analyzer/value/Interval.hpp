@@ -16,7 +16,7 @@ public:
 	std::unique_ptr<Value> start;
 	std::unique_ptr<Value> end;
 
-	Interval();
+	Interval(Environment& env);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;

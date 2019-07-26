@@ -13,8 +13,8 @@ namespace ls {
 
 SemanticAnalyzer::SemanticAnalyzer(Environment& env) : env(env) {
 	program = nullptr;
-	for (const auto& clazz : standardLibrary->classes) {
-		auto const_class = Type::const_class(clazz.first);
+	for (const auto& clazz : env.std.classes) {
+		auto const_class = env.const_class(clazz.first);
 		globals.insert({ clazz.first, std::make_unique<Variable>(clazz.first, VarScope::INTERNAL, const_class, 0, nullptr, nullptr, nullptr, clazz.second->clazz.get()) });
 	}
 }
@@ -38,7 +38,7 @@ void SemanticAnalyzer::analyze(Program* program, Context* context) {
 	leave_block();
 	leave_function();
 
-	program->analyze(this);
+	program->main->analyze(this);
 	program->functions = functions;
 }
 
@@ -170,7 +170,7 @@ void SemanticAnalyzer::add_function(Function* l) {
 Variable* SemanticAnalyzer::convert_var_to_any(Variable* var) {
 	// std::cout << "SemanticAnalyser::convert_var_to_any(" << var->name << ")" << std::endl;
 	if (var->type->is_polymorphic()) return var;
-	auto new_var = new Variable(var->name, var->scope, Type::any, 0, nullptr, var->function, var->block, nullptr);
+	auto new_var = new Variable(var->name, var->scope, env.any, 0, nullptr, var->function, var->block, nullptr);
 	// Search recursively in the functions
 
 	int f = functions_stack.size() - 1;
@@ -204,7 +204,7 @@ Variable* SemanticAnalyzer::update_var(Variable* variable) {
 		// a.1 = 5.5
 		// a.2 = 'salut'
 		auto root = variable->root ? variable->root : variable;
-		new_variable = new Variable(root->name, variable->scope, Type::any, root->index, nullptr, current_function(), current_block(), nullptr);
+		new_variable = new Variable(root->name, variable->scope, env.any, root->index, nullptr, current_function(), current_block(), nullptr);
 		new_variable->parent = variable;
 		new_variable->id = ++root->generator;
 		new_variable->root = root;
@@ -217,7 +217,7 @@ Variable* SemanticAnalyzer::update_var(Variable* variable) {
 		//    a.1.1 = 'salut'
 		// }
 		auto root = variable->root ? variable->root : variable;
-		new_variable = new Variable(variable->name, variable->scope, Type::any, variable->index, nullptr, current_function(), current_block(), nullptr);
+		new_variable = new Variable(variable->name, variable->scope, env.any, variable->index, nullptr, current_function(), current_block(), nullptr);
 		new_variable->id = ++variable->generator;
 		new_variable->parent = variable;
 		new_variable->root = root;

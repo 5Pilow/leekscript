@@ -7,7 +7,7 @@
 
 namespace ls {
 
-PostfixExpression::PostfixExpression() {
+PostfixExpression::PostfixExpression(Environment& env) : Value(env) {
 	return_value = true;
 }
 
@@ -28,6 +28,7 @@ void PostfixExpression::pre_analyze(SemanticAnalyzer* analyzer) {
 }
 
 void PostfixExpression::analyze(SemanticAnalyzer* analyzer) {
+	const auto& env = analyzer->env;
 
 	expression->analyze(analyzer);
 	throws = expression->throws;
@@ -40,17 +41,18 @@ void PostfixExpression::analyze(SemanticAnalyzer* analyzer) {
 	}
 	type = expression->type;
 	throws |= expression->type->fold()->is_polymorphic();
-	if (type == Type::mpz) {
-		type = Type::tmp_mpz;
+	if (type == env.mpz) {
+		type = env.tmp_mpz;
 	}
 	this->return_value = return_value;
 	if (is_void) {
-		type = Type::void_;
+		type = env.void_;
 	}
 }
 
 #if COMPILER
 Compiler::value PostfixExpression::compile(Compiler& c) const {
+	const auto& env = c.env;
 
 	c.inc_ops(1);
 	c.mark_offset(operatorr->token->location.start.line);
@@ -62,11 +64,11 @@ Compiler::value PostfixExpression::compile(Compiler& c) const {
 				auto x = expression->compile_l(c);
 				auto one = c.new_integer(1);
 				if (is_void) {
-					c.insn_call(Type::void_, {x, x, one}, "Number.mpz_add_ui");
-					return {};
+					c.insn_call(env.void_, {x, x, one}, "Number.mpz_add_ui");
+					return { c.env };
 				} else {
 					auto r = c.insn_clone_mpz(x);
-					c.insn_call(Type::void_, {x, x, one}, "Number.mpz_add_ui");
+					c.insn_call(env.void_, {x, x, one}, "Number.mpz_add_ui");
 					return r;
 				}
 			} else if (!expression->type->is_polymorphic()) {
@@ -78,9 +80,9 @@ Compiler::value PostfixExpression::compile(Compiler& c) const {
 			} else {
 				auto e = expression->compile_l(c);
 				if (is_void) {
-					return c.insn_invoke(Type::any, {e}, "Value.pre_incl");
+					return c.insn_invoke(env.any, {e}, "Value.pre_incl");
 				} else {
-					return c.insn_invoke(Type::any, {e}, "Value.incl");
+					return c.insn_invoke(env.any, {e}, "Value.incl");
 				}
 			}
 			break;
@@ -90,11 +92,11 @@ Compiler::value PostfixExpression::compile(Compiler& c) const {
 				auto x = expression->compile_l(c);
 				auto one = c.new_integer(1);
 				if (is_void) {
-					c.insn_call(Type::void_, {x, x, one}, "Number.mpz_sub_ui");
-					return {};
+					c.insn_call(env.void_, {x, x, one}, "Number.mpz_sub_ui");
+					return { c.env };
 				} else {
 					auto r = c.insn_clone_mpz(x);
-					c.insn_call(Type::void_, {x, x, one}, "Number.mpz_sub_ui");
+					c.insn_call(env.void_, {x, x, one}, "Number.mpz_sub_ui");
 					return r;
 				}
 			} else if (expression->type->is_primitive()) {
@@ -106,9 +108,9 @@ Compiler::value PostfixExpression::compile(Compiler& c) const {
 			} else {
 				auto e = expression->compile_l(c);
 				if (is_void) {
-					return c.insn_invoke(Type::any, {e}, "Value.pre_decl");
+					return c.insn_invoke(env.any, {e}, "Value.pre_decl");
 				} else {
-					return c.insn_invoke(Type::any, {e}, "Value.decl");
+					return c.insn_invoke(env.any, {e}, "Value.decl");
 				}
 			}
 			break;
@@ -120,7 +122,7 @@ Compiler::value PostfixExpression::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> PostfixExpression::clone() const {
-	auto pe = std::make_unique<PostfixExpression>();
+	auto pe = std::make_unique<PostfixExpression>(type->env);
 	pe->expression = unique_static_cast<LeftValue>(expression->clone());
 	pe->operatorr = operatorr;
 	return pe;

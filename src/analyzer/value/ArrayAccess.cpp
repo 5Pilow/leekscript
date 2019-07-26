@@ -11,8 +11,9 @@
 
 namespace ls {
 
-ArrayAccess::ArrayAccess() {
-	type = Type::any;
+ArrayAccess::ArrayAccess(Environment& env) : LeftValue(env), compiled_array(env) {
+	type = env.any;
+	map_key_type = env.void_;
 	throws = true;
 }
 
@@ -40,13 +41,14 @@ Location ArrayAccess::location() const {
 	return {close_bracket->location.file, array->location().start, close_bracket->location.end};
 }
 
-Call ArrayAccess::get_callable(SemanticAnalyzer*, int argument_count) const {
+Call ArrayAccess::get_callable(SemanticAnalyzer* analyzer, int argument_count) const {
+	const auto& env = analyzer->env;
 	// std::cout << "Array access get callable " << type << std::endl;
 	if (type->is_function()) {
 		return { new Callable { new CallableVersion { "<aa>", type, this } } };
 	} else {
 		// The array is not homogeneous, so the function inside an array always returns any
-		return { new Callable { new CallableVersion { "<aa>", Type::fun(Type::any, {Type::any}), this, {}, {}, false, true } } };
+		return { new Callable { new CallableVersion { "<aa>", Type::fun(env.any, { env.any }), this, {}, {}, false, true } } };
 	}
 }
 
@@ -57,7 +59,7 @@ void ArrayAccess::pre_analyze(SemanticAnalyzer* analyzer) {
 }
 
 void ArrayAccess::analyze(SemanticAnalyzer* analyzer) {
-
+	const auto& env = analyzer->env;
 	// std::cout << "Analyze AA " << this << " : " << req_type << std::endl;
 
 	array->analyze(analyzer);
@@ -103,7 +105,7 @@ void ArrayAccess::analyze(SemanticAnalyzer* analyzer) {
 			analyzer->add_error({Error::Type::ARRAY_ACCESS_KEY_MUST_BE_NUMBER, location(), key->location(), {k, a, kt}});
 		}
 		if (array->type->is_string()) {
-			type = Type::string;
+			type = env.string;
 		}
 	} else if (array->type->is_map()) {
 		if (!key->type->castable(map_key_type)) {
@@ -126,7 +128,7 @@ const Type* ArrayAccess::will_take(SemanticAnalyzer* analyzer, const std::vector
 	if (ArrayAccess* arr = dynamic_cast<ArrayAccess*>(array.get())) {
 		arr->array_access_will_take(analyzer, args, 1);
 	}
-	
+
 	type = array->type->element();
 	return type;
 }
@@ -156,17 +158,19 @@ void ArrayAccess::change_value(SemanticAnalyzer* analyzer, Value* value) {
 }
 
 const Type* ArrayAccess::version_type(std::vector<const Type*> version) const {
+	const auto& env = type->env;
 	// std::cout << "AA vt " << type << std::endl;
 	if (type->is_function()) {
 		return type;
 	} else {
 		// The array is not homogeneous, so the function inside an array always returns any
-		return Type::fun_object(Type::any, {Type::any});
+		return Type::fun_object(env.any, { env.any });
 	}
 }
 
 #if COMPILER
 Compiler::value ArrayAccess::compile(Compiler& c) const {
+	const auto& env = c.env;
 
 	c.mark_offset(open_bracket->location.start.line);
 
@@ -181,7 +185,7 @@ Compiler::value ArrayAccess::compile(Compiler& c) const {
 		if (array->type->is_interval()) {
 
 			auto k = key->compile(c);
-			auto r = c.insn_invoke(Type::integer, {compiled_array, k}, "Interval.atv");
+			auto r = c.insn_invoke(env.integer, {compiled_array, k}, "Interval.atv");
 			key->compile_end(c);
 			return r;
 
@@ -226,7 +230,7 @@ Compiler::value ArrayAccess::compile(Compiler& c) const {
 
 			auto k = key->compile(c);
 			if (k.t->is_polymorphic()) {
-				k = c.insn_invoke(Type::integer, {k}, "Array.convert_key");
+				k = c.insn_invoke(env.integer, {k}, "Array.convert_key");
 			}
 			auto int_key = c.to_int(k);
 			key->compile_end(c);
@@ -238,7 +242,7 @@ Compiler::value ArrayAccess::compile(Compiler& c) const {
 			});
 
 			if (array->type->is_string()) {
-				auto e = c.insn_call(Type::tmp_string, {compiled_array, int_key}, "String.codePointAt");
+				auto e = c.insn_call(env.tmp_string, {compiled_array, int_key}, "String.codePointAt");
 				c.insn_delete_temporary(k);
 				return e;
 			} else {
@@ -250,7 +254,7 @@ Compiler::value ArrayAccess::compile(Compiler& c) const {
 			// Unknown type, call generic at() operator
 			auto k = c.insn_to_any(key->compile(c));
 			key->compile_end(c);
-			auto e = c.insn_invoke(Type::any, {compiled_array, k}, "Value.at");
+			auto e = c.insn_invoke(env.any, {compiled_array, k}, "Value.at");
 			c.insn_delete_temporary(k);
 			return e;
 		}
@@ -265,6 +269,7 @@ Compiler::value ArrayAccess::compile(Compiler& c) const {
 }
 
 Compiler::value ArrayAccess::compile_l(Compiler& c) const {
+	const auto& env = c.env;
 
 	// Compile the array
 	((ArrayAccess*) this)->compiled_array = [&]() {
@@ -292,17 +297,17 @@ Compiler::value ArrayAccess::compile_l(Compiler& c) const {
 			return c.insn_array_at(compiled_array, k);
 
 		} else if (array->type->is_map()) {
-			auto f = [&]() { if (array->type->key() == Type::any) {
-				if (array->type->element() == Type::any) return "Map.atL";
-				if (array->type->element() == Type::real) return "Map.atL.1";
+			auto f = [&]() { if (array->type->key() == env.any) {
+				if (array->type->element() == env.any) return "Map.atL";
+				if (array->type->element() == env.real) return "Map.atL.1";
 				return "Map.atL.2";
-			} else if (array->type->key() == Type::real) {
-				if (array->type->element() == Type::any) return "Map.atL.3";
-				if (array->type->element() == Type::real) return "Map.atL.4";
+			} else if (array->type->key() == env.real) {
+				if (array->type->element() == env.any) return "Map.atL.3";
+				if (array->type->element() == env.real) return "Map.atL.4";
 				return "Map.atL.5";
 			} else {
-				if (array->type->element() == Type::any) return "Map.atL.6";
-				if (array->type->element() == Type::real) return "Map.atL.7";
+				if (array->type->element() == env.any) return "Map.atL.6";
+				if (array->type->element() == env.real) return "Map.atL.7";
 				return "Map.atL.8";
 			}}();
 			return c.insn_call(array->type->element()->pointer(), {compiled_array, k}, f);
@@ -326,7 +331,7 @@ void ArrayAccess::compile_end(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> ArrayAccess::clone() const {
-	auto aa = std::make_unique<ArrayAccess>();
+	auto aa = std::make_unique<ArrayAccess>(type->env);
 	aa->array = array->clone();
 	aa->key = key->clone();
 	aa->key2 = key2 ? key2->clone() : nullptr;

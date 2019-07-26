@@ -3,10 +3,12 @@
 #include "../../type/Type.hpp"
 #include "../semantic/Callable.hpp"
 #include "../semantic/CallableVersion.hpp"
+#include "../semantic/SemanticAnalyzer.hpp"
+#include "../../environment/Environment.hpp"
 
 namespace ls {
 
-Value::Value() : type(Type::any), return_type(Type::void_), constant(false) {}
+Value::Value(Environment& env) : type(env.any), return_type(env.void_), constant(false) {}
 
 Call Value::get_callable(SemanticAnalyzer*, int argument_count) const {
 	return {};
@@ -29,11 +31,11 @@ bool Value::elements_will_store(SemanticAnalyzer*, const Type*, int level) {
 	return false;
 }
 
-bool Value::must_be_any(SemanticAnalyzer*) {
-	if (type == Type::any) {
+bool Value::must_be_any(SemanticAnalyzer* analyzer) {
+	if (type == analyzer->env.any) {
 		return false;
 	}
-	type = Type::any;
+	type = analyzer->env.any;
 	return true;
 }
 

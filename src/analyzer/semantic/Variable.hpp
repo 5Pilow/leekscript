@@ -57,7 +57,7 @@ public:
 	Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, LSClass* lsclass, Call call = {});
 	#endif
 
-	const Type* get_entry_type() const;
+	const Type* get_entry_type(Environment& env) const;
 
 	#if COMPILER
 	Compiler::value get_value(Compiler& c) const;
@@ -68,7 +68,7 @@ public:
 	#endif
 
 	static Variable* new_temporary(std::string name, const Type* type);
-	static const Type* get_type_for_variable_from_expression(const Type* value_type);
+	static const Type* get_type_for_variable_from_expression(Environment& env, const Type* value_type);
 };
 
 }

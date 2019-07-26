@@ -7,6 +7,8 @@
 
 namespace ls {
 
+For::For(Environment& env) : Instruction(env) {}
+
 void For::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "for";
 	for (const auto& ins : init->instructions) {
@@ -64,7 +66,7 @@ void For::pre_analyze(SemanticAnalyzer* analyzer) {
 			variable.second->assignment = true;
 		}
 	}
-	
+
 	increment->pre_analyze(analyzer);
 
 	if (body->variables.size() or increment->variables.size()) {
@@ -79,7 +81,7 @@ void For::pre_analyze(SemanticAnalyzer* analyzer) {
 		increment2->is_loop_body = true;
 		increment2->is_loop = true;
 		increment2->pre_analyze(analyzer);
-		
+
 		if (condition != nullptr) {
 			condition2 = std::move(condition->clone());
 			condition2->pre_analyze(analyzer);
@@ -108,11 +110,12 @@ void For::pre_analyze(SemanticAnalyzer* analyzer) {
 
 void For::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	// std::cout << "For::analyze() " << is_void << std::endl;
+	auto& env = analyzer->env;
 
 	if (req_type->is_array()) {
 		type = req_type;
 	} else {
-		type = Type::void_;
+		type = env.void_;
 		body->is_void = true;
 		if (body2) body2->is_void = true;
 	}
@@ -208,7 +211,7 @@ Compiler::value For::compile(Compiler& c) const {
 	c.enter_block(init.get()); // { for init ; cond ; inc { body } }<-- this block
 	c.mark_offset(token->location.start.line);
 
-	Compiler::value output_v;
+	Compiler::value output_v { c.env };
 	if (type->is_array()) {
 		output_v = c.new_array(type->element(), {});
 		c.insn_inc_refs(output_v);
@@ -313,7 +316,7 @@ Compiler::value For::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Instruction> For::clone() const {
-	auto f = std::make_unique<For>();
+	auto f = std::make_unique<For>(type->env);
 	f->token = token;
 	f->init = unique_static_cast<Block>(init->clone());
 	if (condition) f->condition = condition->clone();

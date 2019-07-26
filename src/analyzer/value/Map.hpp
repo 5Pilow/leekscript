@@ -14,7 +14,9 @@ public:
 	Token* closing_bracket;
 	std::vector<std::unique_ptr<Value>> keys;
 	std::vector<std::unique_ptr<Value>> values;
-	
+
+	Map(Environment& env);
+
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
 

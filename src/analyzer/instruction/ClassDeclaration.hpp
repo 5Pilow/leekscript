@@ -18,7 +18,7 @@ public:
 	std::vector<std::unique_ptr<VariableDeclaration>> fields;
 	Variable* var;
 
-	ClassDeclaration(Token* token);
+	ClassDeclaration(Environment& env, Token* token);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;

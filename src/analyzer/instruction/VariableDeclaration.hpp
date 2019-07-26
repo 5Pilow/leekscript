@@ -20,7 +20,7 @@ public:
 	std::vector<std::unique_ptr<Value>> expressions;
 	std::map<std::string, Variable*> vars;
 
-	VariableDeclaration();
+	VariableDeclaration(Environment& env);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;

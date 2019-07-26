@@ -2,8 +2,11 @@
 #include "../../vm/value/LSMap.hpp"
 #include "../../type/Type.hpp"
 #include <cmath>
+#include "../semantic/SemanticAnalyzer.hpp"
 
 namespace ls {
+
+Map::Map(Environment& env) : Value(env) {}
 
 void Map::print(std::ostream& os, int indent, PrintOptions options) const {
 	if (values.empty()) {
@@ -39,9 +42,10 @@ void Map::pre_analyze(SemanticAnalyzer* analyzer) {
 }
 
 void Map::analyze(SemanticAnalyzer* analyzer) {
+	const auto& env = analyzer->env;
 
-	const Type* key_type = Type::void_;
-	const Type* value_type = Type::void_;
+	const Type* key_type = env.void_;
+	const Type* value_type = env.void_;
 
 	for (size_t i = 0; i < keys.size(); ++i) {
 		const auto& ex = keys[i];
@@ -61,12 +65,12 @@ void Map::analyze(SemanticAnalyzer* analyzer) {
 
 	if (key_type->is_integer() or key_type->is_real()) {
 	} else {
-		key_type = Type::any;
+		key_type = env.any;
 		// key_type.setReturnType(Type::any());
 	}
 	if (value_type->is_integer() || value_type->is_real()) {
 	} else {
-		value_type = Type::any;
+		value_type = env.any;
 		// value_type.setReturnType(Type::any());
 	}
 	type = Type::tmp_map(key_type, value_type);
@@ -97,7 +101,7 @@ Compiler::value Map::compile(Compiler &c) const {
 		auto v = c.insn_convert(values[i]->compile(c), type->element());
 		values[i]->compile_end(c);
 
-		c.insn_call(Type::void_, {map, k, v}, insert);
+		c.insn_call(c.env.void_, {map, k, v}, insert);
 		ops += std::log2(i + 1);
 	}
 	c.inc_ops(ops);
@@ -106,7 +110,7 @@ Compiler::value Map::compile(Compiler &c) const {
 #endif
 
 std::unique_ptr<Value> Map::clone() const {
-	auto map = std::make_unique<Map>();
+	auto map = std::make_unique<Map>(type->env);
 	map->opening_bracket = opening_bracket;
 	map->closing_bracket = closing_bracket;
 	for (const auto& k : keys) {

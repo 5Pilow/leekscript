@@ -14,7 +14,7 @@ public:
 	std::shared_ptr<Operator> operatorr;
 	bool return_value;
 
-	PostfixExpression();
+	PostfixExpression(Environment& env);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;

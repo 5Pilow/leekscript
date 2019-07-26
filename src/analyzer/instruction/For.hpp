@@ -24,6 +24,8 @@ public:
 	std::unique_ptr<Block> body2;
 	std::vector<std::pair<Variable*, Variable*>> assignments;
 
+	For(Environment& env);
+
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
 

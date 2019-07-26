@@ -8,7 +8,7 @@
 
 namespace ls {
 
-While::While() {
+While::While(Environment& env) : Instruction(env) {
 	condition = nullptr;
 	body = nullptr;
 }
@@ -83,7 +83,7 @@ void While::analyze(SemanticAnalyzer* analyzer, const Type*) {
 		body2->enabled = false;
 	}
 	analyzer->leave_loop();
-	
+
 	throws |= body->throws;
 	if (body->may_return) {
 		may_return = body->may_return;
@@ -150,12 +150,12 @@ Compiler::value While::compile(Compiler& c) const {
 		assignment.first->val = c.create_entry(assignment.first->name, assignment.first->type);
 		c.insn_store(assignment.first->val, c.insn_load(assignment.second->val));
 	}
-	return {};
+	return { c.env };
 }
 #endif
 
 std::unique_ptr<Instruction> While::clone() const {
-	auto w = std::make_unique<While>();
+	auto w = std::make_unique<While>(type->env);
 	w->token = token;
 	w->condition = condition->clone();
 	w->body = unique_static_cast<Block>(body->clone());

@@ -17,7 +17,7 @@
 
 namespace ls {
 
-Expression::Expression(Value* v) : v1(v), operations(1) {}
+Expression::Expression(Environment& env, Value* v) : Value(env), v1(v), operations(1) {}
 
 void Expression::append(std::shared_ptr<Operator> op, Value* exp) {
 	/*
@@ -37,7 +37,7 @@ void Expression::append(std::shared_ptr<Operator> op, Value* exp) {
 		if (auto exp2 = dynamic_cast<Expression*>(v2.get())) {
 			exp2->append(op, exp);
 		} else {
-			auto ex = new Expression();
+			auto ex = new Expression(type->env);
 			ex->v1 = std::move(v2);
 			ex->op = op;
 			ex->v2.reset(exp);
@@ -49,7 +49,7 @@ void Expression::append(std::shared_ptr<Operator> op, Value* exp) {
 		 * and try to add a operator with a lower priority,
 		 * such as : '< 7' => '(5 + 2) < 7'
 		 */
-		auto newV1 = new Expression();
+		auto newV1 = new Expression(type->env);
 		newV1->v1 = std::move(this->v1);
 		newV1->op = this->op;
 		newV1->v2 = std::move(this->v2);
@@ -119,15 +119,17 @@ void Expression::pre_analyze(SemanticAnalyzer* analyzer) {
 
 void Expression::analyze(SemanticAnalyzer* analyzer) {
 	// std::cout << "Expression::analyze()" << std::endl;
+	auto& env = analyzer->env;
 
 	operations = 1;
-	type = Type::any;
+	type = env.any;
 
 	// No operator : just analyze v1 and return
 	if (op == nullptr) {
 		v1->is_void = is_void;
 		v1->analyze(analyzer);
 		type = v1->type;
+		return_type = v1->return_type;
 		throws = v1->throws;
 		return;
 	}
@@ -142,7 +144,7 @@ void Expression::analyze(SemanticAnalyzer* analyzer) {
 		return;
 	}
 	if (op->type == TokenType::CATCH_ELSE) {
-		type = Type::any;
+		type = env.any;
 		return;
 	}
 
@@ -210,7 +212,7 @@ void Expression::analyze(SemanticAnalyzer* analyzer) {
 					if (v1->type->placeholder) { return_type = v1_type; }
 					if (v2->type->placeholder) { return_type = v2_type; }
 				}
-				type = is_void ? Type::void_ : return_type;
+				type = is_void ? env.void_ : return_type;
 				if ((v2_type->is_function() or v2_type->is_function_pointer() or v2_type->is_function_object()) and (callable_version->type->argument(1)->is_function() or callable_version->type->argument(1)->is_function_pointer())) {
 					v2->will_take(analyzer, callable_version->type->argument(1)->arguments(), 1);
 					v2->set_version(analyzer, callable_version->type->argument(1)->arguments(), 1);
@@ -243,7 +245,7 @@ Compiler::value Expression::compile(Compiler& c) const {
 	if ((op->type == TokenType::DIVIDE or op->type == TokenType::DIVIDE_EQUAL or op->type == TokenType::INT_DIV or op->type == TokenType::INT_DIV_EQUAL or op->type == TokenType::MODULO or op->type == TokenType::MODULO_EQUAL) and v2->is_zero()) {
 		c.mark_offset(op->token->location.start.line);
 		c.insn_throw_object(vm::Exception::DIVISION_BY_ZERO);
-		return c.insn_convert(c.new_integer(0), c.fun->getReturnType());
+		return c.insn_convert(c.new_integer(0), c.fun->getReturnType(c.env));
 	}
 
 	// array[] = 12, array push
@@ -263,7 +265,7 @@ Compiler::value Expression::compile(Compiler& c) const {
 			}
 			auto x_addr = ((LeftValue*) array_access->array.get())->compile_l(c);
 			auto y = c.insn_to_any(v2->compile(c));
-			auto r = c.insn_invoke(Type::any, {x_addr, y}, "Value.operator+=");
+			auto r = c.insn_invoke(c.env.any, {x_addr, y}, "Value.operator+=");
 			v2->compile_end(c);
 			return r;
 		}
@@ -277,7 +279,7 @@ Compiler::value Expression::compile(Compiler& c) const {
 
 		auto x = c.insn_convert(v1->compile(c), type);
 		v1->compile_end(c);
-		auto condition = c.insn_call(Type::boolean, {x}, "Value.is_null");
+		auto condition = c.insn_call(c.env.boolean, {x}, "Value.is_null");
 		c.insn_if_new(condition, &label_then, &label_else);
 
 		c.insn_label(&label_then);
@@ -354,7 +356,7 @@ Compiler::value Expression::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> Expression::clone() const {
-	auto ex = std::make_unique<Expression>();
+	auto ex = std::make_unique<Expression>(type->env);
 	ex->v1 = v1->clone();
 	ex->op = op;
 	ex->v2 = v2 ? v2->clone() : nullptr;

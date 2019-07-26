@@ -1,11 +1,12 @@
 #include "AbsoluteValue.hpp"
 #include "../../vm/LSValue.hpp"
 #include "../../type/Type.hpp"
+#include "../semantic/SemanticAnalyzer.hpp"
 
 namespace ls {
 
-AbsoluteValue::AbsoluteValue() {
-	type = Type::integer;
+AbsoluteValue::AbsoluteValue(Environment& env) : Value(env) {
+	type = env.integer;
 	throws = true;
 }
 
@@ -34,14 +35,14 @@ void AbsoluteValue::analyze(SemanticAnalyzer* analyzer) {
 Compiler::value AbsoluteValue::compile(Compiler& c) const {
 	auto ex = c.insn_to_any(expression->compile(c));
 	c.mark_offset(location().start.line);
-	auto abso = c.insn_invoke(Type::integer, {ex}, "Value.absolute");
+	auto abso = c.insn_invoke(type, {ex}, "Value.absolute");
 	c.insn_delete_temporary(ex);
 	return abso;
 }
 #endif
 
 std::unique_ptr<Value> AbsoluteValue::clone() const {
-	auto abs = std::make_unique<AbsoluteValue>();
+	auto abs = std::make_unique<AbsoluteValue>(type->env);
 	abs->expression = expression->clone();
 	abs->open_pipe = open_pipe;
 	abs->close_pipe = close_pipe;

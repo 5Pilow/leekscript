@@ -23,7 +23,7 @@ public:
 	bool mpz_value_initialized = false;
 	bool pointer = false;
 
-	Number(std::string value, Token* token);
+	Number(Environment& env, std::string value, Token* token);
 	virtual ~Number();
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;

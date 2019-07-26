@@ -3,11 +3,12 @@
 #include "../../vm/value/LSString.hpp"
 #include "../../vm/value/LSObject.hpp"
 #include "../../type/Type.hpp"
+#include "../semantic/SemanticAnalyzer.hpp"
 
 namespace ls {
 
-Object::Object() {
-	type = Type::tmp_object;
+Object::Object(Environment& env) : Value(env) {
+	type = env.tmp_object;
 }
 
 void Object::print(std::ostream& os, int indent, PrintOptions options) const {
@@ -48,14 +49,14 @@ Compiler::value Object::compile(Compiler& c) const {
 	for (unsigned i = 0; i < keys.size(); ++i) {
 		auto k = c.new_const_string(keys.at(i)->content);
 		auto v = c.insn_to_any(values[i]->compile(c));
-		c.insn_call(Type::void_, {object, k, v}, "Object.add_field");
+		c.insn_call(c.env.void_, {object, k, v}, "Object.add_field");
 	}
 	return object;
 }
 #endif
 
 std::unique_ptr<Value> Object::clone() const {
-	auto o = std::make_unique<Object>();
+	auto o = std::make_unique<Object>(type->env);
 	for (const auto& k : keys) {
 		o->keys.push_back(k);
 	}

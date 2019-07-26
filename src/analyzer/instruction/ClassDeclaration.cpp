@@ -5,7 +5,7 @@
 
 namespace ls {
 
-ClassDeclaration::ClassDeclaration(Token* token) : token(token) {
+ClassDeclaration::ClassDeclaration(Environment& env, Token* token) : Instruction(env), token(token) {
 	name = token->content;
 	var = nullptr;
 }
@@ -26,21 +26,24 @@ Location ClassDeclaration::location() const {
 }
 
 void ClassDeclaration::pre_analyze(SemanticAnalyzer* analyzer) {
-	var = analyzer->add_var(token, Type::clazz(), nullptr);
+	auto& env = analyzer->env;
+	var = analyzer->add_var(token, env.clazz(), nullptr);
 	for (const auto& vd : fields) {
 		vd->pre_analyze(analyzer);
 	}
 }
 
 void ClassDeclaration::analyze(SemanticAnalyzer* analyzer, const Type*) {
+	auto& env = analyzer->env;
 	// TODO declare in pre_analyze
 	for (const auto& vd : fields) {
-		vd->analyze(analyzer, Type::any);
+		vd->analyze(analyzer, env.any);
 	}
 }
 
 #if COMPILER
 Compiler::value ClassDeclaration::compile(Compiler& c) const {
+	auto& env = c.env;
 	auto clazz = c.new_class(name);
 	for (const auto& vd : fields) {
 		for (size_t i = 0; i < vd->variables.size(); ++i) {
@@ -48,7 +51,7 @@ Compiler::value ClassDeclaration::compile(Compiler& c) const {
 			auto default_value = vd->expressions.at(i)->compile(c);
 			default_value = c.insn_to_any(default_value);
 			auto field_name = c.new_const_string(vd->variables.at(i)->content);
-			c.insn_call(Type::void_, {clazz, field_name, default_value}, "Class.add_field");
+			c.insn_call(env.void_, {clazz, field_name, default_value}, "Class.add_field");
 		}
 	}
 	var->create_entry(c);
@@ -58,7 +61,7 @@ Compiler::value ClassDeclaration::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Instruction> ClassDeclaration::clone() const {
-	auto cd = std::make_unique<ClassDeclaration>(token);
+	auto cd = std::make_unique<ClassDeclaration>(type->env, token);
 	cd->name = name;
 	for (const auto& f : fields) {
 		cd->fields.push_back(unique_static_cast<VariableDeclaration>(f->clone()));

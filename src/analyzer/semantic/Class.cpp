@@ -7,7 +7,7 @@
 
 namespace ls {
 
-Class::Class(std::string name) : name(name) {}
+Class::Class(Environment& env, std::string name) : env(env), name(name) {}
 
 Class::~Class() {
 	for (auto s : static_fields) {

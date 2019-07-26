@@ -25,7 +25,7 @@ public:
 	Compiler::value value2;
 	#endif
 
-	Phi(Variable* variable, Block* block1, Variable* value1, Block* block2, Variable* value2);
+	Phi(Environment& env, Variable* variable, Block* block1, Variable* value1, Block* block2, Variable* value2);
 
 	static std::vector<Phi*> build_phis(SemanticAnalyzer* analyzer, Block* block1, Block* block2);
 };

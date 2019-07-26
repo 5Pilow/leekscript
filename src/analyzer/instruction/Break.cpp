@@ -4,7 +4,7 @@
 
 namespace ls {
 
-Break::Break() {
+Break::Break(Environment& env) : Instruction(env) {
 	deepness = 1;
 }
 
@@ -44,12 +44,12 @@ Compiler::value Break::compile(Compiler& c) const {
 	c.delete_variables_block(c.get_current_loop_blocks(deepness));
 	c.insn_branch(c.get_current_loop_end_label(deepness));
 	c.insert_new_generation_block();
-	return {};
+	return { c.env };
 }
 #endif
 
 std::unique_ptr<Instruction> Break::clone() const {
-	auto b = std::make_unique<Break>();
+	auto b = std::make_unique<Break>(type->env);
 	b->token = token;
 	b->deepness = deepness;
 	return b;

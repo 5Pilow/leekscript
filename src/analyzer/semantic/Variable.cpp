@@ -2,18 +2,19 @@
 #include "../../colors.h"
 #include "../../type/Type.hpp"
 #include "../value/Phi.hpp"
+#include "../../environment/Environment.hpp"
 
 namespace ls {
 
-Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), type(type), clazz(clazz), call(call) {}
+Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), type(type), clazz(clazz), call(call), val(type->env), addr_val(type->env) {}
 
 #if COMPILER
-Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, LSClass* lsclass, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), type(type), clazz(clazz), lsclass(lsclass), call(call) {}
+Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, LSClass* lsclass, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), type(type), clazz(clazz), lsclass(lsclass), call(call), val(type->env), addr_val(type->env) {}
 #endif
 
-const Type* Variable::get_entry_type() const {
+const Type* Variable::get_entry_type(Environment& env) const {
 	if (type->is_mpz_ptr()) {
-		return Type::mpz;
+		return env.mpz;
 	}
 	return type->not_temporary();
 }
@@ -41,12 +42,12 @@ Compiler::value Variable::get_address(Compiler& c) const {
 
 void Variable::create_entry(Compiler& c) {
 	// std::cout << "create_entry " << this << std::endl;
-	auto t = get_entry_type();
+	auto t = get_entry_type(c.env);
 	val = c.create_entry(name, t);
 }
 void Variable::create_addr_entry(Compiler& c, Compiler::value value) {
 	// std::cout << "create_entry " << this << std::endl;
-	auto t = get_entry_type()->pointer();
+	auto t = get_entry_type(c.env)->pointer();
 	addr_val = c.create_entry(name + "_addr", t);
 	c.insn_store(addr_val, value);
 }
@@ -73,9 +74,9 @@ Variable* Variable::new_temporary(std::string name, const Type* type) {
 	return new Variable(name, VarScope::LOCAL, type, 0, nullptr, nullptr, nullptr, nullptr);
 }
 
-const Type* Variable::get_type_for_variable_from_expression(const Type* expression_type) {
+const Type* Variable::get_type_for_variable_from_expression(Environment& env, const Type* expression_type) {
 	if (expression_type->is_mpz() or expression_type->is_mpz_ptr()) {
-		return Type::mpz_ptr;
+		return env.mpz_ptr;
 	}
 	return expression_type->not_temporary();
 }

@@ -32,7 +32,7 @@ public:
 	Call call;
 	const CallableVersion* callable_version;
 
-	FunctionCall(Token* t);
+	FunctionCall(Environment& env, Token* t);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;

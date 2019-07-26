@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include "../analyzer/semantic/Variable.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
@@ -18,11 +19,12 @@ public:
 class Context {
 public:
 
-	Context();
-	Context(std::string ctx);
-	virtual ~Context();
-
+	Environment& env;
 	std::unordered_map<std::string, ContextVar> vars;
+
+	Context(Environment& env);
+	Context(Environment& env, std::string ctx);
+	virtual ~Context();
 
 	void add_variable(char* name, void* v, const Type* type);
 };

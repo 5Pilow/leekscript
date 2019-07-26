@@ -14,7 +14,7 @@
 
 namespace ls {
 
-ObjectAccess::ObjectAccess(Token* token) : field(token) {
+ObjectAccess::ObjectAccess(Environment& env, Token* token) : LeftValue(env), field(token) {
 	attr_addr = nullptr;
 	throws = true; // TODO doesn't always throw
 }
@@ -90,6 +90,7 @@ const Type* ObjectAccess::will_take(SemanticAnalyzer* analyzer, const std::vecto
 }
 
 Call ObjectAccess::get_callable(SemanticAnalyzer* analyzer, int argument_count) const {
+	const auto& env = analyzer->env;
 	// std::cout << "ObjectAccess::get_callable(" << argument_count << ")" << std::endl;
 
 	auto vv = dynamic_cast<VariableValue*>(object.get());
@@ -130,7 +131,7 @@ Call ObjectAccess::get_callable(SemanticAnalyzer* analyzer, int argument_count) 
 	if (not object->type->is_class()) {
 		std::ostringstream oss;
 		oss << object.get() << "." << field->content;
-		auto type = Type::fun_object(Type::any, {Type::any, Type::any});
+		auto type = Type::fun_object(env.any, { env.any, env.any });
 		return { new Callable { new CallableVersion { oss.str(), type, this, {}, {}, true, true } }, object.get() };
 	}
 	return { (Callable*) nullptr };
@@ -141,11 +142,12 @@ void ObjectAccess::pre_analyze(SemanticAnalyzer* analyzer) {
 }
 
 void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
+	const auto& env = analyzer->env;
 
 	// std::cout << "ObjectAccess analyse " << this << std::endl;
 
 	object->analyze(analyzer);
-	type = Type::any;
+	type = env.any;
 
 	// Get the object class : 12 => Number
 	object_class_name = object->type->class_name();
@@ -318,7 +320,7 @@ Compiler::value ObjectAccess::compile(Compiler& c) const {
 Compiler::value ObjectAccess::compile_version(Compiler& c, std::vector<const Type*> version) const {
 	if (class_method) {
 		// Method symbol like "Number.abs"
-		return c.get_symbol(versions.at(version), Type::fun()->pointer());
+		return c.get_symbol(versions.at(version), Type::fun(c.env.void_, {})->pointer());
 	}
 	assert(false && "ObjectAccess::compile_version must be on a class method.");
 }
@@ -336,7 +338,7 @@ Compiler::value ObjectAccess::compile_l(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> ObjectAccess::clone() const {
-	auto oa = std::make_unique<ObjectAccess>(field);
+	auto oa = std::make_unique<ObjectAccess>(type->env, field);
 	oa->object = object->clone();
 	return oa;
 }

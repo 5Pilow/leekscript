@@ -1,11 +1,12 @@
 #include "Nulll.hpp"
 #include "../../vm/value/LSNull.hpp"
 #include "../../type/Type.hpp"
+#include "../semantic/SemanticAnalyzer.hpp"
 
 namespace ls {
 
-Nulll::Nulll(Token* token) : token(token) {
-	type = Type::null;
+Nulll::Nulll(Environment& env, Token* token) : Value(env), token(token) {
+	type = env.null;
 	constant = true;
 }
 
@@ -27,7 +28,7 @@ Compiler::value Nulll::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> Nulll::clone() const {
-	return std::make_unique<Nulll>(token);
+	return std::make_unique<Nulll>(type->env, token);
 }
 
 }

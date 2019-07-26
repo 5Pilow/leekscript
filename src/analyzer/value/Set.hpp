@@ -10,6 +10,8 @@ class Set : public Value {
 public:
 	std::vector<std::unique_ptr<Value>> expressions;
 
+	Set(Environment& env);
+
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
 	virtual void pre_analyze(SemanticAnalyzer*) override;

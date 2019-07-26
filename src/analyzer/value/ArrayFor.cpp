@@ -1,6 +1,9 @@
 #include "ArrayFor.hpp"
+#include "../semantic/SemanticAnalyzer.hpp"
 
 namespace ls {
+
+ArrayFor::ArrayFor(Environment& env) : Value(env) {}
 
 void ArrayFor::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "[";
@@ -21,7 +24,8 @@ void ArrayFor::pre_analyze(SemanticAnalyzer* analyzer) {
 }
 
 void ArrayFor::analyze(SemanticAnalyzer* analyzer) {
-	forr->analyze(analyzer, Type::array());
+	auto& env = analyzer->env;
+	forr->analyze(analyzer, Type::array(env.void_));
 	type = forr->type;
 	throws = forr->throws;
 }
@@ -33,7 +37,7 @@ Compiler::value ArrayFor::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> ArrayFor::clone() const {
-	auto af = std::make_unique<ArrayFor>();
+	auto af = std::make_unique<ArrayFor>(type->env);
 	af->forr = forr->clone();
 	return af;
 }

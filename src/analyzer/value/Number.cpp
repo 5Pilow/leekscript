@@ -2,10 +2,11 @@
 #include <limits.h>
 #include "../../vm/value/LSNumber.hpp"
 #include "../../type/Type.hpp"
+#include "../semantic/SemanticAnalyzer.hpp"
 
 namespace ls {
 
-Number::Number(std::string value, Token* token) : token(token), value(value) {
+Number::Number(Environment& env, std::string value, Token* token) : Value(env), token(token), value(value) {
 	constant = true;
 }
 
@@ -26,8 +27,8 @@ Location Number::location() const {
 	return token->location;
 }
 
-void Number::analyze(SemanticAnalyzer*) {
-
+void Number::analyze(SemanticAnalyzer* analyzer) {
+	auto& env = analyzer->env;
 	// Get the base
 	base = 10;
 	clean_value = value;
@@ -67,7 +68,7 @@ void Number::analyze(SemanticAnalyzer*) {
 			assert(false && "No support for mpf numbers yet");
 			// LCOV_EXCL_STOP
 		} else {
-			type = Type::real;
+			type = env.real;
 		}
 	} else {
 		if (!mpz_value_initialized) {
@@ -75,19 +76,19 @@ void Number::analyze(SemanticAnalyzer*) {
 			mpz_value_initialized = true;
 		}
 		if (!mp_number and !long_number and mpz_fits_sint_p(mpz_value)) {
-			type = Type::integer;
+			type = env.integer;
 			int_value = mpz_get_si(mpz_value);
 			double_value = int_value;
 		} else if (!mp_number and mpz_fits_slong_p(mpz_value)) {
-			type = Type::long_;
+			type = env.long_;
 			long_value = mpz_get_si(mpz_value);
 			double_value = long_value;
 		} else {
-			type = Type::tmp_mpz_ptr;
+			type = env.tmp_mpz_ptr;
 		}
 	}
 	if (pointer) {
-		type = Type::any;
+		type = env.any;
 	}
 	// TODO ?
 	// type.constant = true;
@@ -116,10 +117,10 @@ Compiler::value Number::compile(Compiler& c) const {
 	if (type->is_real()) {
 		return c.new_real(double_value);
 	}
-	if (type == Type::tmp_mpz_ptr) {
+	if (type == c.env.tmp_mpz_ptr) {
 		auto s = c.new_const_string(clean_value);
-		auto r = c.create_entry("m", Type::tmp_mpz);
-		c.insn_call(Type::void_, {r, s, c.new_integer(base)}, "Number.mpz_init_str");
+		auto r = c.create_entry("m", c.env.tmp_mpz);
+		c.insn_call(c.env.void_, {r, s, c.new_integer(base)}, "Number.mpz_init_str");
 		c.increment_mpz_created();
 		return r;
 	}
@@ -128,7 +129,7 @@ Compiler::value Number::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> Number::clone() const {
-	return std::make_unique<Number>(value, token);
+	return std::make_unique<Number>(type->env, value, token);
 }
 
 }

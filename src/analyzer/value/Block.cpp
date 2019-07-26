@@ -12,7 +12,7 @@
 
 namespace ls {
 
-Block::Block(bool is_function_block) : is_function_block(is_function_block) {}
+Block::Block(Environment& env, bool is_function_block) : Value(env), is_function_block(is_function_block) {}
 
 void Block::print(std::ostream& os, int indent, PrintOptions options) const {
 	if (!options.condensed) {
@@ -91,12 +91,13 @@ void Block::create_assignments(SemanticAnalyzer* analyzer) {
 }
 
 void Block::analyze(SemanticAnalyzer* analyzer) {
+	const auto& env = analyzer->env;
 	// std::cout << "Block::analyze() " << is_void << std::endl;
 
 	analyzer->enter_block(this);
 	throws = false;
 
-	type = Type::void_;
+	type = env.void_;
 
 	for (unsigned i = 0; i < instructions.size(); ++i) {
 		const auto& instruction = instructions.at(i);
@@ -124,19 +125,19 @@ void Block::analyze(SemanticAnalyzer* analyzer) {
 		type = type->add_temporary();
 	}
 
-	if (type == Type::mpz) {
-		type = Type::tmp_mpz;
-	} else if (type == Type::tmp_mpz) {
+	if (type == env.mpz) {
+		type = env.tmp_mpz;
+	} else if (type == env.tmp_mpz) {
 		temporary_mpz = true;
-	} else if (type == Type::tmp_mpz_ptr) {
-		type = Type::tmp_mpz;
+	} else if (type == env.tmp_mpz_ptr) {
+		type = env.tmp_mpz;
 		temporary_mpz = true;
 		mpz_pointer = true;
-	} else if (type == Type::mpz_ptr or type == Type::const_mpz_ptr) {
-		type = Type::tmp_mpz;
+	} else if (type == env.mpz_ptr or type == env.const_mpz_ptr) {
+		type = env.tmp_mpz;
 		mpz_pointer = true;
 	}
-	
+
 	for (const auto& assignment : assignments) {
 		assignment.first->type = assignment.second->type;
 	}
@@ -159,9 +160,9 @@ Compiler::value Block::compile(Compiler& c) const {
 			instructions[i]->compile_end(c);
 			c.leave_block(false); // Variables already deleted by the return instruction
 			if (is_function_block) {
-				c.fun->compile_return(c, {});
+				c.fun->compile_return(c, { c.env });
 			}
-			return {};
+			return { c.env };
 		}
 		if (i < instructions.size() - 1) {
 			instructions[i]->compile_end(c);
@@ -172,7 +173,7 @@ Compiler::value Block::compile(Compiler& c) const {
 			auto return_value = [&]() {
 				if (instructions[i]->is_void) {
 					if (val.v) c.insn_delete_temporary(val);
-					return Compiler::value();
+					return Compiler::value { c.env };
 				} else if (not val.v) {
 					return val;
 				} else if (type->must_manage_memory() and val.v != nullptr) {
@@ -220,14 +221,14 @@ Compiler::value Block::compile(Compiler& c) const {
 	}
 	c.leave_block();
 	if (is_function_block) {
-		c.fun->compile_return(c, {});
+		c.fun->compile_return(c, { c.env });
 	}
-	return {};
+	return { c.env };
 }
 #endif
 
 std::unique_ptr<Value> Block::clone() const {
-	auto b = std::make_unique<Block>(is_function_block);
+	auto b = std::make_unique<Block>(type->env, is_function_block);
 	for (const auto& i : instructions) {
 		b->instructions.push_back(i->clone());
 	}

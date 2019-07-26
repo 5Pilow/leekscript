@@ -7,13 +7,15 @@
 
 namespace ls {
 
+class Environment;
+
 class Break : public Instruction {
 public:
 
 	Token* token;
 	int deepness;
 
-	Break();
+	Break(Environment& env);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;

@@ -1,12 +1,13 @@
 #include "Boolean.hpp"
 #include "../../vm/value/LSBoolean.hpp"
 #include "../../type/Type.hpp"
+#include "../semantic/SemanticAnalyzer.hpp"
 
 namespace ls {
 
-Boolean::Boolean(Token* token) : token(token) {
+Boolean::Boolean(Environment& env, Token* token) : Value(env), token(token) {
 	this->value = token->type == TokenType::TRUE;
-	type = Type::boolean;
+	type = env.boolean;
 	constant = true;
 }
 
@@ -28,7 +29,7 @@ Compiler::value Boolean::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> Boolean::clone() const {
-	auto b = std::make_unique<Boolean>(token);
+	auto b = std::make_unique<Boolean>(type->env, token);
 	b->value = value;
 	return b;
 }

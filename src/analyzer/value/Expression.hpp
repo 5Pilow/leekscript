@@ -19,7 +19,7 @@ public:
 	int operations;
 	const CallableVersion* callable_version = nullptr;
 
-	Expression(Value* = nullptr);
+	Expression(Environment& env, Value* = nullptr);
 
 	void append(std::shared_ptr<Operator>, Value*);
 

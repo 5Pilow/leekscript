@@ -24,7 +24,7 @@
 
 namespace ls {
 
-FunctionCall::FunctionCall(Token* t) : token(t) {
+FunctionCall::FunctionCall(Environment& env, Token* t) : Value(env), token(t) {
 	std_func = nullptr;
 	this_ptr = nullptr;
 	constant = false;
@@ -110,6 +110,7 @@ Call FunctionCall::get_callable(SemanticAnalyzer*, int argument_count) const {
 }
 
 void FunctionCall::analyze(SemanticAnalyzer* analyzer) {
+	auto& env = analyzer->env;
 
 	// std::cout << "FC analyse " << std::endl;
 
@@ -147,7 +148,7 @@ void FunctionCall::analyze(SemanticAnalyzer* analyzer) {
 			std::vector<Value*> raw_arguments;
 			for (const auto& a : arguments) raw_arguments.push_back(a.get());
 			call.apply_mutators(analyzer, callable_version, raw_arguments);
-			
+
 			int offset = call.object ? 1 : 0;
 			for (size_t a = 0; a < arguments.size(); ++a) {
 				auto argument_type = callable_version->type->argument(a + offset);
@@ -164,7 +165,7 @@ void FunctionCall::analyze(SemanticAnalyzer* analyzer) {
 				if (vv and vv->var) {
 					if (callable_version->user_fun == analyzer->current_function()) {
 						analyzer->current_function()->recursive = true;
-						type = analyzer->current_function()->getReturnType();
+						type = analyzer->current_function()->getReturnType(env);
 					}
 				}
 			}
@@ -175,7 +176,6 @@ void FunctionCall::analyze(SemanticAnalyzer* analyzer) {
 					}
 				}
 			}
-			// std::cout << "FC type " << type << std::endl;
 			return;
 		}
 	}
@@ -299,7 +299,7 @@ const Type* FunctionCall::version_type(std::vector<const Type*> version) const {
 
 #if COMPILER
 Compiler::value FunctionCall::compile(Compiler& c) const {
-	
+
 	c.mark_offset(location().start.line);
 
 	// std::cout << "FunctionCall::compile(" << function_type << ")" << std::endl;
@@ -356,7 +356,7 @@ Compiler::value FunctionCall::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> FunctionCall::clone() const {
-	auto fc = std::make_unique<FunctionCall>(token);
+	auto fc = std::make_unique<FunctionCall>(type->env, token);
 	fc->function = function->clone();
 	for (const auto& a : arguments) {
 		fc->arguments.emplace_back(a->clone());

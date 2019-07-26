@@ -9,7 +9,7 @@
 
 namespace ls {
 
-VariableDeclaration::VariableDeclaration() {
+VariableDeclaration::VariableDeclaration(Environment& env) : Instruction(env) {
 	global = false;
 	constant = false;
 }
@@ -43,18 +43,20 @@ Location VariableDeclaration::location() const {
 
 void VariableDeclaration::analyze_global_functions(SemanticAnalyzer* analyzer) const {
 	if (global && function) {
+		auto& env = analyzer->env;
 		auto var = variables.at(0);
 		const auto& expr = expressions.at(0);
-		auto v = analyzer->add_global_var(var, Type::fun(), expr.get());
+		auto v = analyzer->add_global_var(var, Type::fun(env.void_, {}), expr.get());
 		((VariableDeclaration*) this)->vars.insert({ var->content, v });
 	}
 }
 
 void VariableDeclaration::pre_analyze(SemanticAnalyzer* analyzer) {
 	if (global && function) return;
+	auto& env = analyzer->env;
 	for (unsigned i = 0; i < variables.size(); ++i) {
 		auto& var = variables.at(i);
-		auto type = (dynamic_cast<Function*>(expressions[i].get())) ? Type::fun() : Type::any; // Set type in pre analyze to avoid capture functions
+		auto type = (dynamic_cast<Function*>(expressions[i].get())) ? Type::fun(env.void_, {}) : env.any; // Set type in pre analyze to avoid capture functions
 		auto v = analyzer->add_var(var, type, expressions.at(i).get());
 		if (v) vars.insert({ var->content, v });
 		if (expressions[i] != nullptr) {
@@ -64,8 +66,9 @@ void VariableDeclaration::pre_analyze(SemanticAnalyzer* analyzer) {
 }
 
 void VariableDeclaration::analyze(SemanticAnalyzer* analyzer, const Type*) {
+	auto& env = analyzer->env;
 
-	type = Type::void_;
+	type = env.void_;
 	throws = false;
 
 	for (unsigned i = 0; i < variables.size(); ++i) {
@@ -81,12 +84,12 @@ void VariableDeclaration::analyze(SemanticAnalyzer* analyzer, const Type*) {
 			v->value = expressions[i].get();
 			throws |= expressions[i]->throws;
 		} else {
-			v->value = new Nulll(nullptr);
+			v->value = new Nulll(type->env, nullptr);
 		}
 		if (v->value->type->is_void()) {
 			analyzer->add_error({Error::Type::CANT_ASSIGN_VOID, location(), var->location, {var->content}});
 		} else {
-			v->type = Variable::get_type_for_variable_from_expression(v->value->type);
+			v->type = Variable::get_type_for_variable_from_expression(env, v->value->type);
 			if (constant) v->type = v->type->add_constant();
 		}
 		vars.insert({var->content, v});
@@ -115,12 +118,12 @@ Compiler::value VariableDeclaration::compile(Compiler& c) const {
 			variable->store_value(c, c.new_null());
 		}
 	}
-	return {};
+	return { c.env };
 }
 #endif
 
 std::unique_ptr<Instruction> VariableDeclaration::clone() const {
-	auto vd = std::make_unique<VariableDeclaration>();
+	auto vd = std::make_unique<VariableDeclaration>(type->env);
 	vd->keyword = keyword;
 	vd->global = global;
 	vd->constant = constant;

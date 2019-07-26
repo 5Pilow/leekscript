@@ -47,14 +47,14 @@ public:
 
 	static bool STORE_ARRAY_SIZE;
 
+	Environment& env;
 	std::string name;
 	std::unique_ptr<Class> clazz;
-	StandardLibrary* stdLib;
 	#if COMPILER
 	std::unique_ptr<LSClass> lsclass;
 	#endif
 
-	Module(StandardLibrary* stdLib, std::string name);
+	Module(Environment& env, std::string name);
 	virtual ~Module() {}
 
 	void operator_(std::string name, std::initializer_list<CallableVersion>, std::vector<const Type*> templates = {});

@@ -8,8 +8,8 @@
 
 namespace ls {
 
-Foreach::Foreach() {
-	wrapper_block = std::make_unique<Block>();
+Foreach::Foreach(Environment& env) : Instruction(env) {
+	wrapper_block = std::make_unique<Block>(env);
 	key_var = nullptr;
 	value_var = nullptr;
 }
@@ -42,12 +42,13 @@ Location Foreach::location() const {
 }
 
 void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
+	auto& env = analyzer->env;
 	analyzer->enter_block(wrapper_block.get());
 	container->pre_analyze(analyzer);
 	if (key != nullptr) {
-		key_var = analyzer->add_var(key, Type::void_, nullptr);
+		key_var = analyzer->add_var(key, env.void_, nullptr);
 	}
-	value_var = analyzer->add_var(value, Type::void_, nullptr);
+	value_var = analyzer->add_var(value, env.void_, nullptr);
 	body->is_loop_body = true;
 	body->pre_analyze(analyzer);
 
@@ -80,11 +81,11 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 }
 
 void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
-
+	auto& env = analyzer->env;
 	if (req_type->is_array()) {
 		type = req_type;
 	} else {
-		type = Type::void_;
+		type = env.void_;
 		body->is_void = true;
 		if (body2) {
 			body2->is_void = true;
@@ -150,7 +151,7 @@ Compiler::value Foreach::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Instruction> Foreach::clone() const {
-	auto f = std::make_unique<Foreach>();
+	auto f = std::make_unique<Foreach>(type->env);
 	f->key = key;
 	f->value = value;
 	f->container = container->clone();

@@ -1,10 +1,11 @@
 #include "ExpressionInstruction.hpp"
 #include "../value/Block.hpp"
 #include "../value/If.hpp"
+#include "../semantic/SemanticAnalyzer.hpp"
 
 namespace ls {
 
-ExpressionInstruction::ExpressionInstruction(std::unique_ptr<Value> value) : value(std::move(value)) {}
+ExpressionInstruction::ExpressionInstruction(Environment& env, std::unique_ptr<Value> value) : Instruction(env), value(std::move(value)) {}
 
 void ExpressionInstruction::print(std::ostream& os, int indent, PrintOptions options) const {
 	value->print(os, indent, options);
@@ -19,11 +20,12 @@ void ExpressionInstruction::pre_analyze(SemanticAnalyzer* analyzer) {
 }
 
 void ExpressionInstruction::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
+	auto& env = analyzer->env;
 	// std::cout << "ExpressionInstruction::analyze() " << is_void << std::endl;
 	value->is_void = is_void;
 	value->analyze(analyzer);
 	if (req_type->is_void()) {
-		type = Type::void_;
+		type = env.void_;
 	} else {
 		type = value->type;
 	}
@@ -46,7 +48,7 @@ Compiler::value ExpressionInstruction::compile_end(Compiler& c) const {
 #endif
 
 std::unique_ptr<Instruction> ExpressionInstruction::clone() const {
-	return std::make_unique<ExpressionInstruction>(value->clone());
+	return std::make_unique<ExpressionInstruction>(type->env, value->clone());
 }
 
 }

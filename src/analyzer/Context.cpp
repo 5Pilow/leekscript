@@ -10,9 +10,9 @@
 
 namespace ls {
 
-Context::Context() {}
+Context::Context(Environment& env) : env(env) {}
 
-Context::Context(std::string ctx) {
+Context::Context(Environment& env, std::string ctx) : env(env) {
 
 	Json value = Json::parse(ctx);
 
@@ -51,7 +51,7 @@ namespace std {
 			if (i++ > 0) os << ", ";
 			os << v.first << ": " << v.second.value << " " << v.second.type;
 			#if COMPILER
-			if (v.second.type == ls::Type::any) {
+			if (v.second.type == context->env.any) {
 				os << " " << (ls::LSValue*) v.second.value;
 				os << " " << ((ls::LSValue*) v.second.value)->refs;
 			}

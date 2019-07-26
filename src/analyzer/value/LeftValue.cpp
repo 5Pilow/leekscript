@@ -2,6 +2,8 @@
 
 namespace ls {
 
+LeftValue::LeftValue(Environment& env) : Value(env) {}
+
 bool LeftValue::isLeftValue() const {
 	return true;
 }

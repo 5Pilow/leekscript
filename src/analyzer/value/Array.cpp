@@ -2,11 +2,12 @@
 #include "../../vm/value/LSArray.hpp"
 #include "../../type/Type.hpp"
 #include <math.h>
+#include "../semantic/SemanticAnalyzer.hpp"
 
 namespace ls {
 
-Array::Array() {
-	type = Type::array(Type::never);
+Array::Array(Environment& env) : Value(env) {
+	type = Type::array(env.never);
 }
 
 void Array::print(std::ostream& os, int indent, PrintOptions options) const {
@@ -35,6 +36,7 @@ void Array::pre_analyze(SemanticAnalyzer* analyzer) {
 }
 
 void Array::analyze(SemanticAnalyzer* analyzer) {
+	auto& env = analyzer->env;
 
 	// std::cout << "Array::analyze " << req_type << std::endl;
 	constant = true;
@@ -42,7 +44,7 @@ void Array::analyze(SemanticAnalyzer* analyzer) {
 
 	if (expressions.size() > 0) {
 
-		const Type* element_type = Type::void_;
+		const Type* element_type = env.void_;
 		auto homogeneous = true;
 
 		// First analyze pass
@@ -62,18 +64,18 @@ void Array::analyze(SemanticAnalyzer* analyzer) {
 
 		// Re-analyze expressions with the supported type
 		// and second computation of the array type
-		const Type* new_element_type = Type::void_;
+		const Type* new_element_type = env.void_;
 		for (size_t i = 0; i < expressions.size(); ++i) {
 			const auto& ex = expressions[i];
 			if (!homogeneous and ex->type->is_array()) {
 				// If the array stores other arrays of different types,
 				// force those arrays to store pointers. (To avoid having unknown array<int> inside arrays.
-				ex->will_store(analyzer, Type::any);
+				ex->will_store(analyzer, env.any);
 			}
 			if (ex->type->is_function()) {
 				std::vector<const Type*> types;
 				for (unsigned p = 0; p < ex->type->arguments().size(); ++p) {
-					types.push_back(Type::any);
+					types.push_back(env.any);
 				}
 				if (types.size() > 0) {
 					ex->will_take(analyzer, types, 1);
@@ -100,7 +102,7 @@ void Array::elements_will_take(SemanticAnalyzer* analyzer, const std::vector<con
 		}
 	}
 	// Computation of the new array type
-	const Type* element_type = Type::void_;
+	const Type* element_type = analyzer->env.void_;
 	for (unsigned i = 0; i < expressions.size(); ++i) {
 		const auto& ex = expressions[i];
 		if (i == 0) {
@@ -127,7 +129,7 @@ bool Array::will_store(SemanticAnalyzer* analyzer, const Type* type) {
 	} else {
 		this->type = Type::array(current_type->operator + (added_type));
 	}
-	
+
 	return false;
 }
 
@@ -136,7 +138,7 @@ bool Array::elements_will_store(SemanticAnalyzer* analyzer, const Type* type, in
 		element->will_store(analyzer, type);
 	}
 	// Computation of the new array type
-	const Type* element_type = Type::void_;
+	const Type* element_type = analyzer->env.void_;
 	for (unsigned i = 0; i < expressions.size(); ++i) {
 		const auto& ex = expressions[i];
 		if (i == 0) {
@@ -162,7 +164,7 @@ Compiler::value Array::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> Array::clone() const {
-	auto array = std::make_unique<Array>();
+	auto array = std::make_unique<Array>(type->env);
 	array->opening_bracket = opening_bracket;
 	array->closing_bracket = closing_bracket;
 	for (const auto& ex : expressions) {

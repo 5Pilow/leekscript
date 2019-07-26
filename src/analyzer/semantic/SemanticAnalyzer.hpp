@@ -9,6 +9,7 @@
 #include "../semantic/Call.hpp"
 #include "../../standard/StandardLibrary.hpp"
 #include "../../environment/Environment.hpp"
+#include "Variable.hpp"
 
 namespace ls {
 

@@ -10,7 +10,7 @@ public:
 
 	std::unique_ptr<Value> expression;
 
-	Return(std::unique_ptr<Value> = nullptr);
+	Return(Environment& env, std::unique_ptr<Value> = nullptr);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;

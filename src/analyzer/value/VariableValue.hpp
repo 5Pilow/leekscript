@@ -24,13 +24,13 @@ public:
 	VarScope scope;
 	bool class_method = false;
 	bool update_variable = false;
-	const Type* previous_type;
+	const Type* previous_type = nullptr;
 	#if COMPILER
 	std::function<Compiler::value(Compiler&)> static_access_function = nullptr;
 	LSFunction* ls_function = nullptr;
 	#endif
 
-	VariableValue(Token* token);
+	VariableValue(Environment& env, Token* token);
 
 	virtual bool isLeftValue() const override;
 

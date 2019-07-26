@@ -11,7 +11,7 @@
 
 namespace ls {
 
-PrefixExpression::PrefixExpression(std::shared_ptr<Operator> op, std::unique_ptr<Value> expression) : operatorr(op), expression(std::move(expression)) {}
+PrefixExpression::PrefixExpression(Environment& env, std::shared_ptr<Operator> op, std::unique_ptr<Value> expression) : Value(env), operatorr(op), expression(std::move(expression)) {}
 
 void PrefixExpression::print(std::ostream& os, int indent, PrintOptions options) const {
 	operatorr->print(os);
@@ -34,6 +34,7 @@ void PrefixExpression::pre_analyze(SemanticAnalyzer* analyzer) {
 }
 
 void PrefixExpression::analyze(SemanticAnalyzer* analyzer) {
+	const auto& env = analyzer->env;
 
 	expression->analyze(analyzer);
 	throws = expression->throws;
@@ -45,7 +46,7 @@ void PrefixExpression::analyze(SemanticAnalyzer* analyzer) {
 		type = expression->type;
 		throws |= expression->type->is_polymorphic();
 		if (type->is_bool()) {
-			type = Type::integer;
+			type = env.integer;
 		}
 	}
 
@@ -66,19 +67,19 @@ void PrefixExpression::analyze(SemanticAnalyzer* analyzer) {
 
 	} else if (operatorr->type == TokenType::NOT) {
 
-		type = Type::boolean;
+		type = env.boolean;
 		throws |= expression->type->is_polymorphic();
 
 	} else if (operatorr->type == TokenType::NEW) {
 
-		type = Type::tmp_any;
+		type = env.tmp_any;
 		if (VariableValue* vv = dynamic_cast<VariableValue*>(expression.get())) {
-			if (vv->name == "Number") type = Type::integer;
-			else if (vv->name == "Boolean") type = Type::boolean;
-			else if (vv->name == "String") type = Type::tmp_string;
-			else if (vv->name == "Array") type = Type::tmp_array();
-			else if (vv->name == "Object") type = Type::tmp_object;
-			else if (vv->name == "Set") type = Type::tmp_set(Type::any);
+			if (vv->name == "Number") type = env.integer;
+			else if (vv->name == "Boolean") type = env.boolean;
+			else if (vv->name == "String") type = env.tmp_string;
+			else if (vv->name == "Array") type = Type::tmp_array(env.never);
+			else if (vv->name == "Object") type = env.tmp_object;
+			else if (vv->name == "Set") type = Type::tmp_set(env.any);
 		}
 		else if (FunctionCall* fc = dynamic_cast<FunctionCall*>(expression.get())) {
 			if (VariableValue* vv = dynamic_cast<VariableValue*>(fc->function.get())) {
@@ -86,19 +87,19 @@ void PrefixExpression::analyze(SemanticAnalyzer* analyzer) {
 					if (fc->arguments.size() > 0) {
 						type = fc->arguments[0]->type;
 					} else {
-						type = Type::integer;
+						type = env.integer;
 					}
 				}
-				else if (vv->name == "Boolean") type = Type::boolean;
-				else if (vv->name == "String") type = Type::tmp_string;
-				else if (vv->name == "Array") type = Type::tmp_array();
-				else if (vv->name == "Object") type = Type::tmp_object;
-				else if (vv->name == "Set") type = Type::tmp_set(Type::any);
+				else if (vv->name == "Boolean") type = env.boolean;
+				else if (vv->name == "String") type = env.tmp_string;
+				else if (vv->name == "Array") type = Type::tmp_array(env.never);
+				else if (vv->name == "Object") type = env.tmp_object;
+				else if (vv->name == "Set") type = Type::tmp_set(env.any);
 			}
 		}
 	}
 	if (is_void) {
-		type = Type::void_;
+		type = env.void_;
 	}
 }
 
@@ -112,8 +113,8 @@ Compiler::value PrefixExpression::compile(Compiler& c) const {
 			if (expression->type->is_mpz_ptr()) {
 				auto x = ((LeftValue*) expression.get())->compile_l(c);
 				auto one = c.new_integer(1);
-				c.insn_call(Type::void_, {x, x, one}, "Number.mpz_add_ui");
-				return is_void ? Compiler::value() : c.insn_clone_mpz(x);
+				c.insn_call(c.env.void_, {x, x, one}, "Number.mpz_add_ui");
+				return is_void ? Compiler::value(c.env) : c.insn_clone_mpz(x);
 			} else if (expression->type->is_primitive()) {
 				auto x_addr = ((LeftValue*) expression.get())->compile_l(c);
 				auto x = c.insn_load(x_addr);
@@ -152,7 +153,7 @@ Compiler::value PrefixExpression::compile(Compiler& c) const {
 			if (expression->type->is_mpz_ptr()) {
 				auto x = expression->compile(c);
 				auto r = x.t->temporary ? x : c.new_mpz();
-				c.insn_call(Type::void_, {r, x}, "Number.mpz_neg");
+				c.insn_call(c.env.void_, {r, x}, "Number.mpz_neg");
 				return r;
 			} else if (expression->type->is_primitive()) {
 				auto x = expression->compile(c);
@@ -180,10 +181,10 @@ Compiler::value PrefixExpression::compile(Compiler& c) const {
 					return c.new_bool(0);
 				}
 				else if (vv->name == "String") {
-					return c.insn_call(Type::tmp_string, {}, "String.new");
+					return c.insn_call(c.env.tmp_string, {}, "String.new");
 				}
 				else if (vv->name == "Array") {
-					return c.new_array(Type::void_, {});
+					return c.new_array(c.env.void_, {});
 				}
 				else if (vv->name == "Object") {
 					return c.new_object();
@@ -208,10 +209,10 @@ Compiler::value PrefixExpression::compile(Compiler& c) const {
 						if (fc->arguments.size() > 0) {
 							return fc->arguments[0]->compile(c);
 						}
-						return c.insn_call(Type::tmp_string, {}, "String.new");
+						return c.insn_call(c.env.tmp_string, {}, "String.new");
 					}
 					if (vv->name == "Array") {
-						return c.new_array(Type::void_, {});
+						return c.new_array(c.env.void_, {});
 					}
 					if (vv->name == "Object") {
 						return c.new_object();
@@ -237,7 +238,7 @@ Compiler::value PrefixExpression::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> PrefixExpression::clone() const {
-	return std::make_unique<PrefixExpression>(operatorr, expression->clone());
+	return std::make_unique<PrefixExpression>(type->env, operatorr, expression->clone());
 }
 
 }

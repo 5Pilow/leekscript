@@ -5,7 +5,7 @@
 
 namespace ls {
 
-Continue::Continue() {
+Continue::Continue(Environment& env) : Instruction(env) {
 	deepness = 1;
 }
 
@@ -33,12 +33,12 @@ Compiler::value Continue::compile(Compiler& c) const {
 	c.delete_variables_block(c.get_current_loop_blocks(deepness));
 	c.insn_branch(c.get_current_loop_cond_label(deepness));
 	c.insert_new_generation_block();
-	return {};
+	return { c.env };
 }
 #endif
 
 std::unique_ptr<Instruction> Continue::clone() const {
-	auto c = std::make_unique<Continue>();
+	auto c = std::make_unique<Continue>(type->env);
 	c->deepness = deepness;
 	return c;
 }

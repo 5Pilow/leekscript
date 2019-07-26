@@ -11,7 +11,7 @@ public:
 	Token* token;
 	std::unique_ptr<Value> expression;
 
-	Throw(Token* token, std::unique_ptr<Value> = nullptr);
+	Throw(Environment& env, Token* token, std::unique_ptr<Value> = nullptr);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;

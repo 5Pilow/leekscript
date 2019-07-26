@@ -14,7 +14,7 @@
 
 namespace ls {
 
-VariableValue::VariableValue(Token* token) : token(token), previous_type(Type::void_) {
+VariableValue::VariableValue(Environment& env, Token* token) : LeftValue(env), token(token) {
 	this->name = token->content;
 	this->var = nullptr;
 	constant = false;
@@ -50,9 +50,10 @@ Location VariableValue::location() const {
 }
 
 Call VariableValue::get_callable(SemanticAnalyzer* analyzer, int argument_count) const {
+	auto& env = analyzer->env;
 	if (name == "~") {
-		auto T = Type::template_("T");
-		auto R = Type::template_("R");
+		auto T = env.template_("T");
+		auto R = env.template_("R");
 		auto type = Type::fun(R, {T, Type::fun(R, {T})});
 		auto fun = ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 			return c.insn_call(args[1], {args[0]});
@@ -61,46 +62,46 @@ Call VariableValue::get_callable(SemanticAnalyzer* analyzer, int argument_count)
 	}
 	if (name == "Number") {
 		return {
-			new CallableVersion { "Number", Type::fun(Type::integer, {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
+			new CallableVersion { "Number", Type::fun(env.integer, {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
 				return c.new_integer(0);
 			}) },
-			new CallableVersion { "Number", Type::fun(Type::real, {Type::real}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
+			new CallableVersion { "Number", Type::fun(env.real, {env.real}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 				return c.to_real(args[0]);
 			}) },
-			new CallableVersion { "Number", Type::fun(Type::tmp_mpz_ptr, {Type::mpz_ptr}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
+			new CallableVersion { "Number", Type::fun(env.tmp_mpz_ptr, {env.mpz_ptr}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 				return args[0];
 			}) }
 		};
 	}
 	if (name == "Boolean") {
-		auto type = Type::fun(Type::boolean, {});
+		auto type = Type::fun(env.boolean, {});
 		return { new CallableVersion { "Boolean", type, ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
 			return c.new_bool(false);
 		}) } };
 	}
 	if (name == "String") {
 		return {
-			new CallableVersion { "String.new", Type::fun(Type::tmp_string, {}) },
-			new CallableVersion { "String", Type::fun(Type::tmp_string, {Type::string}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
+			new CallableVersion { "String.new", Type::fun(env.tmp_string, {}) },
+			new CallableVersion { "String", Type::fun(env.tmp_string, {env.string}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 				return args[0];
 			}) }
 		};
 	}
 	if (name == "Array") {
-		return { new CallableVersion { "Array", Type::fun(Type::array(Type::any), {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
-			return c.new_array(Type::void_, {});
+		return { new CallableVersion { "Array", Type::fun(Type::array(env.any), {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
+			return c.new_array(env.void_, {});
 		}) } };
 	}
 	if (name == "Object") {
-		return { new CallableVersion { "Object", Type::fun(Type::tmp_object, {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
+		return { new CallableVersion { "Object", Type::fun(env.tmp_object, {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
 			return c.new_object();
 		}) } };
 	}
 	if (name == "Set") {
-		return { new CallableVersion { "Set.new", Type::fun(Type::tmp_set(Type::any), {}) } };
+		return { new CallableVersion { "Set.new", Type::fun(Type::tmp_set(env.any), {}) } };
 	}
 	if (type->is_class()) {
-		auto type = Type::fun(Type::any, {Type::clazz()});
+		auto type = Type::fun(env.any, {env.clazz()});
 		return { new Callable {
 			{ new CallableVersion { name, type, ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 				return c.new_object_class(args[0]);
@@ -154,6 +155,7 @@ void VariableValue::pre_analyze(SemanticAnalyzer* analyzer) {
 }
 
 void VariableValue::analyze(SemanticAnalyzer* analyzer) {
+	const auto& env = analyzer->env;
 	if (var != nullptr) {
 		if (update_variable) {
 			var->type = var->parent->type;
@@ -198,7 +200,7 @@ void VariableValue::analyze(SemanticAnalyzer* analyzer) {
 			if (found) break;
 		}
 		if (!found) {
-			type = Type::any;
+			type = env.any;
 			analyzer->add_error({Error::Type::UNDEFINED_VARIABLE, token->location, token->location, {token->content}});
 		}
 	}
@@ -286,7 +288,7 @@ Compiler::value VariableValue::compile(Compiler& c) const {
 		var->val = var->parent->val;
 	}
 
-	Compiler::value v;
+	Compiler::value v { c.env };
 	if (scope == VarScope::CAPTURE) {
 		v = var->get_value(c);
 	} else if (scope == VarScope::INTERNAL) {
@@ -333,7 +335,7 @@ Compiler::value VariableValue::compile(Compiler& c) const {
 Compiler::value VariableValue::compile_version(Compiler& c, std::vector<const Type*> version) const {
 	// std::cout << "VV compile_version " << var << std::endl;
 	if (class_method) {
-		return c.new_function(versions.at(version), Type::fun());
+		return c.new_function(versions.at(version), Type::fun(c.env.void_, {}));
 	}
 	auto f = dynamic_cast<Function*>(var->value);
 	if (f) {
@@ -347,7 +349,7 @@ Compiler::value VariableValue::compile_version(Compiler& c, std::vector<const Ty
 
 Compiler::value VariableValue::compile_l(Compiler& c) const {
 	// std::cout << "VV compile_l " << type << " " << var->type << " " << var << std::endl;
-	Compiler::value v;
+	Compiler::value v { c.env };
 	if (var->parent and not var->val.v) {
 		var->val = var->parent->val;
 	}
@@ -370,7 +372,7 @@ Compiler::value VariableValue::compile_l(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> VariableValue::clone() const {
-	return std::make_unique<VariableValue>(token);
+	return std::make_unique<VariableValue>(type->env, token);
 }
 
 }

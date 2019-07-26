@@ -3,11 +3,12 @@
 #include "../../vm/value/LSInterval.hpp"
 #include "../../type/Type.hpp"
 #include <math.h>
+#include "../semantic/SemanticAnalyzer.hpp"
 
 namespace ls {
 
-Interval::Interval() {
-	type = Type::interval;
+Interval::Interval(Environment& env) : Value(env) {
+	type = env.interval;
 }
 
 void Interval::print(std::ostream& os, int indent, PrintOptions options) const {
@@ -32,7 +33,7 @@ void Interval::pre_analyze(SemanticAnalyzer* analyzer) {
 
 void Interval::analyze(SemanticAnalyzer* analyzer) {
 	constant = true;
-	type = Type::tmp_interval;
+	type = analyzer->env.tmp_interval;
 	start->analyze(analyzer);
 	end->analyze(analyzer);
 }
@@ -43,7 +44,7 @@ Compiler::value Interval::compile(Compiler& c) const {
 	auto b = end->compile(c);
 	auto int_a = c.to_int(a);
 	auto int_b = c.to_int(b);
-	auto interval = c.insn_call(Type::tmp_interval, {int_a, int_b}, "Interval.new");
+	auto interval = c.insn_call(c.env.tmp_interval, {int_a, int_b}, "Interval.new");
 	c.insn_delete_temporary(a);
 	c.insn_delete_temporary(b);
 	return interval;
@@ -51,7 +52,7 @@ Compiler::value Interval::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> Interval::clone() const {
-	auto interval = std::make_unique<Interval>();
+	auto interval = std::make_unique<Interval>(type->env);
 	interval->opening_bracket = opening_bracket;
 	interval->closing_bracket = closing_bracket;
 	interval->start = start->clone();

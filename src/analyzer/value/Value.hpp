@@ -16,11 +16,12 @@
 namespace ls {
 
 class SemanticAnalyzer;
+class Environment;
 
 class Value {
 public:
-	const Type* type;
-	const Type* return_type;
+	const Type* type = nullptr;
+	const Type* return_type = nullptr;
 	bool returning = false;
 	bool may_return = false;
 	std::vector<const Type*> version;
@@ -32,7 +33,8 @@ public:
 	bool is_void = false;
 	bool throws = false;
 
-	Value();
+	Value() = delete;
+	Value(Environment& env);
 	virtual ~Value() {}
 
 	virtual bool isLeftValue() const;

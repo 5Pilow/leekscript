@@ -10,8 +10,7 @@
 
 namespace ls {
 
-If::If(bool ternary) {
-	type = Type::void_;
+If::If(Environment& env, bool ternary) : Value(env) {
 	this->ternary = ternary;
 }
 
@@ -63,7 +62,8 @@ void If::pre_analyze(SemanticAnalyzer* analyzer) {
 
 void If::analyze(SemanticAnalyzer* analyzer) {
 	// std::cout << "If " << is_void << std::endl;
-	
+	const auto& env = analyzer->env;
+
 	condition->analyze(analyzer);
 	throws = condition->throws;
 
@@ -76,17 +76,17 @@ void If::analyze(SemanticAnalyzer* analyzer) {
 		elze->is_void = is_void;
 		elze->analyze(analyzer);
 		if (type->is_void() and not elze->type->is_void() and not then->returning) {
-			type = Type::null;
+			type = env.null;
 		}
 		type = type->operator + (elze->type);
 	} else if (not type->is_void() or then->returning) {
-		type = type->operator + (Type::null);
+		type = type->operator + (env.null);
 	}
-	if (is_void) type = Type::void_;
+	if (is_void) type = env.void_;
 	throws |= then->throws or (elze != nullptr and elze->throws);
 	returning = then->returning and (elze != nullptr and elze->returning);
 	may_return = then->may_return or (elze != nullptr and elze->may_return);
-	return_type = return_type->operator + (then->return_type);
+	return_type = then->return_type;
 	if (elze != nullptr) return_type = return_type->operator + (elze->return_type);
 
 	for (const auto& phi : phis) {
@@ -96,7 +96,7 @@ void If::analyze(SemanticAnalyzer* analyzer) {
 
 #if COMPILER
 Compiler::value If::compile(Compiler& c) const {
-	
+
 	for (const auto& phi : phis) {
 		if (phi->variable1->block->branch != then->branch) {
 			// std::cout << "Variable export last value for phi " << phi->variable1 << std::endl;
@@ -107,8 +107,8 @@ Compiler::value If::compile(Compiler& c) const {
 	auto label_then = c.insn_init_label("then");
 	auto label_else = c.insn_init_label("else");
 	auto label_end = c.insn_init_label("end");
-	Compiler::value then_v;
-	Compiler::value else_v;
+	Compiler::value then_v { c.env };
+	Compiler::value else_v { c.env };
 	bool compile_elze = elze != nullptr or not type->is_void();
 
 	auto cond = condition->compile(c);
@@ -141,9 +141,9 @@ Compiler::value If::compile(Compiler& c) const {
 	}
 
 	c.insn_label(&label_end);
-	
+
 	auto r = [&]() -> Compiler::value { if (type->is_void()) {
-		return {};
+		return { c.env };
 	} else {
 		return c.insn_phi(type, then_v, label_then, else_v, label_else);
 	}}();
@@ -173,7 +173,7 @@ Compiler::value If::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> If::clone() const {
-	auto iff = std::make_unique<If>();
+	auto iff = std::make_unique<If>(type->env);
 	iff->condition = condition->clone();
 	iff->then = unique_static_cast<Block>(then->clone());
 	iff->elze = elze ? unique_static_cast<Block>(elze->clone()) : nullptr;

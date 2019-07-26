@@ -1,8 +1,11 @@
 #include "Set.hpp"
 #include "../../vm/value/LSSet.hpp"
 #include "../../type/Type.hpp"
+#include "../semantic/SemanticAnalyzer.hpp"
 
 namespace ls {
+
+Set::Set(Environment& env) : Value(env) {}
 
 void Set::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "<";
@@ -25,8 +28,9 @@ void Set::pre_analyze(SemanticAnalyzer* analyzer) {
 }
 
 void Set::analyze(SemanticAnalyzer* analyzer) {
+	const auto& env = analyzer->env;
 
-	const Type* element_type = Type::void_;
+	const Type* element_type = env.void_;
 
 	constant = true;
 	for (auto& ex : expressions) {
@@ -35,14 +39,14 @@ void Set::analyze(SemanticAnalyzer* analyzer) {
 		constant = constant && ex->constant;
 	}
 	if (element_type->is_primitive()) {
-		if (element_type != Type::integer && element_type != Type::real) {
-			element_type = Type::any;
+		if (element_type != env.integer && element_type != env.real) {
+			element_type = env.any;
 		}
 	} else if (!element_type->is_primitive()) {
-		element_type = Type::any;
+		element_type = env.any;
 	}
 	if (element_type->is_void()) {
-		element_type = Type::any;
+		element_type = env.any;
 	}
 	type = Type::tmp_set(element_type);
 }
@@ -73,7 +77,7 @@ Compiler::value Set::compile(Compiler& c) const {
 	double i = 0;
 	for (const auto& ex : expressions) {
 		auto v = c.insn_convert(ex->compile(c), type->element());
-		c.insn_call(Type::void_, {s, v}, insert);
+		c.insn_call(c.env.void_, {s, v}, insert);
 		ex->compile_end(c);
 		ops += std::log2(++i);
 	}
@@ -83,7 +87,7 @@ Compiler::value Set::compile(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> Set::clone() const {
-	auto s = std::make_unique<Set>();
+	auto s = std::make_unique<Set>(type->env);
 	for (const auto& v : expressions) {
 		s->expressions.push_back(v->clone());
 	}
