@@ -7,7 +7,7 @@ namespace ls {
 
 class Interval_type : public Pointer_type {
 public:
-	Interval_type();
+	Interval_type(Environment& env);
 	virtual int id() const override { return 8; }
 	virtual const std::string getName() const override { return "interval"; }
 	virtual const std::string getJsonName() const { return "interval"; }

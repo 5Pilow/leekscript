@@ -3,15 +3,16 @@
 #include "Type.hpp"
 #include "Any_type.hpp"
 #include "Struct_type.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
-Class_type::Class_type(std::string name) : Pointer_type(Type::structure(name, {
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // refs
-	Type::boolean // native
+Class_type::Class_type(Environment& env, std::string name) : Pointer_type(Type::structure(name, {
+	env.integer, // ?
+	env.integer, // ?
+	env.integer, // ?
+	env.integer, // refs
+	env.boolean // native
 }), true), name(name) {}
 
 bool Class_type::operator == (const Type* type) const {
@@ -31,7 +32,7 @@ std::ostream& Class_type::print(std::ostream& os) const {
 	return os;
 }
 Type* Class_type::clone() const {
-	return new Class_type { name };
+	return new Class_type { env, name };
 }
 
 }

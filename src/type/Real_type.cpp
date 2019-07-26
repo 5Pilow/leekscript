@@ -37,7 +37,7 @@ std::ostream& Real_type::print(std::ostream& os) const {
 	return os;
 }
 Type* Real_type::clone() const {
-	return new Real_type {};
+	return new Real_type { env };
 }
 
 }

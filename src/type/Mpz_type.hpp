@@ -7,7 +7,7 @@ namespace ls {
 
 class Mpz_type : public Number_type {
 public:
-	Mpz_type() {}
+	Mpz_type(Environment& env) : Number_type(env) {}
 	virtual const std::string getName() const { return "mpz"; }
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;

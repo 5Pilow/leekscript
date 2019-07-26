@@ -8,7 +8,7 @@ namespace ls {
 class Meta_element_type : public Any_type {
 public:
 	const Type* type;
-	Meta_element_type(const Type* type) : type(type) {
+	Meta_element_type(const Type* type) : Any_type(type->env), type(type) {
 		placeholder = true;
 	}
 	virtual int id() const { return 0; }

@@ -7,7 +7,7 @@ namespace ls {
 
 class Bool_type : public Type {
 public:
-	Bool_type() : Type(true) {}
+	Bool_type(Environment& env) : Type(env, true) {}
 	virtual int id() const override { return 2; }
 	virtual const std::string getName() const override { return "bool"; }
 	virtual const std::string getJsonName() const { return "boolean"; }

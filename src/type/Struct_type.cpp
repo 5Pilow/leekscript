@@ -6,8 +6,8 @@
 
 namespace ls {
 
-Struct_type::Struct_type(const std::string name, std::initializer_list<const Type*> types) : _name(name), _types(types) {}
-Struct_type::Struct_type(const std::string name, std::vector<const Type*> types) : _name(name), _types(types) {}
+Struct_type::Struct_type(const std::string name, std::initializer_list<const Type*> types) : Type((*types.begin())->env), _name(name), _types(types) {}
+Struct_type::Struct_type(const std::string name, std::vector<const Type*> types) : Type(types[0]->env), _name(name), _types(types) {}
 
 const Type* Struct_type::member(int p) const {
 	return _types.at(p);

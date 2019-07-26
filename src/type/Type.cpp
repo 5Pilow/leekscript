@@ -39,10 +39,14 @@
 #include "Meta_not_temporary_type.hpp"
 #include "../analyzer/value/Function.hpp"
 #include "../analyzer/value/Value.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
-Type::Type(bool native) : native(native) {
+unsigned int Type::placeholder_counter = 0;
+const std::vector<const Type*> Type::empty_types;
+
+Type::Type(Environment& env, bool native) : env(env), native(native) {
 	folded = this;
 }
 
@@ -53,7 +57,7 @@ const Type* Type::argument(size_t) const {
 	return env.any;
 }
 const std::vector<const Type*>& Type::arguments() const {
-	return env.empty_types;
+	return Type::empty_types;
 }
 const Type* Type::element() const {
 	return env.any;
@@ -73,23 +77,23 @@ bool Type::must_manage_memory() const {
 const Type* Type::operator + (const Type* type) const {
 	if (is_void() or is_never()) return type;
 	if (type->is_void() or type->is_never()) return this;
-	if (is_array() and type->is_array() and type->element() == Type::never) return this;
-	if (is_array() and element() == Type::never and type->is_array()) return type;
+	if (is_array() and type->is_array() and type->element() == type->env.never) return this;
+	if (is_array() and element() == type->env.never and type->is_array()) return type;
 	return Type::compound({this, type});
 }
 const Type* Type::operator * (const Type* t2) const {
 	auto a = this->fold();
 	auto b = t2->fold();
-	if (a == void_ or a == never) return b;
-	if (b == void_ or b == never or a == b) return a;
+	if (a == env.void_ or a == env.never) return b;
+	if (b == env.void_ or b == env.never or a == b) return a;
 	if (a->is_polymorphic() and b->is_primitive()) {
-		return any;
+		return env.any;
 	}
 	if (b->is_polymorphic() and a->is_primitive()) {
-		return any;
+		return env.any;
 	}
 	if (a->is_bool() or b->is_bool()) {
-		return any;
+		return env.any;
 	}
 	auto d1 = a->distance(b);
 	auto d2 = b->distance(a);
@@ -97,7 +101,7 @@ const Type* Type::operator * (const Type* t2) const {
 		if (d1 < d2) return b;
 		else return a;
 	}
-	return any;
+	return env.any;
 }
 
 const Type* Type::fold() const {
@@ -131,8 +135,8 @@ const Type* Type::add_temporary() const {
 	if (temporary) return this;
 	if (is_primitive()) return this;
 	if (constant) return not_constant()->add_temporary();
-	auto i = temporary_types.find(this);
-	if (i != temporary_types.end()) return i->second;
+	auto i = env.temporary_types.find(this);
+	if (i != env.temporary_types.end()) return i->second;
 	auto type = this->clone();
 	type->temporary = true;
 	if (this != folded) {
@@ -140,15 +144,15 @@ const Type* Type::add_temporary() const {
 	} else {
 		type->folded = type;
 	}
-	temporary_types.insert({ this, type });
-	not_temporary_types.insert({ type, this });
+	env.temporary_types.insert({ this, type });
+	env.not_temporary_types.insert({ type, this });
 	return type;
 }
 const Type* Type::not_temporary() const {
 	if (placeholder) return this;
 	if (not temporary) return this;
-	auto i = not_temporary_types.find(this);
-	if (i != not_temporary_types.end()) return i->second;
+	auto i = env.not_temporary_types.find(this);
+	if (i != env.not_temporary_types.end()) return i->second;
 	auto type = this->clone();
 	type->temporary = false;
 	if (this != folded) {
@@ -156,16 +160,16 @@ const Type* Type::not_temporary() const {
 	} else {
 		type->folded = type;
 	}
-	not_temporary_types.insert({ this, type });
-	temporary_types.insert({ type, this });
+	env.not_temporary_types.insert({ this, type });
+	env.temporary_types.insert({ type, this });
 	return type;
 }
 const Type* Type::add_constant() const {
 	if (placeholder) return this;
 	if (constant) return this;
 	if (temporary) return not_temporary()->add_constant();
-	auto i = const_types.find(this);
-	if (i != const_types.end()) return i->second;
+	auto i = env.const_types.find(this);
+	if (i != env.const_types.end()) return i->second;
 	auto type = this->clone();
 	type->constant = true;
 	if (this != folded) {
@@ -173,15 +177,15 @@ const Type* Type::add_constant() const {
 	} else {
 		type->folded = type;
 	}
-	const_types.insert({ this, type });
-	not_const_types.insert({ type, this });
+	env.const_types.insert({ this, type });
+	env.not_const_types.insert({ type, this });
 	return type;
 }
 const Type* Type::not_constant() const {
 	if (placeholder) return this;
 	if (not constant) return this;
-	auto i = not_const_types.find(this);
-	if (i != not_const_types.end()) return i->second;
+	auto i = env.not_const_types.find(this);
+	if (i != env.not_const_types.end()) return i->second;
 	auto type = this->clone();
 	type->constant = false;
 	if (this != folded) {
@@ -189,25 +193,25 @@ const Type* Type::not_constant() const {
 	} else {
 		type->folded = type;
 	}
-	not_const_types.insert({ this, type });
-	const_types.insert({ type, this });
+	env.not_const_types.insert({ this, type });
+	env.const_types.insert({ type, this });
 	return type;
 }
 
 const Type* Type::pointer() const {
-	auto i = pointer_types.find(this);
-	if (i != pointer_types.end()) return i->second;
+	auto i = env.pointer_types.find(this);
+	if (i != env.pointer_types.end()) return i->second;
 	if (temporary) {
 		auto type = this->not_temporary()->pointer()->add_temporary();
-		pointer_types.insert({ this, type });
+		env.pointer_types.insert({ this, type });
 		return type;
 	} else if (constant) {
 		auto type = this->not_constant()->pointer()->add_constant();
-		pointer_types.insert({ this, type });
+		env.pointer_types.insert({ this, type });
 		return type;
 	} else {
 		auto type = new Pointer_type(this);
-		pointer_types.insert({ this, type });
+		env.pointer_types.insert({ this, type });
 		return type;
 	}
 }
@@ -238,16 +242,16 @@ template <class T> bool Type::can_be_type() const {
 	return false;
 }
 bool Type::is_any() const { return is_type<Any_type>(); }
-bool Type::is_bool() const { return folded == Type::boolean or folded == Type::const_boolean; }
+bool Type::is_bool() const { return folded == env.boolean or folded == env.const_boolean; }
 bool Type::can_be_bool() const { return can_be_type<Bool_type>(); }
-bool Type::is_number() const { return castable(Type::number, true); }
+bool Type::is_number() const { return castable(env.number, true); }
 bool Type::can_be_number() const {
 	if (auto c = dynamic_cast<const Compound_type*>(this)) {
 		return c->some([&](const Type* type) {
-			return type->distance(Type::number) >= 0;
+			return type->distance(env.number) >= 0;
 		});
 	}
-	return distance(Type::number) >= 0;
+	return distance(env.number) >= 0;
 }
 bool Type::can_be_container() const {
 	if (auto c = dynamic_cast<const Compound_type*>(this)) {
@@ -268,22 +272,22 @@ bool Type::can_be_callable() const {
 bool Type::can_be_numeric() const {
 	return is_any() or can_be_bool() or can_be_number();
 }
-bool Type::is_real() const { return folded == Type::real or folded == Type::const_real; }
-bool Type::is_integer() const { return folded == Type::integer or folded == Type::const_integer; }
-bool Type::is_long() const { return folded == Type::long_ or folded == Type::const_long; }
-bool Type::is_mpz() const { return folded == Type::mpz or folded == Type::tmp_mpz or folded == Type::const_mpz; }
-bool Type::is_mpz_ptr() const { return folded == Type::mpz_ptr or folded == Type::tmp_mpz_ptr or folded == Type::const_mpz_ptr; }
-bool Type::is_string() const { return folded == Type::string or folded == Type::tmp_string or folded == Type::const_string; }
+bool Type::is_real() const { return folded == env.real or folded == env.const_real; }
+bool Type::is_integer() const { return folded == env.integer or folded == env.const_integer; }
+bool Type::is_long() const { return folded == env.long_ or folded == env.const_long; }
+bool Type::is_mpz() const { return folded == env.mpz or folded == env.tmp_mpz or folded == env.const_mpz; }
+bool Type::is_mpz_ptr() const { return folded == env.mpz_ptr or folded == env.tmp_mpz_ptr or folded == env.const_mpz_ptr; }
+bool Type::is_string() const { return folded == env.string or folded == env.tmp_string or folded == env.const_string; }
 bool Type::is_array() const { return is_type<Array_type>(); }
 bool Type::is_set() const { return is_type<Set_type>(); }
-bool Type::is_interval() const { return folded == Type::interval or folded == Type::tmp_interval or folded == Type::const_interval; }
+bool Type::is_interval() const { return folded == env.interval or folded == env.tmp_interval or folded == env.const_interval; }
 bool Type::is_map() const { return is_type<Map_type>(); }
 bool Type::is_function() const { return is_type<Function_type>(); }
 bool Type::is_function_object() const { return is_type<Function_object_type>(); }
 bool Type::is_function_pointer() const { return is_pointer() and pointed()->is_type<Function_type>(); }
-bool Type::is_object() const { return folded == Type::object; }
-bool Type::is_never() const { return folded == Type::never; }
-bool Type::is_null() const { return folded == Type::null; }
+bool Type::is_object() const { return folded == env.object; }
+bool Type::is_never() const { return folded == env.never; }
+bool Type::is_null() const { return folded == env.null; }
 bool Type::is_class() const { return is_type<Class_type>(); }
 bool Type::is_pointer() const { return is_type<Pointer_type>(); }
 bool Type::is_struct() const { return is_type<Struct_type>(); }
@@ -317,7 +321,7 @@ bool Type::is_primitive() const {
 		or dynamic_cast<const Function_type*>(folded) != nullptr;
 }
 bool Type::is_void() const {
-	return this == Type::void_;
+	return this == env.void_;
 }
 bool Type::is_template() const { return is_type<Template_type>(); }
 
@@ -328,6 +332,192 @@ bool Type::castable(const Type* type, bool strictCast) const {
 bool Type::strictCastable(const Type* type) const {
 	auto d = distance(type);
 	return d >= 0 and d < 100;
+}
+
+const Type* Type::array(const Type* element) {
+	if (auto e = dynamic_cast<const Meta_element_type*>(element)) return e->type;
+	Environment& env = element->env;
+	element = element->not_temporary();
+	auto i = env.array_types.find(element);
+	if (i != env.array_types.end()) return i->second;
+	auto type = new Array_type(element);
+	type->placeholder = element->placeholder;
+	env.array_types.insert({element, type});
+	return type;
+}
+const Type* Type::const_array(const Type* element) {
+	if (auto e = dynamic_cast<const Meta_element_type*>(element)) return e->type;
+	Environment& env = element->env;
+	auto i = env.const_array_types.find(element);
+	if (i != env.const_array_types.end()) return i->second;
+	auto type = array(element)->add_constant();
+	env.const_array_types.insert({element, type});
+	return type;
+}
+const Type* Type::tmp_array(const Type* element) {
+	if (auto e = dynamic_cast<const Meta_element_type*>(element)) return e->type;
+	auto& env = element->env;
+	auto i = env.tmp_array_types.find(element);
+	if (i != env.tmp_array_types.end()) return i->second;
+	auto type = array(element)->add_temporary();
+	env.tmp_array_types.insert({element, type});
+	return type;
+}
+const Type* Type::set(const Type* element) {
+	auto& env = element->env;
+	auto i = env.set_types.find(element);
+	if (i != env.set_types.end()) return i->second;
+	auto type = new Set_type(element);
+	env.set_types.insert({element, type});
+	return type;
+}
+const Type* Type::const_set(const Type* element) {
+	auto& env = element->env;
+	auto i = env.const_set_types.find(element);
+	if (i != env.const_set_types.end()) return i->second;
+	auto type = set(element)->add_constant();
+	env.const_set_types.insert({element, type});
+	return type;
+}
+const Type* Type::tmp_set(const Type* element) {
+	auto& env = element->env;
+	auto i = env.tmp_set_types.find(element);
+	if (i != env.tmp_set_types.end()) return i->second;
+	auto type = set(element)->add_temporary();
+	env.tmp_set_types.insert({element, type});
+	return type;
+}
+const Type* Type::map(const Type* key, const Type* element) {
+	auto& env = element->env;
+	auto i = env.map_types.find({key, element});
+	if (i != env.map_types.end()) return i->second;
+	auto type = new Map_type(key, element);
+	env.map_types.insert({{key, element}, type});
+	return type;
+}
+const Type* Type::const_map(const Type* key, const Type* element) {
+	auto& env = element->env;
+	auto i = env.const_map_types.find({key, element});
+	if (i != env.const_map_types.end()) return i->second;
+	auto type = map(key, element)->add_constant();
+	env.const_map_types.insert({{key, element}, type});
+	return type;
+}
+const Type* Type::tmp_map(const Type* key, const Type* element) {
+	auto& env = element->env;
+	auto i = env.tmp_map_types.find({key, element});
+	if (i != env.tmp_map_types.end()) return i->second;
+	auto type = map(key, element)->add_temporary();
+	env.tmp_map_types.insert({{key, element}, type});
+	return type;
+}
+const Type* Type::fun(const Type* return_type, std::vector<const Type*> arguments, const Value* function) {
+	if (function == nullptr) {
+		std::pair<const Type*, std::vector<const Type*>> key { return_type, arguments };
+		auto& env = return_type->env;
+		auto i = env.function_types.find(key);
+		if (i != env.function_types.end()) return i->second;
+		auto type = new Function_type(return_type, arguments);
+		type->constant = true;
+		env.function_types.insert({ key, type });
+		return type;
+	} else {
+		auto t = new Function_type(return_type, arguments, function);
+		t->constant = true;
+		return t;
+	}
+}
+const Type* Type::fun_object(const Type* return_type, std::vector<const Type*> arguments, const Value* function) {
+	if (function == nullptr) {
+		std::pair<const Type*, std::vector<const Type*>> key { return_type, arguments };
+		auto& env = return_type->env;
+		auto i = env.function_object_types.find(key);
+		if (i != env.function_object_types.end()) return i->second;
+		auto type = new Function_object_type(return_type, arguments);
+		type->constant = true;
+		env.function_object_types.insert({ key, type });
+		return type;
+	} else {
+		auto t = new Function_object_type(return_type, arguments, false, function);
+		t->constant = true;
+		return t;
+	}
+}
+const Type* Type::closure(const Type* return_type, std::vector<const Type*> arguments, const Value* function) {
+	if (function == nullptr) {
+		std::pair<const Type*, std::vector<const Type*>> key { return_type, arguments };
+		auto& env = return_type->env;
+		auto i = env.closure_types.find(key);
+		if (i != env.closure_types.end()) return i->second;
+		auto type = new Function_object_type(return_type, arguments, true);
+		type->constant = true;
+		env.closure_types.insert({ key, type });
+		return type;
+	} else {
+		auto t = new Function_object_type(return_type, arguments, true, function);
+		t->constant = true;
+		return t;
+	}
+}
+const Type* Type::structure(const std::string name, std::initializer_list<const Type*> types) {
+	auto& env = (*types.begin())->env;
+	auto i = env.structure_types.find(name);
+	if (i != env.structure_types.end()) return i->second;
+	auto type = new Struct_type(name, types);
+	env.structure_types.insert({ name, type });
+	return type;
+}
+const Type* Type::compound(std::initializer_list<const Type*> types) {
+	return Type::compound(std::vector<const Type*>(types));
+}
+const Type* Type::compound(std::vector<const Type*> types) {
+	if (types.size() == 1) return *types.begin();
+	auto& env = types[0]->env;
+	std::set<const Type*> base;
+	auto folded = env.void_;
+	auto temporary = false;
+	for (const auto& t : types) {
+		if (auto c = dynamic_cast<const Compound_type*>(t)) {
+			for (const auto& bt : c->types) base.insert(bt);
+		} else {
+			base.insert(t->not_temporary());
+		}
+		// std::cout << "compound t " << t << " tmp " << t->temporary << std::endl;
+		temporary |= t->temporary;
+		folded = folded->operator * (t);
+	}
+	// std::cout << "temporary compound " << temporary << std::endl;
+	if (base.size() == 1) return *types.begin();
+	auto i = env.compound_types.find(base);
+	if (i != env.compound_types.end()) {
+		if (temporary) {
+			return i->second->add_temporary();
+		}
+		return i->second;
+	}
+	auto type = new Compound_type { base, folded };
+	env.compound_types.insert({ base, type });
+	if (temporary) {
+		// std::cout << "temporary" << std::endl;
+		return type->add_temporary();
+	}
+	return type;
+}
+const Type* Type::tmp_compound(std::initializer_list<const Type*> types) {
+	return compound(types)->add_temporary();
+}
+
+const Type* Type::meta_add(const Type* t1, const Type* t2) {
+	return new Meta_add_type(t1, t2);
+}
+const Type* Type::meta_mul(const Type* t1, const Type* t2) {
+	return new Meta_mul_type(t1, t2);
+}
+const Type* Type::meta_base_of(const Type* type, const Type* base) {
+	return new Meta_baseof_type(type, base);
+}
+const Type* Type::meta_not_temporary(const Type* type) {
+	return new Meta_not_temporary_type(type);
 }
 
 std::ostream& operator << (std::ostream& os, const Type* type) {

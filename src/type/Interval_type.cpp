@@ -3,28 +3,29 @@
 #include "Type.hpp"
 #include "Any_type.hpp"
 #include "Struct_type.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
-Interval_type::Interval_type() : Pointer_type(Type::structure("interval", {
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::boolean, // native
-	Type::integer, // A
-	Type::integer // B
+Interval_type::Interval_type(Environment& env) : Pointer_type(Type::structure("interval", {
+	env.integer, // ?
+	env.integer, // ?
+	env.integer, // ?
+	env.integer, // ?
+	env.boolean, // native
+	env.integer, // A
+	env.integer // B
 })) {}
 
 const Type* Interval_type::key() const {
-	return Type::integer;
+	return env.integer;
 }
 const Type* Interval_type::element() const {
-	return Type::integer;
+	return env.integer;
 }
 const Type* Interval_type::iterator() const {
 	return Type::structure("interval_iterator", {
-		Type::interval, Type::integer
+		env.interval, env.integer
 	});
 }
 bool Interval_type::operator == (const Type* type) const {
@@ -44,7 +45,7 @@ std::ostream& Interval_type::print(std::ostream& os) const {
 	return os;
 }
 Type* Interval_type::clone() const {
-	return new Interval_type {};
+	return new Interval_type { env };
 }
 
 }

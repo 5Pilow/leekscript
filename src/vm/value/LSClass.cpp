@@ -15,7 +15,7 @@ namespace ls {
 LSValue* LSClass::_clazz;
 
 LSClass* LSClass::constructor(VM* vm, char* name) {
-	auto clazz = new LSClass(new Class(name));
+	auto clazz = new LSClass(new Class(vm->env, name));
 	vm->function_created.push_back(clazz);
 	vm->class_created.push_back(clazz->clazz);
 	return clazz;

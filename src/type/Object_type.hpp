@@ -7,7 +7,7 @@ namespace ls {
 
 class Object_type : public Pointer_type {
 public:
-	Object_type(bool native = false);
+	Object_type(Environment& env, bool native = false);
 	virtual int id() const override { return 10; }
 	virtual const std::string getName() const override { return "object"; }
 	virtual const std::string getJsonName() const override { return "object"; }

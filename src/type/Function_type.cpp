@@ -5,10 +5,11 @@
 #include "Placeholder_type.hpp"
 #include "Any_type.hpp"
 #include "Struct_type.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
-Function_type::Function_type(const Type* ret, const std::vector<const Type*>& args, const Value* function) : Type(true), _return_type(ret), _arguments(args), _function(function) {}
+Function_type::Function_type(const Type* ret, const std::vector<const Type*>& args, const Value* function) : Type(ret->env, true), _return_type(ret), _arguments(args), _function(function) {}
 
 bool Function_type::operator == (const Type* type) const {
 	if (auto fun = dynamic_cast<const Function_type*>(type)) {
@@ -57,7 +58,7 @@ const Type* Function_type::argument(size_t i) const {
 	if (i < _arguments.size()) {
 		return _arguments[i];
 	}
-	return Type::any;
+	return env.any;
 }
 #if COMPILER
 llvm::Type* Function_type::llvm(Compiler& c) const {

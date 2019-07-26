@@ -22,7 +22,7 @@ class Environment;
 class Type {
 public:
 
-	Type(bool native = false);
+	Type(Environment& env, bool native = false);
 	Type(const Type* raw_type, bool native = false);
 	Type(std::set<const Type*>, const Type* folded);
 	virtual ~Type() {}
@@ -117,10 +117,31 @@ public:
 
 	static unsigned int placeholder_counter;
 
-	static void clear_placeholder_types();
-
 	// Const types to be used to optimize return of references
 	static const std::vector<const Type*> empty_types;
+
+    static const Type* array(const Type*);
+	static const Type* const_array(const Type*);
+	static const Type* tmp_array(const Type*);
+	static const Type* set(const Type*);
+	static const Type* const_set(const Type*);
+	static const Type* tmp_set(const Type*);
+	static const Type* map(const Type*, const Type*);
+	static const Type* tmp_map(const Type*, const Type*);
+	static const Type* const_map(const Type*, const Type*);
+    static const Type* fun();
+	static const Type* fun(const Type* return_type, std::vector<const Type*> arguments = {}, const Value* function = nullptr);
+	static const Type* fun_object(const Type* return_type, std::vector<const Type*> arguments = {}, const Value* function = nullptr);
+	static const Type* closure(const Type* return_type, std::vector<const Type*> arguments = {}, const Value* function = nullptr);
+	static const Type* structure(const std::string name, std::initializer_list<const Type*> types);
+	static const Type* compound(std::vector<const Type*> types);
+	static const Type* compound(std::initializer_list<const Type*> types);
+	static const Type* tmp_compound(std::initializer_list<const Type*> types);
+
+	static const Type* meta_add(const Type* t1, const Type* t2);
+	static const Type* meta_mul(const Type* t1, const Type* t2);
+	static const Type* meta_base_of(const Type* type, const Type* base);
+	static const Type* meta_not_temporary(const Type* type);
 };
 
 std::ostream& operator << (std::ostream&, const Type*);

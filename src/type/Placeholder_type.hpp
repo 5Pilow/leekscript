@@ -12,7 +12,7 @@ class Placeholder_type : public Any_type {
 	const Type* _implementation = nullptr;
 	const Type* _element = nullptr;
 public:
-	Placeholder_type(const std::string name) : _name(name) {
+	Placeholder_type(Environment& env, const std::string name) : Any_type(env), _name(name) {
 		placeholder = true;
 	}
 	void implement(const Type* type) const;

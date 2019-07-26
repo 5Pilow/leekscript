@@ -4,15 +4,16 @@
 #include "Pointer_type.hpp"
 #include "Struct_type.hpp"
 #include "Any_type.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
-Null_type::Null_type() : Pointer_type(Type::structure("null", {
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // refs
-	Type::boolean // native
+Null_type::Null_type(Environment& env) : Pointer_type(Type::structure("null", {
+	env.integer, // ?
+	env.integer, // ?
+	env.integer, // ?
+	env.integer, // refs
+	env.boolean // native
 }), true) {}
 
 bool Null_type::operator == (const Type* type) const {
@@ -32,7 +33,7 @@ std::ostream& Null_type::print(std::ostream& os) const {
 	return os;
 }
 Type* Null_type::clone() const {
-	return new Null_type {};
+	return new Null_type { env };
 }
 
 }

@@ -11,7 +11,7 @@
 
 namespace ls {
 
-Number_type::Number_type() {}
+Number_type::Number_type(Environment& env) : Type(env) {}
 
 bool Number_type::operator == (const Type* type) const {
 	return dynamic_cast<const Number_type*>(type);
@@ -41,7 +41,7 @@ std::ostream& Number_type::print(std::ostream& os) const {
 	return os;
 }
 Type* Number_type::clone() const {
-	return new Number_type {};
+	return new Number_type { env };
 }
 
 }

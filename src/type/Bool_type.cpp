@@ -38,7 +38,7 @@ std::ostream& Bool_type::print(std::ostream& os) const {
 	return os;
 }
 Type* Bool_type::clone() const {
-	return new Bool_type {};
+	return new Bool_type { env };
 }
 
 }

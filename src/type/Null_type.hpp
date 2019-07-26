@@ -7,7 +7,7 @@ namespace ls {
 
 class Null_type : public Pointer_type {
 public:
-	Null_type();
+	Null_type(Environment& env);
 	virtual int id() const override { return 1; }
 	virtual const std::string getName() const { return "null"; }
 	virtual const std::string getJsonName() const { return "null"; }

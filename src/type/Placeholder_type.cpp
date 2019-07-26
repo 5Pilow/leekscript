@@ -29,7 +29,7 @@ std::ostream& Placeholder_type::print(std::ostream& os) const {
 	return os;
 }
 Type* Placeholder_type::clone() const {
-	return new Placeholder_type { _name };
+	return new Placeholder_type { env, _name };
 }
 
 }

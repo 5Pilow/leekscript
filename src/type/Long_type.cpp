@@ -8,20 +8,21 @@
 #include "Mpz_type.hpp"
 #include "Bool_type.hpp"
 #include "Integer_type.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
 const Type* Long_type::key() const {
-	return Type::integer;
+	return env.integer;
 }
 const Type* Long_type::element() const {
-	return Type::integer;
+	return env.integer;
 }
 const Type* Long_type::iterator() const {
 	return Type::structure("long_iterator", {
-		Type::long_,
-		Type::long_,
-		Type::integer
+		env.long_,
+		env.long_,
+		env.integer
 	});
 }
 bool Long_type::operator == (const Type* type) const {
@@ -51,7 +52,7 @@ std::ostream& Long_type::print(std::ostream& os) const {
 	return os;
 }
 Type* Long_type::clone() const {
-	return new Long_type {};
+	return new Long_type { env };
 }
 
 }

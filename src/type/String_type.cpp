@@ -4,26 +4,27 @@
 #include "Type.hpp"
 #include "Any_type.hpp"
 #include "Struct_type.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
-String_type::String_type() : Pointer_type(Type::structure("string", {
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // refs
-	Type::boolean // native
+String_type::String_type(Environment& env) : Pointer_type(Type::structure("string", {
+	env.integer, // ?
+	env.integer, // ?
+	env.integer, // ?
+	env.integer, // refs
+	env.boolean // native
 })) {}
 
 const Type* String_type::key() const {
-	return Type::integer;
+	return env.integer;
 }
 const Type* String_type::element() const {
-	return Type::string;
+	return env.string;
 }
 const Type* String_type::iterator() const {
 	return Type::structure("string_iterator", {
-		Type::any, Type::integer, Type::integer, Type::integer, Type::integer
+		env.any, env.integer, env.integer, env.integer, env.integer
 	});
 }
 bool String_type::operator == (const Type* type) const {
@@ -43,7 +44,7 @@ std::ostream& String_type::print(std::ostream& os) const {
 	return os;
 }
 Type* String_type::clone() const {
-	return new String_type {};
+	return new String_type { env };
 }
 
 }

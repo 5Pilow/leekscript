@@ -4,21 +4,22 @@
 #include "../colors.h"
 #include "Any_type.hpp"
 #include "Struct_type.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
 Map_type::Map_type(const Type* key, const Type* element) : Pointer_type(Type::structure("map<" + key->getName() + ", " + element->getName() + ">", {
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::boolean, // native
+	key->env.integer, // ?
+	key->env.integer, // ?
+	key->env.integer, // ?
+	key->env.integer, // ?
+	key->env.boolean, // native
 	element->pointer(),
 	element->pointer(),
 	element->pointer(),
 	Type::structure("map_node<" + key->getName() + ", " + element->getName() + ">", {
-		Type::long_, Type::long_, Type::long_, Type::long_,
-		key, element	
+		key->env.long_, key->env.long_, key->env.long_, key->env.long_,
+		key, element
 	})->pointer()
 })), _key(key), _element(element) {}
 
@@ -32,7 +33,7 @@ const Type* Map_type::iterator() const {
 	const auto key_merged = _key->folded;
 	const auto element_merged = _element->folded;
 	return Type::structure("map_node<" + key_merged->getName() + ", " + element_merged->getName() + ">", {
-		Type::long_, Type::long_, Type::long_, Type::long_, key_merged, element_merged
+		env.long_, env.long_, env.long_, env.long_, key_merged, element_merged
 	})->pointer();
 }
 bool Map_type::operator == (const Type* type) const {

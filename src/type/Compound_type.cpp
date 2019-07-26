@@ -1,9 +1,10 @@
 #include "Compound_type.hpp"
 #include "../colors.h"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
-Compound_type::Compound_type(std::set<const Type*> list, const Type* folded) {
+Compound_type::Compound_type(std::set<const Type*> list, const Type* folded) : Type(folded->env) {
 	for (const auto& t : list) types.push_back(t);
 	this->folded = folded;
 }
@@ -15,7 +16,7 @@ const Type* Compound_type::element() const {
 	return Type::compound(elements);
 }
 const Type* Compound_type::pointed() const {
-	return Type::void_;
+	return env.void_;
 }
 bool Compound_type::operator == (const Type* type) const {
 	return false;

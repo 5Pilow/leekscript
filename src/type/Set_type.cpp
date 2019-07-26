@@ -3,6 +3,7 @@
 #include <iostream>
 #include "Any_type.hpp"
 #include "Struct_type.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
@@ -10,11 +11,11 @@ std::unordered_map<const Type*, const Type*> Set_type::nodes;
 std::unordered_map<const Type*, const Type*> Set_type::iterators;
 
 Set_type::Set_type(const Type* element) : Pointer_type(Type::structure("set<" + element->getName() + ">", {
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::boolean, // native
+	element->env.integer, // ?
+	element->env.integer, // ?
+	element->env.integer, // ?
+	element->env.integer, // ?
+	element->env.boolean, // native
 	element->pointer(),
 	element->pointer(),
 	element->pointer(),
@@ -22,7 +23,7 @@ Set_type::Set_type(const Type* element) : Pointer_type(Type::structure("set<" + 
 })), _element(element) {}
 
 const Type* Set_type::key() const {
-	return Type::integer;
+	return env.integer;
 }
 const Type* Set_type::element() const {
 	return _element;
@@ -67,7 +68,7 @@ const Type* Set_type::get_iterator(const Type* element) {
 	if (i != iterators.end()) return i->second;
 	auto type = Type::structure("set_iterator<" + element->getName() + ">", {
 		get_node_type(element),
-		Type::integer
+		element->env.integer
 	});
 	iterators.insert({ element, type });
 	return type;
@@ -76,8 +77,9 @@ const Type* Set_type::get_iterator(const Type* element) {
 const Type* Set_type::get_node_type(const Type* element) {
 	auto i = nodes.find(element);
 	if (i != nodes.end()) return i->second;
+	auto& env = element->env;
 	auto type = Type::structure("set_node<" + element->getName() + ">", {
-		Type::long_, Type::long_, Type::long_, Type::long_,
+		env.long_, env.long_, env.long_, env.long_,
 		element
 	})->pointer();
 	nodes.insert({ element, type });

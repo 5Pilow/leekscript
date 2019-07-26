@@ -5,15 +5,16 @@
 #include "../compiler/Compiler.hpp"
 #include "Struct_type.hpp"
 #include "Any_type.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
 Array_type::Array_type(const Type* element) : Pointer_type(Type::structure("array<" + element->getName() + ">", {
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // refs
-	Type::boolean, // native
+	element->env.integer, // ?
+	element->env.integer, // ?
+	element->env.integer, // ?
+	element->env.integer, // refs
+	element->env.boolean, // native
 	element->pointer(), // vector.begin
 	element->pointer(), // vector.end
 	element->pointer() // vector.data
@@ -21,7 +22,7 @@ Array_type::Array_type(const Type* element) : Pointer_type(Type::structure("arra
 }
 
 const Type* Array_type::key() const {
-	return Type::integer;
+	return env.integer;
 }
 const Type* Array_type::element() const {
 	return _element;
@@ -36,8 +37,8 @@ int Array_type::distance(const Type* type) const {
 	if (not temporary and type->temporary) return -1;
 	if (dynamic_cast<const Any_type*>(type->folded)) { return 1000; }
 	if (auto array = dynamic_cast<const Array_type*>(type->folded)) {
-		if (_element == Type::never) return 0;
-		if (array->_element == Type::never) return 999;
+		if (_element == env.never) return 0;
+		if (array->_element == env.never) return 999;
 		if (array->_element->is_void()) {
 			return 999;
 		}
@@ -47,10 +48,10 @@ int Array_type::distance(const Type* type) const {
 }
 const Type* Array_type::iterator() const {
 	const auto merged = _element->fold();
-	if (merged->is_bool()) return Type::i8->pointer();
-	if (merged->is_integer()) return Type::integer->pointer();
-	if (merged->is_real()) return Type::real->pointer();
-	return Type::any->pointer();
+	if (merged->is_bool()) return env.i8->pointer();
+	if (merged->is_integer()) return env.integer->pointer();
+	if (merged->is_real()) return env.real->pointer();
+	return env.any->pointer();
 }
 std::string Array_type::class_name() const {
 	return "Array";
@@ -60,7 +61,7 @@ const std::string Array_type::getName() const {
 }
 std::ostream& Array_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "array" << END_COLOR;
-	if (_element != Type::void_) {
+	if (_element != env.void_) {
 		os << "<" << _element << ">";
 	}
 	return os;

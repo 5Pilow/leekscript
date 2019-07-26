@@ -4,7 +4,7 @@
 
 namespace ls {
 
-Pointer_type::Pointer_type(const Type* type, bool native) : Type(native), _type(type) {}
+Pointer_type::Pointer_type(const Type* type, bool native) : Type(type->env, native), _type(type) {}
 
 const Type* Pointer_type::pointed() const {
 	return _type;

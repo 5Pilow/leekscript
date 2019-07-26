@@ -8,20 +8,21 @@
 #include "Mpz_type.hpp"
 #include "Bool_type.hpp"
 #include "Number_type.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
 const Type* Integer_type::key() const {
-	return Type::integer;
+	return env.integer;
 }
 const Type* Integer_type::element() const {
-	return Type::integer;
+	return env.integer;
 }
 const Type* Integer_type::iterator() const {
 	return Type::structure("int_iterator", {
-		Type::integer,
-		Type::integer,
-		Type::integer
+		env.integer,
+		env.integer,
+		env.integer
 	});
 }
 bool Integer_type::operator == (const Type* type) const {
@@ -51,7 +52,7 @@ std::ostream& Integer_type::print(std::ostream& os) const {
 	return os;
 }
 Type* Integer_type::clone() const {
-	return new Integer_type {};
+	return new Integer_type { env };
 }
 
 }

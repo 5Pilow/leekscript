@@ -7,12 +7,13 @@ namespace ls {
 
 class Void_type : public Type {
 public:
+	Void_type(Environment& env) : Type(env) {}
 	virtual int id() const { return 0; }
 	virtual const std::string getName() const override { return "void"; }
 	virtual const std::string getJsonName() const { return "void"; }
-	virtual const Type* element() const override { return Type::void_; }
-	virtual const Type* key() const override { return Type::void_; }
-	virtual const Type* return_type() const override { return Type::void_; }
+	virtual const Type* element() const override;
+	virtual const Type* key() const override;
+	virtual const Type* return_type() const override;
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;
 	#if COMPILER

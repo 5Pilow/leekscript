@@ -3,18 +3,21 @@
 #include "Type.hpp"
 #include "Any_type.hpp"
 #include "../compiler/Compiler.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
+Template_type::Template_type(Environment& env, const std::string name) : Any_type(env), _name(name), _implementation(env.void_) {}
+
 void Template_type::reset() const {
-	((Template_type*) this)->_implementation = Type::void_;
+	((Template_type*) this)->_implementation = _implementation->env.void_;
 }
 void Template_type::implement(const Type* implementation) const {
 	((Template_type*) this)->_implementation = implementation;
 }
 bool Template_type::operator == (const Type* type) const {
 	if (this == type) return true;
-	if (_implementation == Type::void_) return false;
+	if (_implementation == _implementation->env.void_) return false;
 	return _implementation->operator == (type);
 }
 #if COMPILER
@@ -26,14 +29,14 @@ llvm::Type* Template_type::llvm(Compiler& c) const {
 #endif
 std::ostream& Template_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << _name;
-	if (_implementation != Type::void_) {
+	if (_implementation != _implementation->env.void_) {
 		os << "." << _implementation;
 	}
 	os << END_COLOR;
 	return os;
 }
 Type* Template_type::clone() const {
-	return new Template_type { _name };
+	return new Template_type { env, _name };
 }
 
 }

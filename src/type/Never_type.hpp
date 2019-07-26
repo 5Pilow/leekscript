@@ -7,7 +7,7 @@ namespace ls {
 
 class Never_type : public Any_type {
 public:
-	Never_type();
+	Never_type(Environment&);
 	virtual ~Never_type() {}
 	virtual const std::string getName() const { return "never"; }
 	virtual bool operator == (const Type*) const override;

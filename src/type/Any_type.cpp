@@ -3,15 +3,16 @@
 #include "../colors.h"
 #include "../compiler/Compiler.hpp"
 #include "Struct_type.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
-Any_type::Any_type() : Pointer_type(Type::structure("any", {
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // refs
-	Type::boolean // native
+Any_type::Any_type(Environment& env) : Pointer_type(Type::structure("any", {
+	env.integer, // ?
+	env.integer, // ?
+	env.integer, // ?
+	env.integer, // refs
+	env.boolean // native
 })) {}
 
 bool Any_type::operator == (const Type* type) const {
@@ -30,7 +31,7 @@ std::ostream& Any_type::print(std::ostream& os) const {
 	return os;
 }
 Type* Any_type::clone() const {
-	return new Any_type {};
+	return new Any_type { env };
 }
 
 }

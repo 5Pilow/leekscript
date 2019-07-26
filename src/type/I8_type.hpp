@@ -7,7 +7,7 @@ namespace ls {
 
 class I8_type : public Number_type {
 public:
-	I8_type() {}
+	I8_type(Environment& env) : Number_type(env) {}
 	virtual const std::string getName() const override { return "i8"; }
 	virtual bool operator == (const Type*) const;
 	virtual int distance(const Type* type) const override;

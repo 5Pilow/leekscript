@@ -40,7 +40,7 @@ std::ostream& I8_type::print(std::ostream& os) const {
 	return os;
 }
 Type* I8_type::clone() const {
-	return new I8_type {};
+	return new I8_type { env };
 }
 
 }

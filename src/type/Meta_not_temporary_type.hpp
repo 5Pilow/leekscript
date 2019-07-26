@@ -8,7 +8,7 @@ namespace ls {
 class Meta_not_temporary_type : public Type {
 public:
 	const Type* type;
-	Meta_not_temporary_type(const Type* type) : type(type) {}
+	Meta_not_temporary_type(const Type* type) : Type(type->env), type(type) {}
 	virtual int id() const { return 0; }
 	virtual const std::string getName() const override { return "meta_not_temporary"; }
 	virtual const std::string getJsonName() const { return "meta_not_temporary"; }

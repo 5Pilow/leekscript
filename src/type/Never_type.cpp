@@ -4,7 +4,7 @@
 
 namespace ls {
 
-Never_type::Never_type() {}
+Never_type::Never_type(Environment& env) : Any_type(env) {}
 
 bool Never_type::operator == (const Type* type) const {
 	return dynamic_cast<const Never_type*>(type);
@@ -19,7 +19,7 @@ std::ostream& Never_type::print(std::ostream& os) const {
 	return os;
 }
 Type* Never_type::clone() const {
-	return new Never_type {};
+	return new Never_type { env };
 }
 
 }

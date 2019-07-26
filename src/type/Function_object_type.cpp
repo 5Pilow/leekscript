@@ -5,16 +5,17 @@
 #include "Placeholder_type.hpp"
 #include "Any_type.hpp"
 #include "Struct_type.hpp"
+#include "../environment/Environment.hpp"
 
 namespace ls {
 
 Function_object_type::Function_object_type(const Type* ret, const std::vector<const Type*>& args, bool closure, const Value* function) : Pointer_type(Type::structure(closure ? "closure" : "function", {
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // ?
-	Type::integer, // refs
-	Type::boolean, // native
-	Type::long_->pointer() // pointer to the function
+	ret->env.integer, // ?
+	ret->env.integer, // ?
+	ret->env.integer, // ?
+	ret->env.integer, // refs
+	ret->env.boolean, // native
+	ret->env.long_->pointer() // pointer to the function
 }), true), _return_type(ret), _arguments(args), _closure(closure), _function(function) {}
 
 bool Function_object_type::operator == (const Type* type) const {
@@ -65,7 +66,7 @@ const Type* Function_object_type::argument(size_t i) const {
 	if (i < _arguments.size()) {
 		return _arguments[i];
 	}
-	return Type::any;
+	return env.any;
 }
 std::string Function_object_type::class_name() const {
 	return "Function";

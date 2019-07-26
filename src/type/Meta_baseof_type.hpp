@@ -10,7 +10,7 @@ public:
 	const Type* type;
 	const Type* base;
 	const Type* result = nullptr;
-	Meta_baseof_type(const Type* type, const Type* base) : type(type), base(base) {}
+	Meta_baseof_type(const Type* type, const Type* base) : Type(type->env), type(type), base(base) {}
 	virtual void reset() const override;
 	virtual int id() const { return 0; }
 	virtual const std::string getName() const override { return "meta_baseof"; }

@@ -43,7 +43,7 @@ std::ostream& Mpz_type::print(std::ostream& os) const {
 	return os;
 }
 Type* Mpz_type::clone() const {
-	return new Mpz_type {};
+	return new Mpz_type { env };
 }
 
 #if COMPILER
