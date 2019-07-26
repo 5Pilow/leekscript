@@ -79,10 +79,7 @@ int CLI::start_full(int argc, char* argv[]) {
 
 	/** Generate the standard functions documentation */
 	if (options.documentation) {
-		#if COMPILER
-		ls::VM vm {};
 		ls::Documentation().generate(std::cout);
-		#endif
 		return 0;
 	}
 
