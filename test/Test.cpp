@@ -7,6 +7,7 @@
 #include "../src/leekscript.h"
 #include <omp.h>
 #include <thread>
+#include "../src/environment/Environment.hpp"
 
 std::vector<std::string> Test::failed_tests;
 std::vector<std::string> Test::disabled_tests;
@@ -149,16 +150,14 @@ Test::Input Test::file_v1(const std::string& file_name) {
 	return Test::Input(this, file_name, file_name, code, true, true);
 }
 
-ls::VM* Test::getVM(bool legacy) {
-	std::thread::id thread = std::this_thread::get_id();
-	auto& map = legacy ? vms_legacy : vms;
+ls::Environment& Test::getEnv(bool legacy) {
+	auto thread = std::this_thread::get_id();
+	auto& map = legacy ? envs_legacy : envs;
 	auto i = map.find(thread);
 	if (i != map.end()) {
-		return i->second;
+		return *i->second;
 	} else {
-		auto vm = new ls::VM(legacy);
-		map.insert({ thread, vm });
-		return vm;
+		return *map.emplace(thread, new ls::Environment { legacy }).first->second;
 	}
 }
 
@@ -167,12 +166,15 @@ ls::VM::Result Test::Input::run(bool display_errors, bool ops) {
 
 	// std::cout << C_BLUE << "RUN " << END_COLOR << code << C_GREY << "..." << END_COLOR << std::endl;
 
-	auto vm = test->getVM(v1);
-	vm->operation_limit = this->operation_limit > 0 ? this->operation_limit : ls::VM::DEFAULT_OPERATION_LIMIT;
-	auto result = vm->execute(code, ctx, file_name, false, false, ops or this->operation_limit > 0);
-	vm->operation_limit = ls::VM::DEFAULT_OPERATION_LIMIT;
+	auto& env = test->getEnv(v1);
+	env.operation_limit = ops ? ls::VM::DEFAULT_OPERATION_LIMIT : this->operation_limit;
+	ls::Program program { env, code, file_name };
+	program.context = ctx;
+	env.analyze(program);
+	env.compile(program);
+	env.execute(program, false, false, ops or this->operation_limit > 0);
 
-	this->result = result;
+	this->result = program.result;
 	test->obj_created += result.objects_created;
 	test->obj_deleted += result.objects_deleted;
 	test->mpz_obj_created += result.mpz_objects_created;
@@ -292,10 +294,10 @@ void Test::Input::almost(T expected, T delta) {
 void Test::Input::quine() {
 	if (disabled) return disable();
 	OutputStringStream oss;
-	auto vm = test->getVM(v1);
-	vm->output = &oss;
+	auto& env = test->getEnv(v1);
+	env.output = &oss;
 	auto result = run();
-	vm->output = ls::VM::default_output;
+	env.output = ls::VM::default_output;
 
 	if (oss.str() == code) {
 		pass(code);
@@ -306,18 +308,20 @@ void Test::Input::quine() {
 
 void Test::Input::type(const ls::Type* type) {
 	if (disabled) return disable();
-	auto vm = test->getVM(v1);
+	auto& env = test->getEnv(v1);
 
 	test->total++;
-	auto result = vm->execute(code, ctx, file_name, false, false);
+	ls::Program program { env, code, file_name };
+	program.context = ctx;
+	env.analyze(program);
 
 	std::ostringstream oss;
 	oss << type;
 	std::ostringstream oss_actual;
-	oss_actual << result.type;
+	oss_actual << program.type;
 
 	// std::cout << (void*) result.type << " " << (void*) type << std::endl;
-	if (result.type == type) {
+	if (program.type == type) {
 		pass(oss.str());
 	} else {
 		fail(oss.str(), oss_actual.str());
@@ -328,10 +332,10 @@ void Test::Input::output(const std::string& expected) {
 	if (disabled) return disable();
 
 	OutputStringStream oss;
-	auto vm = test->getVM(v1);
-	vm->output = &oss;
+	auto& env = test->getEnv(v1);
+	env.output = &oss;
 	auto result = run();
-	vm->output = ls::VM::default_output;
+	env.output = ls::VM::default_output;
 
 	if (oss.str() == expected) {
 		pass(expected);

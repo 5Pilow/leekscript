@@ -2,6 +2,7 @@
 #include "../src/type/Type.hpp"
 
 void Test::test_map() {
+	auto& env = getEnv(false);
 
 	header("Map");
 
@@ -63,8 +64,8 @@ void Test::test_map() {
 	code("let m = ['salut': 12] m['salut'] = 13 m['salut']").equals("13");
 	code("let m = ['salut': 'yo'] m['salut'] = 'ya' m['salut']").equals("'ya'");
 	code("let m = [5: 12] m[5.7]").equals("12");
-	code("let m = [5: 12] m['salut']").error(ls::Error::INVALID_MAP_KEY, {"'salut'", "m", ls::Type::tmp_string->to_string()});
-	code("let m = [5.7: 'hello'] m['salut']").error(ls::Error::INVALID_MAP_KEY, {"'salut'", "m", ls::Type::tmp_string->to_string()});
+	code("let m = [5: 12] m['salut']").error(ls::Error::INVALID_MAP_KEY, {"'salut'", "m", env.tmp_string->to_string()});
+	code("let m = [5.7: 'hello'] m['salut']").error(ls::Error::INVALID_MAP_KEY, {"'salut'", "m", env.tmp_string->to_string()});
 	code("var m = [1: 'a', 2: 'b'] m[2] = 'B' m").equals("[1: 'a', 2: 'B']");
 	code("var m = [1: 'a', 2: 'b'] m[3]").exception(ls::vm::Exception::ARRAY_OUT_OF_BOUNDS);
 	code("var m = [1: 2, 3: 4] m[5] = 6 m").equals("[1: 2, 3: 4, 5: 6]");
@@ -165,7 +166,7 @@ void Test::test_map() {
 	code("let x = [1: 1] x.look(1, 0)").equals("1");
 	code("let x = ['a': 'a'] x.look('a', 'b')").equals("'a'");
 	code("let x = ['a': 'a'] x.look('b', 'b')").equals("'b'");
-	code("let x = ['a': 1] x.look(3.14, 'a')").error(ls::Error::METHOD_NOT_FOUND, {ls::Type::const_map(ls::Type::any, ls::Type::integer)->to_string() + ".look(" + ls::Type::real->to_string() + ", " + ls::Type::tmp_string->to_string() + ")"});
+	code("let x = ['a': 1] x.look(3.14, 'a')").error(ls::Error::METHOD_NOT_FOUND, {ls::Type::const_map(env.any, env.integer)->to_string() + ".look(" + env.real->to_string() + ", " + env.tmp_string->to_string() + ")"});
 	code("[1 : 1].look(1, 0)").equals("1");
 	code("[1 : 'a'].look(2, 10)").equals("10");
 	code("[1 : 'a'].look(2, 5.5)").equals("5.5");

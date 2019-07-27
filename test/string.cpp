@@ -2,6 +2,7 @@
 #include "../src/type/Type.hpp"
 
 void Test::test_strings() {
+	auto& env = getEnv(false);
 
 	header("Strings");
 	code("'").error(ls::Error::Type::UNTERMINATED_STRING);
@@ -94,7 +95,7 @@ void Test::test_strings() {
 
 	section("String.operator []");
 	code("'bonjour'[3]").equals("'j'");
-	code("'bonjour'['hello']").error(ls::Error::Type::ARRAY_ACCESS_KEY_MUST_BE_NUMBER, {"'hello'", "'bonjour'", ls::Type::tmp_string->to_string()});
+	code("'bonjour'['hello']").error(ls::Error::Type::ARRAY_ACCESS_KEY_MUST_BE_NUMBER, {"'hello'", "'bonjour'", env.tmp_string->to_string()});
 	code("~('salut' + ' ca va ?')").equals("'? av ac tulas'");
 	code("'bonjour'[2:5]").equals("'njou'");
 	code("'bonjour'['a':5]").error(ls::Error::Type::ARRAY_ACCESS_RANGE_KEY_MUST_BE_NUMBER, {"<key 1>"});

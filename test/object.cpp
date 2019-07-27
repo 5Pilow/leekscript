@@ -2,6 +2,7 @@
 #include "../src/type/Type.hpp"
 
 void Test::test_objects() {
+	auto& env = getEnv(false);
 
 	/*
 	 * General
@@ -87,7 +88,7 @@ void Test::test_objects() {
 	/*
 	 * Iteration
 	 */
-	code("var s = '' for v in {a: 5, b: 'hello'} { s += v } s").error(ls::Error::Type::VALUE_NOT_ITERABLE, {"{a: 5, b: 'hello'}", ls::Type::tmp_object->to_string()}); // TODO .equals("'5hello'");
+	code("var s = '' for v in {a: 5, b: 'hello'} { s += v } s").error(ls::Error::Type::VALUE_NOT_ITERABLE, {"{a: 5, b: 'hello'}", env.tmp_object->to_string()}); // TODO .equals("'5hello'");
 
 	/*
 	 * Methods

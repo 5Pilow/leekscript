@@ -2,6 +2,7 @@
 #include "../src/type/Type.hpp"
 
 void Test::test_numbers() {
+	auto& env = getEnv(false);
 
 	header("Numbers");
 
@@ -441,7 +442,7 @@ void Test::test_numbers() {
 	code("0 & 0").equals("0");
 	code("1 & 0").equals("0");
 	code("1 & 1").equals("1");
-	code("5 & 12").equals("4"); 
+	code("5 & 12").equals("4");
 	code("87619 & 18431").equals("17987");
 	code("87619$ & [18431, ''][0]").equals("17987");
 	code("var a = 87619 a &= 18431").equals("17987");
@@ -494,7 +495,7 @@ void Test::test_numbers() {
 	code("var a = [123, ''] a[0] <<= 13").equals("1007616");
 	code("var a = 123 ['', a <<= 13]").equals("['', 1007616]");
 	code("'salut' << 5").exception(ls::vm::Exception::NO_SUCH_OPERATOR);
-	
+
 	section("Number.operator >>");
 	code("0 >> 0").equals("0");
 	code("1 >> 0").equals("1");
@@ -510,7 +511,7 @@ void Test::test_numbers() {
 	code("var a = 123123123 a >>= 7 a").equals("961899");
 	code("var a = [123123123, ''] a[0] >>= 7").equals("961899");
 	code("var a = 12345 ['', a >>= 8]").equals("['', 48]");
-	code("'salut' >> 5").error(ls::Error::NO_SUCH_OPERATOR, {ls::Type::tmp_string->to_string(), ">>", ls::Type::integer->to_string()});
+	code("'salut' >> 5").error(ls::Error::NO_SUCH_OPERATOR, {env.tmp_string->to_string(), ">>", env.integer->to_string()});
 
 	section("Number.operator >>>");
 	code("155 >>> 3").equals("19");
@@ -520,7 +521,7 @@ void Test::test_numbers() {
 	code("var a = -155 a >>>= 5 a").equals("134217723");
 	code("var a = [-155, ''] a[0] >>>= 5").equals("134217723");
 	code("var a = -155 ['', a >>>= 5]").equals("['', 134217723]");
-	code("'salut' >>> 5").error(ls::Error::NO_SUCH_OPERATOR, {ls::Type::tmp_string->to_string(), ">>>", ls::Type::integer->to_string()});
+	code("'salut' >>> 5").error(ls::Error::NO_SUCH_OPERATOR, {env.tmp_string->to_string(), ">>>", env.integer->to_string()});
 
 	section("Number.operator |x|");
 	code("var a = -12 [] + |a|").equals("[12]");
@@ -604,7 +605,7 @@ void Test::test_numbers() {
 	code("max(5l, 10.5)").equals("10.5");
 	code("max(5l, 10)").equals("10");
 	code("max(true, 10l)").equals("10");
-	code("max('string', 12)").error(ls::Error::METHOD_NOT_FOUND, {"max(" + ls::Type::tmp_string->to_string() + ", " + ls::Type::integer->to_string() + ")"});
+	code("max('string', 12)").error(ls::Error::METHOD_NOT_FOUND, {"max(" + env.tmp_string->to_string() + ", " + env.integer->to_string() + ")"});
 
 	section("Number.min()");
 	code("Number.min(5, 12)").equals("5");
@@ -622,7 +623,7 @@ void Test::test_numbers() {
 	code("min(5l, 10.5)").equals("5");
 	code("min(5l, 10)").equals("5");
 	code("min(true, 10l)").equals("1");
-	code("min('string', 12)").error(ls::Error::METHOD_NOT_FOUND, {"min(" + ls::Type::tmp_string->to_string() + ", " + ls::Type::integer->to_string() + ")"});
+	code("min('string', 12)").error(ls::Error::METHOD_NOT_FOUND, {"min(" + env.tmp_string->to_string() + ", " + env.integer->to_string() + ")"});
 
 	section("Number.cos()");
 	code("Number.cos(0)").equals("1");

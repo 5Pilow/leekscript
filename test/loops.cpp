@@ -2,7 +2,7 @@
 #include "../src/type/Type.hpp"
 
 void Test::test_loops() {
-
+	auto& env = getEnv(false);
 	/*
 	 * Conditions
 	 */
@@ -48,7 +48,7 @@ void Test::test_loops() {
 	code("if 1212 { 'ok' } else { 5 }").equals("'ok'");
 	code("if ['str', true][0] { 12 } else { 5 }").equals("12");
 	code("if null { 12 } else { 5 }").equals("5");
-	
+
 	section("Different branch types");
 	code("if (1) ['a'] else if (0) [2] else [5.5]").equals("['a']");
 	code("if (0) ['a'] else if (1) [2] else [5.5]").equals("[2]");
@@ -160,9 +160,9 @@ void Test::test_loops() {
 	// code("for x in ['hello', 12345][0] { print(x) }").equals("h\ne\nl\nl\no\n");
 
 	header("Foreach - not iterable");
-	code("for x in null {}").error(ls::Error::Type::VALUE_NOT_ITERABLE, {"null", ls::Type::null->to_string()});
-	code("for x in true {}").error(ls::Error::Type::VALUE_NOT_ITERABLE, {"true", ls::Type::boolean->to_string()});
-	code("for x in Number {}").error(ls::Error::Type::VALUE_NOT_ITERABLE, {"Number", ls::Type::const_class()->to_string()});
+	code("for x in null {}").error(ls::Error::Type::VALUE_NOT_ITERABLE, {"null", env.null->to_string()});
+	code("for x in true {}").error(ls::Error::Type::VALUE_NOT_ITERABLE, {"true", env.boolean->to_string()});
+	code("for x in Number {}").error(ls::Error::Type::VALUE_NOT_ITERABLE, {"Number", env.const_class()->to_string()});
 
 	/*
 	 * Array For

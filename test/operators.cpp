@@ -3,6 +3,8 @@
 
 void Test::test_operators() {
 
+	auto& env = getEnv(false);
+
 	header("Operator =");
 
 	code("var a a = 2").equals("2");
@@ -207,12 +209,12 @@ void Test::test_operators() {
 	code_v1("[0, ''][0] === 0").equals("true");
 	code_v1("[1, ''][0] === true").equals("false");
 	code_v1("[0, ''][0] === false").equals("false");
-	code("1 === 1").error(ls::Error::NO_SUCH_OPERATOR, {ls::Type::integer->to_string(), "===", ls::Type::integer->to_string()});
+	code("1 === 1").error(ls::Error::NO_SUCH_OPERATOR, {env.integer->to_string(), "===", env.integer->to_string()});
 
 	/*
 	 * Random operators
 	 */
-	 /*
+	/*
 	section("Random operators");
 	std::vector<std::string> values = {
 		"0", "5", "-7", "Number.pi", "12.656", "12345678912345", "true", "false",

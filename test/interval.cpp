@@ -2,6 +2,7 @@
 #include "../src/type/Type.hpp"
 
 void Test::test_intervals() {
+	auto& env = getEnv(false);
 
 	header("Intervals");
 	code("[1..10]").equals("[1..10]");
@@ -53,7 +54,7 @@ void Test::test_intervals() {
 	code("[-100..0][5]").equals("-95");
 	code("['', [10..20]][1][5]").equals("15");
 	code("['', [10..20]][1][50]").exception(ls::vm::Exception::ARRAY_OUT_OF_BOUNDS);
-	code("[1..10]['hello']").error( ls::Error::Type::ARRAY_ACCESS_KEY_MUST_BE_NUMBER, {"'hello'", "[1..10]", ls::Type::tmp_string->to_string()});
+	code("[1..10]['hello']").error( ls::Error::Type::ARRAY_ACCESS_KEY_MUST_BE_NUMBER, {"'hello'", "[1..10]", env.tmp_string->to_string()});
 	code("let i = ['', [10..20]][1] i['hello']").exception(ls::vm::Exception::ARRAY_KEY_IS_NOT_NUMBER);
 	code("[1..10][50]").exception(ls::vm::Exception::ARRAY_OUT_OF_BOUNDS);
 	code("[1..10][-10]").exception(ls::vm::Exception::ARRAY_OUT_OF_BOUNDS);
