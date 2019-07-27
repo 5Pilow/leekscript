@@ -34,6 +34,8 @@ int main(int, char**) {
 
 int Test::all() {
 
+	auto test_start = std::chrono::high_resolution_clock::now();
+
 	std::vector<std::function<void(Test*)>> tests = {
 		&Test::test_types,
 		&Test::test_general,
@@ -63,6 +65,12 @@ int Test::all() {
 	for (size_t i = 0; i < tests.size(); ++i) {
         tests[i](this);
     };
+
+	auto test_end = std::chrono::high_resolution_clock::now();
+	auto test_time = std::chrono::duration_cast<std::chrono::nanoseconds>(test_end - test_start).count();
+	double test_total_time = (((double) test_time / 1000) / 1000);
+
+	std::cout << "Test total time: " << test_total_time << std::endl;
 
 	double total_time = parse_time + compilation_time + execution_time;
 	int errors = (total - success_count - disabled);
