@@ -27,6 +27,7 @@ void ArrayFor::analyze(SemanticAnalyzer* analyzer) {
 	auto& env = analyzer->env;
 	forr->analyze(analyzer, Type::array(env.void_));
 	type = forr->type;
+	return_type = forr->return_type;
 	throws = forr->throws;
 }
 
