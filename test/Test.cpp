@@ -61,7 +61,7 @@ int Test::all() {
 		&Test::test_doc,
 		&Test::test_utils,
 	};
-	omp_set_num_threads(1);
+	omp_set_num_threads(tests.size());
 	#pragma omp parallel for
 	for (size_t i = 0; i < tests.size(); ++i) {
         tests[i](this);
