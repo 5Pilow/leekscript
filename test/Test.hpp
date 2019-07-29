@@ -50,6 +50,7 @@ public:
 	int all();
 	void header(const std::string&);
 	void section(const std::string&);
+	void action(const std::string);
 
 	Input code(const std::string& _code);
 	Input DISABLED_code(const std::string& _code);

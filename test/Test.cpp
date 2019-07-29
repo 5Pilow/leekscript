@@ -442,3 +442,7 @@ void Test::section(const std::string& text) {
 	std::cout << "┘";
 	std::cout << std::endl;
 }
+
+void Test::action(const std::string action) {
+	std::cout << BOLD << ">> " << END_COLOR << action << std::endl;
+}
