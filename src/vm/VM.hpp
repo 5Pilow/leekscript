@@ -88,6 +88,8 @@ public:
 	void add_module(std::unique_ptr<Module> m);
 
 	void* resolve_symbol(std::string name);
+
+	void add_operations(int operations);
 };
 
 }

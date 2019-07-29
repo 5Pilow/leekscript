@@ -188,4 +188,12 @@ void* VM::resolve_symbol(std::string name) {
 }
 #endif
 
+void VM::add_operations(int amount) {
+	if (not enable_operations) return;
+	operations += amount;
+	if (operations > operation_limit) {
+		throw new vm::Exception(vm::Exception::OPERATION_LIMIT_EXCEEDED);
+	}
+}
+
 }
