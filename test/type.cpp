@@ -5,7 +5,7 @@
 
 void Test::test_types() {
 
-	auto& env = getEnv(false);
+	auto& env = getEnv();
 
 	auto p1 = env.generate_new_placeholder_type();
 

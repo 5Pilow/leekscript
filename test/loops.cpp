@@ -2,7 +2,7 @@
 #include "../src/type/Type.hpp"
 
 void Test::test_loops() {
-	auto& env = getEnv(false);
+	auto& env = getEnv();
 	/*
 	 * Conditions
 	 */

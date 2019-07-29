@@ -13,7 +13,7 @@
 #include "../src/standard/StandardLibrary.hpp"
 
 void Test::test_general() {
-	auto& env = getEnv(false);
+	auto& env = getEnv();
 
 	header("General");
 	// Print a syntaxical error

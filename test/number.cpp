@@ -2,7 +2,7 @@
 #include "../src/type/Type.hpp"
 
 void Test::test_numbers() {
-	auto& env = getEnv(false);
+	auto& env = getEnv();
 
 	header("Numbers");
 

@@ -2,7 +2,7 @@
 #include "../src/type/Type.hpp"
 
 void Test::test_objects() {
-	auto& env = getEnv(false);
+	auto& env = getEnv();
 
 	/*
 	 * General

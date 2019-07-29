@@ -59,7 +59,7 @@ public:
 	Input DISABLED_file(const std::string& _code);
 	Input file_v1(const std::string& file_name);
 
-	ls::Environment& getEnv(bool legacy);
+	ls::Environment& getEnv(bool legacy = false);
 
 	template <class T1, class T2>
 	void test(const std::string& label, T1 value, T2 expected) {

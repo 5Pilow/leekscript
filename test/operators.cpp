@@ -3,7 +3,7 @@
 
 void Test::test_operators() {
 
-	auto& env = getEnv(false);
+	auto& env = getEnv();
 
 	header("Operator =");
 

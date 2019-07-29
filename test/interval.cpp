@@ -2,7 +2,7 @@
 #include "../src/type/Type.hpp"
 
 void Test::test_intervals() {
-	auto& env = getEnv(false);
+	auto& env = getEnv();
 
 	header("Intervals");
 	code("[1..10]").equals("[1..10]");

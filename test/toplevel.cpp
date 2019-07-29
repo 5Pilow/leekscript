@@ -6,8 +6,7 @@
 #include "../src/type/Type.hpp"
 
 void Test::test_toplevel() {
-	auto& env = getEnv(false);
-
+	auto& env = getEnv();
 	header("Top-level");
 	ls::Context ctx { env };
 	code("var a = 2").context(&ctx).works();

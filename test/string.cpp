@@ -2,7 +2,7 @@
 #include "../src/type/Type.hpp"
 
 void Test::test_strings() {
-	auto& env = getEnv(false);
+	auto& env = getEnv();
 
 	header("Strings");
 	code("'").error(ls::Error::Type::UNTERMINATED_STRING);
@@ -192,7 +192,7 @@ void Test::test_strings() {
 	code("replace('hello\\\\', '\\\\\\\\', 'R')").equals("'hello\\'");
 	code("replace('hello.', '.', '\\\\\\\\\')").equals("'hello\\\\'");
 	code("replace('hello\\\\', '\\\\\\\\', '\\\\\\\\o')").equals("'hello\\'");
-	
+
 	section("v1 string replace()");
 	code_v1("replace('bonjour', 'o', 'u')").equals("'bunjuur'");
 	code_v1("replace('hello\\\\', '\\\\\\\\', 'R')").equals("'helloR'");
