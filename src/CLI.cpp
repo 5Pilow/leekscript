@@ -40,11 +40,12 @@ void CLI::setup_options(CLI11::App& app, CLI_options& options, int argc, char* a
     app.add_flag("-t,--time", options.display_time, "Output time results");
     app.add_flag("-l,--legacy", options.legacy, "Use legacy (V1) mode");
     app.add_flag("-i,--intermediate", options.intermediate, "Output the code intermediate representation");
+    app.add_flag("-b,--bitcode", options.bitcode, "Output the code bitcode file");
     app.add_flag("-e,--example", options.example, "Get an example snippet");
     app.add_flag("-o,--operations", options.operations, "Enable operations counter and limit");
     app.add_option("-O", options.optimization, "Optimization level");
     app.add_flag("-r,--execute_ir", options.execute_ir, "Execute as an IR file (.ll or .ir)");
-    app.add_flag("-b,--execute_bitcode", options.execute_bitcode, "Execute as an bitcode file (.bc)");
+    app.add_flag("-c,--execute_bitcode", options.execute_bitcode, "Execute as an bitcode file (.bc)");
     try {
         app.parse(argc, argv);
     } catch (const CLI11::ParseError& e) {
@@ -179,7 +180,7 @@ int CLI::repl(CLI_options options) {
 		// Execute
 		Program program { env, code, "(top-level)" };
 		program.context = &ctx;
-		env.execute(program, options.debug, options.operations, options.assembly, options.intermediate);
+		env.execute(program, options.debug, options.operations, options.bitcode, options.intermediate);
 		print_result(program.result, "", options.json_output, options.display_time, options.operations);
 		// std::cout << &ctx << std::endl;
 	}

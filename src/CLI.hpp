@@ -40,14 +40,14 @@ struct CLI_options {
 	bool json_output = false;	// J
 	bool display_time = false;	// T
 	bool operations = false;	// O
-	bool assembly = false;		//
+	bool bitcode = false;		// B
 	bool version = false;		// V
 	bool documentation = false;	// --documentation
 	int optimization = 0;		// O
 	bool intermediate = false;	// I
 	bool example = false;		// E
 	bool execute_ir = false;	// R --execute-ir
-	bool execute_bitcode = false; // B --execute_bitcode
+	bool execute_bitcode = false; // W --execute_bitcode
 };
 
 class CLI {
