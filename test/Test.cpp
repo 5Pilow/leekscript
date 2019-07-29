@@ -38,6 +38,7 @@ int Test::all() {
 
 	std::vector<std::function<void(Test*)>> tests = {
 		&Test::test_types,
+		&Test::test_legacy_array,
 		&Test::test_general,
 		&Test::test_booleans,
 		&Test::test_numbers,

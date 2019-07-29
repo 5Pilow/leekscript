@@ -81,6 +81,7 @@ public:
 
 	void test_general();
 	void test_types();
+	void test_legacy_array();
 	void test_operations();
 	void test_operators();
 	void test_references();
