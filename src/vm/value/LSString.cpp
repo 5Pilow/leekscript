@@ -8,10 +8,10 @@
 #include "LSArray.hpp"
 #include <string.h>
 #include "../../util/utf8.h"
+#include "../VM.hpp"
+#include "../../environment/Environment.hpp"
 
 namespace ls {
-
-LSValue* LSString::string_class;
 
 LSString::iterator LSString::iterator_begin(LSString* s) {
 	return {(char*) s->c_str(), 0, 0, 0, 0};
@@ -422,8 +422,8 @@ LSValue* LSString::clone() const {
 	return new LSString((const std::string&) *this);
 }
 
-LSValue* LSString::getClass() const {
-	return LSString::string_class;
+LSValue* LSString::getClass(VM* vm) const {
+	return vm->env.string_class.get();
 }
 
 }

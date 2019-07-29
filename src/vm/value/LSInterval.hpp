@@ -10,7 +10,6 @@ class LSFunction;
 class LSInterval : public LSValue {
 public:
 
-	static LSValue* clazz;
 	static LSInterval* constructor(int a, int b);
 
 	int a = 0;
@@ -43,7 +42,7 @@ public:
 
 	virtual LSValue* clone() const override;
 	virtual std::ostream& dump(std::ostream& os, int level) const override;
-	LSValue* getClass() const override;
+	LSValue* getClass(VM* vm) const override;
 };
 
 }

@@ -18,7 +18,6 @@ public:
 		u_int32_t character;
 	};
 
-	static LSValue* string_class;
 	static u_int32_t u8_char_at(char* s, int pos);
 	static iterator iterator_begin(LSString* s);
 	static void iterator_next(iterator* it);
@@ -66,7 +65,7 @@ public:
 	bool eq(const LSValue*) const override;
 	bool lt(const LSValue*) const override;
 
-	LSValue* at (const LSValue* value) const override;
+	LSValue* at(const LSValue* value) const override;
 
 	LSValue* range(int start, int end) const override;
 
@@ -80,7 +79,7 @@ public:
 	std::string escaped(char quote) const;
 	std::string escape_control_characters() const;
 
-	LSValue* getClass() const override;
+	LSValue* getClass(VM* vm) const override;
 };
 
 }

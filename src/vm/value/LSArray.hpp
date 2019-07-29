@@ -14,7 +14,6 @@ template <typename T>
 class LSArray : public LSValue, public std::vector<T> {
 public:
 
-	static LSValue* clazz;
 	static LSArray<T>* constructor(int);
 
 	LSArray();
@@ -109,7 +108,7 @@ public:
 	std::ostream& dump(std::ostream& os, int level) const override;
 	std::string json() const override;
 	LSValue* clone() const override;
-	LSValue* getClass() const override;
+	LSValue* getClass(VM* vm) const override;
 };
 
 }

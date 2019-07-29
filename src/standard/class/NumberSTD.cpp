@@ -31,7 +31,8 @@ int mpz_log(__mpz_struct* n) {
 NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 
 	#if COMPILER
-	LSNumber::clazz = lsclass.get();
+	env.number_class = std::make_unique<LSClass>(clazz.get());
+	lsclass = env.number_class.get();
 	#endif
 
 	static_field("pi", env.real, ADDR(([](Compiler& c) { return c.new_real(3.14159265358979323846); })));

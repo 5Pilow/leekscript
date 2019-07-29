@@ -7,8 +7,6 @@
 
 namespace ls {
 
-LSValue* LSObject::object_class;
-
 LSObject* LSObject::constructor() {
 	return new LSObject();
 }
@@ -152,7 +150,7 @@ bool LSObject::in(const LSValue* key) const {
 	return false;
 }
 
-LSValue* LSObject::attr(const std::string& key) const {
+LSValue* LSObject::attr(VM* vm, const std::string& key) const {
 	auto i = values.find(key);
 	if (i != values.end()) {
 		auto& v = i->second;
@@ -163,7 +161,7 @@ LSValue* LSObject::attr(const std::string& key) const {
 		}
 		return v;
 	} else {
-		return LSValue::attr(key);
+		return LSValue::attr(vm, key);
 	}
 }
 
@@ -221,9 +219,9 @@ std::string LSObject::json() const {
 	return res + "}";
 }
 
-LSValue* LSObject::getClass() const {
+LSValue* LSObject::getClass(VM* vm) const {
 	if (clazz != nullptr) return clazz;
-	return LSObject::object_class;
+	return vm->env.object_class.get();
 }
 
 }

@@ -20,9 +20,8 @@ LSSet<int>::iterator iterator_inc(LSSet<int>::iterator it) {
 SetSTD::SetSTD(Environment& env) : Module(env, "Set") {
 
 	#if COMPILER
-	LSSet<LSValue*>::clazz = lsclass.get();
-	LSSet<int>::clazz = lsclass.get();
-	LSSet<double>::clazz = lsclass.get();
+	env.set_class = std::make_unique<LSClass>(clazz.get());
+	lsclass = env.set_class.get();
 	#endif
 
 	/*

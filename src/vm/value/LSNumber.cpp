@@ -7,10 +7,10 @@
 #include "LSString.hpp"
 #include "LSClass.hpp"
 #include "LSClosure.hpp"
+#include "../VM.hpp"
+#include "../../environment/Environment.hpp"
 
 namespace ls {
-
-LSClass* LSNumber::clazz;
 
 LSNumber* LSNumber::get(NUMBER_TYPE i) {
 	return new LSNumber(i);
@@ -570,8 +570,8 @@ std::ostream& LSNumber::dump(std::ostream& os, int) const {
 	return os;
 }
 
-LSValue* LSNumber::getClass() const {
-	return LSNumber::clazz;
+LSValue* LSNumber::getClass(VM* vm) const {
+	return vm->env.number_class.get();
 }
 
 }

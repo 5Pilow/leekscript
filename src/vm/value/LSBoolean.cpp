@@ -3,10 +3,11 @@
 #include "LSClass.hpp"
 #include "LSString.hpp"
 #include "LSNumber.hpp"
+#include "../VM.hpp"
+#include "../../environment/Environment.hpp"
 
 namespace ls {
 
-LSValue* LSBoolean::clazz;
 LSBoolean* LSBoolean::false_val;
 LSBoolean* LSBoolean::true_val;
 
@@ -124,8 +125,8 @@ std::string LSBoolean::json() const {
 	return value ? "true" : "false";
 }
 
-LSValue* LSBoolean::getClass() const {
-	return LSBoolean::clazz;
+LSValue* LSBoolean::getClass(VM* vm) const {
+	return vm->env.boolean_class.get();
 }
 
 }

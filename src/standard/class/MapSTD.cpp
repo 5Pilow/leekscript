@@ -48,15 +48,8 @@ std::map<int, int>::iterator end(LSMap<int, int>* map) {
 MapSTD::MapSTD(Environment& env) : Module(env, "Map") {
 
 	#if COMPILER
-	LSMap<LSValue*, LSValue*>::clazz = lsclass.get();
-	LSMap<LSValue*, int>::clazz = lsclass.get();
-	LSMap<LSValue*, double>::clazz = lsclass.get();
-	LSMap<int, LSValue*>::clazz = lsclass.get();
-	LSMap<int, int>::clazz = lsclass.get();
-	LSMap<int, double>::clazz = lsclass.get();
-	LSMap<double, LSValue*>::clazz = lsclass.get();
-	LSMap<double, int>::clazz = lsclass.get();
-	LSMap<double, double>::clazz = lsclass.get();
+	env.map_class = std::make_unique<LSClass>(clazz.get());
+	lsclass = env.map_class.get();
 	#endif
 
 	/*

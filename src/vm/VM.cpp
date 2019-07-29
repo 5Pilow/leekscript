@@ -181,7 +181,7 @@ void* VM::resolve_symbol(std::string name) {
 		}
 	} else {
 		if (std.classes.find(name) != std.classes.end()) {
-			return std.classes.at(name)->lsclass.get();
+			return std.classes.at(name)->lsclass;
 		}
 	}
 	return nullptr;

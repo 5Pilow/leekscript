@@ -14,7 +14,8 @@ namespace ls {
 ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
 
 	#if COMPILER
-	LSValue::ValueClass = lsclass.get();
+	env.value_class = std::make_unique<LSClass>(clazz.get());
+	lsclass = env.value_class.get();
 	#endif
 
 	/*
@@ -264,7 +265,7 @@ ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
 		{env.any, {env.const_any}, ADDR((void*) ls_pre_tilde)}
 	});
 	method("attr", {
-		{env.any, {env.any, env.i8_ptr}, ADDR((void*) attr)},
+		{env.any, {env.i8_ptr, env.any, env.i8_ptr}, ADDR((void*) attr)},
 	});
 	method("attrL", {
 		{env.any, {env.any, env.i8_ptr}, ADDR((void*) attrL)},
@@ -725,8 +726,8 @@ int ValueSTD::absolute(LSValue* v) {
 LSValue* ValueSTD::clone(LSValue* v) {
 	return v->clone();
 }
-LSValue* ValueSTD::attr(LSValue* v, char* field) {
-	return v->attr(field);
+LSValue* ValueSTD::attr(VM* vm, LSValue* v, char* field) {
+	return v->attr(vm, field);
 }
 LSValue** ValueSTD::attrL(LSValue* v, char* field) {
 	return v->attrL(field);
@@ -896,8 +897,8 @@ void ValueSTD::delete_previous(LSValue* previous) {
 int ValueSTD::get_int(LSNumber* x) {
 	return (int) x->value;
 }
-LSValue* ValueSTD::get_class(LSValue* x) {
-	return x->getClass();
+LSValue* ValueSTD::get_class(VM* vm, LSValue* x) {
+	return x->getClass(vm);
 }
 void ValueSTD::export_context_variable_int(VM* vm, char* name, int v) {
 	vm->context->add_variable(name, reinterpret_cast<void*&>(v), vm->env.integer);

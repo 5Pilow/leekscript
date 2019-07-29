@@ -30,9 +30,6 @@ Module::Module(Environment& env, std::string name) : env(env), name(name) {
 	if (name != "Value") {
 		clazz->parent = env.std.classes["Value"]->clazz.get();
 	}
-	#if COMPILER
-	lsclass = std::make_unique<LSClass>(clazz.get());
-	#endif
 }
 
 void Module::operator_(std::string name, std::initializer_list<CallableVersion> impl, std::vector<const Type*> templates) {

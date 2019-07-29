@@ -7,8 +7,6 @@
 
 namespace ls {
 
-LSClass* LSFunction::clazz;
-
 LSFunction* LSFunction::constructor(VM* vm, void* f) {
 	auto fun = new LSFunction(f);
 	vm->function_created.push_back(fun);
@@ -50,7 +48,7 @@ bool LSFunction::lt(const LSValue* v) const {
 	return LSValue::lt(v);
 }
 
-LSValue* LSFunction::attr(const std::string& key) const {
+LSValue* LSFunction::attr(VM* vm, const std::string& key) const {
 	if (key == "args") {
 		LSArray<LSValue*>* args_list = new LSArray<LSValue*>();
 		for (const auto& arg : args) {
@@ -61,7 +59,7 @@ LSValue* LSFunction::attr(const std::string& key) const {
 	if (key == "return") {
 		return return_type;
 	}
-	return LSValue::attr(key);
+	return LSValue::attr(vm, key);
 }
 
 LSValue* LSFunction::clone() const {
@@ -77,8 +75,8 @@ std::string LSFunction::json() const {
 	return ""; // don't output function in json
 }
 
-LSValue* LSFunction::getClass() const {
-	return LSFunction::clazz;
+LSValue* LSFunction::getClass(VM* vm) const {
+	return vm->env.function_class.get();
 }
 
 }

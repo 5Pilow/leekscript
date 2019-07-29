@@ -14,7 +14,6 @@ struct lsset_less {
 template <typename T>
 class LSSet : public LSValue, public std::set<T, lsset_less<T>> {
 public:
-	static LSValue* clazz;
 	static LSSet<T>* constructor();
 
 	LSSet();
@@ -52,7 +51,7 @@ public:
 	virtual std::ostream& dump(std::ostream&, int level) const override;
 	virtual std::string json() const override;
 	virtual LSValue* clone() const override;
-	virtual LSValue* getClass() const override;
+	virtual LSValue* getClass(VM* vm) const override;
 };
 
 }

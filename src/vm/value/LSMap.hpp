@@ -14,7 +14,6 @@ struct lsmap_less {
 template <typename K, typename V>
 class LSMap : public LSValue, public std::map<K, V, lsmap_less<K>> {
 public:
-	static LSValue* clazz;
 	static LSMap<K, V>* constructor();
 
 	LSMap();
@@ -59,7 +58,7 @@ public:
 	virtual std::ostream& dump(std::ostream&, int level) const override;
 	virtual std::string json() const override;
 	virtual LSValue* clone() const override;
-	virtual LSValue* getClass() const override;
+	virtual LSValue* getClass(VM* vm) const override;
 };
 
 }

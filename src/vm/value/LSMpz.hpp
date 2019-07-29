@@ -14,11 +14,10 @@ class VM;
 
 class LSMpz : public LSValue {
 public:
-	
+
 	__mpz_struct value;
 	VM* vm; // For ref-counting
 
-	static LSClass* clazz;
 	static LSMpz* get_from_mpz(VM* vm, __mpz_struct);
 	static LSMpz* get_from_tmp(VM* vm, __mpz_struct);
 	static LSMpz* get(VM* vm);
@@ -73,7 +72,7 @@ public:
 	std::ostream& dump(std::ostream& os, int level) const override;
 	std::string json() const override;
 
-	LSValue* getClass() const override;
+	LSValue* getClass(VM* vm) const override;
 };
 
 }

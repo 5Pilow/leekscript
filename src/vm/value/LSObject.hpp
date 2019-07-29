@@ -9,7 +9,6 @@ class LSClass;
 
 class LSObject : public LSValue {
 public:
-	static LSValue* object_class;
 	static LSObject* constructor();
 
 	std::map<std::string, LSValue*> values;
@@ -34,13 +33,13 @@ public:
 	bool eq(const LSValue*) const override;
 	bool lt(const LSValue*) const override;
 	bool in(const LSValue*) const override;
-	LSValue* attr(const std::string& key) const override;
+	LSValue* attr(VM* vm, const std::string& key) const override;
 	LSValue** attrL(const std::string& key) override;
 	int abso() const override;
 	LSValue* clone() const override;
 	std::ostream& dump(std::ostream& os, int level) const override;
 	std::string json() const override;
-	LSValue* getClass() const override;
+	LSValue* getClass(VM* vm) const override;
 };
 
 }

@@ -16,7 +16,6 @@ public:
 
 	NUMBER_TYPE value;
 
-	static LSClass* clazz;
 	static LSNumber* get(NUMBER_TYPE);
 	static std::string print(double);
 
@@ -74,7 +73,7 @@ public:
 	std::string json() const override;
 	std::string toString() const;
 
-	LSValue* getClass() const override;
+	LSValue* getClass(VM* vm) const override;
 
 	bool isInteger() const;
 };

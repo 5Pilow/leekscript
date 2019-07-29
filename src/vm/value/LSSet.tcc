@@ -6,6 +6,8 @@
 #include "LSNumber.hpp"
 #include "LSNull.hpp"
 #include "LSBoolean.hpp"
+#include "../VM.hpp"
+#include "../../environment/Environment.hpp"
 
 namespace ls {
 
@@ -18,10 +20,6 @@ template <typename T>
 inline bool lsset_less<T>::operator()(T lhs, T rhs) const {
 	return lhs < rhs;
 }
-
-template <typename T>
-LSValue* LSSet<T>::clazz;
-
 
 template <typename T>
 LSSet<T>* LSSet<T>::constructor() {
@@ -372,8 +370,8 @@ inline LSValue* LSSet<T>::clone() const {
 }
 
 template <typename T>
-LSValue* LSSet<T>::getClass() const {
-	return LSSet<T>::clazz;
+LSValue* LSSet<T>::getClass(VM* vm) const {
+	return vm->env.set_class.get();
 }
 
 }

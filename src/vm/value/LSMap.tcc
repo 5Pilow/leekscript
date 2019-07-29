@@ -19,9 +19,6 @@ inline bool lsmap_less<LSValue*>::operator()(LSValue* lhs, LSValue* rhs) const {
 }
 
 template <class K, class T>
-LSValue* LSMap<K, T>::clazz;
-
-template <class K, class T>
 LSMap<K, T>* LSMap<K, T>::constructor() {
 	return new LSMap<K, T>();
 }
@@ -412,8 +409,8 @@ LSValue* LSMap<K, V>::clone() const {
 }
 
 template <typename K, typename T>
-inline LSValue* LSMap<K, T>::getClass() const {
-	return LSMap<K, T>::clazz;
+inline LSValue* LSMap<K, T>::getClass(VM* vm) const {
+	return vm->env.map_class.get();
 }
 
 }

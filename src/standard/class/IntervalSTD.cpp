@@ -13,7 +13,8 @@ namespace ls {
 IntervalSTD::IntervalSTD(Environment& env) : Module(env, "Interval") {
 
 	#if COMPILER
-	LSInterval::clazz = lsclass.get();
+	env.interval_class = std::make_unique<LSClass>(clazz.get());
+	lsclass = env.interval_class.get();
 	#endif
 
 	constructor_({

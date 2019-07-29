@@ -23,6 +23,7 @@ class LSObject;
 class LSClass;
 class Context;
 class Type;
+class VM;
 
 typedef u_int8_t LSValueType;
 
@@ -121,7 +122,7 @@ public:
 	virtual LSValue* at(const LSValue* key) const;
 	virtual LSValue** atL(const LSValue* key);
 
-	virtual LSValue* attr(const std::string& key) const;
+	virtual LSValue* attr(VM* vm, const std::string& key) const;
 	virtual LSValue** attrL(const std::string& key);
 
 	virtual LSValue* range(int start, int end) const;
@@ -141,7 +142,7 @@ public:
 	LSValue* move();
 	LSValue* move_inc();
 
-	virtual LSValue* getClass() const = 0;
+	virtual LSValue* getClass(VM* vm) const = 0;
 
 	static LSValue* get();
 	template <class T> static LSValue* get(T v);

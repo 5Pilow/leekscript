@@ -15,10 +15,8 @@ namespace ls {
 ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 
 	#if COMPILER
-	LSArray<LSValue*>::clazz = lsclass.get();
-	LSArray<char>::clazz = lsclass.get();
-	LSArray<int>::clazz = lsclass.get();
-	LSArray<double>::clazz = lsclass.get();
+	env.array_class = std::make_unique<LSClass>(clazz.get());
+	lsclass = env.array_class.get();
 	#endif
 
 	/*

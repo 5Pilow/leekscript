@@ -12,8 +12,6 @@
 
 namespace ls {
 
-LSValue* LSClass::_clazz;
-
 LSClass* LSClass::constructor(VM* vm, char* name) {
 	auto clazz = new LSClass(new Class(vm->env, name));
 	vm->function_created.push_back(clazz);
@@ -46,14 +44,14 @@ bool LSClass::lt(const LSValue* v) const {
 	return LSValue::lt(v);
 }
 
-LSValue* LSClass::attr(const std::string& key) const {
+LSValue* LSClass::attr(VM* vm, const std::string& key) const {
 	if (key == "name") {
 		return new LSString(clazz->name);
 	}
 	try {
 		return clazz->static_fields.at(key).value;
 	} catch (std::exception&) {
-		return LSValue::attr(key);
+		return LSValue::attr(vm, key);
 	}
 }
 
@@ -66,8 +64,8 @@ std::string LSClass::json() const {
 	return "\"<class " + clazz->name + ">\"";
 }
 
-LSValue* LSClass::getClass() const {
-	return LSClass::_clazz;
+LSValue* LSClass::getClass(VM* vm) const {
+	return vm->env.class_class.get();
 }
 
 }

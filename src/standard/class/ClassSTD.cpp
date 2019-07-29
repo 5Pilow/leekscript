@@ -10,7 +10,8 @@ namespace ls {
 ClassSTD::ClassSTD(Environment& env) : Module(env, "Class") {
 
 	#if COMPILER
-	LSClass::_clazz = lsclass.get();
+	env.class_class = std::make_unique<LSClass>(clazz.get());
+	lsclass = env.class_class.get();
 	#endif
 
 	field("name", env.string);

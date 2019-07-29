@@ -15,9 +15,6 @@
 namespace ls {
 
 template <class T>
-LSValue* LSArray<T>::clazz;
-
-template <class T>
 LSArray<T>* LSArray<T>::constructor(int capacity) {
 	auto array = new LSArray<T>();
 	array->reserve(capacity);
@@ -1496,8 +1493,8 @@ std::string LSArray<T>::json() const {
 }
 
 template <class T>
-LSValue* LSArray<T>::getClass() const {
-	return LSArray<T>::clazz;
+LSValue* LSArray<T>::getClass(VM* vm) const {
+	return vm->env.array_class.get();
 }
 
 } // end of namespace ls

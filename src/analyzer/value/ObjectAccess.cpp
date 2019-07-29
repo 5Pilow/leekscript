@@ -312,7 +312,7 @@ Compiler::value ObjectAccess::compile(Compiler& c) const {
 	// Default : object.attr
 	auto o = object->compile(c);
 	auto k = c.new_const_string(field->content);
-	auto r = c.insn_invoke(type, {o, k}, "Value.attr");
+	auto r = c.insn_invoke(type, {c.get_vm(), o, k}, "Value.attr");
 	object->compile_end(c);
 	return r;
 }

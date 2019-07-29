@@ -3,6 +3,8 @@
 #include "LSNull.hpp"
 #include "LSNumber.hpp"
 #include "LSString.hpp"
+#include "../VM.hpp"
+#include "../../environment/Environment.hpp"
 
 namespace ls {
 
@@ -32,7 +34,6 @@ int KeyComparator::compare(Key* v1, Key* v2) const {
 }
 
 const int LSLegacyArray::MAX_CAPACITY = 32000;
-LSValue* LSLegacyArray::clazz;
 
 LSLegacyArray::LSLegacyArray(VM* vm) : LSValue(INTERVAL), vm(vm) {}
 
@@ -711,8 +712,8 @@ std::ostream& LSLegacyArray::dump(std::ostream& os, int) const {
 	return os;
 }
 
-LSValue* LSLegacyArray::getClass() const {
-	return LSLegacyArray::clazz;
+LSValue* LSLegacyArray::getClass(VM* vm) const {
+	return vm->env.legacy_array_class.get();
 }
 
 }

@@ -15,7 +15,6 @@ template <class R, class ...A> R call(LSFunction* function, A... args);
 class LSFunction : public LSValue {
 public:
 
-	static LSClass* clazz;
 	static LSFunction* constructor(VM* vm, void* f);
 
 	void* function;
@@ -39,11 +38,11 @@ public:
 	bool ls_not() const override;
 	bool eq(const LSValue*) const override;
 	bool lt(const LSValue*) const override;
-	LSValue* attr(const std::string& key) const override;
+	LSValue* attr(VM* vm, const std::string& key) const override;
 	LSValue* clone() const override;
 	std::ostream& dump(std::ostream& os, int level) const override;
 	std::string json() const override;
-	LSValue* getClass() const override;
+	LSValue* getClass(VM* vm) const override;
 };
 
 template <class R, class ...A> R call(LSFunction* function, A... args) {

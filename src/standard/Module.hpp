@@ -51,7 +51,7 @@ public:
 	std::string name;
 	std::unique_ptr<Class> clazz;
 	#if COMPILER
-	std::unique_ptr<LSClass> lsclass;
+	LSClass* lsclass;
 	#endif
 
 	Module(Environment& env, std::string name);

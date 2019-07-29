@@ -85,6 +85,22 @@ public:
 	const Type* const array;
 	const Type* const set;
 
+	#if COMPILER
+	std::unique_ptr<LSClass> value_class;
+	std::unique_ptr<LSClass> null_class;
+	std::unique_ptr<LSClass> boolean_class;
+	std::unique_ptr<LSClass> number_class;
+	std::unique_ptr<LSClass> string_class;
+	std::unique_ptr<LSClass> set_class;
+	std::unique_ptr<LSClass> array_class;
+	std::unique_ptr<LSClass> map_class;
+	std::unique_ptr<LSClass> legacy_array_class;
+	std::unique_ptr<LSClass> interval_class;
+	std::unique_ptr<LSClass> object_class;
+	std::unique_ptr<LSClass> function_class;
+	std::unique_ptr<LSClass> class_class;
+	#endif
+
 	StandardLibrary std;
 
 	Environment();

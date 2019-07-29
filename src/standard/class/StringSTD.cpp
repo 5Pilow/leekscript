@@ -78,7 +78,8 @@ LSString* iterator_get(unsigned int c, LSString* previous) {
 StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 
 	#if COMPILER
-	LSString::string_class = lsclass.get();
+	env.string_class = std::make_unique<LSClass>(clazz.get());
+	lsclass = env.string_class.get();
 	#endif
 
 	/*

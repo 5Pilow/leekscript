@@ -9,10 +9,9 @@
 #include "LSClass.hpp"
 #include "LSClosure.hpp"
 #include "../VM.hpp"
+#include "../../environment/Environment.hpp"
 
 namespace ls {
-
-LSClass* LSMpz::clazz;
 
 LSMpz* LSMpz::get_from_mpz(VM* vm, __mpz_struct i) {
 	return new LSMpz(vm, i);
@@ -553,8 +552,8 @@ std::ostream& LSMpz::dump(std::ostream& os, int) const {
 	return os;
 }
 
-LSValue* LSMpz::getClass() const {
-	return LSMpz::clazz;
+LSValue* LSMpz::getClass(VM* vm) const {
+	return vm->env.number_class.get();
 }
 
 }

@@ -133,8 +133,6 @@ private:
     static const int ARRAY_CELL_ACCESS_OPERATIONS = 2;
 	static const int RAM_LIMIT = 1000000;
 
-	static LSValue* clazz;
-
     VM* vm;
 	Element* mHead = nullptr;
 	Element* mEnd = nullptr;
@@ -335,7 +333,7 @@ public:
 
 	virtual LSValue* clone() const override;
 	virtual std::ostream& dump(std::ostream& os, int level) const override;
-	LSValue* getClass() const override;
+	LSValue* getClass(VM* vm) const override;
 };
 
 }

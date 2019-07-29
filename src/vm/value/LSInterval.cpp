@@ -7,8 +7,6 @@
 
 namespace ls {
 
-LSValue* LSInterval::clazz;
-
 LSInterval* LSInterval::constructor(int a, int b) {
 	LSInterval* interval = new LSInterval();
 	interval->a = a;
@@ -160,8 +158,8 @@ std::ostream& LSInterval::dump(std::ostream& os, int) const {
 	return os;
 }
 
-LSValue* LSInterval::getClass() const {
-	return LSInterval::clazz;
+LSValue* LSInterval::getClass(VM* vm) const {
+	return vm->env.interval_class.get();
 }
 
 }

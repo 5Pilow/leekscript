@@ -12,7 +12,8 @@ namespace ls {
 BooleanSTD::BooleanSTD(Environment& env) : Module(env, "Boolean") {
 
 	#if COMPILER
-	LSBoolean::clazz = lsclass.get();
+	env.boolean_class = std::make_unique<LSClass>(clazz.get());
+	lsclass = env.boolean_class.get();
 	#endif
 
 	operator_("+", {

@@ -15,7 +15,6 @@ public:
 
 	const bool value;
 
-	static LSValue* clazz;
 	static LSBoolean* false_val;
 	static LSBoolean* true_val;
 	static LSBoolean* create(bool value) {
@@ -52,7 +51,7 @@ public:
 	std::ostream& dump(std::ostream& os, int level) const override;
 	std::string json() const override;
 
-	LSValue* getClass() const override;
+	LSValue* getClass(VM* vm) const override;
 };
 
 }

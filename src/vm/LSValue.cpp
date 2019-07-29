@@ -251,11 +251,11 @@ LSValue** LSValue::atL(const LSValue* v) {
 	assert(false); // LCOV_EXCL_LINE
 }
 
-LSValue* LSValue::attr(const std::string& key) const {
+LSValue* LSValue::attr(VM* vm, const std::string& key) const {
 	if (key == "class") {
-		return getClass();
+		return getClass(vm);
 	}
-	auto method = ((LSClass*) getClass())->clazz->getDefaultMethod(key);
+	auto method = ((LSClass*) getClass(vm))->clazz->getDefaultMethod(key);
 	if (method == nullptr) {
 		LSValue::delete_temporary(this);
 		throw vm::ExceptionObj(vm::Exception::NO_SUCH_ATTRIBUTE);

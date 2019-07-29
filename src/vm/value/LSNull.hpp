@@ -14,7 +14,6 @@ private:
 
 public:
 	static LSValue* get();
-	static LSClass* clazz;
 	static LSNull* create() {
 		return new LSNull();
 	}
@@ -29,7 +28,7 @@ public:
 	bool eq(const LSValue*) const override;
 	bool lt(const LSValue*) const override;
 	std::ostream& dump(std::ostream& os, int level) const override;
-	LSValue* getClass() const override;
+	LSValue* getClass(VM* vm) const override;
 };
 
 }

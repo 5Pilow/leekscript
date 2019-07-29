@@ -1,11 +1,12 @@
 #include "LSNull.hpp"
 #include "LSClass.hpp"
 #include "LSNumber.hpp"
+#include "../VM.hpp"
+#include "../../environment/Environment.hpp"
 
 namespace ls {
 
 LSValue* LSNull::null_var;
-LSClass* LSNull::clazz;
 
 LSValue* LSNull::get() {
 	return null_var;
@@ -39,8 +40,8 @@ std::ostream& LSNull::dump(std::ostream& os, int) const {
 	return os;
 }
 
-LSValue* LSNull::getClass() const {
-	return LSNull::clazz;
+LSValue* LSNull::getClass(VM* vm) const {
+	return vm->env.null_class.get();
 }
 
 }

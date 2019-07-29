@@ -12,7 +12,8 @@ namespace ls {
 FunctionSTD::FunctionSTD(Environment& env) : Module(env, "Function") {
 
 	#if COMPILER
-	LSFunction::clazz = lsclass.get();
+	env.function_class = std::make_unique<LSClass>(clazz.get());
+	lsclass = env.function_class.get();
 	#endif
 
 	field("return", env.clazz(), ADDR(field_return));

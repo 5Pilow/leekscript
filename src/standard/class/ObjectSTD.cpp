@@ -17,7 +17,8 @@ LSNumber* ObjectSTD::readonly_value = LSNumber::get(12);
 ObjectSTD::ObjectSTD(Environment& env) : Module(env, "Object") {
 
 	#if COMPILER
-	LSObject::object_class = lsclass.get();
+	env.object_class = std::make_unique<LSClass>(clazz.get());
+	lsclass = env.object_class.get();
 
 	readonly->addField("v", readonly_value);
 	readonly->readonly = true;

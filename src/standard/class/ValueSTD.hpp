@@ -70,7 +70,7 @@ public:
 	static Compiler::value typeID(Compiler& c, std::vector<Compiler::value> args, bool);
 	static int absolute(LSValue* v);
 	static LSValue* clone(LSValue* v);
-	static LSValue* attr(LSValue* v, char* field);
+	static LSValue* attr(VM* vm, LSValue* v, char* field);
 	static LSValue** attrL(LSValue* v, char* field);
 	static bool ls_not(LSValue* x);
 	static LSValue* ls_minus(LSValue* x);
@@ -119,7 +119,7 @@ public:
 	static bool ge(LSValue* x, LSValue* y);
 	static void delete_previous(LSValue* x);
 	static int get_int(LSNumber* x);
-	static LSValue* get_class(LSValue* x);
+	static LSValue* get_class(VM* vm, LSValue* x);
 	static void export_context_variable(VM* vm, char* name, LSValue* v);
 	static void export_context_variable_int(VM* vm, char* name, int v);
 	static void export_context_variable_long(VM* vm, char* name, long v);
