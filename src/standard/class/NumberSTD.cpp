@@ -101,12 +101,16 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{env.real, env.real, env.real, ADDR(mul_eq_real), 0, {}, true},
 		{env.integer, env.integer, env.integer, ADDR(mul_eq_real), 0, {}, true}
 	});
+
+	auto pX = env.template_("X");
+	auto pY = env.template_("Y");
+	template_(pX, pY).
 	operator_("**", {
-		{env.real, env.real, env.real, ADDR(pow_real_real)},
-		{env.const_integer, env.const_integer, env.integer, ADDR(pow_real_real)},
+		{pX, pY, Type::meta_mul(pX, pY), ADDR(pow_real_real)},
 		{env.mpz_ptr, env.mpz_ptr, env.tmp_mpz_ptr, ADDR(pow_mpz_mpz), THROWS},
 		{env.mpz_ptr, env.integer, env.tmp_mpz_ptr, ADDR(pow_mpz_int), THROWS},
 	});
+
 	operator_("**=", {
 		{env.mpz_ptr, env.mpz_ptr, env.tmp_mpz_ptr, ADDR(pow_eq_mpz_mpz)},
 		{env.real, env.real, env.real, ADDR(pow_eq_real), 0, {}, true},
