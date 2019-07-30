@@ -175,7 +175,7 @@ MapSTD::MapSTD(Environment& env) : Module(env, "Map") {
 	auto iV = env.template_("V");
 	template_(iK, iV).
 	method("iter", {
-		{env.void_, {Type::const_map(env.any, env.any), Type::fun(env.void_, {env.any, env.any})}, ADDR((void*) iter_ptr), THROWS},
+		{env.void_, {Type::const_map(env.any, env.any), Type::fun(env.void_, {env.any, env.any})}, (void*) iter_ptr, THROWS},
 		{env.void_, {Type::const_map(iK, iV), Type::fun(env.void_, {iK, iV})}, ADDR(iter), THROWS},
 	});
 
