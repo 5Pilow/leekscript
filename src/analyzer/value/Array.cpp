@@ -1,5 +1,4 @@
 #include "Array.hpp"
-#include "../../vm/value/LSArray.hpp"
 #include "../../type/Type.hpp"
 #include <math.h>
 #include "../semantic/SemanticAnalyzer.hpp"

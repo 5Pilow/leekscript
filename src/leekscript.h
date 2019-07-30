@@ -3,9 +3,6 @@
 
 #include "vm/VM.hpp"
 #include "standard/Module.hpp"
-#include "vm/value/LSNumber.hpp"
-#include "vm/value/LSArray.hpp"
-#include "vm/value/LSObject.hpp"
 #include "analyzer/Program.hpp"
 #include "type/Integer_type.hpp"
 #include "type/Object_type.hpp"

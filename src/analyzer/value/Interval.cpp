@@ -1,6 +1,4 @@
 #include "Interval.hpp"
-#include "../../vm/value/LSArray.hpp"
-#include "../../vm/value/LSInterval.hpp"
 #include "../../type/Type.hpp"
 #include <math.h>
 #include "../semantic/SemanticAnalyzer.hpp"

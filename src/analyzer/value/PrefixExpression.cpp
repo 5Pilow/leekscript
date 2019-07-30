@@ -2,10 +2,6 @@
 #include "FunctionCall.hpp"
 #include "LeftValue.hpp"
 #include "VariableValue.hpp"
-#include "../../vm/value/LSNumber.hpp"
-#include "../../vm/value/LSArray.hpp"
-#include "../../vm/value/LSObject.hpp"
-#include "../../vm/value/LSSet.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
 #include "../error/Error.hpp"
 
