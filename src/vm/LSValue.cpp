@@ -27,8 +27,6 @@ LSValueType LSValue::CLOSURE = 12;
 LSValueType LSValue::MPZ = 13;
 LSValueType LSValue::LEGACY_ARRAY = 14;
 
-LSClass* LSValue::ValueClass = nullptr;
-
 int LSValue::obj_count = 0;
 int LSValue::obj_deleted = 0;
 

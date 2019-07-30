@@ -44,7 +44,6 @@ public:
 	static LSValueType CLASS;
 	static LSValueType MPZ;
 	static LSValueType LEGACY_ARRAY;
-	static LSClass* ValueClass;
 
 	static int obj_count;
 	static int obj_deleted;
