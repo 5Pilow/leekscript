@@ -17,7 +17,11 @@
 
 namespace ls {
 
-FunctionVersion::FunctionVersion(Environment& env, std::unique_ptr<Block> body) : body(std::move(body)), type(env.void_), fun(env), value(env) {}
+FunctionVersion::FunctionVersion(Environment& env, std::unique_ptr<Block> body) : body(std::move(body)), type(env.void_)
+#if COMPILER
+, fun(env), value(env)
+#endif
+{}
 
 void FunctionVersion::print(std::ostream& os, int indent, PrintOptions options) const {
 	if (parent->arguments.size() != 1) {

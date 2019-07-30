@@ -6,7 +6,11 @@
 
 namespace ls {
 
-Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), type(type), clazz(clazz), call(call), val(type->env), addr_val(type->env) {}
+Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), type(type), clazz(clazz), call(call)
+#if COMPILER
+, val(type->env), addr_val(type->env)
+#endif
+{}
 
 #if COMPILER
 Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, LSClass* lsclass, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), type(type), clazz(clazz), lsclass(lsclass), call(call), val(type->env), addr_val(type->env) {}

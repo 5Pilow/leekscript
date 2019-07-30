@@ -6,7 +6,12 @@
 
 namespace ls {
 
-Phi::Phi(Environment& env, Variable* variable, Block* block1, Variable* variable1, Block* block2, Variable* variable2) : variable(variable), block1(block1), variable1(variable1), block2(block2), variable2(variable2), value1(env), value2(env) {}
+Phi::Phi(Environment& env, Variable* variable, Block* block1, Variable* variable1, Block* block2, Variable* variable2) : variable(variable), block1(block1), variable1(variable1), block2(block2)
+, variable2(variable2)
+#if COMPILER
+, value1(env), value2(env)
+#endif
+{}
 
 Phi* create_phi(SemanticAnalyzer* analyzer, Block* block1, Variable* variable1, Block* block2, Variable* variable2) {
 	if (variable1->parent == variable2->parent or variable1 == variable2->parent or variable2 == variable1->parent) {

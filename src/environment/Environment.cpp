@@ -40,8 +40,10 @@ namespace ls {
 Environment::Environment() : Environment(false) {}
 
 Environment::Environment(bool legacy) :
+	#if COMPILER
 	compiler(*this, &vm),
 	vm(*this, std),
+	#endif
 	legacy(legacy),
     void_(new Void_type { *this }),
     boolean(new Bool_type { *this }),
@@ -87,6 +89,8 @@ void Environment::analyze(Program& program, bool format, bool debug) {
 	program.analyze(syn, sem, format, debug);
 }
 
+#if COMPILER
+
 void Environment::compile(Program& program, bool format, bool debug, bool ops, bool assembly, bool pseudo_code, bool optimized_ir, bool execute_ir, bool execute_bitcode) {
 	vm.enable_operations = operation_limit > 0;
 	program.compile(compiler, format, debug, assembly, pseudo_code, optimized_ir, execute_ir, execute_bitcode);
@@ -102,6 +106,8 @@ void Environment::execute(Program& program, bool format, bool debug, bool ops, b
 	}
 	vm.execute(program, format, debug, ops, assembly, pseudo_code, optimized_ir, execute_ir, execute_bitcode);
 }
+
+#endif
 
 const Type* Environment::generate_new_placeholder_type() {
 	u_int32_t character = 0x03B1 + Type::placeholder_counter;

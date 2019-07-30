@@ -7,7 +7,11 @@
 
 namespace ls {
 
-ArrayAccess::ArrayAccess(Environment& env) : LeftValue(env), compiled_array(env) {
+ArrayAccess::ArrayAccess(Environment& env) : LeftValue(env)
+#if COMPILER
+, compiled_array(env)
+#endif
+{
 	type = env.any;
 	map_key_type = env.void_;
 	throws = true;

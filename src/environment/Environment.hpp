@@ -17,9 +17,10 @@ class Type;
 class Environment {
 	friend Type;
 private:
-
+	#if COMPILER
 	Compiler compiler;
 	VM vm;
+	#endif
 
 	std::vector<const Type*> placeholder_types;
     std::map<std::set<const Type*>, const Type*> compound_types;
@@ -111,6 +112,7 @@ public:
 	 */
 	void analyze(Program& program, bool format = false, bool debug = false);
 
+	#if COMPILER
 	/**
 	 * Compile a `Program`.
 	 */
@@ -120,6 +122,7 @@ public:
 	 * Execute a `Program`.
 	 */
 	void execute(Program& program, bool format = false, bool debug = false, bool ops = true, bool assembly = false, bool pseudo_code = false, bool optimized_ir = false, bool execute_ir = false, bool execute_bitcode = false);
+	#endif
 
 	const Type* template_(std::string name);
 	const Type* clazz(const std::string name = "class?");
