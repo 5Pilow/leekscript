@@ -39,7 +39,7 @@ public:
 
 	SemanticAnalyzer(Environment& env);
 
-	void analyze(Program*, Context*);
+	void analyze(Program*);
 
 	void enter_function(FunctionVersion*);
 	void leave_function();

@@ -58,7 +58,7 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 	main->is_main_function = true;
 	main->name = "main";
 
-	sem.analyze(this, nullptr);
+	sem.analyze(this);
 
 	auto parse_end = std::chrono::high_resolution_clock::now();
 	auto parse_time = std::chrono::duration_cast<std::chrono::nanoseconds>(parse_end - parse_start).count();
@@ -92,6 +92,7 @@ void Program::compile_leekscript(Compiler& c, bool format, bool debug, bool bitc
 	c.vm->internals.clear();
 	c.program = this;
 	c.init();
+	c.vm->context = context;
 
 	module = new llvm::Module(file_name, c.getContext());
 	module->setDataLayout(c.DL);

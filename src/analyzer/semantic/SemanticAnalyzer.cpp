@@ -19,7 +19,7 @@ SemanticAnalyzer::SemanticAnalyzer(Environment& env) : env(env) {
 	}
 }
 
-void SemanticAnalyzer::analyze(Program* program, Context* context) {
+void SemanticAnalyzer::analyze(Program* program) {
 
 	this->program = program;
 
@@ -28,8 +28,8 @@ void SemanticAnalyzer::analyze(Program* program, Context* context) {
 	enter_block(program->main->default_version->body.get());
 
 	// Add context variables
-	if (context) {
-		for (auto& var : context->vars) {
+	if (program->context) {
+		for (auto& var : program->context->vars) {
 			// std::cout << "Add context var " << var.first << std::endl;
 			var.second.variable = add_var(new Token(TokenType::IDENT, program->main_file, 0, 0, 0, var.first), var.second.type, nullptr);
 			// std::cout << "variable added " << var.second.variable << " " << (void*) var.second.variable << std::endl;
