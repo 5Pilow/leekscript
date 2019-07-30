@@ -188,7 +188,7 @@ int CLI::repl(CLI_options options) {
 	return 0;
 }
 
-void CLI::print_result(ls::VM::Result& result, const std::string& output, bool json, bool display_time, bool ops) {
+void CLI::print_result(ls::Result& result, const std::string& output, bool json, bool display_time, bool ops) {
 	if (json) {
 		std::ostringstream oss;
 		print_errors(result, oss, json);
@@ -215,7 +215,7 @@ void CLI::print_result(ls::VM::Result& result, const std::string& output, bool j
 	}
 }
 
-void CLI::print_errors(ls::VM::Result& result, std::ostream& os, bool json) {
+void CLI::print_errors(ls::Result& result, std::ostream& os, bool json) {
 	bool first = true;
 	for (const auto& e : result.errors) {
 		if (!first) std::cout << std::endl;

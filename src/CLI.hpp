@@ -67,8 +67,8 @@ public:
 	int execute_file(std::string, CLI_options options);
 	int repl(CLI_options);
 
-	void print_errors(ls::VM::Result& result, std::ostream& os, bool json);
-	void print_result(ls::VM::Result& result, const std::string& output, bool json, bool display_time, bool ops);
+	void print_errors(ls::Result& result, std::ostream& os, bool json);
+	void print_result(ls::Result& result, const std::string& output, bool json, bool display_time, bool ops);
 };
 
 }

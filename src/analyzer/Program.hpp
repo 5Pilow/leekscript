@@ -3,6 +3,7 @@
 
 #include "../analyzer/value/Function.hpp"
 #include "PrintOptions.hpp"
+#include "Result.hpp"
 #if COMPILER
 #include "../vm/VM.hpp"
 #endif
@@ -30,7 +31,7 @@ public:
 	std::unordered_map<std::string, Variable*> operators;
 	File* main_file = nullptr;
 	Context* context = nullptr;
-	VM::Result result;
+	Result result;
 	#if COMPILER
 	bool handle_created = false;
 	llvm::Module* module = nullptr;

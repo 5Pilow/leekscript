@@ -171,7 +171,7 @@ ls::Environment& Test::getEnv(bool legacy) {
 	}
 }
 
-ls::VM::Result Test::Input::run(bool display_errors, bool ops) {
+ls::Result Test::Input::run(bool display_errors, bool ops) {
 	test->total++;
 
 	// std::cout << C_BLUE << "RUN " << END_COLOR << code << C_GREY << "..." << END_COLOR << std::endl;

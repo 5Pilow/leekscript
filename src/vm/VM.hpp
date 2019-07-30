@@ -42,27 +42,6 @@ public:
 
 	static void static_init();
 
-	struct Result {
-		bool analyzed = false;
-		bool compilation_success = false;
-		bool execution_success = false;
-		std::vector<Error> errors;
-		vm::ExceptionObj exception;
-		std::string program = "";
-		std::string value = "";
-		double parse_time = 0;
-		double compilation_time = 0;
-		double execution_time = 0;
-		long operations = 0;
-		int objects_created = 0;
-		int objects_deleted = 0;
-		int mpz_objects_created = 0;
-		int mpz_objects_deleted = 0;
-		std::string assembly;
-		std::string pseudo_code;
-		const Type* type = nullptr;
-	};
-
 	Environment& env;
 	StandardLibrary& std;
 	std::vector<std::unique_ptr<Module>> modules;

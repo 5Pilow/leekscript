@@ -117,7 +117,7 @@ public:
 		double compilation_time = 0;
 		double execution_time = 0;
 		long int operation_limit = -1;
-		ls::VM::Result result;
+		ls::Result result;
 		ls::Context* ctx = nullptr;
 
 		Input(Test* test, const std::string& label, const std::string& file_name, const std::string& code, bool file = false, bool v1 = false, bool disabled = false) : test(test), label(label), file_name(file_name), code(code), file(file), v1(v1), disabled(disabled) {};
@@ -137,7 +137,7 @@ public:
 		Input& ops_limit(long int ops);
 		Input& context(ls::Context* ctx);
 
-		ls::VM::Result run(bool display_errors = true, bool ops = false);
+		ls::Result run(bool display_errors = true, bool ops = false);
 		void pass(const std::string& expected);
 		void fail(const std::string& expected, const std::string& actuel);
 		void disable();
