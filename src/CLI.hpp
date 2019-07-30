@@ -69,6 +69,7 @@ public:
 
 	void print_errors(ls::Result& result, std::ostream& os, bool json);
 	void print_result(ls::Result& result, const std::string& output, bool json, bool display_time, bool ops);
+	std::string read_file(std::string);
 };
 
 }
