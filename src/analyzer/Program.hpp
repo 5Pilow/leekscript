@@ -13,6 +13,7 @@ namespace ls {
 class File;
 class StandardLibrary;
 class SyntaxicAnalyzer;
+class Context;
 
 class Program {
 private:

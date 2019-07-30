@@ -22,6 +22,7 @@ class Phi;
 class Block;
 class FunctionVersion;
 class Class;
+class Environment;
 
 enum class VarScope {
 	INTERNAL, LOCAL, PARAMETER, CAPTURE

@@ -12,6 +12,7 @@ namespace ls {
 class Variable;
 class Block;
 class SemanticAnalyzer;
+class Environment;
 
 class Phi {
 public:

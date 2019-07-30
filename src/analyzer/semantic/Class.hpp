@@ -16,6 +16,7 @@ namespace ls {
 class Callable;
 class CallableVersion;
 class Type;
+class Environment;
 
 class Class {
 public:
