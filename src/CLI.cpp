@@ -113,15 +113,24 @@ int CLI::analyze_snippet(std::string code, CLI_options options) {
 	ls::Environment env;
 	ls::Program program { env, code, "snippet" };
 	env.analyze(program, options.format, options.debug);
-
 	std::ostringstream oss;
 	program.print(oss, true);
-
 	return 0;
 }
 
-int CLI::analyze_file(std::string, CLI_options options) {
-
+int CLI::analyze_file(std::string file, CLI_options options) {
+	std::ifstream ifs(file.data());
+	if (!ifs.good()) {
+		std::cout << "[" << C_YELLOW << "warning" << END_COLOR << "] File '" << BOLD << file << END_STYLE << "' does not exist." << std::endl;
+		return 0;
+	}
+	std::string code = std::string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+	ls::Environment env;
+	ls::Program program { env, code, "snippet" };
+	env.analyze(program, options.format, options.debug);
+	std::ostringstream oss;
+	program.print(oss, true);
+	return 0;
 }
 
 int CLI::execute_snippet(std::string code, CLI_options options) {
