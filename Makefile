@@ -185,6 +185,7 @@ travis-pr:
 
 # Coverage results with lcov.
 # `apt install lcov`
+coverage: FLAGS += $(FLAGS_TEST)
 coverage: build/leekscript-coverage
 	mkdir -p build/html
 	lcov --quiet --no-external --rc lcov_branch_coverage=1 --capture --initial --directory build/coverage/src --base-directory src --output-file build/html/app.info
