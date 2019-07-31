@@ -176,7 +176,7 @@ valgrind: build/leekscript-test
 travis:
 	docker build -t leekscript --file tool/Dockerfile .
 	docker run -e COVERALLS_REPO_TOKEN="$$COVERALLS_REPO_TOKEN" -e TRAVIS_BRANCH="$$TRAVIS_BRANCH" \
-	    leekscript /bin/bash -c "cd leekscript; make build/leekscript-coverage && build/leekscript-coverage \
+	    leekscript /bin/bash -c "cd leekscript; make coverage-travis && build/leekscript-coverage \
 	    && cpp-coveralls -i src/ --gcov-options='-rp'"
 travis-pr:
 	docker build -t leekscript tool
@@ -192,6 +192,9 @@ coverage: build/leekscript-coverage
 	build/leekscript-coverage
 	lcov --quiet --no-external --rc lcov_branch_coverage=1 --capture --directory build/coverage/src --base-directory src --output-file build/html/app.info
 	cd build/html; genhtml --ignore-errors source --legend --precision 2 --branch-coverage app.info
+
+coverage-travis: FLAGS += $(FLAGS_TEST)
+coverage-travis: build/leekscript-coverage
 
 demangle-coverage:
 	find build/html -name "*.func-sort-c.html" -type f -exec bash -c 'echo "Demangle $$1 ..."; node tool/demangle.js $$1 > $$1.tmp; mv $$1.tmp $$1' - {} \;
