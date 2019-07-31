@@ -24,6 +24,9 @@
 #include "../analyzer/semantic/FunctionVersion.hpp"
 #include "../environment/Environment.hpp"
 #include "../vm/VM.hpp"
+#if COMPILER
+#include "../vm/value/LSNumber.hpp"
+#endif
 
 namespace ls {
 
