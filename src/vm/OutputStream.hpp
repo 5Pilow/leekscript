@@ -16,6 +16,20 @@ public:
 	}
 };
 
+class OutputStringStream : public ls::OutputStream {
+	std::ostringstream oss;
+public:
+	virtual std::ostream& stream() override {
+		return oss;
+	}
+	virtual void end() override {
+		oss << std::endl;
+	}
+	std::string str() const {
+		return oss.str();
+	}
+};
+
 }
 
 #endif
