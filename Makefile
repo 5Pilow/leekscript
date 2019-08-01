@@ -18,6 +18,7 @@ BUILD_DIR += $(addprefix build/sanitized/,$(SRC_DIR))
 BUILD_DIR += $(addprefix build/deps/,$(SRC_DIR))
 BUILD_DIR += $(addprefix build/deps/,$(TEST_DIR))
 BUILD_DIR += $(addprefix build/analyzer/,$(SRC_ANALYZER))
+BUILD_DIR += $(addprefix build/analyzer-web/,$(SRC_ANALYZER))
 
 OBJ := $(patsubst %.cpp,build/default/%.o,$(SRC))
 DEPS := $(patsubst %.cpp,build/deps/%.d,$(SRC))
@@ -30,6 +31,7 @@ OBJ_COVERAGE := $(patsubst %.cpp,build/coverage/%.o,$(SRC))
 OBJ_PROFILE := $(patsubst %.cpp,build/profile/%.o,$(SRC))
 OBJ_SANITIZED := $(patsubst %.cpp,build/sanitized/%.o,$(SRC))
 OBJ_ANALYZER := $(patsubst %.cpp,build/analyzer/%.o,$(SRC_ANALYZER)) build/analyzer/src/CLI.o build/analyzer/src/MainAnalyzer.o
+OBJ_ANALYZER_WEB := $(patsubst %.cpp,build/analyzer-web/%.o,$(SRC_ANALYZER)) build/analyzer-web/src/CLI.o build/analyzer-web/src/MainAnalyzer.o
 
 COMPILER := g++
 OPTIM := -O0 -Wall
@@ -72,6 +74,9 @@ build/analyzer/%.o: %.cpp
 	$(COMPILER) -c $(OPTIM) $(FLAGS) $(DEBUG) -o $@ $<
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
 
+build/analyzer-web/%.o: %.cpp
+	$(COMPILER) -c $< $(OPTIM) $(FLAGS) $(DEBUG) -o $@
+
 build/shared/%.o: %.cpp
 	$(COMPILER) -c $(OPTIM) $(FLAGS) -fPIC -o $@ $<
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
@@ -103,6 +108,17 @@ build/leekscript-analyzer: $(BUILD_DIR) $(OBJ_ANALYZER)
 	$(COMPILER) $(FLAGS) -o build/leekscript-analyzer $(OBJ_ANALYZER) $(LIBS)
 	@echo "--------------------------"
 	@echo "Build (analyzer) finished!"
+	@echo "--------------------------"
+
+# Build web target
+analyzer-web: FLAGS += -DCOMPILER=0
+analyzer-web: COMPILER=emcc
+analyzer-web: build/leekscript-web
+
+build/leekscript-web: $(BUILD_DIR) $(OBJ_ANALYZER_WEB)
+	$(COMPILER) $(FLAGS) -o build/leekscript-web $(OBJ_ANALYZER_WEB) $(LIBS)
+	@echo "--------------------------"
+	@echo "Build (analyzer-web) finished!"
 	@echo "--------------------------"
 
 # Build the shared library version of the leekscript
