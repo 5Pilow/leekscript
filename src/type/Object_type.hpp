@@ -11,7 +11,7 @@ public:
 	virtual int id() const override { return 10; }
 	virtual const std::string getName() const override { return "object"; }
 	virtual const std::string getJsonName() const override { return "object"; }
-	virtual bool iterable() const { return false; } // TODO not iterable for now
+	virtual bool iterable() const override { return false; } // TODO not iterable for now
 	virtual bool container() const override { return true; }
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;

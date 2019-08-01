@@ -16,7 +16,7 @@ public:
 	virtual const Type* return_type() const override;
 	virtual const Type* argument(size_t) const override;
 	virtual const std::vector<const Type*>& arguments() const override;
-	virtual const std::string getName() const { return _type->getName() + "*"; }
+	virtual const std::string getName() const override { return _type->getName() + "*"; }
 	virtual const std::string getJsonName() const override { return _type->getJsonName() + "*"; }
 	virtual bool callable() const override;
 	virtual bool operator == (const Type*) const override;

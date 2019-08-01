@@ -14,7 +14,7 @@ public:
 	Array_type(const Type* element);
 	virtual int id() const override { return 5; }
 	virtual const std::string getName() const override;
-	virtual const std::string getJsonName() const { return "array"; }
+	virtual const std::string getJsonName() const override { return "array"; }
 	virtual bool iterable() const override { return true; }
 	virtual bool container() const override { return true; }
 	virtual const Type* key() const override;

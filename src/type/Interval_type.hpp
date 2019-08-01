@@ -10,8 +10,8 @@ public:
 	Interval_type(Environment& env);
 	virtual int id() const override { return 8; }
 	virtual const std::string getName() const override { return "interval"; }
-	virtual const std::string getJsonName() const { return "interval"; }
-	virtual bool iterable() const { return true; }
+	virtual const std::string getJsonName() const override { return "interval"; }
+	virtual bool iterable() const override { return true; }
 	virtual const Type* iterator() const override;
 	virtual const Type* key() const override;
 	virtual const Type* element() const override;

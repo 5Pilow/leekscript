@@ -9,9 +9,9 @@ class Meta_not_temporary_type : public Type {
 public:
 	const Type* type;
 	Meta_not_temporary_type(const Type* type) : Type(type->env), type(type) {}
-	virtual int id() const { return 0; }
+	virtual int id() const override { return 0; }
 	virtual const std::string getName() const override { return "meta_not_temporary"; }
-	virtual const std::string getJsonName() const { return "meta_not_temporary"; }
+	virtual const std::string getJsonName() const override { return "meta_not_temporary"; }
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;
 	#if COMPILER

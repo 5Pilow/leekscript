@@ -9,7 +9,7 @@ class I8_type : public Number_type {
 public:
 	I8_type(Environment& env) : Number_type(env) {}
 	virtual const std::string getName() const override { return "i8"; }
-	virtual bool operator == (const Type*) const;
+	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;
 	#if COMPILER
 	virtual llvm::Type* llvm(Compiler& c) const override;

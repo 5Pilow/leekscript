@@ -9,11 +9,11 @@ class Compound_type : public Type {
 public:
 	std::vector<const Type*> types;
 	Compound_type(std::set<const Type*> types, const Type* folded);
-	virtual int id() const { return 0; }
+	virtual int id() const override { return 0; }
 	virtual const Type* element() const override;
 	virtual const Type* pointed() const override;
 	virtual const std::string getName() const override;
-	virtual const std::string getJsonName() const { return "compound"; }
+	virtual const std::string getJsonName() const override { return "compound"; }
 	virtual bool operator == (const Type*) const override;
 	virtual bool callable() const override;
 	virtual bool container() const override;

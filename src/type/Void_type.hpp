@@ -8,9 +8,9 @@ namespace ls {
 class Void_type : public Type {
 public:
 	Void_type(Environment& env) : Type(env) {}
-	virtual int id() const { return 0; }
+	virtual int id() const override { return 0; }
 	virtual const std::string getName() const override { return "void"; }
-	virtual const std::string getJsonName() const { return "void"; }
+	virtual const std::string getJsonName() const override { return "void"; }
 	virtual const Type* element() const override;
 	virtual const Type* key() const override;
 	virtual const Type* return_type() const override;

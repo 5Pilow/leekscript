@@ -12,7 +12,7 @@ public:
 	virtual const Type* key() const override;
 	virtual const Type* element() const override;
 	virtual const Type* iterator() const override;
-	virtual bool operator == (const Type*) const;
+	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;
 	#if COMPILER
 	virtual llvm::Type* llvm(Compiler& c) const override;

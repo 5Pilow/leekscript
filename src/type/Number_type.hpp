@@ -10,8 +10,8 @@ public:
 	Number_type(Environment& env);
 	virtual int id() const override { return 3; }
 	virtual const std::string getName() const override { return "number"; }
-	virtual const std::string getJsonName() const { return "number"; }
-	virtual bool iterable() const { return true; }
+	virtual const std::string getJsonName() const override { return "number"; }
+	virtual bool iterable() const override { return true; }
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;
 	virtual std::string class_name() const override;

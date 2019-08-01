@@ -11,9 +11,9 @@ public:
 	Meta_element_type(const Type* type) : Any_type(type->env), type(type) {
 		placeholder = true;
 	}
-	virtual int id() const { return 0; }
+	virtual int id() const override { return 0; }
 	virtual const std::string getName() const override { return "meta_element"; }
-	virtual const std::string getJsonName() const { return "meta_element"; }
+	virtual const std::string getJsonName() const override { return "meta_element"; }
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;
 	#if COMPILER

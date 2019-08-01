@@ -15,7 +15,7 @@ public:
 	Placeholder_type(Environment& env, const std::string name) : Any_type(env), _name(name) {
 		placeholder = true;
 	}
-	void implement(const Type* type) const;
+	void implement(const Type* type) const override;
 	virtual const Type* element() const override;
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;
