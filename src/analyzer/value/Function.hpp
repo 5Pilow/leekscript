@@ -33,7 +33,6 @@ public:
 	bool generate_default_version = false;
 	FunctionVersion* current_version = nullptr;
 	bool analyzed = false;
-	Compiler* compiler = nullptr;
 	int default_values_count = 0;
 	std::vector<Variable*> captures;
 	std::unordered_map<std::string, Variable*> captures_map;

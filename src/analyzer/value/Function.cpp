@@ -273,7 +273,6 @@ Call Function::get_callable(SemanticAnalyzer*, int argument_count) const {
 #if COMPILER
 Compiler::value Function::compile(Compiler& c) const {
 	// std::cout << "Function::compile() " << this << " version " << version << " " << has_version << std::endl;
-	((Function*) this)->compiler = &c;
 	if (has_version) {
 		return compile_version(c, version);
 	}
