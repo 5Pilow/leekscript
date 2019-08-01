@@ -34,7 +34,8 @@ OBJ_ANALYZER := $(patsubst %.cpp,build/analyzer/%.o,$(SRC_ANALYZER)) build/analy
 COMPILER := g++
 OPTIM := -O0 -Wall
 DEBUG := -g3
-FLAGS := -std=c++17 -Wno-pmf-conversions
+FLAGS := -std=c++17
+FLAGS_COMPILER := -Wno-pmf-conversions
 FLAGS_TEST := -fopenmp
 SANITIZE_FLAGS := -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -fsanitize=float-divide-by-zero # -fsanitize=float-cast-overflow
 LIBS := -lm -lgmp -lstdc++fs `llvm-config --cxxflags --ldflags --system-libs --libs core orcjit native`
@@ -58,13 +59,13 @@ ninja:
 
 # Main build task, default build
 build/leekscript: $(BUILD_DIR) $(OBJ) $(OBJ_TOPLEVEL)
-	$(COMPILER) $(FLAGS) -o build/leekscript $(OBJ) $(OBJ_TOPLEVEL) $(LIBS)
+	$(COMPILER) $(FLAGS) $(FLAGS_COMPILER) -o build/leekscript $(OBJ) $(OBJ_TOPLEVEL) $(LIBS)
 	@echo "---------------"
 	@echo "Build finished!"
 	@echo "---------------"
 
 build/default/%.o: %.cpp
-	$(COMPILER) -c $(OPTIM) $(FLAGS) $(DEBUG) -o $@ $<
+	$(COMPILER) -c $(OPTIM) $(FLAGS) $(FLAGS_COMPILER) $(DEBUG) -o $@ $<
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
 
 build/analyzer/%.o: %.cpp
@@ -76,15 +77,15 @@ build/shared/%.o: %.cpp
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
 
 build/coverage/%.o: %.cpp
-	$(COMPILER) -c $(FLAGS) -O0 -fprofile-arcs -ftest-coverage -o $@ $<
+	$(COMPILER) -c $(FLAGS) $(FLAGS_COMPILER) -O0 -fprofile-arcs -ftest-coverage -o $@ $<
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
 
 build/profile/%.o: %.cpp
-	$(COMPILER) -c $(OPTIM) $(FLAGS) -pg -o $@ $<
+	$(COMPILER) -c $(OPTIM) $(FLAGS) $(FLAGS_COMPILER) -pg -o $@ $<
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
 
 build/sanitized/%.o: %.cpp
-	$(COMPILER) -c $(OPTIM) $(FLAGS) $(SANITIZE_FLAGS) -o $@ $<
+	$(COMPILER) -c $(OPTIM) $(FLAGS) $(FLAGS_COMPILER) $(SANITIZE_FLAGS) -o $@ $<
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
 
 $(BUILD_DIR):
