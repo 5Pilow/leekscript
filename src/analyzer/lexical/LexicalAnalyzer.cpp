@@ -141,8 +141,8 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 	const char* string_chars = code.c_str();
 	std::vector<Token> tokens;
 
-	int line = 1;
-	int character = 0;
+	size_t line = 1;
+	size_t character = 0;
 	std::string word = "";
 	bool ident = false;
 	bool number = false;
@@ -155,8 +155,8 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 	int comment = 0;
 	bool lineComment = false;
 
-	int l = strlen(string_chars);
-	int h = 0, i = 0, j = 0;
+	auto l = strlen(string_chars);
+	size_t h = 0, i = 0, j = 0;
 	char c, nc = code[j];
 	u8_inc(string_chars, &j);
 
