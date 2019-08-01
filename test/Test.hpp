@@ -8,6 +8,7 @@
 #include "../src/colors.h"
 #include <thread>
 #include "../src/environment/Environment.hpp"
+#include "../src/analyzer/Result.hpp"
 
 class OutputStringStream : public ls::OutputStream {
 	std::ostringstream oss;
