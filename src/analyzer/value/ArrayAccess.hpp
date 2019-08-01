@@ -32,7 +32,7 @@ public:
 	virtual void pre_analyze(SemanticAnalyzer*) override;
 	virtual Call get_callable(SemanticAnalyzer*, int argument_count) const override;
 	virtual void analyze(SemanticAnalyzer*) override;
-	virtual const Type* will_take(SemanticAnalyzer* analyzer, const std::vector<const Type*>&, int level);
+	virtual const Type* will_take(SemanticAnalyzer* analyzer, const std::vector<const Type*>&, int level) override;
 	bool array_access_will_take(SemanticAnalyzer* analyzer, const std::vector<const Type*>&, int level);
 	virtual bool will_store(SemanticAnalyzer* analyzer, const Type* type) override;
 	virtual void change_value(SemanticAnalyzer*, Value*) override;
