@@ -19,7 +19,6 @@
 #include "../benchmark/Benchmark.hpp"
 #include "vm/LSValue.hpp"
 #include "util/Util.hpp"
-#include "../test/Test.hpp"
 #include "analyzer/resolver/File.hpp"
 #include "util/CLI11.hpp"
 
