@@ -1,6 +1,4 @@
 #include "ClassDeclaration.hpp"
-#include "../../vm/value/LSNull.hpp"
-#include "../../vm/value/LSClass.hpp"
 #include "../semantic/Variable.hpp"
 
 namespace ls {

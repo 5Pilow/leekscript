@@ -4,7 +4,6 @@
 #include "../instruction/Return.hpp"
 #include "../instruction/Break.hpp"
 #include "../instruction/Continue.hpp"
-#include "../../vm/LSValue.hpp"
 #include "../semantic/Variable.hpp"
 #include "Phi.hpp"
 

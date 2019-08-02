@@ -6,7 +6,6 @@
 #include "Number.hpp"
 #include "VariableValue.hpp"
 #include "../Program.hpp"
-#include "../../standard/class/BooleanSTD.hpp"
 #include "../../vm/Exception.hpp"
 #include "../semantic/Callable.hpp"
 #include "../semantic/FunctionVersion.hpp"

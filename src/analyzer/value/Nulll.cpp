@@ -1,5 +1,4 @@
 #include "Nulll.hpp"
-#include "../../vm/value/LSNull.hpp"
 #include "../../type/Type.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
 

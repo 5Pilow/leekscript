@@ -1,6 +1,5 @@
 #include "Number.hpp"
 #include <limits.h>
-#include "../../vm/value/LSNumber.hpp"
 #include "../../type/Type.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
 

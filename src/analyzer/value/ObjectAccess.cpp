@@ -2,10 +2,6 @@
 #include <chrono>
 #include "../semantic/SemanticAnalyzer.hpp"
 #include "VariableValue.hpp"
-#include "../../vm/value/LSNull.hpp"
-#include "../../vm/value/LSString.hpp"
-#include "../../vm/value/LSFunction.hpp"
-#include "../../vm/value/LSClass.hpp"
 #include "../Program.hpp"
 #include "../../standard/Module.hpp"
 #include "../../analyzer/semantic/Callable.hpp"

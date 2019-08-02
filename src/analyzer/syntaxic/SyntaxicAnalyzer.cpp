@@ -34,7 +34,6 @@
 #include "../value/VariableValue.hpp"
 #include "../value/ArrayFor.hpp"
 #include "../Program.hpp"
-#include "../../vm/value/LSNumber.hpp"
 #include "../lexical/Token.hpp"
 #include "../../util/Util.hpp"
 #include "../lexical/LexicalAnalyzer.hpp"

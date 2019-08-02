@@ -1,10 +1,8 @@
 #ifndef STRING_HPP_
 #define STRING_HPP_
 
-#include <string>
 #include "Value.hpp"
 #include "../lexical/Token.hpp"
-#include "../../vm/value/LSString.hpp"
 
 namespace ls {
 

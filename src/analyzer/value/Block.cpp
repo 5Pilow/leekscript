@@ -1,6 +1,4 @@
 #include "Block.hpp"
-#include "../../vm/value/LSNull.hpp"
-#include "../../vm/value/LSNumber.hpp"
 #include "../instruction/Return.hpp"
 #include "../instruction/Throw.hpp"
 #include "../instruction/VariableDeclaration.hpp"

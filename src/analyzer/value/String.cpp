@@ -1,5 +1,4 @@
 #include "String.hpp"
-#include "../../vm/value/LSString.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
 #include "../../type/Type.hpp"
 

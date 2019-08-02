@@ -4,7 +4,6 @@
 #include <stack>
 #include <vector>
 #include <map>
-#include "../../vm/VM.hpp"
 #include "../error/Error.hpp"
 #include "../semantic/Call.hpp"
 #include "../../standard/StandardLibrary.hpp"

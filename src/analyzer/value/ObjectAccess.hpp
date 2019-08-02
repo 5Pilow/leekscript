@@ -4,7 +4,6 @@
 #include <string>
 #include "LeftValue.hpp"
 #include "Value.hpp"
-#include "../../vm/value/LSString.hpp"
 #include "../lexical/Token.hpp"
 
 namespace ls {

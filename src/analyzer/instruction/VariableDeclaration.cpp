@@ -1,6 +1,4 @@
 #include "VariableDeclaration.hpp"
-#include "../../vm/LSValue.hpp"
-#include "../../vm/value/LSNull.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
 #include "../error/Error.hpp"
 #include "../value/Function.hpp"

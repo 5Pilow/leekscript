@@ -1,7 +1,6 @@
 #include "Throw.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
 #include "../value/Function.hpp"
-#include "../../vm/value/LSNull.hpp"
 
 namespace ls {
 
