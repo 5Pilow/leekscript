@@ -2,9 +2,10 @@
 #define STRING_HPP_
 
 #include "Value.hpp"
-#include "../lexical/Token.hpp"
 
 namespace ls {
+
+class Token;
 
 class String : public Value {
 public:
