@@ -146,7 +146,9 @@ public:
 
 std::ostream& operator << (std::ostream&, const Type*);
 std::ostream& operator << (std::ostream&, const std::vector<const Type*>&);
+#if COMPILER
 std::ostream& operator << (std::ostream&, const llvm::Type*);
+#endif
 
 }
 
