@@ -284,7 +284,7 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 	method("hypot", {
 		{env.real, {env.any, env.any}, ADDR(hypot_ptr_ptr)},
 		{env.real, {env.integer, env.integer}, (void*) std::hypot<int, int>},
-		{env.real, {env.real, env.real}, (void*) std::hypot<double, double>},
+		{env.real, {env.real, env.real}, ADDR(((void*) std::hypot<double, double>))},
 	});
 	method("log", {
 		{env.real, {env.any}, ADDR((void*) log_ptr)},
@@ -380,7 +380,7 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 
 	/** Internal **/
 	method("powdd", {
-		{env.real, {env.real, env.real}, (void*) std::pow<double, double>}
+		{env.real, {env.real, env.real}, ADDR(((void*) std::pow<double, double>))}
 	});
 	method("powli", {
 		{env.real, {env.long_, env.integer}, (void*) std::pow<long, int>}
@@ -490,14 +490,14 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{env.real, {env.real}, (void*) ceilreal},
 	});
 	method("m_max", {
-		{env.integer, {env.integer, env.integer}, (void*) max_fun<int>},
-		{env.long_, {env.long_, env.long_}, (void*) max_fun<long>},
-		{env.real, {env.real, env.real}, (void*) max_fun<double>},
+		{env.integer, {env.integer, env.integer}, ADDR((void*) max_fun<int>)},
+		{env.long_, {env.long_, env.long_}, ADDR((void*) max_fun<long>)},
+		{env.real, {env.real, env.real}, ADDR((void*) max_fun<double>)},
 	});
 	method("m_min", {
-		{env.integer, {env.integer, env.integer}, (void*) min_fun<int>},
-		{env.long_, {env.long_, env.long_}, (void*) min_fun<long>},
-		{env.real, {env.real, env.real}, (void*) min_fun<double>},
+		{env.integer, {env.integer, env.integer}, ADDR((void*) min_fun<int>)},
+		{env.long_, {env.long_, env.long_}, ADDR((void*) min_fun<long>)},
+		{env.real, {env.real, env.real}, ADDR((void*) min_fun<double>)},
 	});
 	double (*cosreal)(double) = std::cos;
 	method("m_cos", {

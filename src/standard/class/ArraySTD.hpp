@@ -9,6 +9,8 @@ class ArraySTD : public Module {
 public:
 	ArraySTD(Environment& env);
 
+	#if COMPILER
+
 	static Compiler::value in(Compiler& c, std::vector<Compiler::value> args, int);
 	static Compiler::value op_add(Compiler&, std::vector<Compiler::value>, int);
 	static Compiler::value array_add_eq(Compiler& c, std::vector<Compiler::value> args, int);
@@ -40,6 +42,8 @@ public:
 	static Compiler::value push_all(Compiler&, std::vector<Compiler::value>, int);
 
 	static int convert_key(LSValue*);
+
+	#endif
 };
 
 }

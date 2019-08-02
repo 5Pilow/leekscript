@@ -9,12 +9,16 @@ class MapSTD : public Module {
 public:
 	MapSTD(Environment& env);
 
+	#if COMPILER
+
 	static Compiler::value look(Compiler&, std::vector<Compiler::value>, int);
 
 	static Compiler::value fold_left(Compiler&, std::vector<Compiler::value>, int);
 	static Compiler::value fold_right(Compiler&, std::vector<Compiler::value>, int);
 
 	static Compiler::value iter(Compiler& c, std::vector<Compiler::value>, int);
+
+	#endif
 };
 
 }

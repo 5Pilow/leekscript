@@ -9,6 +9,8 @@ class BooleanSTD : public Module {
 public:
 	BooleanSTD(Environment& env);
 
+	#if COMPILER
+
 	static LSString* add(int boolean, LSString* string);
 	static LSString* add_tmp(int boolean, LSString* string);
 	static Compiler::value add_bool(Compiler& c, std::vector<Compiler::value> args, int);
@@ -22,6 +24,8 @@ public:
 	static Compiler::value compare_val_val(Compiler&, std::vector<Compiler::value>, int);
 
 	static LSValue* to_string(bool b);
+
+	#endif
 };
 
 }

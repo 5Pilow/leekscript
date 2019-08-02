@@ -19,6 +19,7 @@ public:
 
 	NumberSTD(Environment& env);
 
+	#if COMPILER
 	/*
 	 * Operators
 	 */
@@ -196,6 +197,8 @@ public:
 	static LSValue* mpz_to_string(mpz_t x);
 
 	static bool isint(LSNumber* x);
+
+	#endif
 };
 
 }

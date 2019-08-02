@@ -9,6 +9,8 @@ class SystemSTD : public Module {
 public:
 	SystemSTD(Environment& env);
 
+	#if COMPILER
+
 	static Compiler::value version(Compiler& c);
 	static long time();
 	static long millitime();
@@ -35,6 +37,8 @@ public:
 	static void throw2(void** ex, char* file, char* function, size_t line);
 
 	static void v1_debug(LSValue* v);
+
+	#endif
 };
 
 }

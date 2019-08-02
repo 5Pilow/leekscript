@@ -9,6 +9,7 @@ class ValueSTD : public Module {
 public:
 	ValueSTD(Environment& env);
 
+	#if COMPILER
 	/*
 	 * Static fields
 	 */
@@ -124,6 +125,8 @@ public:
 	static void export_context_variable_int(VM* vm, char* name, int v);
 	static void export_context_variable_long(VM* vm, char* name, long v);
 	static void export_context_variable_real(VM* vm, char* name, double v);
+
+	#endif
 };
 
 }
