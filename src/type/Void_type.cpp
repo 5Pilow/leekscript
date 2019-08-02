@@ -1,7 +1,9 @@
 #include "Void_type.hpp"
 #include "../colors.h"
-#include "../compiler/Compiler.hpp"
 #include "../environment/Environment.hpp"
+#if COMPILER
+#include "../compiler/Compiler.hpp"
+#endif
 
 namespace ls {
 

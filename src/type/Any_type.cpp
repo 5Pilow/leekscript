@@ -1,7 +1,6 @@
 #include "Any_type.hpp"
 #include "Type.hpp"
 #include "../colors.h"
-#include "../compiler/Compiler.hpp"
 #include "Struct_type.hpp"
 #include "../environment/Environment.hpp"
 

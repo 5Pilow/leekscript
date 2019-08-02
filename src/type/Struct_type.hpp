@@ -2,7 +2,9 @@
 #define STRUCT_TYPE_HPP
 
 #include "Type.hpp"
+#if COMPILER
 #include "llvm/IR/DerivedTypes.h"
+#endif
 
 namespace ls {
 

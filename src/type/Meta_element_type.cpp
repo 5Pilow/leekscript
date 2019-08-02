@@ -1,6 +1,8 @@
 #include "Meta_element_type.hpp"
 #include "../colors.h"
+#if COMPILER
 #include "../compiler/Compiler.hpp"
+#endif
 
 namespace ls {
 

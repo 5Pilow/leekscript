@@ -1,6 +1,8 @@
 #include "Meta_not_temporary_type.hpp"
 #include "../colors.h"
+#if COMPILER
 #include "../compiler/Compiler.hpp"
+#endif
 
 namespace ls {
 

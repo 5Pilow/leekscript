@@ -1,6 +1,5 @@
 #include "Bool_type.hpp"
 #include "../colors.h"
-#include "../compiler/Compiler.hpp"
 #include "Integer_type.hpp"
 #include "Long_type.hpp"
 #include "Real_type.hpp"
@@ -8,6 +7,9 @@
 #include "Number_type.hpp"
 #include "Any_type.hpp"
 #include "Mpz_type.hpp"
+#if COMPILER
+#include "../compiler/Compiler.hpp"
+#endif
 
 namespace ls {
 

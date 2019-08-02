@@ -2,8 +2,10 @@
 #include "../colors.h"
 #include "Type.hpp"
 #include "Any_type.hpp"
-#include "../compiler/Compiler.hpp"
 #include "../environment/Environment.hpp"
+#if COMPILER
+#include "../compiler/Compiler.hpp"
+#endif
 
 namespace ls {
 
