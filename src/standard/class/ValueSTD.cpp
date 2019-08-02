@@ -1,13 +1,15 @@
 #include "ValueSTD.hpp"
 #include "JsonSTD.hpp"
+#include "../../analyzer/Context.hpp"
+#include "../../type/Type.hpp"
+#include "../../environment/Environment.hpp"
+#if COMPILER
 #include "../../vm/value/LSBoolean.hpp"
 #include "../../vm/value/LSString.hpp"
 #include "../../vm/value/LSNumber.hpp"
 #include "../../vm/LSValue.hpp"
 #include "../../vm/VM.hpp"
-#include "../../analyzer/Context.hpp"
-#include "../../type/Type.hpp"
-#include "../../environment/Environment.hpp"
+#endif
 
 namespace ls {
 

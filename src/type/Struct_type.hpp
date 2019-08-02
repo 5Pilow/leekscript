@@ -11,7 +11,9 @@ namespace ls {
 class Struct_type : public Type {
 	std::string _name;
 	std::vector<const Type*> _types;
+	#if COMPILER
 	llvm::StructType* _llvm_type = nullptr;
+	#endif
 public:
 	Struct_type(const std::string name, std::initializer_list<const Type*> types);
 	Struct_type(const std::string name, std::vector<const Type*> types);

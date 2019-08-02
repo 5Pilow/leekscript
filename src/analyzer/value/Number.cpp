@@ -10,9 +10,11 @@ Number::Number(Environment& env, std::string value, Token* token) : Value(env), 
 }
 
 Number::~Number() {
+	#if COMPILER
 	if (mpz_value_initialized) {
 		mpz_clear(mpz_value);
 	}
+	#endif
 }
 
 void Number::print(std::ostream& os, int, PrintOptions options) const {
@@ -59,17 +61,20 @@ void Number::analyze(SemanticAnalyzer* analyzer) {
 			}
 		}
 		if (mp_number) {
+			#if COMPILER
 			// LCOV_EXCL_START
 			if (!mpz_value_initialized) {
 				mpf_init_set_str(mpf_value, clean_value.c_str(), base);
 				mpz_value_initialized = true;
 			}
 			assert(false && "No support for mpf numbers yet");
+			#endif
 			// LCOV_EXCL_STOP
 		} else {
 			type = env.real;
 		}
 	} else {
+		#if COMPILER
 		if (!mpz_value_initialized) {
 			mpz_init_set_str(mpz_value, clean_value.c_str(), base);
 			mpz_value_initialized = true;
@@ -85,6 +90,7 @@ void Number::analyze(SemanticAnalyzer* analyzer) {
 		} else {
 			type = env.tmp_mpz_ptr;
 		}
+		#endif
 	}
 	if (pointer) {
 		type = env.any;
@@ -99,7 +105,9 @@ bool Number::is_zero() const {
 	} else if (type->is_long()) {
 		return long_value == 0;
 	} else if (type->is_mpz_ptr()) {
+		#if COMPILER
 		return mpz_cmp_ui(mpz_value, 0) == 0;
+		#endif
 	} else {
 		return int_value == 0;
 	}

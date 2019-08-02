@@ -3,11 +3,11 @@
 
 #include <string>
 #include <vector>
-#include "../compiler/Compiler.hpp"
 #include "TypeMutator.hpp"
 #include "../analyzer/semantic/CallableVersion.hpp"
 #include "../analyzer/semantic/Class.hpp"
 #if COMPILER
+#include "../compiler/Compiler.hpp"
 #include "../vm/value/LSClass.hpp"
 #endif
 
@@ -69,9 +69,14 @@ public:
 	void method(std::string name, std::initializer_list<CallableVersion> methods, std::vector<const Type*> templates = {}, bool legacy = false);
 
 	void field(std::string name, const Type* type);
+	#if COMPILER
 	void field(std::string name, const Type* type, std::function<Compiler::value(Compiler&, Compiler::value)> fun);
+	#endif
 	void field(std::string name, const Type* type, void* fun);
+
+	#if COMPILER
 	void static_field(std::string name, const Type* type, std::function<Compiler::value(Compiler&)> fun);
+	#endif
 	void static_field(std::string name, const Type* type, void* addr);
 	void static_field_fun(std::string name, const Type* type, void* fun);
 

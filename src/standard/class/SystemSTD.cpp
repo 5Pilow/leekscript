@@ -1,10 +1,12 @@
 #include "SystemSTD.hpp"
 #include <chrono>
-#include "../../vm/LSValue.hpp"
 #include "../../constants.h"
-#include "../../vm/VM.hpp"
 #include "../../type/Type.hpp"
 #include "../../environment/Environment.hpp"
+#if COMPILER
+#include "../../vm/LSValue.hpp"
+#include "../../vm/VM.hpp"
+#endif
 
 namespace ls {
 

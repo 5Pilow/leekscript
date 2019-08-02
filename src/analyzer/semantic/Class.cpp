@@ -3,7 +3,9 @@
 #include "SemanticAnalyzer.hpp"
 #include "../../standard/Module.hpp"
 #include "Variable.hpp"
+#if COMPILER
 #include "../../vm/value/LSFunction.hpp"
+#endif
 
 namespace ls {
 

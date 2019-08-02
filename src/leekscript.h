@@ -1,7 +1,9 @@
 #ifndef LEEKSCRIPT_H__
 #define LEEKSCRIPT_H__
 
+#if COMPILER
 #include "vm/VM.hpp"
+#endif
 #include "standard/Module.hpp"
 #include "analyzer/Program.hpp"
 #include "type/Integer_type.hpp"

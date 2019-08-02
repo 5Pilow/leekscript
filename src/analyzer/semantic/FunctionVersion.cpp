@@ -1,7 +1,6 @@
 #include "FunctionVersion.hpp"
 #include "../../type/Type.hpp"
 #include "../value/Function.hpp"
-#include "../../vm/VM.hpp"
 #include "../Context.hpp"
 #include "../resolver/File.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
@@ -12,6 +11,7 @@
 #include "../../type/Function_type.hpp"
 #include "Variable.hpp"
 #if COMPILER
+#include "../../vm/VM.hpp"
 #include "../../compiler/Compiler.hpp"
 #endif
 

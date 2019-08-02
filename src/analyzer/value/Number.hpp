@@ -2,9 +2,11 @@
 #define NUMBER_HPP
 
 #include <memory>
-#include <gmp.h>
 #include "Value.hpp"
 #include "../lexical/Token.hpp"
+#if COMPILER
+#include <gmp.h>
+#endif
 
 namespace ls {
 
@@ -18,9 +20,11 @@ public:
 	int int_value = 0;
 	long long_value = 0;
 	double double_value = 0;
+	#if COMPILER
 	mpz_t mpz_value;
 	mpf_t mpf_value;
 	bool mpz_value_initialized = false;
+	#endif
 	bool pointer = false;
 
 	Number(Environment& env, std::string value, Token* token);

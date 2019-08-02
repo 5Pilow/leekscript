@@ -9,7 +9,9 @@ class Type;
 class Value;
 
 class Function_type : public Type {
+	#if COMPILER
 	llvm::Type* llvm_type = nullptr;
+	#endif
 	const Type* const _return_type;
 	std::vector<const Type*> _arguments;
 	const Value* _function;

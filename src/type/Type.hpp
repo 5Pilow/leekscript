@@ -7,17 +7,21 @@
 #include <iostream>
 #include <cassert>
 #include "../constants.h"
+#if COMPILER
 #include "llvm/IR/Type.h"
 #include "llvm/IR/DerivedTypes.h"
+#endif
 
 namespace ls {
 
 class Type;
 class Function;
 class Value;
-class Compiler;
 class Function_type;
 class Environment;
+#if COMPILER
+class Compiler;
+#endif
 
 class Type {
 public:

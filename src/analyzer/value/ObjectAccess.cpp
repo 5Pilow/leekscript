@@ -16,9 +16,11 @@ ObjectAccess::ObjectAccess(Environment& env, Token* token) : LeftValue(env), fie
 }
 
 ObjectAccess::~ObjectAccess() {
+	#if COMPILER
 	if (ls_function != nullptr) {
 		delete ls_function;
 	}
+	#endif
 }
 
 bool ObjectAccess::isLeftValue() const {

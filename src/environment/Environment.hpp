@@ -7,8 +7,10 @@
 #include <unordered_map>
 #include "../type/Function_type.hpp"
 #include "../standard/StandardLibrary.hpp"
+#if COMPILER
 #include "../compiler/Compiler.hpp"
 #include "../vm/VM.hpp"
+#endif
 
 namespace ls {
 

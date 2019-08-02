@@ -1,15 +1,10 @@
 #include "Function.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
 #include "../instruction/ExpressionInstruction.hpp"
-#include "../../vm/value/LSFunction.hpp"
-#include "../../vm/value/LSClosure.hpp"
-#include "../../vm/value/LSNull.hpp"
 #include "../Program.hpp"
 #include "../../vm/Exception.hpp"
-#include "llvm/IR/Verifier.h"
 #include <string>
 #include <fstream>
-#include "../../vm/LSValue.hpp"
 #include "../semantic/Callable.hpp"
 #include "../instruction/VariableDeclaration.hpp"
 #include "../../colors.h"
@@ -20,6 +15,13 @@
 #include "../semantic/Variable.hpp"
 #include "../../util/Util.hpp"
 #include "../../type/Function_type.hpp"
+#if COMPILER
+#include "llvm/IR/Verifier.h"
+#include "../../vm/LSValue.hpp"
+#include "../../vm/value/LSFunction.hpp"
+#include "../../vm/value/LSClosure.hpp"
+#include "../../vm/value/LSNull.hpp"
+#endif
 
 namespace ls {
 

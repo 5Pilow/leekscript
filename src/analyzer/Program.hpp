@@ -17,14 +17,13 @@ class Context;
 
 class Program {
 private:
-
+	#if COMPILER
 	void* closure = nullptr;
-
+	#endif
 public:
 
 	Environment& env;
 	std::string code; // The program code
-	Compiler* compiler; // Keep compiler pointer to free module handle
 	std::unique_ptr<Function> main;
 	const Type* type;
 	std::vector<Function*> functions;
@@ -34,6 +33,7 @@ public:
 	Context* context = nullptr;
 	Result result;
 	#if COMPILER
+	Compiler* compiler; // Keep compiler pointer to free module handle
 	bool handle_created = false;
 	llvm::Module* module = nullptr;
 	llvm::orc::VModuleKey module_handle;

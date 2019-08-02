@@ -7,7 +7,9 @@ namespace ls {
 
 class Pointer_type : public Type {
 	const Type* const _type;
+	#if COMPILER
 	llvm::Type* _llvm_type = nullptr;
+	#endif
 public:
 	Pointer_type(const Type* type, bool native = false);
 	virtual ~Pointer_type() {}
