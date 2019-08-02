@@ -110,7 +110,7 @@ void Environment::execute(Program& program, bool format, bool debug, bool ops, b
 #endif
 
 const Type* Environment::generate_new_placeholder_type() {
-	u_int32_t character = 0x03B1 + Type::placeholder_counter;
+	uint32_t character = 0x03B1 + Type::placeholder_counter;
 	char buff[5];
 	u8_toutf8(buff, 5, &character, 1);
 	auto type = new Placeholder_type(*this, std::string { buff });
