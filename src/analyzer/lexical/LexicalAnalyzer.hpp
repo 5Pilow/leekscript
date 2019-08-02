@@ -1,6 +1,7 @@
 #ifndef LEXICALanalyzer_H_
 #define LEXICALanalyzer_H_
 
+#include <unordered_map>
 #include <vector>
 #include <string>
 #include "Token.hpp"
@@ -17,7 +18,7 @@ public:
 
 	File* file;
 	static std::unordered_map<std::string, TokenType> token_map;
-	
+
 	LexicalAnalyzer();
 
 	LetterType getLetterType(unsigned char c, unsigned char nc);

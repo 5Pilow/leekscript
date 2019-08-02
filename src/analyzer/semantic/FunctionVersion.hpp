@@ -1,6 +1,7 @@
 #ifndef FUNCTION_VERSION_HPP
 #define FUNCTION_VERSION_HPP
 
+#include <string>
 #include <unordered_map>
 #include <memory>
 #include <vector>

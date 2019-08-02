@@ -1,6 +1,7 @@
 #ifndef SET_TYPE_HPP
 #define SET_TYPE_HPP
 
+#include <unordered_map>
 #include "Pointer_type.hpp"
 
 namespace ls {

@@ -6,7 +6,6 @@
 #include "vm/LSValue.hpp"
 #include "colors.h"
 #include "constants.h"
-#include "vm/VM.hpp"
 #include "util/CLI11.hpp"
 #include "analyzer/resolver/Resolver.hpp"
 #include "analyzer/syntaxic/SyntaxicAnalyzer.hpp"

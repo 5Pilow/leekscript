@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <string>
 #include "../../constants.h"
 #include "../lexical/Location.hpp"
 #include "../semantic/Call.hpp"

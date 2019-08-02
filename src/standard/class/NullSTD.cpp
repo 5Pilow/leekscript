@@ -1,5 +1,4 @@
 #include "NullSTD.hpp"
-#include "../../vm/value/LSNull.hpp"
 #include "../../environment/Environment.hpp"
 
 namespace ls {

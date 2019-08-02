@@ -1,6 +1,7 @@
 #ifndef BLOCK_HPP
 #define BLOCK_HPP
 
+#include <unordered_map>
 #include <vector>
 #include "../instruction/Instruction.hpp"
 #include "Value.hpp"

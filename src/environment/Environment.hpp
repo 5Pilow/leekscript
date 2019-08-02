@@ -15,6 +15,8 @@
 namespace ls {
 
 class Type;
+class OutputStream;
+class Program;
 
 class Environment {
 	friend Type;

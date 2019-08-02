@@ -3,8 +3,6 @@
 
 #include <algorithm>
 #include <fstream>
-#include <gmp.h>
-#include <gmpxx.h>
 #include <iostream>
 #include <iterator>
 #include <math.h>
@@ -17,7 +15,6 @@
 #include "util/utf8.h"
 #include "doc/Documentation.hpp"
 #include "../benchmark/Benchmark.hpp"
-#include "vm/LSValue.hpp"
 #include "util/Util.hpp"
 #include "analyzer/resolver/File.hpp"
 #include "util/CLI11.hpp"
