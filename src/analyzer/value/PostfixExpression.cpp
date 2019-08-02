@@ -43,7 +43,6 @@ void PostfixExpression::analyze(SemanticAnalyzer* analyzer) {
 	if (type == env.mpz) {
 		type = env.tmp_mpz;
 	}
-	this->return_value = return_value;
 	if (is_void) {
 		type = env.void_;
 	}
