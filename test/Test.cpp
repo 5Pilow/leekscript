@@ -8,6 +8,7 @@
 #include <omp.h>
 #include <thread>
 #include "../src/environment/Environment.hpp"
+#include "../src/vm/OutputStream.hpp"
 
 std::vector<std::string> Test::failed_tests;
 std::vector<std::string> Test::disabled_tests;
@@ -303,7 +304,7 @@ void Test::Input::almost(T expected, T delta) {
 
 void Test::Input::quine() {
 	if (disabled) return disable();
-	OutputStringStream oss;
+	ls::OutputStringStream oss;
 	auto& env = test->getEnv(v1);
 	env.output = &oss;
 	auto result = run();
@@ -341,7 +342,7 @@ void Test::Input::type(const ls::Type* type) {
 void Test::Input::output(const std::string& expected) {
 	if (disabled) return disable();
 
-	OutputStringStream oss;
+	ls::OutputStringStream oss;
 	auto& env = test->getEnv(v1);
 	env.output = &oss;
 	auto result = run();
