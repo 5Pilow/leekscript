@@ -75,7 +75,7 @@ build/analyzer/%.o: %.cpp
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
 
 build/analyzer-web/%.o: %.cpp
-	$(COMPILER) -c $< $(OPTIM) $(FLAGS) $(DEBUG) -o $@
+	$(COMPILER) -c $< $(FLAGS) $(DEBUG) -s WASM=1 -o $@
 
 build/shared/%.o: %.cpp
 	$(COMPILER) -c $(OPTIM) $(FLAGS) -fPIC -o $@ $<
@@ -116,10 +116,10 @@ analyzer-web: COMPILER=emcc
 analyzer-web: build/leekscript-web
 
 build/leekscript-web: $(BUILD_DIR) $(OBJ_ANALYZER_WEB)
-	$(COMPILER) $(FLAGS) $(OBJ_ANALYZER_WEB) -o analyzer.html
-	@echo "--------------------------"
+	$(COMPILER) $(FLAGS) $(OBJ_ANALYZER_WEB) -s EXPORTED_FUNCTIONS='["_analyze"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' -o analyzer.js
+	@echo "------------------------------"
 	@echo "Build (analyzer-web) finished!"
-	@echo "--------------------------"
+	@echo "------------------------------"
 
 # Build the shared library version of the leekscript
 # (libleekscript.so in build/)
