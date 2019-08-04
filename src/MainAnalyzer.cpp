@@ -1,7 +1,7 @@
 #include "CLI.hpp"
 #include "environment/Environment.hpp"
 
-#if EMCC
+#if WASM
 #include <emscripten/emscripten.h>
 
 extern "C" {

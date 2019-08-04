@@ -75,7 +75,7 @@ build/analyzer/%.o: %.cpp
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
 
 build/analyzer-web/%.o: %.cpp
-	$(COMPILER) -c $< $(FLAGS) -O3 $(DEBUG) -DEMCC=1 -s WASM=1 -o $@
+	$(COMPILER) -c $< $(FLAGS) -O3 $(DEBUG) -DWASM=1 -s WASM=1 -o $@
 
 build/shared/%.o: %.cpp
 	$(COMPILER) -c $(OPTIM) $(FLAGS) -fPIC -o $@ $<

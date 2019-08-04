@@ -1,3 +1,16 @@
+#if WASM
+#define C_GREY ""
+#define C_GREEN ""
+#define C_RED ""
+#define C_PURPLE ""
+#define C_BLUE ""
+#define C_YELLOW ""
+#define BOLD ""
+#define BLUE_BOLD ""
+#define END_COLOR ""
+#define UNDERLINE ""
+#define END_STYLE ""
+#else
 #define C_GREY "\033[0;90m"
 #define C_GREEN "\033[0;32m"
 #define C_RED "\033[1;31m"
@@ -9,3 +22,4 @@
 #define END_COLOR "\033[0m"
 #define UNDERLINE "\e[4m"
 #define END_STYLE "\e[0m"
+#endif
