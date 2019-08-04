@@ -2,6 +2,7 @@
 #define INSTRUCTION_HPP
 
 #include <ostream>
+#include <memory>
 #include "../../constants.h"
 #include "../lexical/Token.hpp"
 #include "../../type/Type.hpp"

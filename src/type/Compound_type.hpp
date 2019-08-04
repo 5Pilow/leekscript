@@ -1,6 +1,7 @@
 #ifndef COMPOUND_TYPE_HPP
 #define COMPOUND_TYPE_HPP
 
+#include <functional>
 #include "Type.hpp"
 
 namespace ls {
