@@ -10,5 +10,5 @@ Handler.extensions_map['.wasm'] = 'application/wasm'
 
 httpd = SocketServer.TCPServer(("", PORT), Handler)
 
-print "serving at port", PORT
+print "Serving at: http://localhost:" + str(PORT) + "/tool/wasm_demo.html"
 httpd.serve_forever()

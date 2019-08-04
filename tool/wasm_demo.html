@@ -1,0 +1,11 @@
+<script>
+	var Module = {
+		onRuntimeInitialized: function() {
+			const code = "['salut', true]"
+			console.log(code)
+			console.log(UTF8ToString(Module.ccall('analyze', 'number', ['string'], [code])))
+		}
+	}
+</script>
+
+<script type="text/javascript" src="/build/analyzer.js"></script>

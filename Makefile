@@ -116,7 +116,7 @@ analyzer-web: COMPILER=emcc
 analyzer-web: build/leekscript-web
 
 build/leekscript-web: $(BUILD_DIR) $(OBJ_ANALYZER_WEB)
-	$(COMPILER) $(FLAGS) -O3 $(OBJ_ANALYZER_WEB) -s EXPORTED_FUNCTIONS='["_analyze"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' -o analyzer.js
+	$(COMPILER) $(FLAGS) -O3 $(OBJ_ANALYZER_WEB) -s EXPORTED_FUNCTIONS='["_analyze"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' -o build/analyzer.js
 	@echo "------------------------------"
 	@echo "Build (analyzer-web) finished!"
 	@echo "------------------------------"
