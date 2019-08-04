@@ -60,6 +60,9 @@ make benchmark
 make doc
 ```
 
+## WebAssembly build
+Run `make analyzer-web` to build the analyzer to target browsers in *WebAssembly*. Try it by running a small web server with `python tool/wasm_server.py` and browsing the link. Then check the console for the output result.
+
 Libraries used
 --------------
 * [LLVM](https://llvm.org/) Version 8.0.0
