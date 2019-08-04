@@ -116,7 +116,7 @@ analyzer-web: COMPILER=emcc
 analyzer-web: build/leekscript-web
 
 build/leekscript-web: $(BUILD_DIR) $(OBJ_ANALYZER_WEB)
-	$(COMPILER) $(FLAGS) -o build/leekscript-web $(OBJ_ANALYZER_WEB) $(LIBS)
+	$(COMPILER) $(FLAGS) $(OBJ_ANALYZER_WEB) -o analyzer.html
 	@echo "--------------------------"
 	@echo "Build (analyzer-web) finished!"
 	@echo "--------------------------"
