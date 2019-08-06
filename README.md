@@ -18,6 +18,7 @@ LeekScript is a dynamically typed, compiled just-in-time programming language in
 3. [Usage](#usage) - usage \
   3.1 [Command-line options](#command-line-options) - CLI options description
 4. [Tests](#tests-coverage-valgrind-benchmark-doc) - run tests and more
+5. [Projects using LeekScript](#projects-using-leekscript) - discover projects using LeekScript language
 6. [Libraries](#libraries-used) - check library dependencies
 7. [License](#license) - license information
 ---
@@ -89,13 +90,14 @@ make doc
 
 ---
 
+## Projects using LeekScript
+* [Leek Wars](https://leekwars.com), online programming game, for AI execution in [fight generation](https://github.com/leek-wars/leek-wars-generator).
+
 ## Libraries used
 * [LLVM](https://llvm.org/) Version 8.0.0
 * [GNU MP](https://gmplib.org/), by Torbjörn Granlund, under GPL license
 * [JSON for modern C++](https://github.com/nlohmann/json), by Niels Lohmann, under MIT license
 * [CLI11](https://github.com/CLIUtils/CLI11), by Henry Schreinern under NSF AWARD 1414736
-
----
 
 ## License
 Distributed under the GPL3 license. Copyright (c) 2016-2019, Pierre Lauprêtre
