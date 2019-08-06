@@ -1,5 +1,8 @@
-[LeekScript language](https://leekscript.com)
-===================
+<div align="center">
+    <h1>
+        <a href="https://leekscript.com">LeekScript language</a>
+    </h1>
+</div>
 
 [![Build Status](https://travis-ci.org/leek-wars/leekscript.svg?branch=master)](https://travis-ci.org/leek-wars/leekscript)
 [![Coverage Status](https://coveralls.io/repos/github/leek-wars/leekscript/badge.svg?branch=master)](https://coveralls.io/github/leek-wars/leekscript?branch=master)
