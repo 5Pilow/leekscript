@@ -47,11 +47,11 @@ Run `make analyzer-web` to build the analyzer to target browsers in *WebAssembly
 
 ## Usage
 After [building](#building), enter a LeekScript top-level (REPL):
-```
+```bash
 leekscript
 ```
 Execute a file or a code snippet:
-```
+```bash
 leekscript my_file.leek
 leekscript "[5, 6, 7] ~~ x -> x ** 2"
 ```
@@ -78,7 +78,7 @@ Option                              | Description
 ---
 
 ## Tests, coverage, Valgrind, benchmark, doc
-```shell
+```bash
 make test
 make coverage # test coverage by gcov + lcov
 make valgrind # valgrind default tool
@@ -93,6 +93,7 @@ make doc
 * [LLVM](https://llvm.org/) Version 8.0.0
 * [GNU MP](https://gmplib.org/), by Torbjörn Granlund, under GPL license
 * [JSON for modern C++](https://github.com/nlohmann/json), by Niels Lohmann, under MIT license
+* [CLI11](https://github.com/CLIUtils/CLI11), by Henry Schreinern under NSF AWARD 1414736
 
 ---
 
