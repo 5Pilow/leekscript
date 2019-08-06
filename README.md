@@ -36,10 +36,7 @@ make
 The executable `leekscript` is in the `build/` folder.
 
 ### Shared library
-```
-make lib
-```
-`libleekscript.so` will be in `build/` folder. You can `make install` to copy it in `/usr/lib/`.
+Use `make lib` to build `libleekscript.so` in `build/` folder. You can use `sudo make install` to copy it in `/usr/lib/` and make it available everywhere.
 
 ### WebAssembly analyzer
 Run `make analyzer-web` to build the analyzer to target browsers in *WebAssembly*. Try it by running a small web server with `python tool/wasm_server.py` and browsing the link. Then check the **console** for the output result.
