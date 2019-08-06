@@ -12,11 +12,12 @@ LeekScript is a dynamically typed, compiled just-in-time programming language in
 
 ## Contents
 1. [Demonstration](#demonstration) - try it online
-2. [Building](#building) - build instructions
-3. [Usage](#usage) - usage
+2. [Building](#building) - build instructions \
+  2.1 [Shared library](#shared-library) - build and use \
+  2.2 [WebAssembly](#webassembly) - build analyzer for the web
+3. [Usage](#usage) - usage \
   3.1 [Command-line options](#command-line-options) - CLI options description
 4. [Tests](#tests-coverage-valgrind-benchmark-doc) - run tests and more
-5. [WebAssembly](#webassembly) - webassembly build and demo
 6. [Libraries](#libraries-used) - check library dependencies
 7. [License](#license) - license information
 ---
@@ -33,16 +34,19 @@ make
 ```
 The executable `leekscript` is in the `build/` folder.
 
-Export as shared library
+### Shared library
 ```
 make lib
 ```
 `libleekscript.so` will be in `build/` folder. You can `make install` to copy it in `/usr/lib/`.
 
+### WebAssembly analyzer
+Run `make analyzer-web` to build the analyzer to target browsers in *WebAssembly*. Try it by running a small web server with `python tool/wasm_server.py` and browsing the link. Then check the **console** for the output result.
+
 ---
 
 ## Usage
-Enter a LeekScript top-level (REPL):
+After [building](#building), enter a LeekScript top-level (REPL):
 ```
 leekscript
 ```
@@ -54,6 +58,7 @@ leekscript "[5, 6, 7] ~~ x -> x ** 2"
 
 ### Command-line options
 The following command-line options are available when calling `leekscript` command:
+
 Option                              | Description
 ----------------------------------- | --------------------------------------------
 `-b` \| `-B` \| `--bitcode`         | Output the program's bitcode file (LLVM's `.bc` file).
@@ -81,11 +86,6 @@ make callgrind # valgrind callgrind tool
 make benchmark
 make doc
 ```
-
----
-
-## WebAssembly build
-Run `make analyzer-web` to build the analyzer to target browsers in *WebAssembly*. Try it by running a small web server with `python tool/wasm_server.py` and browsing the link. Then check the console for the output result.
 
 ---
 
