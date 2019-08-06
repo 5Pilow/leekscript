@@ -12,14 +12,11 @@ LeekScript is a dynamically typed, compiled just-in-time programming language in
 
 ---
 
-Demonstration
-----
+## Demonstration
 
 Play with online editor at https://leekscript.com/editor including syntax highlighting, smart completion and execution.
 
-Building
---------
-
+## Building
 ```
 make
 ```
@@ -31,8 +28,7 @@ make lib
 ```
 `libleekscript.so` will be in `build/` folder. You can `make install` to copy it in `/usr/lib/`.
 
-Usage
------
+## Usage
 Run a LeekScript top-level
 ```
 leekscript
@@ -54,8 +50,7 @@ Option | Effect
 -p -P --pseudo-code  | Print JIT pseudo code
 -l -L --legacy | Use legacy mode  (LeekScript v1)
 
-Tests, coverage, Valgrind, benchmark, doc
-------------------
+## Tests, coverage, Valgrind, benchmark, doc
 ```shell
 make test
 make coverage # test coverage by gcov + lcov
@@ -68,13 +63,10 @@ make doc
 ## WebAssembly build
 Run `make analyzer-web` to build the analyzer to target browsers in *WebAssembly*. Try it by running a small web server with `python tool/wasm_server.py` and browsing the link. Then check the console for the output result.
 
-Libraries used
---------------
+## Libraries used
 * [LLVM](https://llvm.org/) Version 8.0.0
 * [GNU MP](https://gmplib.org/), by Torbjörn Granlund, under GPL license
 * [JSON for modern C++](https://github.com/nlohmann/json), by Niels Lohmann, under MIT license
 
-License
--------
-
+## License
 Distributed under the GPL3 license. Copyright (c) 2016-2019, Pierre Lauprêtre
