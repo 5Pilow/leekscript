@@ -13,7 +13,8 @@ LeekScript is a dynamically typed, compiled just-in-time programming language in
 ## Contents
 1. [Demonstration](#demonstration) - try it online
 2. [Building](#building) - build instructions
-3. [Usage](#usage) - usage and CLI options
+3. [Usage](#usage) - usage
+  3.1 [Command-line options](#command-line-options) - CLI options description
 4. [Tests](#tests-coverage-valgrind-benchmark-doc) - run tests and more
 5. [WebAssembly](#webassembly) - webassembly build and demo
 6. [Libraries](#libraries-used) - check library dependencies
@@ -50,17 +51,24 @@ Execute a file or a code snippet
 leekscript my_file.leek
 leekscript "[5, 6, 7] ~~ x -> x ** 2"
 ```
-Option | Effect
------- | ------
--v -V --version	| Print the current version
--e -E --example | Output an example code
--j -J --json	| Get the result in JSON format
--t -T --time	| Print execution time and operations
--d -D --debug | Print debug information like types
--n -N --no-operations | Disable operations counting
--a -A --assembly  | Print assembly of LeekScript code
--p -P --pseudo-code  | Print JIT pseudo code
--l -L --legacy | Use legacy mode  (LeekScript v1)
+
+### Command-line options
+The following command-line options are available when calling `leekscript` command:
+Option                              | Description
+----------------------------------- | --------------------------------------------
+`-b` \| `-B` \| `--bitcode`         | Output the program's bitcode file (LLVM's `.bc` file).
+`-c` \| `-C` \| `--execute_bitcode` | Execute input as a bitcode file (LLVM's `.bc` file).
+`-d` \| `-D` \| `--debug`           | Print debug information : types.
+`-e` \| `-E` \| `--example`         | Output a simple one-liner example code.
+`-f` \| `-F` \| `--format`          | Output the program nicely-formatted.
+`-i` \| `-I` \| `--intermediate`    | Output the program's intermediate representation (LLVM's `.ll` file).
+`-j` \| `-J` \| `--json`	        | Get all the results in JSON format.
+`-l` \| `-L` \| `--legacy`          | Use legacy mode (LeekScript 1.0): enable old functions, arrays and other behaviors.
+`-o` \| `-O` \| `--operations`      | Enable operations counter and limit to 20 millions.
+`-O<level>`                         | Optimization level.
+`-r` \|  `-R` \| `--execute_ir`     | Execute input as an IR file (LLVM's `.ll` file).
+`-t` \| `-T` \| `--time`	        | Print compilation and execution time and operations (if enabled).
+`-v` \| `-V` \| `--version`         | Print the current version.
 
 ---
 
