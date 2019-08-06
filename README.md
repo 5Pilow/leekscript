@@ -42,11 +42,11 @@ make lib
 ---
 
 ## Usage
-Run a LeekScript top-level
+Enter a LeekScript top-level (REPL):
 ```
 leekscript
 ```
-Execute a file or a code snippet
+Execute a file or a code snippet:
 ```
 leekscript my_file.leek
 leekscript "[5, 6, 7] ~~ x -> x ** 2"
