@@ -93,12 +93,16 @@ make benchmark
 ---
 
 ## Troubleshooting
+
 ### Valgrind
 To help debugging, you can use `valgrind` with the following commands:
 ```bash
 make valgrind  # valgrind default tool
 make callgrind # valgrind callgrind tool
 ```
+For a detailed and more technical list of troubleshooting entries, read [document/troubleshooting.md](document/troubleshooting.md).
+
+If you don't find any answer in these documents, check [issues](https://github.com/leek-wars/leekscript/issues) page on GitHub and feel free to post a new one.
 
 ---
 
