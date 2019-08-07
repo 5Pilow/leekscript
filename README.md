@@ -55,23 +55,24 @@ leekscript "[5, 6, 7] ~~ x -> x ** 2"
 ```
 
 ### Command-line options
-The following command-line options are available when calling `leekscript` command:
+The following command-line options are available when calling `leekscript` command. You can use multiple option by combining them (example: `leekscript -dijt`).
 
 Option                              | Description
 ----------------------------------- | --------------------------------------------
-`-b` \| `-B` \| `--bitcode`         | Output the program's bitcode file (LLVM's `.bc` file).
-`-c` \| `-C` \| `--execute_bitcode` | Execute input as a bitcode file (LLVM's `.bc` file).
-`-d` \| `-D` \| `--debug`           | Print debug information : types.
-`-e` \| `-E` \| `--example`         | Output a simple one-liner example code.
-`-f` \| `-F` \| `--format`          | Output the program nicely-formatted.
-`-i` \| `-I` \| `--intermediate`    | Output the program's intermediate representation (LLVM's `.ll` file).
-`-j` \| `-J` \| `--json`	        | Get all the results in JSON format.
-`-l` \| `-L` \| `--legacy`          | Use legacy mode (LeekScript 1.0): enable old functions, arrays and other behaviors.
-`-o` \| `-O` \| `--operations`      | Enable operations counter and limit to 20 millions.
+`-b` \| `--bitcode`         | Output the program's bitcode file (LLVM's `.bc` file).
+`-c` \| `--execute_bitcode` | Execute input as a bitcode file (LLVM's `.bc` file).
+`-d` \| `--debug`           | Print debug information : types.
+`-e` \| `--example`         | Output a simple one-liner example code.
+`-f` \| `--format`          | Output the program nicely-formatted.
+`-h` \| `--help`            | Display help.
+`-i` \| `--intermediate`    | Output the program's intermediate representation (LLVM's `.ll` file).
+`-j` \| `--json`	        | Get all the results in JSON format.
+`-l` \| `--legacy`          | Use legacy mode (LeekScript 1.0): enable old functions, arrays and other behaviors.
+`-o` \| `--operations`      | Enable operations counter and limit to 20 millions.
 `-O<level>`                         | Optimization level.
-`-r` \|  `-R` \| `--execute_ir`     | Execute input as an IR file (LLVM's `.ll` file).
-`-t` \| `-T` \| `--time`	        | Print compilation and execution time and operations (if enabled).
-`-v` \| `-V` \| `--version`         | Print the current version.
+`-r` \|  `--execute_ir`     | Execute input as an IR file (LLVM's `.ll` file).
+`-t` \| `--time`	        | Print compilation and execution time and operations (if enabled).
+`-v` \| `--version`         | Print the current version.
 
 ---
 
