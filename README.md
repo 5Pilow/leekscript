@@ -15,7 +15,7 @@ LeekScript is a dynamically typed, compiled just-in-time programming language in
   2.2 [WebAssembly](#webassembly) - build analyzer for the web
 3. [Usage](#usage) - usage \
   3.1 [Command-line options](#command-line-options) - CLI options description
-4. [Tests](#tests-coverage-valgrind-benchmark-doc) - run tests and more
+4. [Tests](#tests) - run tests, coverage, benchmark and more
 5. [Projects using LeekScript](#projects-using-leekscript) - discover projects using LeekScript language
 6. [Libraries](#libraries-used) - check library dependencies
 7. [License](#license) - license information
@@ -74,14 +74,30 @@ Option                              | Description
 
 ---
 
-## Tests, coverage, Valgrind, benchmark, doc
+## Tests
+LeekScript has a large set of tests to validate parsing, compilation and execution. They are located in the `test/` folder. They can run on multiple threads to speed-up testing process. Simply use the following command to run all the tests on your machine:
 ```bash
 make test
-make coverage # test coverage by gcov + lcov
-make valgrind # valgrind default tool
-make callgrind # valgrind callgrind tool
+```
+### Coverage
+You can also get a test coverage report, using `gcov` + `lcov` tools. This build will be unoptimized (`-O0`) to be able to get line coverage properly. Use the following command then browse `build/html/index.html` to inspect the HTML test coverage report:
+```
+make coverage
+```
+### Benchmark
+Build and run the benchmark comparing the performance of **LeekScript** against **C**, **Java** and **Python** for several algorithms:
+```bash
 make benchmark
-make doc
+```
+
+---
+
+## Troubleshooting
+### Valgrind
+To help debugging, you can use `valgrind` with the following commands:
+```bash
+make valgrind  # valgrind default tool
+make callgrind # valgrind callgrind tool
 ```
 
 ---
