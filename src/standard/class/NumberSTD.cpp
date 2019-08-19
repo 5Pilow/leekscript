@@ -125,6 +125,7 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{env.real, env.real, env.real, ADDR(div_eq_real), THROWS, {}, true}
 	});
 	operator_("\\", {
+		{env.real, env.real, env.integer, ADDR(int_div_val_val)},
 		{env.long_, env.long_ , env.long_, ADDR(int_div_val_val)},
 		{env.integer, env.integer, env.integer, ADDR(int_div_val_val)},
 	});

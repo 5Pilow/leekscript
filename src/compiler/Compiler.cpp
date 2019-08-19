@@ -654,6 +654,9 @@ Compiler::value Compiler::insn_int_div(Compiler::value a, Compiler::value b) {
 	assert(a.t->llvm(*this) == a.v->getType());
 	assert(b.t->llvm(*this) == b.v->getType());
 	assert(a.t->is_primitive() && b.t->is_primitive());
+	if (a.t->is_real() or b.t->is_real()) {
+		return {builder.CreateSDiv(to_int(a).v, to_int(b).v), env.integer};
+	}
 	if (a.t->is_long() or b.t->is_long()) {
 		return {builder.CreateSDiv(to_long(a).v, to_long(b).v), env.long_};
 	}
