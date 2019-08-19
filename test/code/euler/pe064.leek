@@ -1,45 +1,11 @@
-let period = function(n) {
-	var s = n.sqrt()
-	var seq = []
-	for (var i = 0; i < 15; ++i) {
-		var a = s.floor()
-		if a == s return 0
-		seq += a
-		s = 1 / (s - a)
+let period = n => {
+	var s = n.sqrt(), a0 = s.int()
+	if (n == a0 * a0) return 0
+	var a = a0 var b = 1 var l = 0 // TODO with commas
+	while ++l {
+		b = (n - a * a) \ b
+		a = b * ((s + a) \ b) - a
+		if (a == a0 and b == 1) return l
 	}
-	System.print(seq)
-	var p = 0
-	var b = [0]
-	for (var l = 1; l <= 5; ++l) {
-		var bb = []
-		for (var i = 0; i < l; ++i) bb += b
-		if seq[1:l] == bb continue
-		for (var i = 1; i < seq.size() / l - 1; ++i) {
-			if seq[i*l+1:(i+1)*l] != seq[1:l] continue 2
-		}
-		p = l
-		b = seq[1:l]
-	}
-	return p
 }
-
-var c = 0
-
-for (var i = 1; i <= 13; ++i) {
-	var p = period(i)
-	if p != 0 && p % 2 == 1 {
-		c++
-		System.print(i + " => " + p)
-	}
-	
-}
-
-c
-
-/*
-
-sqrt(23) = 4.79
-		 = 4 + 0.79
-		 = 4 + (1 / 1.26)
-		 = 4 + (1 / (1 + 0.26))
-		 = 4 + (1 / (1 + (1 / 3.76)))
+[2..10000].filter(i => period(i) % 2).size()
