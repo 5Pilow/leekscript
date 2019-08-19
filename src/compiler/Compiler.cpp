@@ -453,6 +453,8 @@ Compiler::value Compiler::insn_sub(Compiler::value a, Compiler::value b) {
 		return insn_invoke(env.any, {insn_to_any(a), insn_to_any(b)}, "Value.operator-");
 	} else if (a_type->is_real() or b_type->is_real()) {
 		return {builder.CreateFSub(to_real(a).v, to_real(b).v), env.real};
+	} else if (a_type->is_long() or b_type->is_long()) {
+		return {builder.CreateSub(to_long(a).v, to_long(b).v), env.long_};
 	} else {
 		return {builder.CreateSub(to_int(a).v, to_int(b).v), env.integer};
 	}
