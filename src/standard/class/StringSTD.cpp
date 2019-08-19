@@ -11,6 +11,7 @@
 #if COMPILER
 #include "../../vm/value/LSNumber.hpp"
 #include "../../vm/value/LSArray.hpp"
+#include "../../vm/value/LSMap.hpp"
 #include "../../vm/VM.hpp"
 #endif
 
@@ -136,6 +137,9 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 	method("fold", {
 		{env.any, {env.string, fold_fun_type, env.any}, ADDR(fold_fun)},
 		{env.any, {env.string, fold_clo_type, env.any}, ADDR(fold_fun)},
+	});
+	method("frequencies", {
+		{Type::map(env.integer, env.integer), {env.const_string}, ADDR((void*) frequencies)}
 	});
 	method("indexOf", {
 		{env.integer, {env.string, env.string}, ADDR((void*) string_indexOf)},
@@ -532,6 +536,15 @@ LSValue* StringSTD::string_left(LSString* string, int pos) {
 }
 LSValue* StringSTD::string_left_tmp(LSString* string, int pos) {
 	return &string->operator = (string->substr(0, std::max(0, pos)));
+}
+
+LSMap<int, int>* StringSTD::frequencies(LSString* string) {
+	auto frequencies = new LSMap<int, int>();
+	for (char c : *string) {
+		frequencies->operator[] (c)++;
+	}
+	LSValue::delete_temporary(string);
+	return frequencies;
 }
 
 #endif

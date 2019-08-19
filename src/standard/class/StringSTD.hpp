@@ -37,6 +37,8 @@ public:
 
 	static Compiler::value plus_mpz_tmp(Compiler& c, std::vector<Compiler::value> args, int);
 
+	static LSMap<int, int>* frequencies(LSString* string);
+
 	#endif
 };
 
