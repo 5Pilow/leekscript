@@ -98,6 +98,7 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 		{env.string, env.mpz_ptr, env.tmp_string, ADDR((void*) plus_mpz)},
 		{env.string, env.tmp_mpz_ptr, env.tmp_string, ADDR(plus_mpz_tmp)},
 		{env.string, env.real, env.tmp_string, ADDR((void*) add_real)},
+		{env.string, env.long_, env.tmp_string, ADDR((void*) add_long)},
 		{env.string, env.integer, env.tmp_string, ADDR((void*) add_int)},
 		{env.string, env.boolean, env.tmp_string, ADDR((void*) add_bool)},
 	});
@@ -260,6 +261,15 @@ LSString* StringSTD::add_int_r(int i, LSString* s) {
 		return s;
 	} else {
 		return new LSString(std::to_string(i) + *s);
+	}
+}
+
+LSString* StringSTD::add_long(LSString* s, long i) {
+	if (s->refs == 0) {
+		s->append(std::to_string(i));
+		return s;
+	} else {
+		return new LSString(*s + std::to_string(i));
 	}
 }
 
