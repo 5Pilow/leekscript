@@ -40,7 +40,7 @@ FLAGS := -std=c++17
 FLAGS_COMPILER := -Wno-pmf-conversions
 FLAGS_TEST := -fopenmp
 SANITIZE_FLAGS := -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -fsanitize=float-divide-by-zero # -fsanitize=float-cast-overflow
-LIBS := -lm -lgmp -lstdc++fs `llvm-config --cxxflags --ldflags --system-libs --libs core orcjit native`
+LIBS := -lm -lgmp -lstdc++fs `llvm-config-8 --cxxflags --ldflags --system-libs --libs core orcjit native`
 MAKEFLAGS += --jobs=$(shell nproc)
 
 CLOC_EXCLUDED := .git,lib,build,doxygen
