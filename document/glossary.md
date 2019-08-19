@@ -1,5 +1,10 @@
 # Glossary
 
+## C
+
+### CLI
+Command Line Interface. It's the entrypoint of LeekScript using command-line.
+
 ## E
 
 ### Environment
