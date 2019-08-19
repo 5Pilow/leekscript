@@ -25,7 +25,8 @@ int string_indexOf(LSString* haystack, LSString* needle);
 int string_length(LSString* string);
 LSArray<LSValue*>* string_split(LSString* string, LSString* delimiter);
 bool string_startsWith(const LSString* string, const LSString* starting);
-LSValue* string_substring(LSString* string, int start, int length);
+LSValue* string_substring_1(LSString* string, int start);
+LSValue* string_substring_2(LSString* string, int start, int length);
 LSValue* string_toLower(LSString* string);
 LSValue* string_toUpper(LSString* string);
 LSValue* string_toArray(const LSString* string);
@@ -176,7 +177,8 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 		{env.tmp_string, {env.tmp_string, env.integer}, ADDR((void*) string_right_tmp)},
 	});
 	method("substring", {
-		{env.tmp_string, {env.string, env.const_integer, env.const_integer}, ADDR((void*) string_substring)},
+		{env.tmp_string, {env.string, env.const_integer}, ADDR((void*) string_substring_1)},
+		{env.tmp_string, {env.string, env.const_integer, env.const_integer}, ADDR((void*) string_substring_2)},
 	});
 	method("toArray", {
 		{Type::tmp_array(env.any), {env.string}, ADDR((void*) string_toArray)},
@@ -441,7 +443,14 @@ bool string_startsWith(const LSString* string, const LSString* starting) {
 	return r;
 }
 
-LSValue* string_substring(LSString* string, int start, int length) {
+LSValue* string_substring_1(LSString* string, int start) {
+	LSValue* r = new LSString(string->substr(start));
+	if (string->refs == 0) {
+		delete string;
+	}
+	return r;
+}
+LSValue* string_substring_2(LSString* string, int start, int length) {
 	LSValue* r = new LSString(string->substr(start, length));
 	if (string->refs == 0) {
 		delete string;
