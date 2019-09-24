@@ -19,6 +19,7 @@ public:
 
 	static LSArray<LSValue*>* chunk_1_ptr(LSArray<LSValue*>* array);
 	static LSArray<LSValue*>* chunk_1_int(LSArray<int>* array);
+	static LSArray<LSValue*>* chunk_1_long(LSArray<long>* array);
 	static LSArray<LSValue*>* chunk_1_float(LSArray<double>* array);
 
 	static LSValue* sub(LSArray<LSValue*>* array, int begin, int end);

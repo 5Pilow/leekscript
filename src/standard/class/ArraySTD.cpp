@@ -74,15 +74,18 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	method("average", {
 		{env.real, {Type::const_array(env.void_)}, ADDR((void*) &LSArray<LSValue*>::ls_average)},
 		{env.real, {Type::const_array(env.real)}, ADDR((void*) &LSArray<double>::ls_average)},
+		{env.real, {Type::const_array(env.long_)}, ADDR((void*) &LSArray<long>::ls_average)},
 		{env.real, {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_average)},
 	});
 
 	method("chunk", {
 		{Type::array(env.array), {Type::const_array(env.void_)}, ADDR((void*) chunk_1_ptr)},
 		{Type::array(Type::array(env.real)), {Type::const_array(env.real)}, ADDR((void*) chunk_1_float)},
+		{Type::array(Type::array(env.long_)), {Type::const_array(env.long_)}, ADDR((void*) chunk_1_long)},
 		{Type::array(Type::array(env.integer)), {Type::const_array(env.integer)}, ADDR((void*) chunk_1_int)},
 		{Type::array(env.array), {Type::const_array(env.void_), env.const_integer}, ADDR((void*) &LSArray<LSValue*>::ls_chunk)},
 		{Type::array(Type::array(env.real)), {Type::const_array(env.real), env.const_integer}, ADDR((void*) &LSArray<double>::ls_chunk)},
+		{Type::array(Type::array(env.long_)), {Type::const_array(env.long_), env.const_integer}, ADDR((void*) &LSArray<long>::ls_chunk)},
 		{Type::array(Type::array(env.integer)), {Type::const_array(env.integer), env.const_integer}, ADDR((void*) &LSArray<int>::ls_chunk)},
     });
 
@@ -98,6 +101,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	method("contains", {
 		{env.boolean, {Type::const_array(env.any), env.const_any}, ADDR((void*) &LSArray<LSValue*>::ls_contains)},
 		{env.boolean, {Type::const_array(env.real), env.const_real}, ADDR((void*) &LSArray<double>::ls_contains)},
+		{env.boolean, {Type::const_array(env.long_), env.const_long}, ADDR((void*) &LSArray<long>::ls_contains)},
 		{env.boolean, {Type::const_array(env.integer), env.const_integer}, ADDR((void*) &LSArray<int>::ls_contains)},
 	});
 
@@ -112,12 +116,14 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	method("max", {
 		{env.any, {Type::const_array(env.void_)}, ADDR((void*) &LSArray<LSValue*>::ls_max), THROWS},
 		{env.real, {Type::const_array(env.real)}, ADDR((void*) &LSArray<double>::ls_max), THROWS},
-		{env.integer, {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_max), THROWS}
+		{env.long_, {Type::const_array(env.long_)}, ADDR((void*) &LSArray<long>::ls_max), THROWS},
+		{env.integer, {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_max), THROWS},
 	});
 
 	method("min", {
 		{env.any, {Type::const_array(env.void_)}, ADDR((void*) &LSArray<LSValue*>::ls_min), THROWS},
 		{env.real, {Type::const_array(env.real)}, ADDR((void*) &LSArray<double>::ls_min), THROWS},
+		{env.long_, {Type::const_array(env.long_)}, ADDR((void*) &LSArray<long>::ls_min), THROWS},
 		{env.integer, {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_min), THROWS}
 	});
 
@@ -133,6 +139,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	method("unique", {
 		{env.array, {env.array}, ADDR((void*) &LSArray<LSValue*>::ls_unique)},
 		{Type::array(env.real), {Type::array(env.real)}, ADDR((void*) &LSArray<double>::ls_unique)},
+		{Type::array(env.long_), {Type::array(env.long_)}, ADDR((void*) &LSArray<long>::ls_unique)},
 		{Type::array(env.integer), {Type::array(env.integer)}, ADDR((void*) &LSArray<int>::ls_unique)},
 	});
 
@@ -141,6 +148,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	method("sort", {
 		{env.array, {env.array}, ADDR((void*) &LSArray<LSValue*>::ls_sort)},
 		{Type::array(env.real), {Type::array(env.real)}, ADDR((void*) &LSArray<double>::ls_sort)},
+		{Type::array(env.long_), {Type::array(env.long_)}, ADDR((void*) &LSArray<long>::ls_sort)},
 		{Type::array(env.integer), {Type::array(env.integer)}, ADDR((void*) &LSArray<int>::ls_sort)},
 		{Type::array(sT), {Type::array(sT), Type::fun_object(env.boolean, {sT, sT})}, ADDR(sort)}
 	});
@@ -230,12 +238,14 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	method("pop", {
 		{env.tmp_any, {env.array}, ADDR((void*) &LSArray<LSValue*>::ls_pop), THROWS},
 		{env.real, {Type::array(env.real)}, ADDR((void*) &LSArray<double>::ls_pop), THROWS},
+		{env.long_, {Type::array(env.long_)}, ADDR((void*) &LSArray<long>::ls_pop), THROWS},
 		{env.integer, {Type::array(env.integer)}, ADDR((void*) &LSArray<int>::ls_pop), THROWS},
 	});
 
 	method("product", {
 		{env.real, {Type::array(env.real)}, ADDR((void*) &LSArray<double>::ls_product)},
-		{env.integer, {Type::array(env.integer)}, ADDR((void*) &LSArray<int>::ls_product)}
+		{env.long_, {Type::array(env.long_)}, ADDR((void*) &LSArray<long>::ls_product)},
+		{env.integer, {Type::array(env.integer)}, ADDR((void*) &LSArray<int>::ls_product)},
 	});
 
 	auto pT = env.template_("T");
@@ -370,11 +380,13 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.boolean, {env.array}, ADDR((void*) &LSArray<int>::to_bool)}
 	});
 	auto sort_fun_int = ADDR(&LSArray<int>::ls_sort_fun<LSFunction*>);
+	auto sort_fun_long = ADDR(&LSArray<long>::ls_sort_fun<LSFunction*>);
 	auto sort_fun_real = ADDR(&LSArray<double>::ls_sort_fun<LSFunction*>);
 	auto sort_fun_any = ADDR(&LSArray<LSValue*>::ls_sort_fun<LSFunction*>);
 	method("sort_fun", {
 		{env.array, {env.array, (const Type*) Type::fun_object(env.void_, {})}, (void*) sort_fun_any},
 		{env.array, {env.array, (const Type*) Type::fun_object(env.void_, {})}, (void*) sort_fun_real},
+		{env.array, {env.array, (const Type*) Type::fun_object(env.void_, {})}, (void*) sort_fun_long},
 		{env.array, {env.array, (const Type*) Type::fun_object(env.void_, {})}, (void*) sort_fun_int},
 	});
 
@@ -456,11 +468,12 @@ Compiler::value ArraySTD::size(Compiler& c, std::vector<Compiler::value> args, i
 LSArray<LSValue*>* ArraySTD::chunk_1_ptr(LSArray<LSValue*>* array) {
 	return array->ls_chunk(1);
 }
-
 LSArray<LSValue*>* ArraySTD::chunk_1_int(LSArray<int>* array) {
 	return array->ls_chunk(1);
 }
-
+LSArray<LSValue*>* ArraySTD::chunk_1_long(LSArray<long>* array) {
+	return array->ls_chunk(1);
+}
 LSArray<LSValue*>* ArraySTD::chunk_1_float(LSArray<double>* array) {
 	return array->ls_chunk(1);
 }
@@ -621,6 +634,8 @@ Compiler::value ArraySTD::sort(Compiler& c, std::vector<Compiler::value> args, i
 	const auto& fun = args[1];
 	auto f = [&]() {
 		if (args[0].t->element()->fold()->is_integer()) {
+			return "Array.sort_fun.3";
+		} else if (args[0].t->element()->fold()->is_long()) {
 			return "Array.sort_fun.2";
 		} else if (args[0].t->element()->fold()->is_real()) {
 			return "Array.sort_fun.1";
