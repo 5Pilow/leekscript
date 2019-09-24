@@ -13,6 +13,7 @@ void Test::test_arrays() {
 	code("[]").equals("[]");
 	code("[1]").equals("[1]");
 	code("[1, 2, 3]").equals("[1, 2, 3]");
+	code("[1l, 2l, 3l]").equals("[1, 2, 3]");
 	code("[1.21, -5, 4.55, 12, -6.7]").equals("[1.21, -5, 4.55, 12, -6.7]");
 	code("[true, false, true]").equals("[true, false, true]");
 	code("[23, true, '', {}, 123]").equals("[23, true, '', {}, 123]");
@@ -77,6 +78,8 @@ void Test::test_arrays() {
 	code("let a = [1, 2] a + [3, 4]").equals("[1, 2, 3, 4]");
 	code("let a = ['a'] [3.5, 4.6] + a").equals("[3.5, 4.6, 'a']");
 	code("var pq = [] pq = pq + 1 pq").equals("[1]");
+	code("[1l] + 12l").equals("[1, 12]");
+	code("[] + 12l").equals("[12]");
 
 	section("Array.operator ~");
 	code("let a = [1, 2, 3]; ~a").equals("[3, 2, 1]");
@@ -94,6 +97,7 @@ void Test::test_arrays() {
 	code("|['a', 'b', 'c']|").equals("3");
 	code("[1, 2, |[1, 2, 3]|, 4]").equals("[1, 2, 3, 4]");
 	code("['1', 2, |[1, 2, 3]|, 4]").equals("['1', 2, 3, 4]");
+	code("|[1l, 2l, 3l, 4l]|").equals("4");
 
 	section("Array.operator []");
 	code("[1, 2, 3][1]").equals("2");
@@ -123,6 +127,7 @@ void Test::test_arrays() {
 	code("[1, 2.5][1]").equals("2.5");
 	code("[1, true][0]").equals("1");
 	code("[1, true][1]").equals("true");
+	code("[5l, 7l, 9l][2l]").equals("9");
 
 	section("[] operator on unknown arrays");
 	code("let v = [['a', 'b'], 12] v[0][0]").equals("'a'");
@@ -209,6 +214,7 @@ void Test::test_arrays() {
 	code("[1, 2, 3, 4, 5] ~~ x -> x ** 2").equals("[1, 4, 9, 16, 25]");
 	code("[1.5, 2.5, 3.5] ~~ x -> x.floor()").equals("[1, 2, 3]");
 	code("[1, 2, 3, 4, 5] ~~ (x -> x ** 2)").equals("[1, 4, 9, 16, 25]");
+	code("[1l, 2, 3, 4, 5] ~~ (x -> x ** 2)").equals("[1, 4, 9, 16, 25]");
 	code("['yo', 'toto', 'salut'] ~~ x -> x + ' !'").equals("['yo !', 'toto !', 'salut !']");
 	code("[1, 2, 3] ~~ x -> [x]").equals("[[1], [2], [3]]");
 	code("[1, 2, 3] ~~ x -> 'yo'").equals("['yo', 'yo', 'yo']");
@@ -289,6 +295,7 @@ void Test::test_arrays() {
 
 	section("Array.average()");
 	code("Array.average([1, 2, 3, 4, 5, 6])").equals("3.5");
+	code("Array.average([1l, 2l, 3l, 4l, 5l, 6l])").equals("3.5");
 	code("Array.average([])").equals("0");
 	code("[1, 2, 3, 4, 5, 6].average()").equals("3.5");
 	code("[].average()").equals("0");
@@ -302,10 +309,12 @@ void Test::test_arrays() {
 	code("['ab', 'cd', 'ef'].sum()").equals("'abcdef'");
 	code("['abc', true, 12, [1, 2]].sum()").equals("'abctrue12[1, 2]'");
 	code("[10, -5.7, 30.89, 66].sum()").almost(101.19);
+	code("Array.sum([10, -7, 76])").equals("79");
 
 	section("Array.product()");
 	code("[1, 2, 3, 4].product()").equals("24");
 	code("[1.5, 2.5, 3.5, 4.5].product()").equals("59.0625");
+	code("[3l, 4l, 5l].product()").equals("60");
 
 	section("Array.map()");
 	code("Array.map([1, 2, 3], x -> x ** 2)").equals("[1, 4, 9]");
@@ -337,6 +346,7 @@ void Test::test_arrays() {
 	code("['c', 'a', 'd', 'b'].max()").equals("'d'");
 	code("let a = ['c', 'a', 'e', 'b'] a.max()").equals("'e'");
 	code("[4, 20.5, 1, 4].max()").equals("20.5");
+	code("[4l, 25l, 1l, 4l].max()").equals("25");
 
 	section("Array.min()");
 	code("[].min()").exception(ls::vm::Exception::ARRAY_OUT_OF_BOUNDS);
@@ -346,6 +356,7 @@ void Test::test_arrays() {
 	code("['c', 'a', 'd', 'b'].min()").equals("'a'");
 	code("let a = ['c', 'a', 'e', 'b'] a.min()").equals("'a'");
 	code("[4, 20.5, 1.5, 4].min()").equals("1.5");
+	code("[4l, 20l, -1l, 4l].min()").equals("-1");
 
 	section("Array.chunk()");
 	code("let x = [1, 2, 3, 4] x.chunk(2)").equals("[[1, 2], [3, 4]]");
@@ -354,6 +365,7 @@ void Test::test_arrays() {
 	code("let x = ['a', 'b', 'c', 'd'] x.chunk()").equals("[['a'], ['b'], ['c'], ['d']]");
 	code("let x = [1.6, 2.5, 3.1, 4.67] x.chunk()").equals("[[1.6], [2.5], [3.1], [4.67]]");
 	code("let x = ['hello', x -> x, true, Number] x.chunk()").equals("[['hello'], [<function>], [true], [<class Number>]]");
+	code("let x = [1l, 2l, 3l, 4l] x.chunk(2)").equals("[[1, 2], [3, 4]]");
 
 	section("Array.unique()");
 	code("var x = [1, 1, 2, 2, 1] x.unique() x").equals("[1, 2, 1]");
@@ -362,6 +374,7 @@ void Test::test_arrays() {
 	code("var x = ['a', 'a', 'b'] x.unique() x").equals("['a', 'b']");
 	code("var x = ['a', 'b', 'c'] x.unique() x").equals("['a', 'b', 'c']");
 	code("var x = ['a', 'a', 'b', 'a', 'a'] x.unique() x").equals("['a', 'b', 'a']");
+	code("var x = [1l, 1l, 2l, 2l, 1l] x.unique() x").equals("[1, 2, 1]");
 
 	section("Array.sort()");
 	code("var x = [3, 1, 2] x.sort() x").equals("[1, 2, 3]");
@@ -370,6 +383,7 @@ void Test::test_arrays() {
 	code("var x = [[[]], [[], [], []], [[], []]]; x.sort() x").equals("[[[]], [[], []], [[], [], []]]");
 	code("var x = [[1, 2, 3], [3, 1, 2], [2, 3, 1]]; x.sort() x").equals("[[1, 2, 3], [2, 3, 1], [3, 1, 2]]");
 	code("Array.sort([3, 2, 1])").equals("[1, 2, 3]");
+	code("var x = [3l, 1l, 2l] x.sort() x").equals("[1, 2, 3]");
 
 	section("Array.sort(<callback>)");
 	code("[5, 1, 3, 2, 4].sort((a, b) => a < b)").equals("[1, 2, 3, 4, 5]");
@@ -386,6 +400,7 @@ void Test::test_arrays() {
 	code("let f = (x, y) => x < y ['a', 'b', 'c', 'd', 'e'].sort(f)").equals("['a', 'b', 'c', 'd', 'e']");
 	code("[{a: 5, b: 7}, {a: 12, b: 1}, {a: 9, b: 4}].sort((x, y) -> x.a < y.a)").equals("[{a: 5, b: 7}, {a: 9, b: 4}, {a: 12, b: 1}]");
 	code("[{a: 5, b: 7}, {a: 12, b: 1}, {a: 9, b: 4}].sort((x, y) -> x.b < y.b)").equals("[{a: 12, b: 1}, {a: 9, b: 4}, {a: 5, b: 7}]");
+	code("[5l, 1l, 3l, 2l, 4l].sort((a, b) => a < b)").equals("[1, 2, 3, 4, 5]");
 
 	section("Array.filter()");
 	code("Array.filter([1, 2, 3, 10, true, 'yo'], x -> x > 2)").equals("[3, 10, 'yo']");
@@ -393,6 +408,7 @@ void Test::test_arrays() {
 	code("[1, 2, 3, 4, 5, 6, 7].filter(x -> x % 2 == 0)").equals("[2, 4, 6]");
 	code("let a = [3, 4, 5] a.filter(x -> x < 5)").equals("[3, 4]");
 	code("let a = ['a', 'b', 'a'] a.filter(x -> x == 'a')").equals("['a', 'a']");
+	code("[1l, 2l, 3l, 4l, 5l, 6l, 7l].filter(x -> x > 3)").equals("[4, 5, 6, 7]");
 
 	section("Array.contains()");
 	code("Array.contains([1, 2, 3, 10, 1], 1)").equals("true");
