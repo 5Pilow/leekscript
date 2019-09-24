@@ -52,6 +52,7 @@ const Type* Array_type::iterator() const {
 	const auto merged = _element->fold();
 	if (merged->is_bool()) return env.i8->pointer();
 	if (merged->is_integer()) return env.integer->pointer();
+	if (merged->is_long()) return env.long_->pointer();
 	if (merged->is_real()) return env.real->pointer();
 	return env.any->pointer();
 }

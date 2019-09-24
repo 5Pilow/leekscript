@@ -213,10 +213,12 @@ Compiler::value Compiler::new_array(const Type* element_type, std::vector<Compil
 		return insn_call(array_type, {new_integer(elements.size())}, "Array.new.0");
 	} else if (folded_type->is_integer()) {
 		return insn_call(array_type, {new_integer(elements.size())}, "Array.new.1");
-	} else if (folded_type->is_real()) {
+	} else if (folded_type->is_long()) {
 		return insn_call(array_type, {new_integer(elements.size())}, "Array.new.2");
-	} else {
+	} else if (folded_type->is_real()) {
 		return insn_call(array_type, {new_integer(elements.size())}, "Array.new.3");
+	} else {
+		return insn_call(array_type, {new_integer(elements.size())}, "Array.new.4");
 	}}();
 	for (const auto& element : elements) {
 		auto v = insn_move(insn_convert(element, folded_type));
@@ -1100,11 +1102,13 @@ void Compiler::insn_push_array(Compiler::value array, Compiler::value value) {
 		insn_call(env.void_, {array, value}, "Array.vpush.0");
 	} else if (element_type->is_integer()) {
 		insn_call(env.void_, {array, value}, "Array.vpush.1");
+	} else if (element_type->is_long()) {
+		insn_call(env.void_, {array, value}, "Array.vpush.2");
 	} else if (element_type->is_real()) {
 		value.t = env.real;
-		insn_call(env.void_, {array, value}, "Array.vpush.2");
+		insn_call(env.void_, {array, value}, "Array.vpush.3");
 	} else {
-		insn_call(env.void_, {array, insn_convert(value, env.any)}, "Array.vpush.3");
+		insn_call(env.void_, {array, insn_convert(value, env.any)}, "Array.vpush.4");
 	}
 }
 

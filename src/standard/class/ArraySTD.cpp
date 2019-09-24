@@ -25,6 +25,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	constructor_({
 		{Type::tmp_array(env.boolean), { env.integer }, ADDR((void*) LSArray<char>::constructor)},
 		{Type::tmp_array(env.integer), {env.integer}, ADDR((void*) LSArray<int>::constructor)},
+		{Type::tmp_array(env.long_), {env.integer}, ADDR((void*) LSArray<long>::constructor)},
 		{Type::tmp_array(env.real), {env.integer}, ADDR((void*) LSArray<double>::constructor)},
 		{Type::tmp_array(env.any), {env.integer}, ADDR((void*) LSArray<LSValue*>::constructor)},
 	});
@@ -67,6 +68,8 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::tmp_array(env.void_), {Type::const_array(env.void_)}, ADDR(ValueSTD::copy)},
 		{Type::tmp_array(env.real), {Type::const_array(env.real)}, ADDR(ValueSTD::copy)},
 		{Type::tmp_array(env.integer), {Type::const_array(env.integer)}, ADDR(ValueSTD::copy)},
+		{Type::tmp_array(env.long_), {Type::const_array(env.long_)}, ADDR(ValueSTD::copy)},
+		{Type::tmp_array(env.boolean), {Type::const_array(env.boolean)}, ADDR(ValueSTD::copy)},
 	});
 	method("average", {
 		{env.real, {Type::const_array(env.void_)}, ADDR((void*) &LSArray<LSValue*>::ls_average)},
@@ -242,6 +245,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	method("vpush", {
 		{env.void_, {Type::array(env.boolean), env.boolean}, ADDR((void*) &LSArray<char>::ls_push)},
 		{env.void_, {Type::array(env.integer), env.integer}, ADDR((void*) &LSArray<int>::ls_push)},
+		{env.void_, {Type::array(env.long_), env.long_}, ADDR((void*) &LSArray<long>::ls_push)},
 		{env.void_, {Type::array(env.real), env.real}, ADDR((void*) &LSArray<double>::ls_push)},
 		{env.void_, {Type::array(env.any), env.any}, ADDR((void*) &LSArray<LSValue*>::push_inc)},
 	});
@@ -623,9 +627,10 @@ Compiler::value ArraySTD::push(Compiler& c, std::vector<Compiler::value> args, i
 	auto fun = [&]() {
 		if (args[0].t->element()->fold()->is_bool()) return "Array.vpush";
 		if (args[0].t->element()->fold()->is_integer()) return "Array.vpush.1";
-		if (args[0].t->element()->fold()->is_real()) return "Array.vpush.2";
+		if (args[0].t->element()->fold()->is_long()) return "Array.vpush.2";
+		if (args[0].t->element()->fold()->is_real()) return "Array.vpush.3";
 		args[1] = c.insn_convert(args[1], c.env.any);
-		return "Array.vpush.3";
+		return "Array.vpush.4";
 	}();
 	c.insn_call(c.env.void_, args, fun);
 	if (flags & NO_RETURN) return { c.env };
