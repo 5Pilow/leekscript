@@ -561,6 +561,15 @@ LSArray<double>* LSArray<T>::to_real_array() const {
 	}
 	return result;
 }
+template <typename T>
+LSArray<long>* LSArray<T>::to_long_array() const {
+	auto result = new LSArray<long>();
+	result->reserve(this->size());
+	for (const auto& e : *this) {
+		result->emplace_back(ls::convert<long>(e));
+	}
+	return result;
+}
 
 template <typename T>
 bool LSArray<T>::next_permutation() {

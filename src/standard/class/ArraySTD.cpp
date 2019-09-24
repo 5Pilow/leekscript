@@ -398,6 +398,9 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	method("int_to_real", {
 		{Type::array(env.any), {Type::array(env.real)}, ADDR((void*) &LSArray<int>::to_real_array)}
 	});
+	method("int_to_long", {
+		{Type::array(env.any), {Type::array(env.long_)}, ADDR((void*) &LSArray<int>::to_long_array)}
+	});
 	method("push_all_fun", {
 		{Type::array(env.any), {Type::array(env.any), Type::array(env.any)}, ADDR((void*) &LSArray<LSValue*>::ls_push_all_ptr)},
 		{Type::array(env.any), {Type::array(env.any), Type::array(env.real)}, ADDR((void*) &LSArray<LSValue*>::ls_push_all_flo)},

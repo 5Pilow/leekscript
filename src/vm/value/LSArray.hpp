@@ -80,6 +80,7 @@ public:
 	LSArray<T>* ls_random(int n);
 	LSArray<LSValue*>* to_any_array() const;
 	LSArray<double>* to_real_array() const;
+	LSArray<long>* to_long_array() const;
 	bool next_permutation();
 
 	/*

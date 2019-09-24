@@ -344,6 +344,13 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 				if (delete_previous) insn_delete(v);
 				return r;
 			}
+		} else if (t->element()->is_long()) {
+			if (v.t->element() == env.integer) {
+				auto r = insn_call(t, {v}, "Array.int_to_long");
+				if (delete_previous) insn_delete_temporary(v);
+				if (delete_previous) insn_delete(v);
+				return r;
+			}
 		} else if (t->element()->is_integer()) {
 			if (v.t->element()->is_real() or v.t->element()->is_polymorphic()) {
 				if (delete_previous) insn_delete(v);
