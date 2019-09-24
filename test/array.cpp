@@ -469,6 +469,14 @@ void Test::test_arrays() {
 	code("Array.foldRight([1.5, 2.0, 2.5], (x, y -> x ** y), 1.5)").equals("533.166813742");
 	code("[1, 2, 3].foldRight((x, acc -> acc.push({w: x})), [])").equals("[{w: 3}, {w: 2}, {w: 1}]");
 
+	section("Array.nextPermutation");
+	code("var a = [] a.nextPermutation() a").equals("[]");
+	code("var a = [1] a.nextPermutation() a").equals("[1]");
+	code("var a = [1, 2, 3, 4, 5] a.nextPermutation() a").equals("[1, 2, 3, 5, 4]");
+	code("var a = [5, 4, 3, 2, 1] a.nextPermutation() a").equals("[1, 2, 3, 4, 5]");
+	code("var a = [1l] a.nextPermutation() a").equals("[1]");
+	code("var a = [1l, 2l, 3l, 4l, 5l] a.nextPermutation() a").equals("[1, 2, 3, 5, 4]");
+
 	section("Array.shuffle()");
 	code("[].shuffle()");
 	code("[1.5, 2.5].shuffle().size()").equals("2");
