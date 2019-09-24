@@ -136,6 +136,7 @@ void Test::test_loops() {
 	code("for (v in [1, 2, 3, 4]) {}").equals("(void)");
 	code("for (v in [1, 2, 3, 4]) do end").equals("(void)");
 	code("var s = 0 for v in [1, 2, 3, 4] { s += v } s").equals("10");
+	code("var s = 0 for v in [1l, 2l, 3l, 4l] { s += v } s").equals("10");
 	code("var s = 0.0 for v in [1.2, 2, 3.76, 4.01] { s += v } s").almost(10.97);
 	code("var s = 0 for v in [1.2, 2, 3.76, 4.01] { s += v } s").almost(10.97);
 	code("var s = '' for v in ['salut ', 'ça ', 'va ?'] { s += v } s").equals("'salut ça va ?'");
