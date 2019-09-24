@@ -325,6 +325,7 @@ void Test::test_arrays() {
 	code("[[5], [1, 2], [4]].map(x => x.sum())").equals("[5, 3, 4]");
 	code("[5, 7, 9, 11].map(x => [[x], [x]]).map(x => x[0] + x[1])").equals("[[5, 5], [7, 7], [9, 9], [11, 11]]");
 	code("[5, 7, 9, 11].map(x => [[x], [x]]).map(x => x[0][0] + x[1][0])").equals("[10, 14, 18, 22]");
+	code("'12,5,1'.split(',').map(x => x.number())").equals("[12, 5, 1]");
 
 	section("Array.map2()");
 	code("Array.map2([1, 'yo ', []], [12, 55, 9], (x, y -> x + y))").equals("[13, 'yo 55', [9]]");
