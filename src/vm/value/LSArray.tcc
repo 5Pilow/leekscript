@@ -563,6 +563,11 @@ LSArray<double>* LSArray<T>::to_real_array() const {
 }
 
 template <typename T>
+bool LSArray<T>::next_permutation() {
+	return std::next_permutation(this->begin(), this->end());
+}
+
+template <typename T>
 inline LSArray<T>* LSArray<T>::ls_reverse() {
 	if (refs == 0) {
 		for (size_t i = 0, j = this->size(); i < j; ++i, --j) {

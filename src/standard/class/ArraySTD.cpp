@@ -190,6 +190,11 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.boolean, {Type::array(env.integer), Type::array(env.integer)}, (void*) perm_int_int},
 	});
 
+	method("nextPermutation", {
+		{env.boolean, {Type::array(env.integer)}, ADDR((void*) &LSArray<int>::next_permutation)},
+		{env.boolean, {Type::array(env.long_)}, ADDR((void*) &LSArray<long>::next_permutation)},
+	});
+
 	method("partition", {
 		{Type::tmp_array(env.void_), {env.array, pred_fun_type}, ADDR(partition)},
 		{Type::tmp_array(env.void_), {Type::array(env.real), pred_fun_type_float}, ADDR(partition)},
