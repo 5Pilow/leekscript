@@ -67,6 +67,10 @@ LSValue* LSValue::get(int v) {
 	return LSNumber::get(v);
 }
 template <>
+LSValue* LSValue::get(long v) {
+	return LSNumber::get(v);
+}
+template <>
 LSValue* LSValue::get(double v) {
 	return LSNumber::get(v);
 }

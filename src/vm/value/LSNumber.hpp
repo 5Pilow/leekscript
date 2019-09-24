@@ -61,6 +61,7 @@ public:
 	bool lt(const LSValue*) const override;
 
 	bool operator == (int value) const override;
+	bool operator == (long value) const override;
 	bool operator == (double value) const override;
 	bool operator < (int value) const override;
 	bool operator < (double value) const override;

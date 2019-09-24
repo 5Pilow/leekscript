@@ -514,7 +514,9 @@ LSValue* LSNumber::double_mod_eq(LSValue* v) {
 bool LSNumber::operator == (int v) const {
 	return value == v;
 }
-
+bool LSNumber::operator == (long v) const {
+	return value == v;
+}
 bool LSNumber::operator == (double v) const {
 	return value == v;
 }

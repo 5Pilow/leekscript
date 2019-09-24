@@ -92,6 +92,7 @@ public:
 		return this->eq(&value);
 	}
 	virtual bool operator == (int) const { return false; }
+	virtual bool operator == (long) const { return false; }
 	virtual bool operator == (double) const { return false; }
 	virtual bool operator < (int) const { return false; }
 	virtual bool operator < (double) const { return false; }
@@ -157,6 +158,7 @@ public:
 
 template <> LSValue* LSValue::get(char v);
 template <> LSValue* LSValue::get(int v);
+template <> LSValue* LSValue::get(long v);
 template <> LSValue* LSValue::get(double v);
 
 inline LSValue* LSValue::clone_inc() {
@@ -282,6 +284,10 @@ namespace ls {
 		return v1->operator == (v2);
 	}
 	template <>
+	inline bool equals(ls::LSValue* v1, long v2) {
+		return v1->operator == (v2);
+	}
+	template <>
 	inline bool equals(ls::LSValue* v1, ls::LSValue* v2) {
 		return v1->operator == (*v2);
 	}
@@ -382,13 +388,21 @@ namespace ls {
 	template <class R, R> R convert(R v) { return v; }
 
 	template <> inline int convert(int v) { return v; }
+	template <> inline long convert(long v) { return v; }
 	template <> inline double convert(double v) { return v; }
 	template <> inline LSValue* convert(LSValue* v) { return v; }
 
 	template <> inline int convert(double v) { return v; }
+	template <> inline int convert(long v) { return v; }
+	template <> inline long convert(int v) { return v; }
+	template <> inline long convert(double v) { return v; }
 	template <> inline double convert(int v) { return v; }
+	template <> inline double convert(long v) { return v; }
 
 	template <> inline LSValue* convert(char v) {
+		return LSValue::get(v);
+	}
+	template <> inline LSValue* convert(long v) {
 		return LSValue::get(v);
 	}
 	template <> inline LSValue* convert(int v) {
