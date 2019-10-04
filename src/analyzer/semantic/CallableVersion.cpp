@@ -3,6 +3,7 @@
 #include "../../type/Meta_add_type.hpp"
 #include "../../type/Meta_mul_type.hpp"
 #include "../../type/Meta_baseof_type.hpp"
+#include "../../type/Meta_temporary_type.hpp"
 #include "../../type/Meta_not_temporary_type.hpp"
 #include "../../standard/Module.hpp"
 #include "../../colors.h"
@@ -92,6 +93,9 @@ const Type* build(const Type* type) {
 			args.push_back(build(t));
 		}
 		return Type::fun_object(build(type->return_type()), args);
+	}
+	if (auto tmp = dynamic_cast<const Meta_temporary_type*>(type)) {
+		return build(tmp->type)->add_temporary();
 	}
 	if (auto not_tmp = dynamic_cast<const Meta_not_temporary_type*>(type)) {
 		return build(not_tmp->type)->not_temporary();

@@ -145,6 +145,7 @@ public:
 	static const Type* meta_add(const Type* t1, const Type* t2);
 	static const Type* meta_mul(const Type* t1, const Type* t2);
 	static const Type* meta_base_of(const Type* type, const Type* base);
+	static const Type* meta_temporary(const Type* type);
 	static const Type* meta_not_temporary(const Type* type);
 };
 
