@@ -133,6 +133,9 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 	method("contains", {
 		{env.boolean, {env.string, env.const_string}, ADDR((void*) string_contains)},
 	});
+	method("count", {
+		{env.integer, {env.const_string, env.const_string}, ADDR((void*) count)}
+	});
 	method("endsWith", {
 		{env.boolean, {env.string, env.string}, ADDR((void*) string_endsWith)},
 	});
@@ -568,6 +571,15 @@ LSMap<int, int>* StringSTD::frequencies(LSString* string) {
 	}
 	LSValue::delete_temporary(string);
 	return frequencies;
+}
+int StringSTD::count(LSString* string, LSString* element) {
+	int count = 0;
+	for (char c : *string) {
+		if (element->operator [] (0) == c) count++;
+	}
+	LSValue::delete_temporary(string);
+	LSValue::delete_temporary(element);
+	return count;
 }
 
 #endif

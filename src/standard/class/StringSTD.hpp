@@ -39,6 +39,7 @@ public:
 
 	static LSMap<int, int>* frequencies(LSString* string);
 	static LSValue* chunk(LSString* string, int size);
+	static int count(LSString* string, LSString* element);
 
 	#endif
 };
