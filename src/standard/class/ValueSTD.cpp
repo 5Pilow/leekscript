@@ -187,12 +187,19 @@ ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
 	auto R = env.template_("R");
 	template_(T, R).
 	operator_("~", {
-		{T, Type::fun(R, {T}), R, ADDR(op_call)},
+		{T, Type::fun(R, {T}), R, ADDR(apply)},
 	});
 
 	/*
 	 * Methods
 	 */
+	auto aT = env.template_("T");
+	auto aR = env.template_("R");
+	template_(aT, aR).
+	method("apply", {
+		{aR, {aT, Type::fun(aR, {aT})}, ADDR(apply)}
+	});
+
 	auto cT = env.template_("T");
 	template_(cT).
 	method("copy", {
@@ -690,9 +697,13 @@ LSValue* ValueSTD::op_swap_ptr(LSValue** x, LSValue** y) {
 	return *x;
 }
 
-Compiler::value ValueSTD::op_call(Compiler& c, std::vector<Compiler::value> args, bool) {
-	auto fun = args[1];
-	return c.insn_call(fun, {args[0]});
+Compiler::value ValueSTD::apply(Compiler& c, std::vector<Compiler::value> args, bool) {
+	auto value = args[0];
+	auto function = args[1];
+	c.insn_inc_refs(value);
+	auto r = c.insn_call(function, {value});
+	c.insn_delete(value);
+	return r;
 }
 
 Compiler::value ValueSTD::copy(Compiler& c, std::vector<Compiler::value> args, bool) {

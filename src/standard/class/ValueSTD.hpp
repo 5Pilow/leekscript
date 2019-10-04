@@ -64,6 +64,7 @@ public:
 	/*
 	 * Methods
 	 */
+	static Compiler::value apply(Compiler& c, std::vector<Compiler::value> args, bool);
 	static Compiler::value copy(Compiler& c, std::vector<Compiler::value> args, bool);
 	static Compiler::value to_string(Compiler& c, std::vector<Compiler::value> args, bool);
 
