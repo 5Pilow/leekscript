@@ -70,13 +70,6 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	/*
 	 * Methods
 	 */
-	method("copy", {
-		{Type::tmp_array(env.void_), {Type::const_array(env.void_)}, ADDR(ValueSTD::copy)},
-		{Type::tmp_array(env.real), {Type::const_array(env.real)}, ADDR(ValueSTD::copy)},
-		{Type::tmp_array(env.integer), {Type::const_array(env.integer)}, ADDR(ValueSTD::copy)},
-		{Type::tmp_array(env.long_), {Type::const_array(env.long_)}, ADDR(ValueSTD::copy)},
-		{Type::tmp_array(env.boolean), {Type::const_array(env.boolean)}, ADDR(ValueSTD::copy)},
-	});
 	method("average", {
 		{env.real, {Type::const_array(env.void_)}, ADDR((void*) &LSArray<LSValue*>::ls_average)},
 		{env.real, {Type::const_array(env.real)}, ADDR((void*) &LSArray<double>::ls_average)},

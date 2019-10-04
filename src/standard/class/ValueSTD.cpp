@@ -193,9 +193,12 @@ ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
 	/*
 	 * Methods
 	 */
+	auto cT = env.template_("T");
+	template_(cT).
 	method("copy", {
-		{env.any, {env.const_any}, ADDR(copy)}
+		{Type::meta_temporary(cT), {cT}, ADDR(copy)}
 	});
+
 	method("string", {
 		{env.string, {env.const_any}, ADDR(to_string)}
 	});
