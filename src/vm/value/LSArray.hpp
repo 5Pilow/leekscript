@@ -69,7 +69,8 @@ public:
 	template <class F, class R, class T2>
 	LSArray<R>* ls_map2(LSArray<T2>*, F function);
 	int ls_search(T needle, int start);
-	LSString* ls_join(LSString* glue);
+	LSString* ls_join();
+	LSString* ls_join_glue(LSString* glue);
 	LSArray<T>* ls_fill(T element, int size);
 	T ls_max();
 	T ls_min();

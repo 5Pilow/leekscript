@@ -714,7 +714,38 @@ int LSArray<T>::ls_search(T needle, int start) {
 }
 
 template <>
-inline LSString* LSArray<LSValue*>::ls_join(LSString* glue) {
+inline LSString* LSArray<LSValue*>::ls_join() {
+	if (this->empty()) {
+		if (refs == 0) delete this;
+		return new LSString();
+	}
+	auto it = this->begin();
+	LSValue* result = new LSString();
+	result = result->add(*it);
+	for (++it; it != this->end(); ++it) {
+		result = result->add(*it);
+	}
+	if (refs == 0) delete this;
+	return (LSString*) result;
+}
+
+template <class T>
+LSString* LSArray<T>::ls_join() {
+	if (this->empty()) {
+		if (refs == 0) delete this;
+		return new LSString();
+	}
+	size_t i = 0;
+	std::string result = LSNumber::print(this->operator[] (i));
+	for (i++; i < this->size(); i++) {
+		result = result + LSNumber::print(this->operator[] (i));
+	}
+	if (refs == 0) delete this;
+	return new LSString(result);
+}
+
+template <>
+inline LSString* LSArray<LSValue*>::ls_join_glue(LSString* glue) {
 	if (this->empty()) {
 		if (refs == 0) delete this;
 		if (glue->refs == 0) delete glue;
@@ -735,7 +766,7 @@ inline LSString* LSArray<LSValue*>::ls_join(LSString* glue) {
 }
 
 template <class T>
-LSString* LSArray<T>::ls_join(LSString* glue) {
+LSString* LSArray<T>::ls_join_glue(LSString* glue) {
 	if (this->empty()) {
 		if (refs == 0) delete this;
 		if (glue->refs == 0) delete glue;

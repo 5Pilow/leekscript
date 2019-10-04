@@ -275,9 +275,12 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	});
 
 	method("join", {
-		{env.string, {Type::const_array(env.void_), env.const_string}, ADDR((void*) &LSArray<LSValue*>::ls_join)},
-		{env.string, {Type::const_array(env.real), env.const_string}, ADDR((void*) &LSArray<double>::ls_join)},
-		{env.string, {Type::const_array(env.integer), env.const_string}, ADDR((void*) &LSArray<int>::ls_join)},
+		{env.string, {Type::const_array(env.void_)}, ADDR((void*) &LSArray<LSValue*>::ls_join)},
+		{env.string, {Type::const_array(env.real)}, ADDR((void*) &LSArray<double>::ls_join)},
+		{env.string, {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_join)},
+		{env.string, {Type::const_array(env.void_), env.const_string}, ADDR((void*) &LSArray<LSValue*>::ls_join_glue)},
+		{env.string, {Type::const_array(env.real), env.const_string}, ADDR((void*) &LSArray<double>::ls_join_glue)},
+		{env.string, {Type::const_array(env.integer), env.const_string}, ADDR((void*) &LSArray<int>::ls_join_glue)},
 	});
 
 	method("json", {
