@@ -42,6 +42,7 @@ public:
 	static Compiler::value push(Compiler&, std::vector<Compiler::value>, int);
 	static Compiler::value filter(Compiler&, std::vector<Compiler::value>, int);
 	static Compiler::value push_all(Compiler&, std::vector<Compiler::value>, int);
+	static Compiler::value repeat(Compiler&, std::vector<Compiler::value>, int);
 
 	static int convert_key(LSValue*);
 
