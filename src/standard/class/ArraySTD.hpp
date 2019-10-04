@@ -32,6 +32,7 @@ public:
 
 	static Compiler::value partition(Compiler&, std::vector<Compiler::value>, int);
 	static Compiler::value map(Compiler&, std::vector<Compiler::value>, int);
+	static Compiler::value min_fun(Compiler& c, std::vector<Compiler::value> args, int flags);
 	static Compiler::value first(Compiler&, std::vector<Compiler::value>, int);
 	static Compiler::value last(Compiler&, std::vector<Compiler::value>, int);
 	static Compiler::value fold_left(Compiler&, std::vector<Compiler::value>, int);

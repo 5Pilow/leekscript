@@ -119,11 +119,14 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.integer, {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_max), THROWS},
 	});
 
+	auto mT = env.template_("T");
+	template_(mT).
 	method("min", {
 		{env.any, {Type::const_array(env.void_)}, ADDR((void*) &LSArray<LSValue*>::ls_min), THROWS},
 		{env.real, {Type::const_array(env.real)}, ADDR((void*) &LSArray<double>::ls_min), THROWS},
 		{env.long_, {Type::const_array(env.long_)}, ADDR((void*) &LSArray<long>::ls_min), THROWS},
-		{env.integer, {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_min), THROWS}
+		{env.integer, {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_min), THROWS},
+		{mT, {Type::array(mT), Type::fun_object(env.integer, {mT})}, ADDR(min_fun)}
 	});
 
 	auto map_fun = ADDR((&LSArray<LSValue*>::ls_map<LSFunction*, LSValue*>));
@@ -611,6 +614,30 @@ Compiler::value ArraySTD::map(Compiler& c, std::vector<Compiler::value> args, in
 	return flags & NO_RETURN ? Compiler::value { c.env } : result;
 }
 
+Compiler::value ArraySTD::min_fun(Compiler& c, std::vector<Compiler::value> args, int flags) {
+	auto array = args[0];
+	auto function = args[1];
+	auto v = Variable::new_temporary("v", array.t->element());
+	v->create_entry(c);
+	auto min_v = Variable::new_temporary("min_v", array.t->element());
+	min_v->create_entry(c);
+	auto min = Variable::new_temporary("min", c.env.integer);
+	min->create_entry(c);
+	min->store_value(c, c.new_integer(std::numeric_limits<int>::max()));
+	c.insn_foreach(array, c.env.void_, v, nullptr, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
+		auto x = c.clone(v);
+		c.insn_inc_refs(x);
+		auto r = c.insn_call(function, {x});
+		// c.insn_call(c.env.void_, {r}, "System.print.5");
+		c.insn_if(c.insn_lt(r, min->get_value(c)), [&]() {
+			min->store_value(c, r);
+			min_v->store_value(c, c.clone(v));
+		});
+		c.insn_delete(x);
+		return { c.env };
+	});
+	return min_v->get_value(c);
+}
 
 Compiler::value ArraySTD::first(Compiler& c, std::vector<Compiler::value> args, int) {
 	auto array = args[0];
