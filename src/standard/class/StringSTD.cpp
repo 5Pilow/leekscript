@@ -127,6 +127,9 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 	method("charAt", {
 		{env.string, {env.const_string, env.const_integer}, ADDR((void*) string_charAt)},
 	});
+	method("chunk", {
+		{Type::array(env.string), {env.const_string, env.const_integer}, ADDR((void*) chunk)}
+	});
 	method("contains", {
 		{env.boolean, {env.string, env.const_string}, ADDR((void*) string_contains)},
 	});
@@ -324,6 +327,17 @@ LSValue* string_charAt(LSString* string, int index) {
 	LSValue* r = new LSString(string->operator[] (index));
 	LSValue::delete_temporary(string);
 	return r;
+}
+
+LSValue* StringSTD::chunk(LSString* string, int size) {
+	auto result = new LSArray<LSValue*>();
+	auto str = string->c_str();
+	auto l = string->size();
+	for (size_t i = 0; i < l; i += size) {
+		result->push_move(new LSString(string->substr(i, size)));
+	}
+	LSValue::delete_temporary(string);
+	return result;
 }
 
 bool string_contains(LSString* haystack, LSString* needle) {
