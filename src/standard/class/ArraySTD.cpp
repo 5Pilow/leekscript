@@ -293,6 +293,8 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	method("fill", {
 		{Type::array(T), {Type::array(env.void_), T}, ADDR(fill), 0, { new ConvertMutator(STORE_ARRAY_SIZE) }},
 		{Type::array(T), {Type::array(env.void_), T, env.const_integer}, ADDR(fill), 0, { new ConvertMutator() }},
+		{Type::tmp_array(T), {Type::tmp_array(env.void_), T}, ADDR(fill), 0, { new ConvertMutator(STORE_ARRAY_SIZE) }},
+		{Type::tmp_array(T), {Type::tmp_array(env.void_), T, env.const_integer}, ADDR(fill), 0, { new ConvertMutator() }},
 	});
 
 	method("insert", {
