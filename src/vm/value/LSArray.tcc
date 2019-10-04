@@ -577,6 +577,18 @@ bool LSArray<T>::next_permutation() {
 }
 
 template <typename T>
+LSArray<T>* LSArray<T>::repeat(int n) const {
+	auto r = new LSArray<T>(this->size() * n);
+	for (size_t i = 0; i < n; ++i) {
+		for (auto& e : *this) {
+			r->push_inc(e);
+		}
+	}
+	LSValue::delete_temporary(this);
+	return r;
+}
+
+template <typename T>
 inline LSArray<T>* LSArray<T>::ls_reverse() {
 	if (refs == 0) {
 		for (size_t i = 0, j = this->size(); i < j; ++i, --j) {

@@ -54,6 +54,12 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::array(pqT), Type::array(pqE), Type::array(Type::meta_add(pqT, pqE)), ADDR(array_add_eq), 0, { new ConvertMutator() }, true},
 	});
 
+	auto mulT = env.template_("T");
+	template_(mulT).
+	operator_("*", {
+		{Type::const_array(mulT), env.integer, Type::tmp_array(mulT), ADDR(repeat)},
+	});
+
 	auto ttE = env.template_("E");
 	auto ttR = env.template_("R");
 	template_(ttE, ttR).
@@ -421,6 +427,12 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::array(env.real), {Type::array(env.real), Type::array(env.integer)}, ADDR((void*) &LSArray<double>::ls_push_all_int)},
 		{Type::array(env.integer), {Type::array(env.integer), Type::array(env.integer)}, ADDR((void*) &LSArray<int>::ls_push_all_int)},
 	});
+	method("repeat_fun", {
+		{Type::tmp_array(env.any), {Type::const_array(env.any), env.integer}, ADDR((void*) &LSArray<LSValue*>::repeat)},
+		{Type::tmp_array(env.real), {Type::const_array(env.real), env.integer}, ADDR((void*) &LSArray<double>::repeat)},
+		{Type::tmp_array(env.long_), {Type::const_array(env.long_), env.integer}, ADDR((void*) &LSArray<long>::repeat)},
+		{Type::tmp_array(env.integer), {Type::const_array(env.integer), env.integer}, ADDR((void*) &LSArray<int>::repeat)},
+	});
 }
 
 #if COMPILER
@@ -644,6 +656,17 @@ Compiler::value ArraySTD::sort(Compiler& c, std::vector<Compiler::value> args, i
 		}
 	}();
 	return c.insn_call(array.t, {array, fun}, f);
+}
+
+
+Compiler::value ArraySTD::repeat(Compiler& c, std::vector<Compiler::value> args, int) {
+	auto fun = [&]() {
+		if (args[0].t->element()->fold()->is_integer()) return "Array.repeat_fun.3";
+		if (args[0].t->element()->fold()->is_long()) return "Array.repeat_fun.2";
+		if (args[0].t->element()->fold()->is_real()) return "Array.repeat_fun.1";
+		return "Array.repeat_fun";
+	}();
+	return c.insn_call(args[0].t->add_temporary(), args, fun);
 }
 
 Compiler::value ArraySTD::push(Compiler& c, std::vector<Compiler::value> args, int flags) {

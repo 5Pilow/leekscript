@@ -82,6 +82,7 @@ public:
 	LSArray<double>* to_real_array() const;
 	LSArray<long>* to_long_array() const;
 	bool next_permutation();
+	LSArray<T>* repeat(int n) const;
 
 	/*
 	 * LSValue methods
