@@ -907,7 +907,7 @@ Compiler::value Compiler::insn_atan2(Compiler::value x, Compiler::value y) {
 	assert(y.t->llvm(*this) == y.v->getType());
 	assert(x.t->is_primitive() && y.t->is_primitive());
 	if (x.t->is_integer() && y.t->is_integer()) {
-		return insn_call(env.integer, {x, y}, "Number.m_atan2");
+		return insn_call(env.real, {x, y}, "Number.m_atan2");
 	}
 	return insn_call(env.real, {to_real(x), to_real(y)}, "Number.m_atan2.2");
 }
