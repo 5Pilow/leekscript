@@ -4,6 +4,7 @@
 #include "../../util/utf8.h"
 #include "../../type/Type.hpp"
 #include "../../environment/Environment.hpp"
+#include <numeric>
 #if COMPILER
 #include "../../compiler/Compiler.hpp"
 #include "../../vm/VM.hpp"
@@ -315,6 +316,11 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 	method("min", {
 		{env.real, {env.any, env.any}, ADDR((void*) min_ptr_ptr), DEFAULT},
 		{Type::meta_mul(minT1, minT2), {minT1, minT2}, ADDR(min)},
+	});
+
+	auto gcd = std::gcd<int, int>;
+	method("gcd", {
+		{env.integer, {env.integer, env.integer}, ADDR((void*) gcd)}
 	});
 
 	method("pow", {
