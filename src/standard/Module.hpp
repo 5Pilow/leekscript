@@ -66,7 +66,7 @@ public:
 
 	void constructor_(std::initializer_list<CallableVersion> methods);
 
-	void method(std::string name, std::initializer_list<CallableVersion> methods, std::vector<const Type*> templates = {}, bool legacy = false);
+	void method(std::string name, std::initializer_list<CallableVersion> methods, int flags = 0, std::vector<const Type*> templates = {});
 
 	void field(std::string name, const Type* type);
 	#if COMPILER

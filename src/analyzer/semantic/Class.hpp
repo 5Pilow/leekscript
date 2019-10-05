@@ -55,7 +55,7 @@ public:
 	Class(Environment& env, std::string name);
 	~Class();
 
-	void addMethod(std::string, std::initializer_list<CallableVersion>, std::vector<const Type*> templates = {}, bool legacy = false);
+	void addMethod(std::string, std::initializer_list<CallableVersion>, std::vector<const Type*> templates = {}, int flags = 0, bool legacy = false);
 	#if COMPILER
 	void addField(std::string, const Type*, std::function<Compiler::value(Compiler&, Compiler::value)> fun);
 	#endif

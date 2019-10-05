@@ -59,14 +59,14 @@ void Module::static_field_fun(std::string name, const Type* type, void* fun) {
 void Module::constructor_(std::initializer_list<CallableVersion> methods) {
 	clazz->addMethod("new", methods);
 }
-void Module::method(std::string name, std::initializer_list<CallableVersion> methods, std::vector<const Type*> templates, bool legacy) {
-	clazz->addMethod(name, methods, templates, env.legacy);
+void Module::method(std::string name, std::initializer_list<CallableVersion> methods, int flags, std::vector<const Type*> templates) {
+	clazz->addMethod(name, methods, templates, flags, env.legacy);
 }
 void Template::operator_(std::string name, std::initializer_list<CallableVersion> impl) {
 	module->clazz->addOperator(name, impl, templates, module->env.legacy);
 }
 void Template::method(std::string name, std::initializer_list<CallableVersion> methods) {
-	module->method(name, methods, templates, module->env.legacy);
+	module->method(name, methods, 0, templates);
 }
 
 void Module::generate_doc(std::ostream& os, std::string translation_file) {

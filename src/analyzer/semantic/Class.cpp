@@ -61,7 +61,7 @@ const Callable* Class::getOperator(SemanticAnalyzer* analyzer, std::string& name
 	return nullptr;
 }
 
-void Class::addMethod(std::string name, std::initializer_list<CallableVersion> impl, std::vector<const Type*> templates, bool legacy) {
+void Class::addMethod(std::string name, std::initializer_list<CallableVersion> impl, std::vector<const Type*> templates, int flags, bool legacy) {
 	Callable callable;
 	for (const auto& v : impl) {
 		if ((v.flags & Module::LEGACY) and not legacy) continue;
@@ -74,6 +74,7 @@ void Class::addMethod(std::string name, std::initializer_list<CallableVersion> i
 		if (templates.size()) {
 			((CallableVersion*) m)->templates = templates;
 		}
+		((CallableVersion*) m)->flags |= flags;
 	}
 	// Add first implementation as default method
 	#if COMPILER
