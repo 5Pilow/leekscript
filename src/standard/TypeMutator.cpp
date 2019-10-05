@@ -20,7 +20,7 @@ void ConvertMutator::apply(SemanticAnalyzer* analyzer, std::vector<Value*> value
 		if (auto vv = dynamic_cast<VariableValue*>(aa->array.get())) {
 			if (vv->type->is_array()) {
 				vv->type = Type::array(return_type->not_temporary());
-			} else {
+			} else if (vv->type->is_map()) {
 				vv->type = Type::map(vv->type->key(), return_type->not_temporary());
 			}
 			vv->var->type = vv->type;
@@ -102,7 +102,7 @@ void ChangeValueMutator::apply(SemanticAnalyzer* analyzer, std::vector<Value*> v
 			if (auto vv = dynamic_cast<VariableValue*>(aa->array.get())) {
 				if (vv->type->is_array()) {
 					vv->type = Type::array(return_type->not_temporary());
-				} else {
+				} else if (vv->type->is_map()) {
 					vv->type = Type::map(vv->type->key(), return_type->not_temporary());
 				}
 				vv->var->type = vv->type;
