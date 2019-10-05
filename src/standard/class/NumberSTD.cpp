@@ -388,169 +388,169 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 	/** Internal **/
 	method("powdd", {
 		{env.real, {env.real, env.real}, ADDR(((void*) std::pow<double, double>))}
-	});
+	}, PRIVATE);
 	method("powli", {
 		{env.real, {env.long_, env.integer}, (void*) std::pow<long, int>}
-	});
+	}, PRIVATE);
 	method("powii", {
 		{env.real, {env.integer, env.integer}, (void*) std::pow<int, int>}
-	});
+	}, PRIVATE);
 	method("mpz_init", {
 		{env.void_, {env.mpz_ptr}, ADDR((void*) mpz_init)}
-	});
+	}, PRIVATE);
 	method("mpz_init_set", {
 		{env.void_, {env.mpz_ptr}, ADDR((void*) mpz_init_set)}
-	});
+	}, PRIVATE);
 	method("mpz_init_str", {
 		{env.void_, {env.mpz_ptr, env.i8_ptr, env.integer}, ADDR((void*) mpz_init_set_str)}
-	});
+	}, PRIVATE);
 	method("mpz_get_ui", {
 		{{env.long_}, {env.mpz_ptr}, ADDR((void*) mpz_get_ui)}
-	});
+	}, PRIVATE);
 	method("mpz_get_si", {
 		{{env.long_}, {env.mpz_ptr}, ADDR((void*) mpz_get_si)}
-	});
+	}, PRIVATE);
 	method("mpz_add", {
 		{env.void_, {env.mpz_ptr, env.mpz_ptr, env.mpz_ptr}, ADDR((void*) mpz_add)}
-	});
+	}, PRIVATE);
 	method("mpz_add_ui", {
 		{env.void_, {env.mpz_ptr, env.long_, env.mpz_ptr}, ADDR((void*) mpz_add_ui)}
-	});
+	}, PRIVATE);
 	method("mpz_sub", {
 		{env.void_, {env.mpz_ptr, env.mpz_ptr, env.mpz_ptr}, ADDR((void*) mpz_sub)}
-	});
+	}, PRIVATE);
 	method("mpz_sub_ui", {
 		{env.void_, {env.mpz_ptr, env.long_, env.mpz_ptr}, ADDR((void*) mpz_sub_ui)}
-	});
+	}, PRIVATE);
 	method("mpz_mul", {
 		{env.void_, {env.mpz_ptr, env.mpz_ptr, env.mpz_ptr}, ADDR((void*) mpz_mul)}
-	});
+	}, PRIVATE);
 	method("mpz_mul_si", {
 		{env.void_, {env.mpz_ptr, env.long_, env.mpz_ptr}, ADDR((void*) mpz_mul_si)}
-	});
+	}, PRIVATE);
 	method("mpz_pow_ui", {
 		{env.void_, {env.mpz_ptr, env.mpz_ptr, env.integer}, ADDR((void*) mpz_pow_ui)}
-	});
+	}, PRIVATE);
 	method("mpz_mod", {
 		{env.void_, {env.mpz_ptr, env.mpz_ptr, env.mpz_ptr}, ADDR((void*) mpz_mod)}
-	});
+	}, PRIVATE);
 	method("mpz_probab_prime_p", {
 		{env.integer, {env.mpz_ptr, env.integer}, ADDR((void*) mpz_probab_prime_p)}
-	});
+	}, PRIVATE);
 	method("mpz_neg", {
 		{env.void_, {env.mpz_ptr, env.mpz_ptr}, ADDR((void*) mpz_neg)}
-	});
+	}, PRIVATE);
 	method("mpz_log", {
 		{{env.integer}, {env.mpz_ptr}, ADDR((void*) mpz_log)}
-	});
+	}, PRIVATE);
 	method("mpz_cmp", {
 		{{env.integer}, {env.mpz_ptr, env.mpz_ptr}, ADDR((void*) mpz_cmp)}
-	});
+	}, PRIVATE);
 	method("_mpz_cmp_si", {
 		{{env.integer}, {env.mpz_ptr, env.long_}, ADDR((void*) _mpz_cmp_si)}
-	});
+	}, PRIVATE);
 	method("mpz_sqrt", {
 		{env.void_, {env.mpz_ptr, env.mpz_ptr}, ADDR((void*) mpz_sqrt)}
-	});
+	}, PRIVATE);
 	method("mpz_clear", {
 		{env.void_, {env.mpz_ptr}, ADDR((void*) mpz_clear)}
-	});
+	}, PRIVATE);
 	method("int_to_string", {
 		{env.tmp_string, {env.integer}, ADDR((void*) int_to_string)}
-	});
+	}, PRIVATE);
 	method("long_to_string", {
 		{env.tmp_string, {env.long_}, ADDR((void*) long_to_string)}
-	});
+	}, PRIVATE);
 	method("real_to_string", {
 		{env.tmp_string, {env.real}, ADDR((void*) real_to_string)}
-	});
+	}, PRIVATE);
 	method("mpz_to_string", {
 		{env.tmp_string, {env.mpz_ptr}, ADDR((void*) mpz_to_string)}
-	});
+	}, PRIVATE);
 	double (*logreal)(double) = std::log;
 	method("m_log", {
 		{env.real, {env.integer}, (void*) std::log<int>},
 		{env.real, {env.long_}, (void*) std::log<long>},
 		{env.real, {env.real}, (void*) logreal},
-	});
+	}, PRIVATE);
 	double (*log10real)(double) = std::log10;
 	method("m_log10", {
 		{env.real, {env.integer}, (void*) std::log10<int>},
 		{env.real, {env.long_}, (void*) std::log10<long>},
 		{env.real, {env.real}, (void*) log10real},
-	});
+	}, PRIVATE);
 	double (*expreal)(double) = std::exp;
 	method("m_exp", {
 		{env.integer, {env.integer}, (void*) std::exp<int>},
 		{env.real, {env.real}, (void*) expreal},
-	});
+	}, PRIVATE);
 	double (*floorreal)(double) = std::floor;
 	method("m_floor", {
 		{env.real, {env.real}, (void*) floorreal},
-	});
+	}, PRIVATE);
 	double (*roundreal)(double) = std::round;
 	method("m_round", {
 		{env.real, {env.real}, (void*) roundreal},
-	});
+	}, PRIVATE);
 	double (*ceilreal)(double) = std::ceil;
 	method("m_ceil", {
 		{env.real, {env.real}, (void*) ceilreal},
-	});
+	}, PRIVATE);
 	method("m_max", {
 		{env.integer, {env.integer, env.integer}, ADDR((void*) max_fun<int>)},
 		{env.long_, {env.long_, env.long_}, ADDR((void*) max_fun<long>)},
 		{env.real, {env.real, env.real}, ADDR((void*) max_fun<double>)},
-	});
+	}, PRIVATE);
 	method("m_min", {
 		{env.integer, {env.integer, env.integer}, ADDR((void*) min_fun<int>)},
 		{env.long_, {env.long_, env.long_}, ADDR((void*) min_fun<long>)},
 		{env.real, {env.real, env.real}, ADDR((void*) min_fun<double>)},
-	});
+	}, PRIVATE);
 	double (*cosreal)(double) = std::cos;
 	method("m_cos", {
 		{env.real, {env.integer}, (void*) std::cos<int>},
 		{env.real, {env.long_}, (void*) std::cos<long>},
 		{env.real, {env.real}, (void*) cosreal},
-	});
+	}, PRIVATE);
 	double (*sinreal)(double) = std::sin;
 	method("m_sin", {
 		{env.real, {env.integer}, (void*) std::sin<int>},
 		{env.real, {env.long_}, (void*) std::sin<long>},
 		{env.real, {env.real}, (void*) sinreal},
-	});
+	}, PRIVATE);
 	double (*tanreal)(double) = std::tan;
 	method("m_tan", {
 		{env.real, {env.integer}, (void*) std::tan<int>},
 		{env.real, {env.long_}, (void*) std::tan<long>},
 		{env.real, {env.real}, (void*) tanreal},
-	});
+	}, PRIVATE);
 	double (*acosreal)(double) = std::acos;
 	method("m_acos", {
 		{env.real, {env.integer}, (void*) std::acos<int>},
 		{env.real, {env.long_}, (void*) std::acos<long>},
 		{env.real, {env.real}, (void*) acosreal},
-	});
+	}, PRIVATE);
 	double (*asinreal)(double) = std::asin;
 	method("m_asin", {
 		{env.real, {env.integer}, (void*) std::asin<int>},
 		{env.real, {env.long_}, (void*) std::asin<long>},
 		{env.real, {env.real}, (void*) asinreal},
-	});
+	}, PRIVATE);
 	double (*atanreal)(double) = std::atan;
 	method("m_atan", {
 		{env.real, {env.integer}, (void*) std::atan<int>},
 		{env.real, {env.long_}, (void*) std::atan<long>},
 		{env.real, {env.real}, (void*) atanreal},
-	});
+	}, PRIVATE);
 	double (*atan2real)(double, double) = std::atan2;
 	method("m_atan2", {
 		{env.real, {env.integer, env.integer}, (void*) std::atan2<int, int>},
 		{env.real, {env.long_, env.long_}, (void*) std::atan2<long, long>},
 		{env.real, {env.real, env.real}, (void*) atan2real},
-	});
+	}, PRIVATE);
 	method("m_isint", {
 		{env.boolean, {env.any}, ADDR((void*) isint)},
-	});
+	}, PRIVATE);
 }
 
 #if COMPILER

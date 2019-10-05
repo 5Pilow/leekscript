@@ -27,16 +27,16 @@ FunctionSTD::FunctionSTD(Environment& env) : Module(env, "Function") {
 	/** Internal **/
 	method("call", {
 		{env.any, {Type::fun(env.void_, {})}, ADDR((void*) &LSFunction::call)}
-	});
+	}, PRIVATE);
 	method("get_capture", {
 		{env.any, {Type::closure(env.void_, {})}, ADDR((void*) &LSClosure::get_capture)}
-	});
+	}, PRIVATE);
 	method("get_capture_l", {
 		{env.any, {Type::closure(env.void_, {})}, ADDR((void*) &LSClosure::get_capture_l)}
-	});
+	}, PRIVATE);
 	method("add_capture", {
 		{env.void_, {Type::closure(env.void_, {}), env.any}, ADDR((void*) &LSClosure::add_capture)}
-	});
+	}, PRIVATE);
 }
 
 #if COMPILER

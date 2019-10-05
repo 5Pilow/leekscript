@@ -19,6 +19,7 @@ int Module::LEGACY = 2;
 int Module::DEFAULT = 4;
 int Module::NO_RETURN = 8;
 int Module::EMPTY_VARIABLE = 16;
+int Module::PRIVATE = 32;
 
 bool Module::STORE_ARRAY_SIZE = true;
 

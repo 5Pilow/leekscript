@@ -44,6 +44,7 @@ public:
 	static int DEFAULT;
 	static int EMPTY_VARIABLE;
 	static int NO_RETURN;
+	static int PRIVATE;
 
 	static bool STORE_ARRAY_SIZE;
 

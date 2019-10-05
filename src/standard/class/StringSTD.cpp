@@ -225,32 +225,32 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 	/** Internal **/
 	method("to_bool", {
 		{env.boolean, {env.string}, ADDR((void*) &LSString::to_bool)}
-	});
+	}, PRIVATE);
 	method("codePointAt", {
 		{env.tmp_string, {env.string, env.integer}, ADDR((void*) &LSString::codePointAt)}
-	});
+	}, PRIVATE);
 	method("isize", {
 		{env.integer, {env.string}, ADDR((void*) &LSString::int_size)}
-	});
+	}, PRIVATE);
 	method("iterator_begin", {
 		{env.void_, {env.string, env.i8_ptr}, ADDR((void*) iterator_begin)}
-	});
+	}, PRIVATE);
 	method("iterator_end", {
 		{env.void_, {env.i8_ptr}, ADDR((void*) &LSString::iterator_end)}
-	});
+	}, PRIVATE);
 	method("iterator_get", {
 		{env.integer, {env.i8_ptr}, ADDR((void*) &LSString::iterator_get)},
 		{env.tmp_string, {env.integer, env.string}, ADDR((void*) iterator_get)},
-	});
+	}, PRIVATE);
 	method("iterator_key", {
 		{env.integer, {env.i8_ptr}, ADDR((void*) &LSString::iterator_key)}
-	});
+	}, PRIVATE);
 	method("iterator_next", {
 		{env.void_, {env.i8_ptr}, ADDR((void*) &LSString::iterator_next)}
-	});
+	}, PRIVATE);
 	method("internal_plus_mpz_tmp", {
 		{env.string, {env.i8_ptr, env.tmp_mpz_ptr, env.tmp_string}, ADDR((void*) internal_plus_mpz_tmp)}
-	});
+	}, PRIVATE);
 }
 
 StringSTD::~StringSTD() {}

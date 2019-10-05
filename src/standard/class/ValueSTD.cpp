@@ -213,126 +213,130 @@ ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
 		{env.tmp_string, {env.const_any}, ADDR((void*) &LSValue::ls_json)},
 		{env.tmp_string, {env.const_any}, ADDR(JsonSTD::encode)},
 	});
+
+	/*
+	 * Internal
+	 */
 	method("typeID", {
 		{env.integer, {env.const_any}, ADDR(typeID)}
-	});
+	}, PRIVATE);
 	method("move", {
 		{env.any, {env.const_any}, ADDR((void*) &LSValue::move)}
-	});
+	}, PRIVATE);
 	method("move_inc", {
 		{env.any, {env.const_any}, ADDR((void*) &LSValue::move_inc)}
-	});
+	}, PRIVATE);
 	method("ptr", {
 		{env.tmp_any, {env.const_any}, ADDR((void*) &LSValue::move)}
-	});
+	}, PRIVATE);
 	method("absolute", {
 		{env.integer, {env.const_any}, ADDR((void*) absolute), THROWS}
-	});
+	}, PRIVATE);
 	method("clone", {
 		{env.any, {env.const_any}, ADDR((void*) clone)}
-	});
+	}, PRIVATE);
 	method("delete", {
 		{env.void_, {env.const_any}, ADDR((void*) &LSValue::free)}
-	});
+	}, PRIVATE);
 	method("delete_tmp", {
 		{env.void_, {env.const_any}, ADDR((void*) &LSValue::delete_temporary)}
-	});
+	}, PRIVATE);
 	method("dec_refs", {
 		{env.void_, {env.const_any}, ADDR((void*) &LSValue::delete_ref)}
-	});
+	}, PRIVATE);
 	method("delete_ref", {
 		{env.void_, {env.const_any}, ADDR((void*) &LSValue::delete_ref2)}
-	});
+	}, PRIVATE);
 	method("not", {
 		{env.boolean, {env.const_any}, ADDR((void*) ls_not)}
-	});
+	}, PRIVATE);
 	method("minus", {
 		{env.any, {env.const_any}, ADDR((void*) ls_minus)}
-	});
+	}, PRIVATE);
 	method("dec", {
 		{env.any, {env.const_any}, ADDR((void*) ls_dec)}
-	});
+	}, PRIVATE);
 	method("pre_dec", {
 		{env.any, {env.const_any}, ADDR((void*) ls_pre_dec)}
-	});
+	}, PRIVATE);
 	method("decl", {
 		{env.any, {env.const_any}, ADDR((void*) ls_decl)}
-	});
+	}, PRIVATE);
 	method("pre_decl", {
 		{env.any, {env.const_any}, ADDR((void*) ls_pre_decl)}
-	});
+	}, PRIVATE);
 	method("inc", {
 		{env.any, {env.const_any}, ADDR((void*) ls_inc)}
-	});
+	}, PRIVATE);
 	method("pre_inc", {
 		{env.any, {env.const_any}, ADDR((void*) ls_pre_inc)}
-	});
+	}, PRIVATE);
 	method("incl", {
 		{env.any, {env.const_any}, ADDR((void*) ls_incl)}
-	});
+	}, PRIVATE);
 	method("pre_incl", {
 		{env.any, {env.const_any}, ADDR((void*) ls_pre_incl)}
-	});
+	}, PRIVATE);
 	method("pre_tilde", {
 		{env.any, {env.const_any}, ADDR((void*) ls_pre_tilde)}
-	});
+	}, PRIVATE);
 	method("attr", {
 		{env.any, {env.i8_ptr, env.any, env.i8_ptr}, ADDR((void*) attr)},
-	});
+	}, PRIVATE);
 	method("attrL", {
 		{env.any, {env.any, env.i8_ptr}, ADDR((void*) attrL)},
-	});
+	}, PRIVATE);
 	method("int", {
 		{env.integer, {env.const_any}, ADDR((void*) integer)}
-	});
+	}, PRIVATE);
 	method("real", {
 		{env.real, {env.const_any}, ADDR((void*) real)}
-	});
+	}, PRIVATE);
 	method("real_delete", {
 		{env.real, {env.const_any}, ADDR((void*) real_delete)}
-	});
+	}, PRIVATE);
 	method("long", {
 		{env.long_, {env.const_any}, ADDR((void*) long_)}
-	});
+	}, PRIVATE);
 	method("range", {
 		{env.any, {env.const_any, env.integer, env.integer}, ADDR((void*) range)}
-	});
+	}, PRIVATE);
 	method("at", {
 		{env.any, {env.const_any, env.const_any}, ADDR((void*) at)}
-	});
+	}, PRIVATE);
 	method("atl", {
 		{env.any, {env.const_any, env.const_any}, ADDR((void*) atl)}
-	});
+	}, PRIVATE);
 	method("in_i", {
 		{env.boolean, {env.const_any, env.integer}, ADDR((void*) in_i)}
-	});
+	}, PRIVATE);
 	method("in", {
 		{env.boolean, {env.const_any, env.const_any}, ADDR((void*) in)}
-	});
+	}, PRIVATE);
 	method("is_null", {
 		{env.boolean, {env.const_any}, ADDR((void*) is_null)}
-	});
+	}, PRIVATE);
 	method("to_bool", {
 		{env.boolean, {env.const_any}, ADDR((void*) to_bool)}
-	});
+	}, PRIVATE);
 	method("type", {
 		{env.integer, {env.const_any}, ADDR((void*) type)}
-	});
+	}, PRIVATE);
 	method("delete_previous", {
 		{env.void_, {env.any}, ADDR((void*) delete_previous)}
-	});
+	}, PRIVATE);
 	method("get_int", {
 		{env.integer, {env.any}, ADDR((void*) get_int)}
-	});
+	}, PRIVATE);
 	method("get_class", {
 		{env.clazz(), {env.any}, ADDR((void*) get_class)}
-	});
+	}, PRIVATE);
 	method("export_ctx_var", {
 		{env.void_, {env.i8_ptr, env.any}, ADDR((void*) export_context_variable)},
 		{env.void_, {env.i8_ptr, env.integer}, ADDR((void*) export_context_variable_int)},
 		{env.void_, {env.i8_ptr, env.long_}, ADDR((void*) export_context_variable_long)},
 		{env.void_, {env.i8_ptr, env.real}, ADDR((void*) export_context_variable_real)},
-	});
+	}, PRIVATE);
 }
 
 #if COMPILER

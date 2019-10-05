@@ -23,7 +23,7 @@ ClassSTD::ClassSTD(Environment& env) : Module(env, "Class") {
 	/** Internal **/
 	method("add_field", {
 		{env.void_, {env.clazz(), env.i8_ptr, env.any}, ADDR((void*) add_field)}
-	});
+	}, PRIVATE);
 }
 
 #if COMPILER

@@ -372,20 +372,20 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	/** Internal **/
 	method("convert_key", {
 		{env.integer, {env.const_any}, ADDR((void*) &convert_key)}
-	});
+	}, PRIVATE);
 	method("in", {
 		{env.boolean, {Type::const_array(env.any), env.const_any}, ADDR((void*) &LSArray<LSValue*>::in)},
 		{env.boolean, {Type::const_array(env.real), env.const_any}, ADDR((void*) &LSArray<double>::in)},
 		{env.boolean, {Type::const_array(env.integer), env.integer}, ADDR((void*) &LSArray<int>::in_i)},
-	});
+	}, PRIVATE);
 	method("isize", {
 		{env.integer, {Type::array(env.any)}, ADDR((void*) &LSArray<LSValue*>::int_size)},
 		{env.integer, {Type::array(env.real)}, ADDR((void*) &LSArray<double>::int_size)},
 		{env.integer, {Type::array(env.integer)}, ADDR((void*) &LSArray<int>::int_size)},
-	});
+	}, PRIVATE);
 	method("to_bool", {
 		{env.boolean, {env.array}, ADDR((void*) &LSArray<int>::to_bool)}
-	});
+	}, PRIVATE);
 	auto sort_fun_int = ADDR(&LSArray<int>::ls_sort_fun<LSFunction*>);
 	auto sort_fun_long = ADDR(&LSArray<long>::ls_sort_fun<LSFunction*>);
 	auto sort_fun_real = ADDR(&LSArray<double>::ls_sort_fun<LSFunction*>);
@@ -395,31 +395,31 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.array, {env.array, (const Type*) Type::fun_object(env.void_, {})}, (void*) sort_fun_real},
 		{env.array, {env.array, (const Type*) Type::fun_object(env.void_, {})}, (void*) sort_fun_long},
 		{env.array, {env.array, (const Type*) Type::fun_object(env.void_, {})}, (void*) sort_fun_int},
-	});
+	}, PRIVATE);
 
 	method("fill_fun", {
 		{env.array, {env.array, env.any, env.integer}, ADDR((void*) &LSArray<LSValue*>::ls_fill)},
 		{env.array, {env.array, env.real, env.integer}, ADDR((void*) &LSArray<double>::ls_fill)},
 		{env.array, {env.array, env.integer, env.integer}, ADDR((void*) &LSArray<int>::ls_fill)},
 		{env.array, {env.array, env.boolean, env.integer}, ADDR((void*) &LSArray<char>::ls_fill)},
-	});
+	}, PRIVATE);
 	method("remove_element_fun", {
 		{env.boolean, {env.array, env.any}, ADDR((void*) &LSArray<LSValue*>::ls_remove_element)},
 		{env.boolean, {env.array, env.any}, ADDR((void*) &LSArray<double>::ls_remove_element)},
 		{env.boolean, {env.array, env.any}, ADDR((void*) &LSArray<int>::ls_remove_element)},
-	});
+	}, PRIVATE);
 	method("int_to_any", {
 		{Type::array(env.any), {Type::array(env.integer)}, ADDR((void*) &LSArray<int>::to_any_array)}
-	});
+	}, PRIVATE);
 	method("real_to_any", {
 		{Type::array(env.any), {Type::array(env.real)}, ADDR((void*) &LSArray<double>::to_any_array)}
-	});
+	}, PRIVATE);
 	method("int_to_real", {
 		{Type::array(env.any), {Type::array(env.real)}, ADDR((void*) &LSArray<int>::to_real_array)}
-	});
+	}, PRIVATE);
 	method("int_to_long", {
 		{Type::array(env.any), {Type::array(env.long_)}, ADDR((void*) &LSArray<int>::to_long_array)}
-	});
+	}, PRIVATE);
 	method("push_all_fun", {
 		{Type::array(env.any), {Type::array(env.any), Type::array(env.any)}, ADDR((void*) &LSArray<LSValue*>::ls_push_all_ptr)},
 		{Type::array(env.any), {Type::array(env.any), Type::array(env.real)}, ADDR((void*) &LSArray<LSValue*>::ls_push_all_flo)},
@@ -427,13 +427,13 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::array(env.real), {Type::array(env.real), Type::array(env.real)}, ADDR((void*) &LSArray<double>::ls_push_all_flo)},
 		{Type::array(env.real), {Type::array(env.real), Type::array(env.integer)}, ADDR((void*) &LSArray<double>::ls_push_all_int)},
 		{Type::array(env.integer), {Type::array(env.integer), Type::array(env.integer)}, ADDR((void*) &LSArray<int>::ls_push_all_int)},
-	});
+	}, PRIVATE);
 	method("repeat_fun", {
 		{Type::tmp_array(env.any), {Type::const_array(env.any), env.integer}, ADDR((void*) &LSArray<LSValue*>::repeat)},
 		{Type::tmp_array(env.real), {Type::const_array(env.real), env.integer}, ADDR((void*) &LSArray<double>::repeat)},
 		{Type::tmp_array(env.long_), {Type::const_array(env.long_), env.integer}, ADDR((void*) &LSArray<long>::repeat)},
 		{Type::tmp_array(env.integer), {Type::const_array(env.integer), env.integer}, ADDR((void*) &LSArray<int>::repeat)},
-	});
+	}, PRIVATE);
 }
 
 #if COMPILER

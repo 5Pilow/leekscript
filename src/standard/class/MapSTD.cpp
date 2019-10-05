@@ -208,7 +208,7 @@ MapSTD::MapSTD(Environment& env) : Module(env, "Map") {
 		{env.integer, {Type::map(env.any, env.integer), env.any}, ADDR(((void*) &LSMap<LSValue*, int>::at))},
 		{env.real, {Type::map(env.any, env.real), env.any}, ADDR(((void*) &LSMap<LSValue*, double>::at))},
 		{env.any, {Type::map(env.any, env.any), env.any}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::at))},
-	});
+	}, PRIVATE);
 	method("insert_fun", {
 		{env.void_, {Type::map(env.any, env.any), env.any, env.any}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::ls_emplace))},
 		{env.void_, {Type::map(env.any, env.real), env.any, env.real}, ADDR(((void*) &LSMap<LSValue*, double>::ls_emplace))},
@@ -219,7 +219,7 @@ MapSTD::MapSTD(Environment& env) : Module(env, "Map") {
 		{env.void_, {Type::map(env.integer, env.any), env.integer, env.any}, ADDR(((void*) &LSMap<int, LSValue*>::ls_emplace))},
 		{env.void_, {Type::map(env.integer, env.real), env.integer, env.real}, ADDR(((void*) &LSMap<int, double>::ls_emplace))},
 		{env.void_, {Type::map(env.integer, env.integer), env.integer, env.integer}, ADDR(((void*) &LSMap<int, int>::ls_emplace))},
-	});
+	}, PRIVATE);
 	method("atL", {
 		{env.void_, {Type::map(env.any, env.any), env.any, env.any}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::atL_base))},
 		{env.void_, {Type::map(env.any, env.real), env.any, env.real}, ADDR(((void*) &LSMap<LSValue*, double>::atL_base))},
@@ -230,29 +230,29 @@ MapSTD::MapSTD(Environment& env) : Module(env, "Map") {
 		{env.void_, {Type::map(env.integer, env.any), env.integer, env.any}, ADDR(((void*) &LSMap<int, LSValue*>::atL_base))},
 		{env.void_, {Type::map(env.integer, env.real), env.integer, env.real}, ADDR(((void*) &LSMap<int, double>::atL_base))},
 		{env.void_, {Type::map(env.integer, env.integer), env.integer, env.integer}, ADDR(((void*) &LSMap<int, int>::atL_base))},
-	});
+	}, PRIVATE);
 	// std::map<int, int>::iterator (LSMap<int, int>::*mapend)() = &LSMap<int, int>::end;
 	method("end", {
 		{Type::map(env.void_, env.void_)->iterator(), {Type::map(env.void_, env.void_)}, ADDR((void*) end)}
-	});
+	}, PRIVATE);
 	method("iterator_end", {
 		{Type::map(env.void_, env.void_)->iterator(), {Type::map(env.void_, env.void_)}, ADDR((void*) iterator_end)}
-	});
+	}, PRIVATE);
 	method("iterator_inc", {
 		{Type::map(env.void_, env.void_)->iterator(), {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_inc)}
-	});
+	}, PRIVATE);
 	method("iterator_dec", {
 		{Type::map(env.void_, env.void_)->iterator(), {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_dec)}
-	});
+	}, PRIVATE);
 	method("iterator_rkey", {
 		{env.i8_ptr, {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rkey)}
-	});
+	}, PRIVATE);
 	method("iterator_rget", {
 		{env.integer, {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_ii)},
 		{env.integer, {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_vi)},
 		{env.real, {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_ir)},
 		{env.any, {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_vv)},
-	});
+	}, PRIVATE);
 	method("look_fun", {
 		{env.any, {Type::const_map(env.any, env.any), env.any, env.any}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::ls_look))},
 		{env.real, {Type::const_map(env.any, env.real), env.any, env.real}, ADDR(((void*) &LSMap<LSValue*, double>::ls_look))},
@@ -260,7 +260,7 @@ MapSTD::MapSTD(Environment& env) : Module(env, "Map") {
 		{env.any, {Type::const_map(env.integer, env.any), env.integer, env.any}, ADDR(((void*) &LSMap<int, LSValue*>::ls_look))},
 		{env.real, {Type::const_map(env.integer, env.real), env.integer, env.real}, ADDR(((void*) &LSMap<int, double>::ls_look))},
 		{env.integer, {Type::const_map(env.integer, env.integer), env.integer, env.integer}, ADDR(((void*) &LSMap<int, int>::ls_look))},
-	});
+	}, PRIVATE);
 }
 
 #if COMPILER

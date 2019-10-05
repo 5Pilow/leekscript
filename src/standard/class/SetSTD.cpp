@@ -85,24 +85,24 @@ SetSTD::SetSTD(Environment& env) : Module(env, "Set") {
 		{env.void_, {Type::const_set(env.any), env.any}, ADDR((void*) &LSSet<LSValue*>::vinsert)},
 		{env.void_, {Type::const_set(env.real), env.real}, ADDR((void*) &LSSet<double>::vinsert)},
 		{env.void_, {Type::const_set(env.integer), env.integer}, ADDR((void*) &LSSet<int>::vinsert)},
-	});
+	}, PRIVATE);
 	method("iterator_end", {
 		{Type::set(env.void_)->iterator(), {Type::set(env.void_)}, ADDR((void*) iterator_end)}
-	});
+	}, PRIVATE);
 	method("iterator_inc", {
 		{Type::set(env.void_)->iterator(), {Type::set(env.void_)->iterator()}, ADDR((void*) iterator_inc)}
-	});
+	}, PRIVATE);
 	method("insert_fun", {
 		{env.boolean, {Type::const_set(env.any), env.any}, ADDR((void*) &LSSet<LSValue*>::ls_insert)},
 		{env.boolean, {Type::const_set(env.real), env.real}, ADDR((void*) &LSSet<double>::ls_insert)},
 		{env.boolean, {Type::const_set(env.integer), env.integer}, ADDR((void*) &LSSet<int>::ls_insert)},
-	});
+	}, PRIVATE);
 	method("int_to_any", {
 		{Type::set(env.any), {Type::set(env.integer)}, ADDR((void*) &LSSet<int>::to_any_set)}
-	});
+	}, PRIVATE);
 	method("real_to_any", {
 		{Type::set(env.any), {Type::set(env.real)}, ADDR((void*) &LSSet<double>::to_any_set)}
-	});
+	}, PRIVATE);
 }
 
 #if COMPILER

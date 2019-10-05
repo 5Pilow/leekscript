@@ -64,7 +64,7 @@ ObjectSTD::ObjectSTD(Environment& env) : Module(env, "Object") {
 	/** Internal **/
 	method("add_field", {
 		{env.void_, {env.object, env.i8_ptr, env.any}, ADDR((void*) &LSObject::addField)}
-	});
+	}, PRIVATE);
 }
 
 #if COMPILER

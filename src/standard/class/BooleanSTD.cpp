@@ -44,7 +44,7 @@ BooleanSTD::BooleanSTD(Environment& env) : Module(env, "Boolean") {
 	/** Internal **/
 	method("to_string", {
 		{env.tmp_string, {env.boolean}, ADDR((void*) to_string)}
-	});
+	}, PRIVATE);
 }
 
 #if COMPILER
