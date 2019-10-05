@@ -37,9 +37,6 @@ IntervalSTD::IntervalSTD(Environment& env) : Module(env, "Interval") {
 	/*
 	 * Methods
 	 */
-	method("copy", {
-		{env.interval, {env.interval}, ADDR(ValueSTD::copy)}
-	});
 	auto pred_fun_type_int = Type::fun_object(env.boolean, {env.integer});
 	auto pred_clo_type_int = Type::closure(env.boolean, {env.integer});
 	auto filter_fun = ADDR(&LSInterval::ls_filter<LSFunction*>);
