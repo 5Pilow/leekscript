@@ -46,31 +46,25 @@ void Map::analyze(SemanticAnalyzer* analyzer) {
 	const Type* key_type = env.void_;
 	const Type* value_type = env.void_;
 
-	for (size_t i = 0; i < keys.size(); ++i) {
-		const auto& ex = keys[i];
-		ex->analyze(analyzer);
-		key_type = key_type->operator * (ex->type);
-		if (ex->constant == false) constant = false;
-	}
-	key_type = key_type->not_temporary();
+	if (values.size()) {
+		for (size_t i = 0; i < keys.size(); ++i) {
+			const auto& ex = keys[i];
+			ex->analyze(analyzer);
+			key_type = key_type->operator * (ex->type);
+			if (ex->constant == false) constant = false;
+		}
+		key_type = key_type->not_temporary();
 
-	for (size_t i = 0; i < values.size(); ++i) {
-		const auto& ex = values[i];
-		ex->analyze(analyzer);
-		value_type = value_type->operator * (ex->type);
-		if (ex->constant == false) constant = false;
-	}
-	value_type = value_type->not_temporary();
-
-	if (key_type->is_integer() or key_type->is_real()) {
+		for (size_t i = 0; i < values.size(); ++i) {
+			const auto& ex = values[i];
+			ex->analyze(analyzer);
+			value_type = value_type->operator * (ex->type);
+			if (ex->constant == false) constant = false;
+		}
+		value_type = value_type->not_temporary();
 	} else {
-		key_type = env.any;
-		// key_type.setReturnType(Type::any());
-	}
-	if (value_type->is_integer() || value_type->is_real()) {
-	} else {
-		// value_type = env.any;
-		// value_type.setReturnType(Type::any());
+		key_type = env.never;
+		value_type = env.never;
 	}
 	type = Type::tmp_map(key_type, value_type);
 }

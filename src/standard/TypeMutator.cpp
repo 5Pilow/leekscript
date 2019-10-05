@@ -103,7 +103,7 @@ void ChangeValueMutator::apply(SemanticAnalyzer* analyzer, std::vector<Value*> v
 				if (vv->type->is_array()) {
 					vv->type = Type::array(return_type->not_temporary());
 				} else if (vv->type->is_map()) {
-					vv->type = Type::map(vv->type->key(), return_type->not_temporary());
+					vv->type = Type::map(aa->key->type->not_temporary(), return_type->not_temporary());
 				}
 				vv->var->type = vv->type;
 			} else if (auto aa2 = dynamic_cast<ArrayAccess*>(aa->array.get())) {
@@ -118,7 +118,7 @@ void ChangeValueMutator::apply(SemanticAnalyzer* analyzer, std::vector<Value*> v
 
 #if COMPILER
 int ChangeValueMutator::compile(Compiler& c, CallableVersion* callable, std::vector<Value*> values) const {
-	// std::cout << "ChangeValueMutator " << std::endl;
+	// std::cout << "ChangeValueMutator compile" << std::endl;
 	if (auto vv = dynamic_cast<VariableValue*>(values[0])) {
 		// std::cout << "ChangeValueMutator " << vv->var << " ||| " << vv->previous_type << " == " << vv->type << std::endl;
 		if (vv->var->phi and vv->var->phi->variable2 == vv->var) {
@@ -143,8 +143,18 @@ int ChangeValueMutator::compile(Compiler& c, CallableVersion* callable, std::vec
 			return Module::EMPTY_VARIABLE;
 		}
 	} else if (auto aa = dynamic_cast<ArrayAccess*>(values[0])) {
+		// std::cout << "ChangeValue::compile ArrayAccess" << std::endl;
 		if (auto vv = dynamic_cast<VariableValue*>(aa->array.get())) {
-			vv->var->val = vv->var->parent->val;
+			// vv->var->val = vv->var->parent->val;
+			auto previous_value = c.insn_load(vv->var->parent->val);
+			auto converted = c.insn_convert(previous_value, vv->var->type);
+			if (previous_value.v == converted.v) {
+				vv->var->val = vv->var->parent->val;
+			} else {
+				vv->var->create_entry(c);
+				vv->var->store_value(c, c.insn_move_inc(converted));
+				c.insn_delete_variable(vv->var->parent->val);
+			}
 		} else if (auto aa2 = dynamic_cast<ArrayAccess*>(aa->array.get())) {
 			if (auto vv2 = dynamic_cast<VariableValue*>(aa2->array.get())) {
 				vv2->var->val = vv2->var->parent->val;

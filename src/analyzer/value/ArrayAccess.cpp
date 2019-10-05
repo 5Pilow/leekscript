@@ -298,18 +298,18 @@ Compiler::value ArrayAccess::compile_l(Compiler& c) const {
 			return c.insn_array_at(compiled_array, k);
 
 		} else if (array->type->is_map()) {
-			auto f = [&]() { if (array->type->key() == env.any) {
-				if (array->type->element() == env.any) return "Map.atL";
-				if (array->type->element() == env.real) return "Map.atL.1";
-				return "Map.atL.2";
+			auto f = [&]() { if (array->type->key() == env.integer) {
+				if (array->type->element() == env.integer) return "Map.atL.8";
+				if (array->type->element() == env.real) return "Map.atL.7";
+				return "Map.atL.6";
 			} else if (array->type->key() == env.real) {
 				if (array->type->element() == env.integer) return "Map.atL.5";
 				if (array->type->element() == env.real) return "Map.atL.4";
 				return "Map.atL.3";
 			} else {
-				if (array->type->element() == env.any) return "Map.atL.6";
-				if (array->type->element() == env.real) return "Map.atL.7";
-				return "Map.atL.8";
+				if (array->type->element() == env.integer) return "Map.atL.2";
+				if (array->type->element() == env.real) return "Map.atL.1";
+				return "Map.atL";
 			}}();
 			return c.insn_call(array->type->element()->pointer(), {compiled_array, k}, f);
 		} else {

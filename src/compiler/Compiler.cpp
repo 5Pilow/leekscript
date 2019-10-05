@@ -377,6 +377,15 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 			return r;
 		}
 	}
+	if (v.t->is_map() and t->is_map()) {
+		if (v.t->element()->is_never()) {
+			if (delete_previous) insn_delete(v);
+			insn_delete_temporary(v);
+			if (t->element()->is_integer()) {
+				return insn_call(t, {}, "Map.new.2");
+			}
+		}
+	}
 	if (v.t->fold()->is_polymorphic()) {
 		if (t->is_polymorphic() or t->is_pointer()) {
 			auto new_type = t;
