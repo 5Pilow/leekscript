@@ -68,15 +68,15 @@ MapSTD::MapSTD(Environment& env) : Module(env, "Map") {
 	});
 
 	operator_("in", {
-		{Type::const_map(env.any, env.any), env.any, env.boolean, ADDR(((void*) &LSMap<LSValue*, LSValue*>::in))},
-		{Type::const_map(env.any, env.real), env.any, env.boolean, ADDR(((void*) &LSMap<LSValue*, double>::in))},
-		{Type::const_map(env.any, env.integer), env.any, env.boolean, ADDR(((void*) &LSMap<LSValue*, int>::in))},
+		// {Type::const_map(env.any, env.any), env.any, env.boolean, ADDR(((void*) &LSMap<LSValue*, LSValue*>::in))},
+		// {Type::const_map(env.any, env.real), env.any, env.boolean, ADDR(((void*) &LSMap<LSValue*, double>::in))},
+		// {Type::const_map(env.any, env.integer), env.any, env.boolean, ADDR(((void*) &LSMap<LSValue*, int>::in))},
 		{Type::const_map(env.real, env.any), env.real, env.boolean, ADDR(((void*) &LSMap<double, LSValue*>::in))},
 		{Type::const_map(env.real, env.real), env.real, env.boolean, ADDR(((void*) &LSMap<double, double>::in))},
 		{Type::const_map(env.real, env.integer), env.real, env.boolean, ADDR(((void*) &LSMap<double, int>::in))},
-		{Type::const_map(env.integer, env.any), env.integer, env.boolean, ADDR(((void*) &LSMap<int, LSValue*>::in))},
-		{Type::const_map(env.integer, env.real), env.integer, env.boolean, ADDR(((void*) &LSMap<int, double>::in))},
-		{Type::const_map(env.integer, env.integer), env.long_, env.boolean, ADDR(((void*) &LSMap<int, int>::in))},
+		// {Type::const_map(env.integer, env.any), env.integer, env.boolean, ADDR(((void*) &LSMap<int, LSValue*>::in))},
+		// {Type::const_map(env.integer, env.real), env.integer, env.boolean, ADDR(((void*) &LSMap<int, double>::in))},
+		// {Type::const_map(env.integer, env.integer), env.long_, env.boolean, ADDR(((void*) &LSMap<int, int>::in))},
 	});
 
 	method("size", {

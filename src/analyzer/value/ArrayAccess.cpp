@@ -302,9 +302,9 @@ Compiler::value ArrayAccess::compile_l(Compiler& c) const {
 				if (array->type->element() == env.real) return "Map.atL.1";
 				return "Map.atL.2";
 			} else if (array->type->key() == env.real) {
-				if (array->type->element() == env.any) return "Map.atL.3";
+				if (array->type->element() == env.integer) return "Map.atL.5";
 				if (array->type->element() == env.real) return "Map.atL.4";
-				return "Map.atL.5";
+				return "Map.atL.3";
 			} else {
 				if (array->type->element() == env.any) return "Map.atL.6";
 				if (array->type->element() == env.real) return "Map.atL.7";

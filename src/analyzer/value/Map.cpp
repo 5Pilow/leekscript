@@ -69,7 +69,7 @@ void Map::analyze(SemanticAnalyzer* analyzer) {
 	}
 	if (value_type->is_integer() || value_type->is_real()) {
 	} else {
-		value_type = env.any;
+		// value_type = env.any;
 		// value_type.setReturnType(Type::any());
 	}
 	type = Type::tmp_map(key_type, value_type);

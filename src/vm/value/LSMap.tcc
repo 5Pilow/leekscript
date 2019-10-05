@@ -358,6 +358,7 @@ inline LSValue** LSMap<double, LSValue*>::atL(const LSValue* key) {
 
 template <class K, class T>
 inline T* LSMap<K, T>::atL_base(K key) const {
+	// std::cout << "atL_base " << key << std::endl;
 	auto map = (std::map<K, T, lsmap_less<K>>*) this;
 	try {
 		auto r = &map->at(key);
