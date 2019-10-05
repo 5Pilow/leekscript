@@ -207,7 +207,7 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 		{env.integer, {env.const_string, env.const_integer}, ADDR((void*) string_code)},
 	});
 	method("number", {
-		{env.long_, {env.string}, ADDR((void*) string_number)},
+		{env.long_, {env.const_string}, ADDR((void*) string_number)},
 		{env.long_, {env.const_any}, ADDR((void*) string_number)},
 	});
 	auto map_fun = ADDR(&LSString::ls_map<LSFunction*>);

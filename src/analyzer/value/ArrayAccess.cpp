@@ -18,7 +18,8 @@ ArrayAccess::ArrayAccess(Environment& env) : LeftValue(env)
 }
 
 bool ArrayAccess::isLeftValue() const {
-	return key2 == nullptr; // Range access is not left-value (yet)
+	return key2 == nullptr // Range access is not left-value (yet)
+		&& not array->type->is_string(); // String access is not yet
 }
 
 void ArrayAccess::print(std::ostream& os, int indent, PrintOptions options) const {

@@ -105,6 +105,7 @@ void Test::test_strings() {
 	code("'hello'[-1]").exception(ls::vm::Exception::ARRAY_OUT_OF_BOUNDS);
 	code("''[0]").exception(ls::vm::Exception::ARRAY_OUT_OF_BOUNDS);
 	code("'yoyo'[1000]").exception(ls::vm::Exception::ARRAY_OUT_OF_BOUNDS);
+	code("'12345'[2].number()").equals("3");
 
 	section("String.operator ==");
 	code("'test' == 'etst'").equals("false");
