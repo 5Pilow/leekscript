@@ -45,6 +45,7 @@ void CLI::setup_options(CLI11::App& app, CLI_options& options, int argc, char* a
     app.add_option("-O", options.optimization, "Optimization level");
     app.add_flag("-r,--execute_ir", options.execute_ir, "Execute as an IR file (.ll or .ir)");
     app.add_flag("-c,--execute_bitcode", options.execute_bitcode, "Execute as an bitcode file (.bc)");
+	app.add_flag("--documentation", options.documentation, "Generate and output the documentation as JSON");
     try {
         app.parse(argc, argv);
     } catch (const CLI11::ParseError& e) {
