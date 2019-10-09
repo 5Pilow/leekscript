@@ -111,40 +111,44 @@ void Module::generate_doc(std::ostream& os, std::string translation_file) {
 
 		if (e > 0) os << ",";
 		os << "\"" << f.first << "\":{\"type\":";
-		a.type->toJson(os);
+		os << a.type->json();
 		//os << ",\"value\":\"" << a.value << "\"";
-		os << ",\"desc\":\"" << desc << "\"";
+		os << ",\"desc\":" << desc << "";
 		os << "}";
 		e++;
 	}
 
-	os << "},\"methods\":{";
+	os << "},\"methods\":[";
 	e = 0;
 	for (auto& m : clazz->methods) {
 		auto& impl = m.second;
+		if (impl.versions[0]->flags & PRIVATE) continue;
 		if (e > 0) os << ",";
-		os << "\"" << m.first << "\":{\"type\":";
-		impl.versions[0]->type->toJson(os);
+		os << "{\"name\":\"" << m.first << "\",\"type\":";
+		os << impl.versions[0]->type->json();
 
 		if (translation_map.find(m.first) != translation_map.end()) {
 			Json json = translation_map[m.first];
 			std::string desc = json["desc"];
 			std::string return_desc = json["return"];
-
+			os << ",\"args\":";
+			os << json["args"];
 			os << ",\"desc\":\"" << desc << "\"";
 			os << ",\"return\":\"" << return_desc << "\"";
+			os << ",\"examples\":" << json["examples"];
 		}
+		os << ",\"flags\":" << impl.versions[0]->flags;
 		os << "}";
 		e++;
 	}
 
-	os << "},\"static_methods\":{";
+	os << "],\"static_methods\":{";
 	e = 0;
 	for (auto& m : clazz->methods) {
 		auto& impl = m.second;
 		if (e > 0) os << ",";
 		os << "\"" << m.first << "\":{\"type\":";
-		impl.versions[0]->type->toJson(os);
+		os << impl.versions[0]->type->json();
 
 		if (translation_map.find(m.first) != translation_map.end()) {
 			Json json = translation_map[m.first];
