@@ -322,10 +322,11 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.boolean, {Type::array(env.integer), env.integer}, ADDR(remove_element_int)},
 	});
 
+	auto rT = env.template_("T");
+	template_(rT).
 	method("reverse", {
 		{Type::tmp_array(env.void_), {Type::const_array(env.void_)}, ADDR((void*) &LSArray<LSValue*>::ls_reverse)},
-		{Type::tmp_array(env.real), {Type::const_array(env.real)}, ADDR((void*) &LSArray<double>::ls_reverse)},
-		{Type::tmp_array(env.integer), {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_reverse)},
+		{Type::tmp_array(rT), {Type::const_array(rT)}, ADDR(reverse)},
 	});
 
 	method("shuffle", {
@@ -433,6 +434,13 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::tmp_array(env.real), {Type::const_array(env.real), env.integer}, ADDR((void*) &LSArray<double>::repeat)},
 		{Type::tmp_array(env.long_), {Type::const_array(env.long_), env.integer}, ADDR((void*) &LSArray<long>::repeat)},
 		{Type::tmp_array(env.integer), {Type::const_array(env.integer), env.integer}, ADDR((void*) &LSArray<int>::repeat)},
+	}, PRIVATE);
+
+	method("reverse_fun", {
+		{Type::tmp_array(env.void_), {Type::const_array(env.void_)}, ADDR((void*) &LSArray<LSValue*>::ls_reverse)},
+		{Type::tmp_array(env.real), {Type::const_array(env.real)}, ADDR((void*) &LSArray<double>::ls_reverse)},
+		{Type::tmp_array(env.long_), {Type::const_array(env.long_)}, ADDR((void*) &LSArray<long>::ls_reverse)},
+		{Type::tmp_array(env.integer), {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_reverse)},
 	}, PRIVATE);
 }
 
@@ -683,6 +691,21 @@ Compiler::value ArraySTD::sort(Compiler& c, std::vector<Compiler::value> args, i
 	return c.insn_call(array.t, {array, fun}, f);
 }
 
+Compiler::value ArraySTD::reverse(Compiler& c, std::vector<Compiler::value> args, int flags) {
+	const auto& array = args[0];
+	auto f = [&]() {
+		if (args[0].t->element()->fold()->is_integer()) {
+			return "Array.reverse_fun.3";
+		} else if (args[0].t->element()->fold()->is_long()) {
+			return "Array.reverse_fun.2";
+		} else if (args[0].t->element()->fold()->is_real()) {
+			return "Array.reverse_fun.1";
+		} else {
+			return "Array.reverse_fun";
+		}
+	}();
+	return c.insn_call(array.t, {array}, f);
+}
 
 Compiler::value ArraySTD::repeat(Compiler& c, std::vector<Compiler::value> args, int) {
 	auto fun = [&]() {
