@@ -205,10 +205,10 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.boolean, {Type::array(env.long_)}, ADDR((void*) &LSArray<long>::next_permutation)},
 	});
 
+	auto parT = env.template_("T");
+	template_(parT).
 	method("partition", {
-		{Type::tmp_array(env.void_), {env.array, pred_fun_type}, ADDR(partition)},
-		{Type::tmp_array(env.void_), {Type::array(env.real), pred_fun_type_float}, ADDR(partition)},
-		{Type::tmp_array(env.void_), {Type::array(env.integer), pred_fun_type_int}, ADDR(partition)},
+		{Type::tmp_array(Type::array(parT)), {Type::const_array(parT), Type::fun(env.any, {parT})}, ADDR(partition)}
 	});
 
 	auto fT = env.template_("T");
