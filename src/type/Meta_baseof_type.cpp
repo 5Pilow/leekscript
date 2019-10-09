@@ -24,6 +24,12 @@ llvm::Type* Meta_baseof_type::llvm(Compiler& c) const {
 std::string Meta_baseof_type::class_name() const {
 	return "";
 }
+Json Meta_baseof_type::json() const {
+	return {
+		{ "name", "baseof" },
+		{ "element", type->json() }
+	};
+}
 std::ostream& Meta_baseof_type::print(std::ostream& os) const {
 	os << C_GREY << type << " : " << base << END_COLOR;
 	return os;

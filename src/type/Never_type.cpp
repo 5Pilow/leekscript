@@ -14,6 +14,11 @@ int Never_type::distance(const Type* type) const {
 	if (dynamic_cast<const Never_type*>(type->folded)) { return 0; }
 	return 100000 + type->distance(this);
 }
+Json Never_type::json() const {
+	return {
+		{ "name", "never" }
+	};
+}
 std::ostream& Never_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "never" << END_COLOR;
 	return os;

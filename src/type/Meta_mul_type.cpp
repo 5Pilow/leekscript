@@ -20,6 +20,12 @@ llvm::Type* Meta_mul_type::llvm(Compiler& c) const {
 std::string Meta_mul_type::class_name() const {
 	return "";
 }
+Json Meta_mul_type::json() const {
+	return {
+		t1->json(),
+		t2->json()
+	};
+}
 std::ostream& Meta_mul_type::print(std::ostream& os) const {
 	os << C_GREY << t1 << " * " << t2 << END_COLOR;
 	return os;

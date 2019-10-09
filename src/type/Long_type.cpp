@@ -49,6 +49,11 @@ llvm::Type* Long_type::llvm(Compiler& c) const {
 std::string Long_type::class_name() const {
 	return "Number";
 }
+Json Long_type::json() const {
+	return {
+		{ "name", "long" }
+	};
+}
 std::ostream& Long_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "long" << END_COLOR;
 	return os;

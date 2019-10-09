@@ -62,6 +62,12 @@ std::string Array_type::class_name() const {
 const std::string Array_type::getName() const {
 	return "array<" + _element->getName() + ">";
 }
+Json Array_type::json() const {
+	return {
+		{ "name", "array" },
+		{ "element", _element->json() }
+	};
+}
 std::ostream& Array_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "array" << END_COLOR;
 	if (_element != env.void_) {

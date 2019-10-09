@@ -40,6 +40,11 @@ int Interval_type::distance(const Type* type) const {
 std::string Interval_type::class_name() const {
 	return "Interval";
 }
+Json Interval_type::json() const {
+	return {
+		{ "name", "interval" }
+	};
+}
 std::ostream& Interval_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "interval" << END_COLOR;
 	return os;

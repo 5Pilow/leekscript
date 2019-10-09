@@ -54,6 +54,9 @@ int Pointer_type::distance(const Type* type) const {
 std::string Pointer_type::class_name() const {
 	return _type->class_name();
 }
+Json Pointer_type::json() const {
+	return _type->json();
+}
 #if COMPILER
 llvm::Type* Pointer_type::llvm(Compiler& c) const {
 	if (_llvm_type == nullptr) {

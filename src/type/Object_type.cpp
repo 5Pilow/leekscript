@@ -27,6 +27,11 @@ int Object_type::distance(const Type* type) const {
 std::string Object_type::class_name() const {
 	return "Object";
 }
+Json Object_type::json() const {
+	return {
+		{ "name", "object" }
+	};
+}
 std::ostream& Object_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "object" << END_COLOR;
 	return os;

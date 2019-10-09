@@ -9,6 +9,7 @@ class Integer_type : public Number_type {
 public:
 	Integer_type(Environment& env) : Number_type(env) {}
 	virtual const std::string getName() const override { return "int"; }
+	virtual Json json() const override;
 	virtual const Type* key() const override;
 	virtual const Type* element() const override;
 	virtual const Type* iterator() const override;

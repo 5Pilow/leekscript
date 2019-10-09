@@ -19,7 +19,7 @@ public:
 	virtual const Type* argument(size_t) const override;
 	virtual const std::vector<const Type*>& arguments() const override;
 	virtual const std::string getName() const override { return _type->getName() + "*"; }
-	virtual const std::string getJsonName() const override { return _type->getJsonName() + "*"; }
+	virtual Json json() const override;
 	virtual bool callable() const override;
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;

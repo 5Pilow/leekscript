@@ -35,6 +35,11 @@ llvm::Type* Bool_type::llvm(Compiler& c) const {
 std::string Bool_type::class_name() const {
 	return "Boolean";
 }
+Json Bool_type::json() const {
+	return {
+		{ "name", "boolean" }
+	};
+}
 std::ostream& Bool_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "bool" << END_COLOR;
 	return os;

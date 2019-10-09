@@ -71,6 +71,17 @@ const Type* Function_object_type::argument(size_t i) const {
 std::string Function_object_type::class_name() const {
 	return "Function";
 }
+Json Function_object_type::json() const {
+	Json args;
+	for (const auto& arg : _arguments) {
+		args.push_back(arg->json());
+	}
+	return {
+		{ "name", "function" },
+		{ "args", args },
+		{ "return", _return_type->json() }
+	};
+}
 std::ostream& Function_object_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << (_closure ? "closure(" : "fun_obj(") << END_COLOR;
 	for (unsigned t = 0; t < _arguments.size(); ++t) {

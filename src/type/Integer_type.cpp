@@ -54,6 +54,11 @@ llvm::Type* Integer_type::llvm(Compiler& c) const {
 std::string Integer_type::class_name() const {
 	return "Number";
 }
+Json Integer_type::json() const {
+	return {
+		{ "name", "integer" }
+	};
+}
 std::ostream& Integer_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "int" << END_COLOR;
 	return os;

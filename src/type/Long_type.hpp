@@ -9,6 +9,7 @@ class Long_type : public Number_type {
 public:
 	Long_type(Environment& env) : Number_type(env) {}
 	virtual const std::string getName() const override { return "long"; }
+	virtual Json json() const override;
 	virtual const Type* key() const override;
 	virtual const Type* element() const override;
 	virtual const Type* iterator() const override;

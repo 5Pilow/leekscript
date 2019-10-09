@@ -57,7 +57,17 @@ std::string Map_type::class_name() const {
 	return "Map";
 }
 const std::string Map_type::getName() const {
+	if (_key == env.void_ && _element == env.void_) {
+		return "map";
+	}
 	return "map<" + _key->getName() + ", " + _element->getName() + ">";
+}
+Json Map_type::json() const {
+	return {
+		{ "name", "map" },
+		{ "key", _key->json() },
+		{ "element", _element->json() }
+	};
 }
 std::ostream& Map_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "map" << END_COLOR << "<" << _key << ", " << _element << ">";

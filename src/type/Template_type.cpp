@@ -17,6 +17,11 @@ void Template_type::reset() const {
 void Template_type::implement(const Type* implementation) const {
 	((Template_type*) this)->_implementation = implementation;
 }
+Json Template_type::json() const {
+	return {
+		{ "name", _name }
+	};
+}
 bool Template_type::operator == (const Type* type) const {
 	if (this == type) return true;
 	if (_implementation == _implementation->env.void_) return false;
@@ -37,9 +42,6 @@ llvm::Type* Template_type::llvm(Compiler& c) const {
 }
 #endif
 
-const std::string Template_type::getJsonName() const {
-	return "Template";
-}
 std::string Template_type::class_name() const {
 	return "Template";
 }

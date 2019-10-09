@@ -28,6 +28,11 @@ int Null_type::distance(const Type* type) const {
 std::string Null_type::class_name() const {
 	return "Null";
 }
+Json Null_type::json() const {
+	return {
+		{ "name", "null" }
+	};
+}
 std::ostream& Null_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "null" << END_COLOR;
 	return os;

@@ -13,7 +13,7 @@ public:
 	}
 	virtual int id() const override { return 0; }
 	virtual const std::string getName() const override { return "meta_element"; }
-	virtual const std::string getJsonName() const override { return "meta_element"; }
+	virtual Json json() const override;
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;
 	#if COMPILER

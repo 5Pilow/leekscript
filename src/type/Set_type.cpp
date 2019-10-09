@@ -53,7 +53,16 @@ std::string Set_type::class_name() const {
 	return "Set";
 }
 const std::string Set_type::getName() const {
+	if (_element == env.void_) {
+		return "set";
+	}
 	return "set<" + _element->getName() + ">";
+}
+Json Set_type::json() const {
+	return {
+		{ "name", "set" },
+		{ "element", _element->json() }
+	};
 }
 std::ostream& Set_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "set" << END_COLOR << "<" << _element << ">";

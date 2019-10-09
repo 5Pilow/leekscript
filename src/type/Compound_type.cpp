@@ -62,6 +62,13 @@ const std::string Compound_type::getName() const {
 	}
 	return r;
 }
+Json Compound_type::json() const {
+	Json result;
+	for (const auto& type : types) {
+		result.push_back(type->json());
+	}
+	return result;
+}
 std::ostream& Compound_type::print(std::ostream& os) const {
 	if (temporary) os << "(";
 	for (size_t i = 0; i < types.size(); ++i) {

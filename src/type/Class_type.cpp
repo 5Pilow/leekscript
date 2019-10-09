@@ -27,6 +27,17 @@ int Class_type::distance(const Type* type) const {
 std::string Class_type::class_name() const {
 	return "Class";
 }
+const std::string Class_type::getName() const {
+	if (name == "?") {
+		return "class";
+	}
+	return "class " + name;
+}
+Json Class_type::json() const {
+	return {
+		{ "name", "class" }
+	};
+}
 std::ostream& Class_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "class" << END_COLOR;
 	return os;

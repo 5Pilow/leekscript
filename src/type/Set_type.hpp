@@ -14,7 +14,7 @@ public:
 	Set_type(const Type* element);
 	virtual int id() const override { return 7; }
 	virtual const std::string getName() const override;
-	virtual const std::string getJsonName() const override { return "set"; }
+	virtual Json json() const override;
 	virtual bool iterable() const override { return true; }
 	virtual const Type* iterator() const override;
 	virtual bool container() const override { return true; }

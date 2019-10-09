@@ -10,7 +10,7 @@ public:
 	String_type(Environment& env);
 	virtual int id() const override { return 4; }
 	virtual const std::string getName() const override { return "string"; }
-	virtual const std::string getJsonName() const override { return "string"; }
+	virtual Json json() const override;
 	virtual bool iterable() const override { return true; }
 	virtual const Type* iterator() const override;
 	virtual const Type* key() const override;

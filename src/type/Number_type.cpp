@@ -31,6 +31,11 @@ int Number_type::distance(const Type* type) const {
 std::string Number_type::class_name() const {
 	return "Number";
 }
+Json Number_type::json() const {
+	return {
+		{ "name", "number" }
+	};
+}
 #if COMPILER
 llvm::Type* Number_type::llvm(Compiler& c) const {
 	assert(false);

@@ -40,6 +40,11 @@ llvm::Type* Mpz_type::llvm(Compiler& c) const {
 std::string Mpz_type::class_name() const {
 	return "Number";
 }
+Json Mpz_type::json() const {
+	return {
+		{ "name", "mpz" }
+	};
+}
 std::ostream& Mpz_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "mpz" << END_COLOR;
 	return os;

@@ -37,6 +37,11 @@ llvm::Type* I8_type::llvm(Compiler& c) const {
 std::string I8_type::class_name() const {
 	return "Number";
 }
+Json I8_type::json() const {
+	return {
+		{ "name", "byte" }
+	};
+}
 std::ostream& I8_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << "i8" << END_COLOR;
 	return os;

@@ -20,6 +20,12 @@ llvm::Type* Meta_element_type::llvm(Compiler& c) const {
 std::string Meta_element_type::class_name() const {
 	return "";
 }
+Json Meta_element_type::json() const {
+	return {
+		{ "name", "element" },
+		{ "element", type->json() }
+	};
+}
 std::ostream& Meta_element_type::print(std::ostream& os) const {
 	os << type << ".element";
 	return os;

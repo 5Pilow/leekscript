@@ -11,14 +11,14 @@ void Test::test_types() {
 
 	header("Types");
 	section("JSON name");
-	test("long", env.long_->getJsonName(), "number");
-	test("any", ls::Type::map(env.void_, env.void_)->getJsonName(), "map");
-	test("interval", env.interval->getJsonName(), "interval");
-	test("object", env.object->getJsonName(), "object");
-	test("class", env.clazz()->getJsonName(), "class");
-	test("set", env.set->getJsonName(), "set");
-	test("null", env.null->getJsonName(), "null");
-	test("fun", ls::Type::fun(env.void_, {})->getJsonName(), "function");
+	test("long", env.long_->getName(), "long");
+	test("any", ls::Type::map(env.void_, env.void_)->getName(), "map");
+	test("interval", env.interval->getName(), "interval");
+	test("object", env.object->getName(), "object");
+	test("class", env.clazz()->getName(), "class");
+	test("set", env.set->getName(), "set");
+	test("null", env.null->getName(), "null");
+	test("fun", ls::Type::fun(env.void_, {})->getName(), "function");
 
 	section("print");
 	auto pt = [&](const ls::Type* type) {

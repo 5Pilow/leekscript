@@ -14,7 +14,7 @@ public:
 	virtual const Type* element() const override;
 	virtual const Type* pointed() const override;
 	virtual const std::string getName() const override;
-	virtual const std::string getJsonName() const override { return "compound"; }
+	virtual Json json() const override;
 	virtual bool operator == (const Type*) const override;
 	virtual bool callable() const override;
 	virtual bool container() const override;

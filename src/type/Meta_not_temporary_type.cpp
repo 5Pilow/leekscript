@@ -20,6 +20,9 @@ llvm::Type* Meta_not_temporary_type::llvm(Compiler& c) const {
 std::string Meta_not_temporary_type::class_name() const {
 	return "";
 }
+Json Meta_not_temporary_type::json() const {
+	return type->json();
+}
 std::ostream& Meta_not_temporary_type::print(std::ostream& os) const {
 	os << C_GREY << "not_tmp(" << type << ")" << END_COLOR;
 	return os;

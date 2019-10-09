@@ -43,6 +43,11 @@ llvm::Type* Struct_type::llvm(Compiler& c) const {
 std::string Struct_type::class_name() const {
 	return "Struct";
 }
+Json Struct_type::json() const {
+	return {
+		{ "name", _name }
+	};
+}
 std::ostream& Struct_type::print(std::ostream& os) const {
 	os << BLUE_BOLD << _name << END_COLOR << " { ";
 	for (size_t i = 0; i < _types.size(); ++i) {

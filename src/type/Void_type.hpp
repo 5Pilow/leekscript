@@ -10,7 +10,7 @@ public:
 	Void_type(Environment& env) : Type(env) {}
 	virtual int id() const override { return 0; }
 	virtual const std::string getName() const override { return "void"; }
-	virtual const std::string getJsonName() const override { return "void"; }
+	virtual Json json() const override;
 	virtual const Type* element() const override;
 	virtual const Type* key() const override;
 	virtual const Type* return_type() const override;

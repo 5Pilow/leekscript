@@ -9,6 +9,7 @@ class Real_type : public Number_type {
 public:
 	Real_type(Environment& env) : Number_type(env) {}
 	virtual const std::string getName() const override { return "real"; }
+	virtual Json json() const override;
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;
 	#if COMPILER

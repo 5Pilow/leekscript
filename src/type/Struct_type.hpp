@@ -18,7 +18,7 @@ public:
 	Struct_type(const std::string name, std::initializer_list<const Type*> types);
 	Struct_type(const std::string name, std::vector<const Type*> types);
 	virtual const std::string getName() const override { return "struct"; }
-	virtual const std::string getJsonName() const override { return _name; }
+	virtual Json json() const override;
 	virtual const Type* member(int) const override;
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;

@@ -10,7 +10,7 @@ public:
 	Bool_type(Environment& env) : Type(env, true) {}
 	virtual int id() const override { return 2; }
 	virtual const std::string getName() const override { return "bool"; }
-	virtual const std::string getJsonName() const override { return "boolean"; }
+	virtual Json json() const override;
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type*) const override;
 	#if COMPILER

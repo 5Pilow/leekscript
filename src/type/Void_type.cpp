@@ -32,6 +32,11 @@ llvm::Type* Void_type::llvm(Compiler& c) const {
 std::string Void_type::class_name() const {
 	return "";
 }
+Json Void_type::json() const {
+	return {
+		{ "name", "void" }
+	};
+}
 std::ostream& Void_type::print(std::ostream& os) const {
 	os << C_GREY << "void" << END_COLOR;
 	return os;

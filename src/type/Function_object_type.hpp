@@ -18,8 +18,8 @@ public:
 	bool closure() const { return _closure; }
 	const Value* function() const override { return _function; }
 	virtual int id() const override { return 9; }
-	virtual const std::string getName() const override { return "function"; }
-	virtual const std::string getJsonName() const override { return "function"; }
+	virtual const std::string getName() const override { return "function"; };
+	virtual Json json() const override;
 	virtual bool callable() const override { return true; }
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;

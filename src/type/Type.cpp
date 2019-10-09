@@ -109,22 +109,6 @@ const Type* Type::fold() const {
 	return folded;
 }
 
-void Type::toJson(std::ostream& os) const {
-	os << "{\"type\":\"" << getJsonName() << "\"";
-
-	if (is_function()) {
-		os << ",\"args\":[";
-		for (unsigned t = 0; t < arguments().size(); ++t) {
-			if (t > 0) os << ",";
-			argument(t)->toJson(os);
-		}
-		os << "]";
-		os << ",\"return\":";
-		return_type()->toJson(os);
-	}
-	os << "}";
-}
-
 std::string Type::to_string() const {
 	std::ostringstream oss;
 	oss << this;

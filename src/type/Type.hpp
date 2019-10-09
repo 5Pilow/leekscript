@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cassert>
 #include "../constants.h"
+#include "../util/json.hpp"
 #if COMPILER
 #include "llvm/IR/Type.h"
 #include "llvm/IR/DerivedTypes.h"
@@ -48,8 +49,7 @@ public:
 	virtual const Type* member(int) const;
 	virtual const Value* function() const { return nullptr; }
 
-	void toJson(std::ostream&) const;
-	virtual const std::string getJsonName() const = 0;
+	virtual Json json() const = 0;
 	virtual std::string to_string() const;
 	virtual std::string class_name() const = 0;
 	virtual const std::string getName() const = 0;
