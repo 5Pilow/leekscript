@@ -88,7 +88,8 @@ bool LSMap<K, V>::ls_erase(K key) {
 }
 
 template <class K, class V>
-V LSMap<K, V>::ls_look(K key, V def) {
+template <class V2>
+V2 LSMap<K, V>::ls_look(K key, V2 def) {
 	auto it = this->find(key);
 	ls::release(key);
 	if (it != this->end()) {
@@ -96,9 +97,9 @@ V LSMap<K, V>::ls_look(K key, V def) {
 		if (refs == 0) {
 			V r = ls::clone(it->second);
 			LSValue::delete_temporary(this);
-			return r;
+			return ls::convert<V2>(r);
 		}
-		return it->second;
+		return ls::convert<V2>(it->second);
 	}
 	LSValue::delete_temporary(this);
 	return def;

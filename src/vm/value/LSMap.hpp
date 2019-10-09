@@ -26,7 +26,8 @@ public:
 	void ls_emplace(K key, V value);
 	LSMap<K, V>* ls_clear();
 	bool ls_erase(K key);
-	V ls_look(K key, V def);
+	template <class V2>
+	V2 ls_look(K key, V2 def);
 	V ls_max();
 	K ls_maxKey();
 	V ls_min();
