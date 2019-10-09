@@ -129,8 +129,8 @@ public:
 	#endif
 
 	const Type* template_(std::string name);
-	const Type* clazz(const std::string name = "class?");
-	const Type* const_class(const std::string name = "class?");
+	const Type* clazz(const std::string name = "?");
+	const Type* const_class(const std::string name = "?");
 	const Type* generate_new_placeholder_type();
     void clear_placeholder_types();
 };
