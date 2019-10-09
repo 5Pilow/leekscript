@@ -166,7 +166,7 @@ void Test::test_map() {
 	code("let x = [1: 1] x.look(1, 0)").equals("1");
 	code("let x = ['a': 'a'] x.look('a', 'b')").equals("'a'");
 	code("let x = ['a': 'a'] x.look('b', 'b')").equals("'b'");
-	code("let x = ['a': 1] x.look(3.14, 'a')").error(ls::Error::METHOD_NOT_FOUND, {ls::Type::const_map(env.any, env.integer)->to_string() + ".look(" + env.real->to_string() + ", " + env.tmp_string->to_string() + ")"});
+	code("let x = ['a': 1] x.look(3.14, 'a')").equals("'a'");
 	code("[1 : 1].look(1, 0)").equals("1");
 	code("[1 : 'a'].look(2, 10)").equals("10");
 	code("[1 : 'a'].look(2, 5.5)").equals("5.5");
