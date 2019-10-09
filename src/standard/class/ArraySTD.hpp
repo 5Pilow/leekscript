@@ -44,6 +44,7 @@ public:
 	static Compiler::value push_all(Compiler&, std::vector<Compiler::value>, int);
 	static Compiler::value reverse(Compiler&, std::vector<Compiler::value>, int);
 	static Compiler::value repeat(Compiler&, std::vector<Compiler::value>, int);
+	static Compiler::value layer(Compiler&, std::vector<Compiler::value>, int);
 
 	static int convert_key(LSValue*);
 

@@ -200,6 +200,13 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.boolean, {Type::array(env.integer), Type::array(env.integer)}, (void*) perm_int_int},
 	});
 
+	auto laT = env.template_("T");
+	auto laV = env.template_("V");
+	template_(laT, laV).
+	method("layer", {
+		{Type::tmp_array(Type::meta_add(Type::meta_not_temporary(laT), laV)), {Type::const_array(Type::meta_not_temporary(laT)), Type::const_array(laV), laT}, ADDR(layer)}
+	});
+
 	method("nextPermutation", {
 		{env.boolean, {Type::array(env.integer)}, ADDR((void*) &LSArray<int>::next_permutation)},
 		{env.boolean, {Type::array(env.long_)}, ADDR((void*) &LSArray<long>::next_permutation)},
@@ -715,6 +722,34 @@ Compiler::value ArraySTD::repeat(Compiler& c, std::vector<Compiler::value> args,
 		return "Array.repeat_fun";
 	}();
 	return c.insn_call(args[0].t->add_temporary(), args, fun);
+}
+
+Compiler::value ArraySTD::layer(Compiler& c, std::vector<Compiler::value> args, int) {
+	auto array1 = args[0];
+	auto array2 = args[1];
+	auto filter = args[2];
+	c.insn_inc_refs(filter);
+	auto result = c.new_array(args[0].t->element()->operator + (args[1].t->element()), {});
+	auto v = Variable::new_temporary("v", args[0].t->element());
+	v->create_entry(c);
+	auto i = Variable::new_temporary("i", args[0].t->key());
+	i->create_entry(c);
+	c.insn_foreach(args[0], c.env.void_, v, i, [&](Compiler::value v, Compiler::value i) -> Compiler::value {
+		auto x = c.clone(v);
+		c.insn_inc_refs(x);
+		c.insn_if(c.insn_eq(c.clone(x), c.clone(filter)), [&]() {
+			auto x2 = c.clone(c.insn_load(c.insn_array_at(array2, i)));
+			c.insn_push_array(result, x2);
+		}, [&]() {
+			auto x2 = c.clone(x);
+			c.insn_push_array(result, x2);
+		});
+		c.insn_delete(x);
+		return { c.env };
+	});
+	c.insn_delete_temporary(args[1]);
+	c.insn_delete(filter);
+	return result;
 }
 
 Compiler::value ArraySTD::push(Compiler& c, std::vector<Compiler::value> args, int flags) {
