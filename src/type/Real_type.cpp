@@ -6,6 +6,7 @@
 #include "Bool_type.hpp"
 #include "Integer_type.hpp"
 #include "Long_type.hpp"
+#include "Template_type.hpp"
 #if COMPILER
 #include "../compiler/Compiler.hpp"
 #endif
@@ -17,6 +18,10 @@ bool Real_type::operator == (const Type* type) const {
 }
 int Real_type::distance(const Type* type) const {
 	if (not temporary and type->temporary) return -1;
+		if (auto t = dynamic_cast<const Template_type*>(type->folded)) {
+		if (t->_implementation->is_void()) return -1;
+		return distance(t->_implementation);
+	}
 	if (dynamic_cast<const Real_type*>(type->folded)) { return 0; }
 	if (dynamic_cast<const Mpz_type*>(type->folded)) { return 3; }
 	if (dynamic_cast<const Bool_type*>(type->folded)) { return 102; }
