@@ -207,5 +207,5 @@ void Test::test_types() {
 	code("[[1, 2.5]]").type(ls::Type::tmp_array(ls::Type::array(ls::Type::compound({env.integer, env.real, env.any}))));
 	code("[['a']]").type(ls::Type::tmp_array(ls::Type::array(ls::Type::compound({env.string, env.any}))));
 
-	//if (success_count != total) assert(false && "Type tests failed!");
+	if (success_count != total) assert(false && "Type tests failed!");
 }

@@ -86,11 +86,14 @@ Variable* Variable::new_temporary(std::string name, const Type* type) {
 	return new Variable(name, VarScope::LOCAL, type, 0, nullptr, nullptr, nullptr, nullptr, nullptr);
 }
 
-const Type* Variable::get_type_for_variable_from_expression(Environment& env, const Type* expression_type) {
-	if (expression_type->is_mpz() or expression_type->is_mpz_ptr()) {
+const Type* Variable::get_type_for_variable_from_expression(Environment& env, const Value* expression) {
+	if (not expression) {
+		return env.never;
+	}
+	if (expression->type->is_mpz() or expression->type->is_mpz_ptr()) {
 		return env.mpz_ptr;
 	}
-	return expression_type->not_temporary();
+	return expression->type->not_temporary();
 }
 
 }

@@ -168,10 +168,19 @@ Compiler::value If::compile(Compiler& c) const {
 
 std::unique_ptr<Value> If::clone() const {
 	auto iff = std::make_unique<If>(type->env);
+	iff->ternary = ternary;
 	iff->condition = condition->clone();
 	iff->then = unique_static_cast<Block>(then->clone());
 	iff->elze = elze ? unique_static_cast<Block>(elze->clone()) : nullptr;
-	iff->ternary = ternary;
+
+	// iff->end_section = new Section(type->env, "end_if");
+
+	// iff->then->sections.back()->add_successor(iff->end_section);
+	// iff->end_section->add_predecessor(iff->then->sections.back());
+
+	// iff->elze->sections.back()->add_successor(iff->end_section);
+	// iff->end_section->add_predecessor(iff->elze->sections.back());
+
 	return iff;
 }
 

@@ -82,13 +82,11 @@ void VariableDeclaration::analyze(SemanticAnalyzer* analyzer, const Type*) {
 			expressions[i]->analyze(analyzer);
 			v->value = expressions[i].get();
 			throws |= expressions[i]->throws;
-		} else {
-			v->value = new Nulll(type->env, nullptr);
 		}
-		if (v->value->type->is_void()) {
+		if (v->value and v->value->type->is_void()) {
 			analyzer->add_error({Error::Type::CANT_ASSIGN_VOID, location(), var->location, {var->content}});
 		} else {
-			v->type = Variable::get_type_for_variable_from_expression(env, v->value->type);
+			v->type = Variable::get_type_for_variable_from_expression(env, v->value);
 			if (constant) v->type = v->type->add_constant();
 		}
 		vars.insert({var->content, v});

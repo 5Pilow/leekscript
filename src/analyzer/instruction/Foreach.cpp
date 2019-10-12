@@ -237,7 +237,7 @@ Compiler::value Foreach::compile(Compiler& c) const {
 
 	// Condition to continue
 	auto finished = c.iterator_end(container_v, it);
-	c.leave_section_condition(c.insn_not(finished));
+	c.leave_section_condition(c.insn_not_bool(finished));
 
 	// loop label:
 	body->sections.front()->pre_compile(c);

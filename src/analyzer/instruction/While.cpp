@@ -75,12 +75,12 @@ void While::pre_analyze(SemanticAnalyzer* analyzer) {
 		analyzer->leave_loop();
 
 		for (const auto& phi : condition_section->phis) {
-			// std::cout << "phi " << phi->variable << std::endl;
+			// std::cout << "While phi " << phi->variable << std::endl;
 			for (const auto& mutation : mutations) {
-				// std::cout << "mutation " << mutation.variable << " " << mutation.section->id << std::endl;
+				// std::cout << "While mutation " << mutation.variable << " " << mutation.section->id << std::endl;
 				if (mutation.variable->name == phi->variable2->name) {
 					phi->variable2 = mutation.variable;
-					// std::cout << "set var for phi " << phi->variable2 << std::endl;
+					// std::cout << "While set var for phi " << phi->variable2 << std::endl;
 				}
 			}
 		}

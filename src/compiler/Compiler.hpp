@@ -189,7 +189,7 @@ public:
 	value insn_shl(value, value);
 	value insn_lshr(value, value);
 	value insn_ashr(value, value);
-	value insn_mod(value, value);
+	value insn_mod(value, value, bool check_overflow = true);
 	value insn_double_mod(value, value);
 	value insn_cmpl(value, value);
 

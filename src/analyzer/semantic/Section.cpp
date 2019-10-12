@@ -175,7 +175,7 @@ void Section::reanalyze_conversions(SemanticAnalyzer* analyzer) {
 		auto parent = std::get<2>(conversion)->variables.at(std::get<0>(conversion)->name);
 
 		// std::cout << "Section reanalyze_conversions " << std::get<0>(conversion) << " " << std::get<0>(conversion)->type << " = (" << parent->type << ") " << parent << std::endl;
-		std::get<0>(conversion)->type = parent->type;
+		std::get<0>(conversion)->type = std::get<0>(conversion)->type->operator + ( parent->type);
 	}
 }
 
@@ -190,6 +190,7 @@ void Section::pre_compile(Compiler& c) {
 
 Compiler::value Section::compile(Compiler& c) const {
 	// std::cout << "Section<" << id << ">::compile " << std::endl;
+	((Section*) this)->pre_compile(c);
 
 	for (const auto& phi : phis) {
 		// std::cout << "phi " << phi->variable1 << " " << phi->value1.v << " " << phi->variable2 << " " << phi->value2.v << " " << phi->variable1->type << " " << phi->variable2->type << std::endl;
@@ -198,17 +199,17 @@ Compiler::value Section::compile(Compiler& c) const {
 			phi->active = false;
 		} else {
 			// std::cout << "compile phi " << phi->variable << " " << phi->variable->type << " " << phi->value1.t << " " << phi->value2.t << std::endl;
-			if (phi->value1.v && phi->value2.v) {
-				// std::cout << "phi " << phi->variable << " type " << phi->variable->type << std::endl;
-				auto phi_type = phi->variable->type->is_mpz_ptr() ? env.mpz : phi->variable->type;
-				auto phi_node = c.insn_phi(phi_type, c.insn_convert(phi->value1, phi_type), phi->section1, c.insn_convert(phi->value2, phi_type), phi->section2);
-				phi->variable->val = c.create_entry(phi->variable->name, phi_type);
-				c.insn_store(phi->variable->val, phi_node);
-			} else {
-				phi->variable->val = phi->variable1->val;
+
+			// std::cout << "phi " << phi->variable << " type " << phi->variable->type << std::endl;
+			auto phi_type = phi->variable->type->is_mpz_ptr() ? env.mpz : phi->variable->type;
+			phi->phi_node = c.insn_phi(phi_type, c.insn_convert(phi->value1, phi_type), phi->section1, c.insn_convert(phi->value2, phi_type), phi->section2);
+			phi->variable->val = c.create_entry(phi->variable->name, phi_type);
+			c.insn_store(phi->variable->val, phi->phi_node);
+			// } else {
+				// phi->variable->val = phi->variable1->val;
 				// std::cout << "half phi: " << phi->variable << " " << phi->variable->type << " " << phi->variable->val.t << std::endl;
-				phi->active = false;
-			}
+				// phi->active = false;
+			// }
 		}
 	}
 
@@ -243,11 +244,15 @@ void Section::compile_end(Compiler& c) const {
 			if (phi->section1 == this) {
 				const auto& var1 = phi->variable1;
 				// std::cout << "Block export value1 " << var1 << " " << var1->type << " " << var1->val.t << " convert to " << phi->variable->type << std::endl;
+
 				// TODO : normalement pas besoin de faire une condition ici
 				if (var1->type != phi->variable->type) {
 					phi->value1 = c.insn_convert(c.insn_load(var1->val), phi->variable->type);
 				} else {
 					phi->value1 = c.insn_load(var1->val);
+				}
+				if (phi->phi_node.v) {
+					((llvm::PHINode*) phi->phi_node.v)->addIncoming(phi->value1.v, this->basic_block);
 				}
 			}
 			if (phi->section2 == this) {
@@ -258,6 +263,9 @@ void Section::compile_end(Compiler& c) const {
 					phi->value2 = c.insn_convert(c.insn_load(var2->val), phi->variable->type);
 				} else {
 					phi->value2 = c.insn_load(var2->val);
+				}
+				if (phi->phi_node.v) {
+					((llvm::PHINode*) phi->phi_node.v)->addIncoming(phi->value2.v, this->basic_block);
 				}
 			}
 		}
@@ -272,6 +280,7 @@ void Section::compile_end(Compiler& c) const {
 
 		if (condition.v) {
 			// std::cout << "Section insn_if " << successors[0]->id << " " << successors[1]->id << std::endl;
+			assert(condition.t->is_bool());
 			c.insn_if_sections(condition, successors[0], successors[1]);
 		} else {
 			c.insn_branch(successors[0]);

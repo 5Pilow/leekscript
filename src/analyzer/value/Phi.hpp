@@ -28,6 +28,7 @@ public:
 	#if COMPILER
 	Compiler::value value1;
 	Compiler::value value2;
+	Compiler::value phi_node;
 	#endif
 
 	Phi(Environment& env, Variable* variable, Block* block1, Variable* value1, Block* block2, Variable* value2);

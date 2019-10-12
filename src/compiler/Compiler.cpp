@@ -113,6 +113,7 @@ llvm::orc::VModuleKey Compiler::addModule(std::unique_ptr<llvm::Module> M, bool 
 }
 
 llvm::AllocaInst* Compiler::CreateEntryBlockAlloca(const std::string& VarName, llvm::Type* type) const {
+	assert(F);
 	llvm::IRBuilder<> builder(&F->getEntryBlock(), F->getEntryBlock().begin());
 	return builder.CreateAlloca(type, nullptr, VarName);
 }
@@ -389,6 +390,8 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 			if (t->key()->is_integer()) {
 				if (t->element()->is_integer()) {
 					return insn_call(t, {}, "Map.new.8");
+				} else if (t->element()->is_real()) {
+					return insn_call(t, {}, "Map.new.7");
 				}
 			} else {
 				if (t->element()->is_integer()) {
@@ -396,6 +399,7 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 				}
 			}
 		}
+		std::cout << "convert " << v.t << " " << t->is_primitive() << " to " << t << " " << t->is_polymorphic() << std::endl;
 		assert(false);
 	}
 	if (v.t->is_null()) {
@@ -747,14 +751,16 @@ Compiler::value Compiler::insn_lshr(Compiler::value a, Compiler::value b) {
 	return {builder.CreateLShr(a.v, b.v), env.integer};
 }
 
-Compiler::value Compiler::insn_mod(Compiler::value a, Compiler::value b) {
+Compiler::value Compiler::insn_mod(Compiler::value a, Compiler::value b, bool check_overflow) {
 	assert(check_value(a));
 	assert(check_value(b));
-	insn_if(insn_eq(to_real(b), new_real(0)), [&]() {
-		insn_delete_temporary(a);
-		insn_delete_temporary(b);
-		insn_throw_object(vm::Exception::DIVISION_BY_ZERO);
-	});
+	if (check_overflow) {
+		insn_if(insn_eq(to_real(b), new_real(0)), [&]() {
+			insn_delete_temporary(a);
+			insn_delete_temporary(b);
+			insn_throw_object(vm::Exception::DIVISION_BY_ZERO);
+		});
+	}
 	if (a.t->is_long() and b.t->is_long()) {
 		return { builder.CreateSRem(a.v, b.v), env.long_ };
 	} else if (a.t->is_long() and b.t->is_integer()) {
@@ -1608,7 +1614,7 @@ void Compiler::iterator_increment(const Type* collectionType, Compiler::value it
 		auto n = insn_load_member(it, 0);
 		auto p = insn_load_member(it, 1);
 		auto i = insn_load_member(it, 2);
-		insn_store_member(it, 0, insn_mod(n, p));
+		insn_store_member(it, 0, insn_mod(n, p, false));
 		insn_store_member(it, 1, insn_int_div(p, new_integer(10)));
 		insn_store_member(it, 2, insn_add(i, new_integer(1)));
 		return;
@@ -1617,7 +1623,7 @@ void Compiler::iterator_increment(const Type* collectionType, Compiler::value it
 		auto n = insn_load_member(it, 0);
 		auto p = insn_load_member(it, 1);
 		auto i = insn_load_member(it, 2);
-		insn_store_member(it, 0, insn_mod(n, p));
+		insn_store_member(it, 0, insn_mod(n, p, false));
 		insn_store_member(it, 1, insn_int_div(p, new_long(10)));
 		insn_store_member(it, 2, insn_add(i, new_integer(1)));
 		return;
@@ -1888,19 +1894,20 @@ Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Compile
 }
 
 Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Section* s1, Compiler::value v2, Section* s2) {
-	if (!v2.v) return v1;
-	if (!v1.v) return v2;
+	// std::cout << "insn_phi " << type << " " << v1.v << " " << v2.v << std::endl;
 	const auto folded_type = type->fold();
 	const auto llvm_type = folded_type->llvm(*this);
 	auto phi = Compiler::builder.CreatePHI(llvm_type, 2, "phi");
-	assert(v1.v != nullptr);
-	// std::cout << "v1 type " << v1.t << ", " << folded_type << ", " << type << std::endl;
-	// assert(v1.t == folded_type);
-	phi->addIncoming(v1.v, s1->basic_block);
-	assert(v2.v != nullptr);
-	// std::cout << "v2 type " << v2.t << ", " << folded_type << ", " << type << std::endl;
-	// assert(v2.t == folded_type);
-	phi->addIncoming(v2.v, s2->basic_block);
+	if (v1.v) {
+		// std::cout << "v1 type " << v1.t << ", " << folded_type << ", " << type << std::endl;
+		// assert(v1.t == folded_type);
+		phi->addIncoming(v1.v, s1->basic_block);
+	}
+	if (v2.v) {
+		// std::cout << "v2 type " << v2.t << ", " << folded_type << ", " << type << std::endl;
+		// assert(v2.t == folded_type);
+		phi->addIncoming(v2.v, s2->basic_block);
+	}
 	return {phi, folded_type};
 }
 

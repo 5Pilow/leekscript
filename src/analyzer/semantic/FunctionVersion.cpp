@@ -275,7 +275,9 @@ void FunctionVersion::create_function(Compiler& c) {
 		}
 		f->setPersonalityFn(personalityfn);
 	}
+	// body->sections.front()->pre_compile(c);
 	block = body->sections.front()->basic_block;
+	// std::cout << "function block " << block << std::endl;
 }
 
 Compiler::value FunctionVersion::compile(Compiler& c, bool compile_body) {
@@ -300,6 +302,7 @@ Compiler::value FunctionVersion::compile(Compiler& c, bool compile_body) {
 
 		c.enter_function((llvm::Function*) fun.v, parent->captures.size() > 0, this);
 
+		// c.enter_section(body->sections.front());
 		c.builder.SetInsertPoint(block);
 
 		// Declare context vars

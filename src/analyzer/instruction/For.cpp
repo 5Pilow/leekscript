@@ -106,12 +106,12 @@ void For::pre_analyze(SemanticAnalyzer* analyzer) {
 		analyzer->leave_loop();
 
 		for (const auto& phi : condition_section->phis) {
-			// std::cout << "phi " << phi->variable << std::endl;
+			// std::cout << "For phi " << phi->variable << std::endl;
 			for (const auto& mutation : mutations) {
-				// std::cout << "mutation " << mutation.variable << " " << mutation.section->id << std::endl;
+				// std::cout << "For mutation " << mutation.variable << " " << mutation.section->id << std::endl;
 				if (mutation.variable->name == phi->variable2->name) {
 					phi->variable2 = mutation.variable;
-					// std::cout << "set var for phi " << phi->variable2 << std::endl;
+					// std::cout << "For set var for phi " << phi->variable2 << std::endl;
 				}
 			}
 		}
@@ -240,6 +240,8 @@ Compiler::value For::compile(Compiler& c) const {
 	c.enter_block(init.get()); // { for init ; cond ; inc { body } }<-- this block
 	c.mark_offset(token->location.start.line);
 
+	c.enter_section(init->sections.front());
+
 	Compiler::value output_v { c.env };
 	if (type->is_array()) {
 		output_v = c.new_array(type->element(), {});
@@ -248,8 +250,11 @@ Compiler::value For::compile(Compiler& c) const {
 	}
 
 	// Init
+	bool first = true;
 	for (const auto& section : init->sections) {
-		c.enter_section(section);
+		if (not first) {
+			c.enter_section(section);
+		}
 		for (const auto& ins : section->instructions) {
 			ins->compile(c);
 			if (dynamic_cast<Return*>(ins.get())) {
@@ -258,6 +263,7 @@ Compiler::value For::compile(Compiler& c) const {
 				return return_v;
 			}
 		}
+		first = false;
 	}
 
 	// Cond

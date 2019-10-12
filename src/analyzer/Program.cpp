@@ -149,6 +149,7 @@ void Program::compile_ir_file(Compiler& c) {
 	} else {
 		type = env.integer;
 	}
+	std::cout << type << std::endl;
 
 	result.compilation_success = true;
 	std::ostringstream oss;

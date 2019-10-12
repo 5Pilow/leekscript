@@ -138,9 +138,13 @@ int CLI::execute_snippet(std::string code, CLI_options options) {
 	if (options.json_output) {
 		env.output = &oss;
 	}
-	env.analyze(program, options.format, options.debug);
+	if (not options.execute_ir) {
+		env.analyze(program, options.format, options.debug);
+	}
 	env.compile(program, options.format, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
-	env.execute(program, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
+	if (not options.execute_ir) {
+		env.execute(program, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
+	}
 
 	print_result(program.result, oss.str(), options.json_output, options.display_time, options.operations);
 	#endif
@@ -156,9 +160,14 @@ int CLI::execute_file(std::string file, CLI_options options) {
 	if (options.json_output)
 		env.output = &oss;
 	Program program { env, code, file_name };
-	env.analyze(program, options.format, options.debug, options.sections);
+
+	if (not options.execute_ir) {
+		env.analyze(program, options.format, options.debug, options.sections);
+	}
 	env.compile(program, options.format, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
+
 	env.execute(program, options.format, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
+
 	print_result(program.result, oss.str(), options.json_output, options.display_time, options.operations);
 	#endif
 	return 0;
