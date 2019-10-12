@@ -27,7 +27,7 @@ void Test::test_classes() {
 	code("(-> 12).class").equals("<class Function>");
 	code("(x, y -> x + y).class").equals("<class Function>");
 	code("12.class.class").equals("<class Class>");
-	DISABLED_code("[true, 12, 'foo', [], [1, 2], [1.5, 2.5], [1..12], [1:12], <>, <1.5>, <'a'>, {}, x -> x, Number] ~~ x -> x.class").equals("[<class Boolean>, <class Number>, <class String>, <class Array>, <class Array>, <class Array>, <class Interval>, <class Map>, <class Set>, <class Set>, <class Set>, <class Object>, <class Function>, <class Class>]");
+	code("[true, 12, 'foo', [], [1, 2], [1.5, 2.5], [1..12], [1:12], <>, <1.5>, <'a'>, {}, x -> x, Number] ~~ x -> x.class").equals("[<class Boolean>, <class Number>, <class String>, <class Array>, <class Array>, <class Array>, <class Interval>, <class Map>, <class Set>, <class Set>, <class Set>, <class Object>, <class Function>, <class Class>]");
 
 	section("Class.name");
 	code("Boolean.name").equals("'Boolean'");
