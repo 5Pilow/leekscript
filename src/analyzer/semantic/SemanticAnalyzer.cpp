@@ -31,14 +31,18 @@ void SemanticAnalyzer::analyze(Program* program) {
 	enter_function(program->main->default_version);
 	enter_block(program->main->default_version->body.get());
 
+	enter_section(program->main->default_version->body->sections.front());
+
 	// Add context variables
 	if (program->context) {
 		for (auto& var : program->context->vars) {
 			// std::cout << "Add context var " << var.first << std::endl;
 			var.second.variable = add_var(new Token(TokenType::IDENT, program->main_file, 0, 0, 0, var.first), var.second.type, nullptr);
+			var.second.variable->injected = true;
 			// std::cout << "variable added " << var.second.variable << " " << (void*) var.second.variable << std::endl;
 		}
 	}
+	leave_section();
 	leave_block();
 	leave_function();
 
@@ -245,7 +249,7 @@ Variable* SemanticAnalyzer::convert_var_to_any(Variable* var) {
 }
 
 Variable* SemanticAnalyzer::update_var(Variable* variable, bool add_mutation) {
-	if (variable->injected) return variable;
+	if (variable->loop_variable) return variable;
 	// std::cout << "update_var " << variable << " " << (int) variable->scope << std::endl;
 	Variable* new_variable;
 	if (current_block() == variable->block) {

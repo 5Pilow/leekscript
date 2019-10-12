@@ -28,17 +28,17 @@ LSMap<int, int>::iterator iterator_dec(LSMap<int, int>::iterator it) {
 void* iterator_rkey(std::map<void*, void*>::iterator it) {
 	return std::map<void*, void*>::reverse_iterator(it)->first;
 }
-int iterator_rget_ii(std::map<int, int>::iterator it) {
-	return std::map<int, int>::reverse_iterator(it)->second;
+int* iterator_rget_ii(std::map<int, int>::iterator it) {
+	return &std::map<int, int>::reverse_iterator(it)->second;
 }
-int iterator_rget_vi(std::map<void*, int>::iterator it) {
-	return std::map<void*, int>::reverse_iterator(it)->second;
+int* iterator_rget_vi(std::map<void*, int>::iterator it) {
+	return &std::map<void*, int>::reverse_iterator(it)->second;
 }
-double iterator_rget_ir(std::map<int, double>::iterator it) {
-	return std::map<int, double>::reverse_iterator(it)->second;
+double* iterator_rget_ir(std::map<int, double>::iterator it) {
+	return &std::map<int, double>::reverse_iterator(it)->second;
 }
-void* iterator_rget_vv(std::map<void*, void*>::iterator it) {
-	return std::map<void*, void*>::reverse_iterator(it)->second;
+void** iterator_rget_vv(std::map<void*, void*>::iterator it) {
+	return &std::map<void*, void*>::reverse_iterator(it)->second;
 }
 std::map<int, int>::iterator end(LSMap<int, int>* map) {
 	return map->end();
@@ -240,10 +240,10 @@ MapSTD::MapSTD(Environment& env) : Module(env, "Map") {
 	}, PRIVATE);
 
 	method("iterator_rget", {
-		{env.integer, {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_ii)},
-		{env.integer, {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_vi)},
-		{env.real, {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_ir)},
-		{env.any, {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_vv)},
+		{env.integer->pointer(), {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_ii)},
+		{env.integer->pointer(), {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_vi)},
+		{env.real->pointer(), {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_ir)},
+		{env.any->pointer(), {Type::map(env.void_, env.void_)->iterator()}, ADDR((void*) iterator_rget_vv)},
 	}, PRIVATE);
 
 	auto look_any_any = ADDR((&LSMap<LSValue*, LSValue*>::ls_look<LSValue*>));
@@ -436,10 +436,10 @@ Compiler::value MapSTD::fold_left(Compiler& c, std::vector<Compiler::value> args
 	c.add_temporary_variable(result);
 	auto v = Variable::new_temporary("v", args[0].t->element());
 	auto k = Variable::new_temporary("k", args[0].t->key());
-	v->create_entry(c);
-	k->create_entry(c);
-	c.add_temporary_variable(v);
-	c.add_temporary_variable(k);
+	// v->create_entry(c);
+	// k->create_entry(c);
+	// c.add_temporary_variable(v);
+	// c.add_temporary_variable(k);
 	c.insn_foreach(args[0], c.env.void_, v, k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
 		c.insn_store(result->entry, c.insn_call(function, {c.insn_load(result->entry), k, v}));
 		return { c.env };
@@ -456,10 +456,10 @@ Compiler::value MapSTD::fold_right(Compiler& c, std::vector<Compiler::value> arg
 	c.add_temporary_variable(result);
 	auto v = Variable::new_temporary("v", args[0].t->element());
 	auto k = Variable::new_temporary("k", args[0].t->key());
-	v->create_entry(c);
-	k->create_entry(c);
-	c.add_temporary_variable(v);
-	c.add_temporary_variable(k);
+	// v->create_entry(c);
+	// k->create_entry(c);
+	// c.add_temporary_variable(v);
+	// c.add_temporary_variable(k);
 	c.insn_foreach(args[0], c.env.void_, v, k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
 		c.insn_store(result->entry, c.insn_call(function, {k, v, c.insn_load(result->entry)}));
 		return { c.env };
@@ -471,10 +471,10 @@ Compiler::value MapSTD::iter(Compiler& c, std::vector<Compiler::value> args, int
 	auto function = args[1];
 	auto v = Variable::new_temporary("v", args[0].t->element());
 	auto k = Variable::new_temporary("k", args[0].t->key());
-	v->create_entry(c);
-	k->create_entry(c);
-	c.add_temporary_variable(v);
-	c.add_temporary_variable(k);
+	// v->create_entry(c);
+	// k->create_entry(c);
+	// c.add_temporary_variable(v);
+	// c.add_temporary_variable(k);
 	c.insn_foreach(args[0], c.env.void_, v, k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
 		return c.insn_call(function, {k, v});
 	});

@@ -535,8 +535,8 @@ Compiler::value StringSTD::fold_fun(Compiler& c, std::vector<Compiler::value> ar
 	c.add_temporary_variable(result);
 	c.insn_store(result->entry, c.insn_move_inc(args[2]));
 	auto v = Variable::new_temporary("v", args[0].t->element());
-	v->create_entry(c);
-	c.add_temporary_variable(v);
+	// v->create_entry(c);
+	// c.add_temporary_variable(v);
 	c.insn_foreach(args[0], c.env.void_, v, nullptr, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
 		auto r = c.insn_call(function, {c.insn_load(result->entry), v});
 		c.insn_delete(c.insn_load(result->entry));

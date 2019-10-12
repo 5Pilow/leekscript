@@ -71,21 +71,17 @@ void Block::add_instruction(std::unique_ptr<Instruction> instruction) {
 	jumping |= instruction->jumping;
 	auto last = instructions.emplace_back(std::move(instruction)).get();
 	sections.back()->instructions.push_back(last);
-	if (last->jumping) {
-		if (not last->jump_to_existing_section) {
-			std::cout << "add end section " << last->end_section << std::endl;
-			if (last->end_section and not last->end_section->is_end_of_block) {
-
-				sections.push_back(last->end_section);
-
-			} else {
-				auto end_section = new Section(last->type->env, "end_block");
-				last->set_end_section(end_section);
-				sections.push_back(end_section);
-			}
-			// end_section = sections.back();
-			// end_section->is_end_of_block = true;
+	if (last->jumping and not last->jump_to_existing_section and not last->throws) {
+		// std::cout << "add end section " << last->end_section << std::endl;
+		if (last->end_section and not last->end_section->is_end_of_block) {
+			sections.push_back(last->end_section);
+		} else {
+			auto end_section = new Section(last->type->env, "end_block");
+			last->set_end_section(end_section);
+			sections.push_back(end_section);
 		}
+		// end_section = sections.back();
+		// end_section->is_end_of_block = true;
 	}
 	if (last->returning) {
 		returning = true;

@@ -78,8 +78,9 @@ void VariableDeclaration::analyze(SemanticAnalyzer* analyzer, const Type*) {
 
 	for (unsigned i = 0; i < variables.size(); ++i) {
 		auto& var = variables.at(i);
-		auto vi = vars.find(var->content);
-		if (vi == vars.end()) continue;
+		auto& variables = (global ? global_vars : vars);
+		auto vi = variables.find(var->content);
+		if (vi == variables.end()) continue;
 		auto v = vi->second;
 		if (expressions[i]) {
 			if (Function* f = dynamic_cast<Function*>(expressions[i].get())) {

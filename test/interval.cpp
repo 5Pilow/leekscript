@@ -75,12 +75,12 @@ void Test::test_intervals() {
 	code("|[1..100]|").equals("100");
 
 	section("Interval.operator ~~");
-	DISABLED_code("[1..10] ~~ x -> x ** 2").equals("[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]");
-	DISABLED_code("[1..5] ~~ x -> x.sqrt()").equals("[1, 1.41421, 1.73205, 2, 2.23607]");
-	DISABLED_code("[1..10] ~~ x -> x.isPrime()").equals("[false, true, true, false, true, false, true, false, false, false]");
-	DISABLED_code("[-10..-5] ~~ x -> x + '!'").equals("['-10!', '-9!', '-8!', '-7!', '-6!', '-5!']");
-	DISABLED_code("[15..18] ~~ (x -> x ** 2) ~~ x -> x.sqrt()").equals("[15, 16, 17, 18]");
-	DISABLED_code("[1..10] ~~ Number.isPrime").equals("[false, true, true, false, true, false, true, false, false, false]");
+	code("[1..10] ~~ x -> x ** 2").equals("[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]");
+	code("[1..5] ~~ x -> x.sqrt()").equals("[1, 1.41421, 1.73205, 2, 2.23607]");
+	code("[1..10] ~~ x -> x.isPrime()").equals("[false, true, true, false, true, false, true, false, false, false]");
+	code("[-10..-5] ~~ x -> x + '!'").equals("['-10!', '-9!', '-8!', '-7!', '-6!', '-5!']");
+	code("[15..18] ~~ (x -> x ** 2) ~~ x -> x.sqrt()").equals("[15, 16, 17, 18]");
+	code("[1..10] ~~ Number.isPrime").equals("[false, true, true, false, true, false, true, false, false, false]");
 
 	section("Iteration");
 	code("for k, i in [1..0] { System.print(k + ' => ' + i) }").output("");
@@ -107,12 +107,12 @@ void Test::test_intervals() {
 	code("[1..10000].filter(isPrime).size()").equals("1229");
 
 	section("Interval.map");
-	DISABLED_code("[1..10].map(x -> x + 5)").equals("[6, 7, 8, 9, 10, 11, 12, 13, 14, 15]");
-	DISABLED_code("[1..10].map(x -> x ** 2)").equals("[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]");
-	DISABLED_code("[1..5].map(x -> x.sqrt())").equals("[1, 1.41421, 1.73205, 2, 2.23607]");
-	DISABLED_code("[1..10].map(x -> x.isPrime())").equals("[false, true, true, false, true, false, true, false, false, false]");
-	DISABLED_code("[-10..-5].map(x -> x + '!')").equals("['-10!', '-9!', '-8!', '-7!', '-6!', '-5!']");
-	DISABLED_code("[15..18].map(x -> x ** 2).map(x -> x.sqrt())").equals("[15, 16, 17, 18]");
+	code("[1..10].map(x -> x + 5)").equals("[6, 7, 8, 9, 10, 11, 12, 13, 14, 15]");
+	code("[1..10].map(x -> x ** 2)").equals("[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]");
+	code("[1..5].map(x -> x.sqrt())").equals("[1, 1.41421, 1.73205, 2, 2.23607]");
+	code("[1..10].map(x -> x.isPrime())").equals("[false, true, true, false, true, false, true, false, false, false]");
+	code("[-10..-5].map(x -> x + '!')").equals("['-10!', '-9!', '-8!', '-7!', '-6!', '-5!']");
+	code("[15..18].map(x -> x ** 2).map(x -> x.sqrt())").equals("[15, 16, 17, 18]");
 	// TODO not working anymore because print is compiler method, not direct function
 	DISABLED_code("[1..10].map(System.print)").output("1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n");
 

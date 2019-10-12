@@ -54,12 +54,12 @@ int Test::all() {
 		&Test::test_loops,
 		&Test::test_classes,
 		&Test::test_operators,
-		// &Test::test_exceptions,
+		&Test::test_exceptions,
 		&Test::test_operations,
 		&Test::test_system,
 		&Test::test_json,
 		// &Test::test_files,
-		// &Test::test_toplevel,
+		&Test::test_toplevel,
 		&Test::test_doc,
 	};
 	omp_set_num_threads(1);

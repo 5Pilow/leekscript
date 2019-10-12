@@ -532,8 +532,8 @@ Compiler::value ArraySTD::fold_left(Compiler& c, std::vector<Compiler::value> ar
 	c.add_temporary_variable(result);
 	c.insn_store(result->entry, c.insn_convert(c.insn_move_inc(args[2]), init_type));
 	auto v = Variable::new_temporary("v", args[0].t->element());
-	v->create_entry(c);
-	c.add_temporary_variable(v);
+	// v->create_entry(c);
+	// c.add_temporary_variable(v);
 	c.insn_foreach(array, c.env.void_, v, nullptr, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
 		auto r = c.insn_call(function, {c.insn_load(result->entry), v});
 		c.insn_delete(c.insn_load(result->entry));
@@ -550,7 +550,7 @@ Compiler::value ArraySTD::fold_right(Compiler& c, std::vector<Compiler::value> a
 	c.add_temporary_variable(result);
 	c.insn_store(result->entry, c.insn_move(args[2]));
 	auto v = Variable::new_temporary("v", args[0].t->element());
-	v->create_entry(c);
+	// v->create_entry(c);
 	c.insn_foreach(args[0], c.env.void_, v, nullptr, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
 		c.insn_store(result->entry, c.insn_call(function, {v, c.insn_load(result->entry)}));
 		return { c.env };
@@ -616,7 +616,7 @@ Compiler::value ArraySTD::map(Compiler& c, std::vector<Compiler::value> args, in
 	auto function = args[1];
 	auto result = flags & NO_RETURN ? Compiler::value { c.env } : c.new_array(function.t->return_type(), {});
 	auto v = Variable::new_temporary("v", array.t->element());
-	v->create_entry(c);
+	// v->create_entry(c);
 	c.insn_foreach(array, c.env.void_, v, nullptr, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
 		auto x = c.clone(v);
 		c.insn_inc_refs(x);

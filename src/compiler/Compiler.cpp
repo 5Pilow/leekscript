@@ -28,6 +28,7 @@
 #include "../type/Function_type.hpp"
 #include "../type/Function_object_type.hpp"
 #include "../analyzer/semantic/Variable.hpp"
+#include "../analyzer/instruction/Foreach.hpp"
 
 namespace ls {
 
@@ -1460,7 +1461,7 @@ Compiler::value Compiler::iterator_rget(const Type* collectionType, Compiler::va
 		auto e = insn_load(it);
 		auto f = insn_load(e);
 		insn_inc_refs(f);
-		return f;
+		return e;
 	}
 	if (collectionType->is_interval()) {
 		return insn_load_member(it, 1);
@@ -1471,17 +1472,18 @@ Compiler::value Compiler::iterator_rget(const Type* collectionType, Compiler::va
 	}
 	if (collectionType->is_map()) {
 		auto node = insn_load(it);
-		auto e = [&]() { if (collectionType->element()->is_integer() and collectionType->key()->is_integer()) {
-			return insn_call(collectionType->element(), {node}, "Map.iterator_rget");
+		auto addr = [&]() { if (collectionType->element()->is_integer() and collectionType->key()->is_integer()) {
+			return insn_call(collectionType->element()->pointer(), {node}, "Map.iterator_rget");
 		} else if (collectionType->element()->is_integer()) {
-			return insn_call(collectionType->element(), {node}, "Map.iterator_rget.1");
+			return insn_call(collectionType->element()->pointer(), {node}, "Map.iterator_rget.1");
 		} else if (collectionType->element()->is_real()) {
-			return insn_call(collectionType->element(), {node}, "Map.iterator_rget.2");
+			return insn_call(collectionType->element()->pointer(), {node}, "Map.iterator_rget.2");
 		} else {
-			return insn_call(collectionType->element(), {node}, "Map.iterator_rget.3");
+			return insn_call(collectionType->element()->pointer(), {node}, "Map.iterator_rget.3");
 		}}();
+		auto e = insn_load(addr);
 		insn_inc_refs(e);
-		return e;
+		return addr;
 	}
 	if (collectionType->is_set()) {
 		auto node = insn_load_member(it, 0);
@@ -1650,6 +1652,14 @@ void Compiler::iterator_rincrement(const Type* collectionType, Compiler::value i
 
 Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* output, Variable* var, Variable* key, std::function<Compiler::value(Compiler::value, Compiler::value)> body, bool reversed, std::function<Compiler::value(Compiler::value, Compiler::value)> body2) {
 
+	ForeachMode mode = [&]() {
+		if (container.t->is_number() or container.t->is_string() or container.t->is_interval()) {
+			return ForeachMode::VALUE;
+		} else {
+			return ForeachMode::ADDRESS;
+		}
+	}();
+
 	enter_block(new Block(env)); // { for x in [1, 2] {} }<-- this block
 
 	// Potential output [for ...]
@@ -1664,30 +1674,12 @@ Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* ou
 	insn_inc_refs(container);
 	add_temporary_value(container);
 
-	// Create variables
-	auto value_var = var->entry;
-	if (container.t->element()->is_polymorphic()) {
-		insn_store(value_var, new_null());
-		add_temporary_variable(var);
-	}
-
-	Compiler::value key_var { env };
-	if (key) {
-		key_var = key->entry;
-		if (container.t->key()->is_polymorphic()) {
-			insn_store(key_var, new_null());
-			add_temporary_variable(key);
-		}
-	}
-
 	auto it_label = insn_init_label("it");
 	auto cond_label = insn_init_label("cond");
-	auto cond2_label = insn_init_label("cond2");
 	auto end_label = insn_init_label("end");
 	auto loop_label = insn_init_label("loop");
-	auto loop2_label = insn_init_label("loop2");
 
-	// enter_loop(&end_label, &it_label);
+	enter_loop(nullptr, nullptr);
 
 	auto it = reversed ? iterator_rbegin(container) : iterator_begin(container);
 
@@ -1708,13 +1700,17 @@ Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* ou
 	// loop label:
 	insn_label(&loop_label);
 	// Get Value
-	insn_store(value_var, reversed ? iterator_rget(container.t, it) : iterator_get(container.t, it));
+	if (mode == ForeachMode::ADDRESS) {
+		var->entry = reversed ? iterator_rget(container.t, it) : iterator_get(container.t, it);
+	} else if (mode == ForeachMode::VALUE) {
+		var->val = reversed ? iterator_rget(container.t, it) : iterator_get(container.t, it);
+	}
 	// Get Key
 	if (key) {
-		insn_store(key_var, reversed ? iterator_rkey(container, it) : iterator_key(container, it));
+		key->val = reversed ? iterator_rkey(container, it) : iterator_key(container, it);
 	}
 	// Body
-	auto body_v = body(insn_load(value_var), key ? insn_load(key_var) : value { env });
+	auto body_v = body(var->get_value(*this), key ? key->get_value(*this) : value { env });
 	if (body_v.v) {
 		if (output_v.v) {
 			insn_push_array(output_v, body_v);
@@ -1722,35 +1718,19 @@ Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* ou
 			insn_delete_temporary(body_v);
 		}
 	}
+	if (container.t->element()->is_polymorphic()) {
+		var->delete_value(*this);
+	}
+	if (container.t->key()->is_polymorphic()) {
+		key->delete_value(*this);
+	}
 	insn_branch(&it_label);
 
 	// it++
 	insn_label(&it_label);
 	reversed ? iterator_rincrement(container.t, it) : iterator_increment(container.t, it);
 	// jump to cond
-	insn_branch(body2 ? &cond2_label : &cond_label);
-
-	// cond2 label:
-	if (body2) {
-		insn_label(&cond2_label);
-		finished = reversed ? iterator_rend(container, it) : iterator_end(container, it);
-		insn_if_new(finished, &end_label, &loop2_label);
-
-	// loop2 label:
-		insn_label(&loop2_label);
-		insn_store(value_var, reversed ? iterator_rget(container.t, it) : iterator_get(container.t, it));
-		if (key) insn_store(key_var, reversed ? iterator_rkey(container, it) : iterator_key(container, it));
-		// Body 2
-		auto body2_v = body2(insn_load(value_var), key ? insn_load(key_var) : value(env));
-		if (body2_v.v) {
-			if (output_v.v) {
-				insn_push_array(output_v, body2_v);
-			} else {
-				insn_delete_temporary(body2_v);
-			}
-		}
-		insn_branch(&it_label);
-	}
+	insn_branch(&cond_label);
 
 	leave_loop();
 

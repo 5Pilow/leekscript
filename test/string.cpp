@@ -205,9 +205,9 @@ void Test::test_strings() {
 	code("String.map('salut', x -> '(' + x + ')')").equals("'(s)(a)(l)(u)(t)'");
 	code("'salut'.map(char -> char + '.')").equals("'s.a.l.u.t.'");
 	code("'♫☯🐖👽韭'.map(u -> u + ' ')").equals("'♫ ☯ 🐖 👽 韭 '");
-	DISABLED_code("let f = n -> n.string().split('').map(d -> d.code()) f(196457238)").equals("[49, 57, 54, 52, 53, 55, 50, 51, 56]");
-	DISABLED_code("let f = n -> n.string().map(d -> (d.code() + 9263).char() + ' ') f(196457238)").equals("'① ⑨ ⑥ ④ ⑤ ⑦ ② ③ ⑧ '");
-	DISABLED_code("'a\nbb\nccc\nd'.lines().map(x -> x.size())").equals("[1, 2, 3, 1]");
+	code("let f = n -> n.string().split('').map(d -> d.code()) f(196457238)").equals("[49, 57, 54, 52, 53, 55, 50, 51, 56]");
+	code("let f = n -> n.string().map(d -> (d.code() + 9263).char() + ' ') f(196457238)").equals("'① ⑨ ⑥ ④ ⑤ ⑦ ② ③ ⑧ '");
+	code("'a\nbb\nccc\nd'.lines().map(x -> x.size())").equals("[1, 2, 3, 1]");
 
 	section("String.split()");
 	code("String.split('bonjour ça va', ' ')").equals("['bonjour', 'ça', 'va']");
@@ -237,14 +237,14 @@ void Test::test_strings() {
 	code("String.endsWith('too', 'too long')").equals("false");
 
 	section("String.fold");
-	DISABLED_code("''.fold((x, y) => x + y, '')").equals("''");
-	DISABLED_code("'abc'.fold((x, y) => x + y + '.', '')").equals("'a.b.c.'");
+	code("''.fold((x, y) => x + y, '')").equals("''");
+	code("'abc'.fold((x, y) => x + y + '.', '')").equals("'a.b.c.'");
 	DISABLED_code("let a = '_' let f = (x, y) => x + a + y 'abc'.fold(f, '.')").equals("'._a_b_c'");
-	DISABLED_code("'1234567'.fold((x, y) => x + y.number(), 0)").equals("28");
-	DISABLED_code("'1234567'.fold((x, y) => x + y.number(), 0.12)").equals("28.12");
-	DISABLED_code("'salut'.fold((x, y) => '%', '')").equals("'%'");
-	DISABLED_code("'salut'.fold(=> '%', '')").equals("'%'");
-	DISABLED_code("'salut'.fold((x, y) => y, '')").equals("'t'");
+	code("'1234567'.fold((x, y) => x + y.number(), 0)").equals("28");
+	code("'1234567'.fold((x, y) => x + y.number(), 0.12)").equals("28.12");
+	code("'salut'.fold((x, y) => '%', '')").equals("'%'");
+	code("'salut'.fold(=> '%', '')").equals("'%'");
+	code("'salut'.fold((x, y) => y, '')").equals("'t'");
 
 	section("String.indexOf()");
 	code("'bonjour'.indexOf('jour')").equals("3");
@@ -263,8 +263,8 @@ void Test::test_strings() {
 	code("String.code('ABC', 2)").equals("67");
 	code("(x -> x)(65).char()").equals("'A'");
 	code("[128040][0].char()").equals("'🐨'");
-	DISABLED_code("'hello'.map(x -> { let b = x == ' ' if b then ' ' else x.code() - 'a'.code() + 1 + ' ' end })").equals("'8 5 12 12 15 '");
-	DISABLED_code("'hello'.map(x -> { if x == ' ' then ' ' else x.code() - 'a'.code() + 1 + ' ' end })").equals("'8 5 12 12 15 '");
+	code("'hello'.map(x -> { let b = x == ' ' if b then ' ' else x.code() - 'a'.code() + 1 + ' ' end })").equals("'8 5 12 12 15 '");
+	code("'hello'.map(x -> { if x == ' ' then ' ' else x.code() - 'a'.code() + 1 + ' ' end })").equals("'8 5 12 12 15 '");
 	code("[String.code('♫'), '']").equals("[9835, '']");
 
 	section("String.number()");
@@ -288,7 +288,7 @@ void Test::test_strings() {
 	code("'hello world how are you today'.wordCount()").equals("6");
 	code("'aujourd\\'hui j\\'ai'.wordCount()").equals("2");
 	code("String.wordCount('abc def ghi')").equals("3");
-	DISABLED_code("['a b c', 'd e', 'f', 'g h i j'].map(x -> x.wordCount())").equals("[3, 2, 1, 4]");
+	code("['a b c', 'd e', 'f', 'g h i j'].map(x -> x.wordCount())").equals("[3, 2, 1, 4]");
 
 	section("String.sort()");
 	code("''.sort()").equals("''");

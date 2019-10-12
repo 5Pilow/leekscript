@@ -145,22 +145,22 @@ void Test::test_map() {
 	code("var x = ['a' : 1] x.erase(3.14) x").equals("['a': 1]");
 
 	section("Map.foldLeft()");
-	DISABLED_code("[:].foldLeft((r, k, v) => r + k * 1000 + v, 0)").equals("0");
-	DISABLED_code("[1: 2, 3: 4].foldLeft((r, k, v) => r + k * 1000 + v, 0)").equals("4006");
-	DISABLED_code("[1: 2.5, 3: 4.7].foldLeft((r, k, v) => r + k * 10000 + v, 0)").equals("40007.2");
-	DISABLED_code("[1: 'b', 3: 'd'].foldLeft((r, k, v) => r + k * 1000 + v, 0)").equals("'1000b3000d'");
-	DISABLED_code("['a': 2, 'c': 4].foldLeft((r, k, v) => r + k * 10 + v, 0)").equals("'0aaaaaaaaaa2cccccccccc4'");
-	DISABLED_code("['a': 2.5, 'c': 4.7].foldLeft((r, k, v) => r + k * 10 + v, 0)").equals("'0aaaaaaaaaa2.5cccccccccc4.7'");
-	DISABLED_code("['a': [55], 'c': [77]].foldLeft((r, k, v) => r + k * 10 + v, 0)").equals("'0aaaaaaaaaa[55]cccccccccc[77]'");
+	code("[:].foldLeft((r, k, v) => r + k * 1000 + v, 0)").equals("0");
+	code("[1: 2, 3: 4].foldLeft((r, k, v) => r + k * 1000 + v, 0)").equals("4006");
+	code("[1: 2.5, 3: 4.7].foldLeft((r, k, v) => r + k * 10000 + v, 0)").equals("40007.2");
+	code("[1: 'b', 3: 'd'].foldLeft((r, k, v) => r + k * 1000 + v, 0)").equals("'1000b3000d'");
+	code("['a': 2, 'c': 4].foldLeft((r, k, v) => r + k * 10 + v, 0)").equals("'0aaaaaaaaaa2cccccccccc4'");
+	code("['a': 2.5, 'c': 4.7].foldLeft((r, k, v) => r + k * 10 + v, 0)").equals("'0aaaaaaaaaa2.5cccccccccc4.7'");
+	code("['a': [55], 'c': [77]].foldLeft((r, k, v) => r + k * 10 + v, 0)").equals("'0aaaaaaaaaa[55]cccccccccc[77]'");
 
 	section("Map.foldRight()");
-	DISABLED_code("[:].foldRight((k, v, r) => r + k * 1000 + v, 0)").equals("0");
-	DISABLED_code("[1: 2, 3: 4].foldRight((k, v, r) => r + k * 1000 + v, 0)").equals("4006");
-	DISABLED_code("[1: 2.5, 3: 4.7].foldRight((k, v, r) => r + k * 10000 + v, 0)").equals("40007.2");
-	DISABLED_code("[1: 'b', 3: 'd'].foldRight((k, v, r) => r + k * 1000 + v, 0)").equals("'3000d1000b'");
-	DISABLED_code("['a': 2, 'c': 4].foldRight((k, v, r) => r + k * 10 + v, 0)").equals("'0cccccccccc4aaaaaaaaaa2'");
-	DISABLED_code("['a': 2.5, 'c': 4.7].foldRight((k, v, r) => r + k * 10 + v, 0)").equals("'0cccccccccc4.7aaaaaaaaaa2.5'");
-	DISABLED_code("['a': [55], 'c': [77]].foldRight((k, v, r) => r + k * 10 + v, 0)").equals("'0cccccccccc[77]aaaaaaaaaa[55]'");
+	code("[:].foldRight((k, v, r) => r + k * 1000 + v, 0)").equals("0");
+	code("[1: 2, 3: 4].foldRight((k, v, r) => r + k * 1000 + v, 0)").equals("4006");
+	code("[1: 2.5, 3: 4.7].foldRight((k, v, r) => r + k * 10000 + v, 0)").equals("40007.2");
+	code("[1: 'b', 3: 'd'].foldRight((k, v, r) => r + k * 1000 + v, 0)").equals("'3000d1000b'");
+	code("['a': 2, 'c': 4].foldRight((k, v, r) => r + k * 10 + v, 0)").equals("'0cccccccccc4aaaaaaaaaa2'");
+	code("['a': 2.5, 'c': 4.7].foldRight((k, v, r) => r + k * 10 + v, 0)").equals("'0cccccccccc4.7aaaaaaaaaa2.5'");
+	code("['a': [55], 'c': [77]].foldRight((k, v, r) => r + k * 10 + v, 0)").equals("'0cccccccccc[77]aaaaaaaaaa[55]'");
 
 	section("Map.look()");
 	code("let x = [1: 1] x.look(1, 0)").equals("1");
@@ -184,12 +184,12 @@ void Test::test_map() {
 	code("[(x, y -> x + y): (x, y -> x - y), null: 'null', <'a', 'b'>: 0].values()").equals("['null', 0, <function>]");
 
 	section("Map.iter");
-	DISABLED_code("[1: 2, 3: 4].iter((k, v) -> System.print(k + ' ' + v))").output("1 2\n3 4\n");
-	DISABLED_code("[1: 2.5, 3: 4.5].iter((k, v) -> System.print(k + ' ' + v))").output("1 2.5\n3 4.5\n");
-	DISABLED_code("[1: 'a', 3: 'b'].iter((k, v) -> System.print(k + ' ' + v))").output("1 a\n3 b\n");
-	DISABLED_code("['a': 2, 'b': 4].iter((k, v) -> System.print(k + ' ' + v))").output("a 2\nb 4\n");
-	DISABLED_code("['a': 2.5, 'b': 4.5].iter((k, v) -> System.print(k + ' ' + v))").output("a 2.5\nb 4.5\n");
-	DISABLED_code("['a': 'b', 'c': 'd'].iter((k, v) -> System.print(k + ' ' + v))").output("a b\nc d\n");
+	code("[1: 2, 3: 4].iter((k, v) -> System.print(k + ' ' + v))").output("1 2\n3 4\n");
+	code("[1: 2.5, 3: 4.5].iter((k, v) -> System.print(k + ' ' + v))").output("1 2.5\n3 4.5\n");
+	code("[1: 'a', 3: 'b'].iter((k, v) -> System.print(k + ' ' + v))").output("1 a\n3 b\n");
+	code("['a': 2, 'b': 4].iter((k, v) -> System.print(k + ' ' + v))").output("a 2\nb 4\n");
+	code("['a': 2.5, 'b': 4.5].iter((k, v) -> System.print(k + ' ' + v))").output("a 2.5\nb 4.5\n");
+	code("['a': 'b', 'c': 'd'].iter((k, v) -> System.print(k + ' ' + v))").output("a b\nc d\n");
 	DISABLED_code("var s = 0 [1: 2, 3: 4, 5: 6].iter((k, v) -> s += k) s").equals("9");
 	DISABLED_code("var s = 0 [:].iter((k, v) -> s += v) s").equals("0");
 

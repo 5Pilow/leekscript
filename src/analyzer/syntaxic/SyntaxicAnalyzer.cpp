@@ -194,7 +194,7 @@ Block* SyntaxicAnalyzer::blockInit(Block* parent, Section* before, bool is_funct
 void SyntaxicAnalyzer::blockEnd(Block* block, Section* after) {
 	if (after) {
 		if (block->sections.back()->successors.size() == 0 and not block->returning) {
-			std::cout << block->sections.back()->name << " add successor " << after->name << std::endl;
+			// std::cout << block->sections.back()->name << " add successor " << after->name << std::endl;
 			block->sections.back()->add_successor(after);
 			after->add_predecessor(block->sections.back());
 		}

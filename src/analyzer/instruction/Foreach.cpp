@@ -59,10 +59,10 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 	analyzer->enter_section(body->sections.front());
 	if (key != nullptr) {
 		key_var = analyzer->add_var(key, env.void_, nullptr);
-		key_var->injected = true;
+		key_var->injected = key_var->loop_variable = true;
 	}
 	value_var = analyzer->add_var(value, env.void_, nullptr);
-	value_var->injected = true;
+	value_var->injected = value_var->loop_variable = true;
 	value_var->array = container.get();
 	analyzer->leave_section();
 	analyzer->leave_block();
@@ -76,7 +76,7 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 	for (const auto& mutation : mutations) {
 		// La variable réellement transformée
 		auto mutated_var = mutation.variable->parent->array and dynamic_cast<VariableValue*>(mutation.variable->parent->array) ? ((VariableValue*) mutation.variable->parent->array)->var : mutation.variable;
-		std::cout << "real mutated var = " << mutated_var << std::endl;
+		// std::cout << "real mutated var = " << mutated_var << std::endl;
 		auto current = before;
 		while (current) {
 			auto old_var = current->variables.find(mutated_var->name);
@@ -87,7 +87,7 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 				conversions.push_back({ new_var, old_var->second, mutation.section });
 				analyzer->leave_section();
 
-				std::cout << "Foreach add conversion " << new_var << " from " << old_var->second << " section " << current->color << current->id << END_COLOR << std::endl;
+				// std::cout << "Foreach add conversion " << new_var << " from " << old_var->second << " section " << current->color << current->id << END_COLOR << std::endl;
 				break;
 			}
 			current = current->predecessors.size() ? current->predecessors[0] : nullptr;
