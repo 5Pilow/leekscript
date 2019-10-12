@@ -4,7 +4,7 @@
 
 namespace ls {
 
-Never_type::Never_type(Environment& env) : Any_type(env) {}
+Never_type::Never_type(Environment& env) : Any_type(env, true) {}
 
 bool Never_type::operator == (const Type* type) const {
 	return dynamic_cast<const Never_type*>(type);

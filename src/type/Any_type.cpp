@@ -6,13 +6,13 @@
 
 namespace ls {
 
-Any_type::Any_type(Environment& env) : Pointer_type(Type::structure("any", {
+Any_type::Any_type(Environment& env, bool native) : Pointer_type(Type::structure("any", {
 	env.integer, // ?
 	env.integer, // ?
 	env.integer, // ?
 	env.integer, // refs
 	env.boolean // native
-})) {}
+}), native) {}
 
 bool Any_type::operator == (const Type* type) const {
 	return dynamic_cast<const Any_type*>(type);
