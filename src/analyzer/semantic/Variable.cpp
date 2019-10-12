@@ -8,12 +8,12 @@ namespace ls {
 
 Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), section(section), type(type), clazz(clazz), call(call)
 #if COMPILER
-, val(type->env), addr_val(type->env)
+, entry(type->env), addr_val(type->env), val(type->env)
 #endif
 {}
 
 #if COMPILER
-Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, LSClass* lsclass, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), section(section), type(type), clazz(clazz), lsclass(lsclass), call(call), val(type->env), addr_val(type->env) {}
+Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, LSClass* lsclass, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), section(section), type(type), clazz(clazz), lsclass(lsclass), call(call), entry(type->env), addr_val(type->env), val(type->env) {}
 #endif
 
 const Type* Variable::get_entry_type(Environment& env) const {
@@ -25,29 +25,32 @@ const Type* Variable::get_entry_type(Environment& env) const {
 
 #if COMPILER
 Compiler::value Variable::get_value(Compiler& c) const {
-	if (!val.v) {
+	if (val.v) {
+		return val;
+	}
+	if (!entry.v) {
 		std::cout << "no value for variable " << this << std::endl;
 		assert(false);
 	}
 	// std::cout << "get_value " << this << std::endl;
 	if (type->is_mpz_ptr()) {
-		return val; // mpz values are passed by pointer so we don't load the value
+		return entry; // mpz values are passed by pointer so we don't load the value
 	}
-	return c.insn_load(val);
+	return c.insn_load(entry);
 }
 
 Compiler::value Variable::get_address(Compiler& c) const {
-	if (!val.v) {
+	if (!entry.v) {
 		std::cout << "no value for variable " << this << std::endl;
 		assert(false);
 	}
-	return val;
+	return entry;
 }
 
 void Variable::create_entry(Compiler& c) {
 	// std::cout << "create_entry " << this << std::endl;
 	auto t = get_entry_type(c.env);
-	val = c.create_entry(name, t);
+	entry = c.create_entry(name, t);
 }
 void Variable::create_addr_entry(Compiler& c, Compiler::value value) {
 	// std::cout << "create_entry " << this << std::endl;
@@ -59,13 +62,13 @@ void Variable::create_addr_entry(Compiler& c, Compiler::value value) {
 void Variable::store_value(Compiler& c, Compiler::value value) {
 	if (value.t->is_mpz_ptr()) {
 		auto v = c.insn_load(value);
-		c.insn_store(val, v);
+		c.insn_store(entry, v);
 		for (const auto& phi : phis) {
 			if (phi->variable1 == this) phi->value1 = v;
 			if (phi->variable2 == this) phi->value2 = v;
 		}
 	} else {
-		c.insn_store(val, value);
+		c.insn_store(entry, value);
 		for (const auto& phi : phis) {
 			if (phi->variable1 == this) phi->value1 = value;
 			if (phi->variable2 == this) phi->value2 = value;
@@ -75,9 +78,16 @@ void Variable::store_value(Compiler& c, Compiler::value value) {
 
 void Variable::delete_value(Compiler& c) {
 	if (type->is_mpz_ptr()) {
-		c.insn_delete_mpz(val);
+		if (entry.v) {
+			c.insn_delete_mpz(entry);
+		}
 	} else if (type->must_manage_memory()) {
-		c.insn_delete(c.insn_load(val));
+		if (entry.v) {
+			// std::cout << "Delete variable " << name << " entry" << std::endl;
+			c.insn_delete(c.insn_load(entry));
+		} else if (val.v) {
+			c.insn_delete(val);
+		}
 	}
 }
 #endif

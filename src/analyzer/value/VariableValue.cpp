@@ -284,9 +284,9 @@ Compiler::value VariableValue::compile(Compiler& c) const {
 		const auto& fun = has_version and versions.find(version) != versions.end() ? versions.at(version) : default_version_fun;
 		return c.new_function(fun, type);
 	}
-	if (var->parent and not var->val.v) {
-		// std::cout << "get parent val " << var->parent->val.t << std::endl;
-		var->val = var->parent->val;
+	if (var->parent and not var->entry.v) {
+		// std::cout << "get parent val " << var->parent->entry.t << std::endl;
+		var->entry = var->parent->entry;
 	}
 
 	Compiler::value v { c.env };
@@ -342,8 +342,8 @@ Compiler::value VariableValue::compile_version(Compiler& c, std::vector<const Ty
 	if (f) {
 		return f->compile_version(c, version);
 	}
-	if (var->parent and not var->val.v) {
-		var->val = var->parent->val;
+	if (var->parent and not var->entry.v) {
+		var->entry = var->parent->entry;
 	}
 	return var->get_value(c);
 }
@@ -351,15 +351,19 @@ Compiler::value VariableValue::compile_version(Compiler& c, std::vector<const Ty
 Compiler::value VariableValue::compile_l(Compiler& c) const {
 	// std::cout << "VV compile_l " << type << " " << var->type << " " << var << std::endl;
 	Compiler::value v { c.env };
-	if (var->parent and not var->val.v) {
-		var->val = var->parent->val;
+	if (var->parent and not var->entry.v) {
+		var->entry = var->parent->entry;
 	}
 	// No internal values here
 	if (scope == VarScope::LOCAL) {
+		// std::cout << "VV " << var->name << " get_address " << var->entry.v << std::endl;
+		// std::cout << "parent 1 " << var->parent->val.v << std::endl;
+		// std::cout << "parent 2 " << var->parent->parent->val.v << std::endl;
+		// std::cout << "parent 3 " << var->parent->parent->parent->val.v << std::endl;
 		v = var->get_address(c);
 	} else if (scope == VarScope::CAPTURE) {
 		if (!var->addr_val.v) {
-			std::cout << "No addr_val for variable " << var << "!" << std::endl;
+			// std::cout << "No addr_val for variable " << var << "!" << std::endl;
 			assert(false);
 		}
 		v = c.insn_load(var->addr_val);

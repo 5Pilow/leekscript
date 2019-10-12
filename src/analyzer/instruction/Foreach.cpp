@@ -3,6 +3,7 @@
 #include "../semantic/Variable.hpp"
 #include "../../colors.h"
 #include "../value/Phi.hpp"
+#include "../value/VariableValue.hpp"
 
 namespace ls {
 
@@ -48,20 +49,23 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 
 	analyzer->enter_block(wrapper_block.get());
 
-	analyzer->enter_section(wrapper_block->sections.front());
-
-	if (key != nullptr) {
-		key_var = analyzer->add_var(key, env.void_, nullptr);
-	}
-	value_var = analyzer->add_var(value, env.void_, nullptr);
-
-	analyzer->leave_section();
-
 	analyzer->enter_loop((Instruction*) this);
 
 	analyzer->enter_section(condition_section);
 	container->pre_analyze(analyzer);
 	analyzer->leave_section();
+
+	analyzer->enter_block(body.get());
+	analyzer->enter_section(body->sections.front());
+	if (key != nullptr) {
+		key_var = analyzer->add_var(key, env.void_, nullptr);
+		key_var->injected = true;
+	}
+	value_var = analyzer->add_var(value, env.void_, nullptr);
+	value_var->injected = true;
+	value_var->array = container.get();
+	analyzer->leave_section();
+	analyzer->leave_block();
 
 	body->is_loop_body = true;
 	body->pre_analyze(analyzer);
@@ -71,17 +75,20 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 	// std::cout << "Foreach mutations : " << mutations.size() << std::endl;
 	const auto& before = wrapper_block->sections.back();
 	for (const auto& mutation : mutations) {
+		// La variable réellement transformée
+		auto mutated_var = mutation.variable->parent->array and dynamic_cast<VariableValue*>(mutation.variable->parent->array) ? ((VariableValue*) mutation.variable->parent->array)->var : mutation.variable;
+		std::cout << "real mutated var = " << mutated_var << std::endl;
 		auto current = before;
 		while (current) {
-			auto old_var = current->variables.find(mutation.variable->name);
+			auto old_var = current->variables.find(mutated_var->name);
 			if (old_var != current->variables.end()) {
 				analyzer->enter_section(current);
 				auto new_var = analyzer->update_var(old_var->second, false);
-				current->add_conversion(old_var->second, new_var, mutation.section);
+				current->add_conversion({ old_var->second, new_var, mutation.variable, mutation.section });
 				conversions.push_back({ new_var, old_var->second, mutation.section });
 				analyzer->leave_section();
 
-				// std::cout << "Foreach add conversion " << new_var << " from " << old_var->second << " section " << current->color << current->id << END_COLOR << std::endl;
+				std::cout << "Foreach add conversion " << new_var << " from " << old_var->second << " section " << current->color << current->id << END_COLOR << std::endl;
 				break;
 			}
 			current = current->predecessors.size() ? current->predecessors[0] : nullptr;
@@ -95,6 +102,14 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 		analyzer->enter_loop((Instruction*) this);
 		mutations.clear(); // Va être re-rempli par la seconde analyse
 
+		analyzer->enter_section(condition_section);
+		//
+		// if (body->sections.size()) {
+		// 	body->sections.front()->variables.clear();
+		// }
+
+		container->pre_analyze(analyzer);
+		analyzer->leave_section();
 		condition_section->pre_analyze(analyzer);
 
 		body->pre_analyze(analyzer);
@@ -143,6 +158,13 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	}
 	value_var->type = value_type;
 
+	// Set the mode
+	if (container->type->is_number() or container->type->is_string() or container->type->is_interval()) {
+		mode = ForeachMode::VALUE;
+	} else {
+		mode = ForeachMode::ADDRESS;
+	}
+
 	analyzer->enter_section(condition_section);
 	condition_section->analyze(analyzer);
 	analyzer->leave_section();
@@ -165,6 +187,22 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 
 		analyzer->enter_block(wrapper_block.get());
 
+		// Re-analyze container
+		container->analyze(analyzer);
+		key_type = container->type->key();
+		value_type = container->type->element();
+		if (key != nullptr) {
+			key_var->type = key_type;
+		}
+		value_var->type = value_type;
+
+		// Set the mode
+		if (container->type->is_number() or container->type->is_string() or container->type->is_interval()) {
+			mode = ForeachMode::VALUE;
+		} else {
+			mode = ForeachMode::ADDRESS;
+		}
+
 		analyzer->enter_section(condition_section);
 		condition_section->analyze(analyzer);
 		analyzer->leave_section();
@@ -185,8 +223,10 @@ Compiler::value Foreach::compile(Compiler& c) const {
 	c.enter_section(wrapper_block->sections.front());
 
 	auto container_v = container->compile(c);
-	value_var->create_entry(c);
-	if (key_var) key_var->create_entry(c);
+	if (mode == ForeachMode::COPY) {
+		value_var->create_entry(c);
+		if (key_var) key_var->create_entry(c);
+	}
 
 	auto output = type->element();
 
@@ -201,24 +241,6 @@ Compiler::value Foreach::compile(Compiler& c) const {
 
 	c.insn_inc_refs(container_v);
 	c.add_temporary_value(container_v);
-
-	// Create variables
-	auto value_v = value_var->val;
-	if (container_v.t->element()->is_polymorphic()) {
-		c.insn_store(value_v, c.new_null());
-		c.add_temporary_variable(value_var);
-	}
-
-	Compiler::value key_v { c.env };
-	if (key) {
-		key_v = key_var->val;
-		if (container_v.t->key()->is_polymorphic()) {
-			c.insn_store(key_v, c.new_null());
-			c.add_temporary_variable(key_var);
-		}
-	}
-
-	// enter_loop(&end_label, &it_label);
 
 	auto it = c.iterator_begin(container_v);
 
@@ -244,10 +266,19 @@ Compiler::value Foreach::compile(Compiler& c) const {
 	c.builder.SetInsertPoint(body->sections.front()->basic_block);
 
 	// Get Value
-	c.insn_store(value_v, c.iterator_get(container_v.t, it, c.insn_load(value_v)));
+	if (mode == ForeachMode::ADDRESS) {
+		value_var->entry = c.iterator_get(container_v.t, it);
+	} else if (mode == ForeachMode::VALUE) {
+		value_var->val = c.iterator_get(container_v.t, it);
+	}
 	// Get Key
 	if (key) {
-		c.insn_store(key_v, c.iterator_key(container_v, it, c.insn_load(key_v)));
+		// if (mode == ForeachMode::ADDRESS) {
+		// 	key_var->entry = c.iterator_key(container_v, it, {c.env});
+		// } else if (mode == ForeachMode::VALUE) {
+			key_var->val = c.iterator_key(container_v, it);
+		// }
+		// c.insn_store(key_v, c.iterator_key(container_v, it, c.insn_load(key_v)));
 	}
 	// Body
 	auto body_v = body->compile(c);
@@ -258,7 +289,7 @@ Compiler::value Foreach::compile(Compiler& c) const {
 			c.insn_delete_temporary(body_v);
 		}
 	}
-	c.leave_section();
+	body->compile_end(c);
 
 	// it++
 	c.enter_section(increment_section);

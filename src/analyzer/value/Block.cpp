@@ -71,13 +71,23 @@ void Block::add_instruction(std::unique_ptr<Instruction> instruction) {
 	if (last->jumping) {
 		if (not last->jump_to_existing_section) {
 			// std::cout << "add end section" << std::endl;
-			assert(last->end_section);
-			sections.push_back(last->end_section);
+			if (last->end_section) {
+				sections.push_back(last->end_section);
+			} else {
+				auto end_section = new Section(last->type->env, "end_block");
+				last->set_end_section(end_section);
+				sections.push_back(end_section);
+			}
 		}
 	}
 	if (last->returning) {
 		returning = true;
 	}
+}
+
+void Block::set_end_section(Section* end_section) {
+	sections.back()->add_successor(end_section);
+	end_section->add_predecessor(sections.back());
 }
 
 void Block::analyze_global_functions(SemanticAnalyzer* analyzer) {
@@ -101,7 +111,10 @@ void Block::setup_branch(SemanticAnalyzer* analyzer) {
 }
 
 void Block::pre_analyze(SemanticAnalyzer* analyzer) {
-	variables.clear();
+	for (auto it = variables.begin(); it != variables.end(); ) {
+		if (not it->second->injected) it = variables.erase(it);
+		else ++it;
+    }
 	setup_branch(analyzer);
 	analyzer->enter_block(this);
 	for (const auto& section : sections) {

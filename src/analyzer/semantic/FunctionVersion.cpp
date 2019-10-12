@@ -327,14 +327,14 @@ Compiler::value FunctionVersion::compile(Compiler& c, bool compile_body) {
 				arg.setName(name);
 				argument->create_entry(c);
 				if (type->is_mpz_ptr()) {
-					c.insn_store(argument->val, c.insn_load({&arg, type}));
+					c.insn_store(argument->entry, c.insn_load({&arg, type}));
 				} else {
 					if (this->type->arguments().at(offset + index)->temporary) {
 						Compiler::value a = {&arg, type};
 						c.insn_inc_refs(a);
-						c.insn_store(argument->val, a);
+						c.insn_store(argument->entry, a);
 					} else {
-						c.insn_store(argument->val, {&arg, type});
+						c.insn_store(argument->entry, {&arg, type});
 					}
 				}
 			}
@@ -404,17 +404,17 @@ void FunctionVersion::compile_return(Compiler& c, Compiler::value v, bool delete
 		const auto& name = parent->arguments.at(i)->content;
 		const auto& arg = initial_arguments.at(name);
 		const auto& arg2 = arguments.at(name);
-		if (arg2->val.v == arg->val.v) {
+		if (arg2->entry.v == arg->entry.v) {
 			// std::cout << "delete tmp argument " << name << " " << type->argument(i) << std::endl;
 			if (type->argument(i) == c.env.tmp_mpz_ptr) {
-				c.insn_delete_mpz(arg->val);
+				c.insn_delete_mpz(arg->entry);
 			} else if (type->argument(i)->temporary) {
-				c.insn_delete(c.insn_load(arg->val));
+				c.insn_delete(c.insn_load(arg->entry));
 			}
 		} else {
-			if (arg2->val.v) {
+			if (arg2->entry.v) {
 				// std::cout << "delete argument " << arg2 << " " << arg2->type << " " << arg2->val.t << std::endl;
-				c.insn_delete_variable(arg2->val);
+				c.insn_delete_variable(arg2->entry);
 			}
 		}
 	}

@@ -530,17 +530,17 @@ Compiler::value ArraySTD::fold_left(Compiler& c, std::vector<Compiler::value> ar
 	auto result = Variable::new_temporary("r", init_type);
 	result->create_entry(c);
 	c.add_temporary_variable(result);
-	c.insn_store(result->val, c.insn_convert(c.insn_move_inc(args[2]), init_type));
+	c.insn_store(result->entry, c.insn_convert(c.insn_move_inc(args[2]), init_type));
 	auto v = Variable::new_temporary("v", args[0].t->element());
 	v->create_entry(c);
 	c.add_temporary_variable(v);
 	c.insn_foreach(array, c.env.void_, v, nullptr, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
-		auto r = c.insn_call(function, {c.insn_load(result->val), v});
-		c.insn_delete(c.insn_load(result->val));
-		c.insn_store(result->val, c.insn_move_inc(r));
+		auto r = c.insn_call(function, {c.insn_load(result->entry), v});
+		c.insn_delete(c.insn_load(result->entry));
+		c.insn_store(result->entry, c.insn_move_inc(r));
 		return { c.env };
 	});
-	return c.insn_load(result->val);
+	return c.insn_load(result->entry);
 }
 
 Compiler::value ArraySTD::fold_right(Compiler& c, std::vector<Compiler::value> args, int) {
@@ -548,14 +548,14 @@ Compiler::value ArraySTD::fold_right(Compiler& c, std::vector<Compiler::value> a
 	auto result = Variable::new_temporary("r", args[2].t);
 	result->create_entry(c);
 	c.add_temporary_variable(result);
-	c.insn_store(result->val, c.insn_move(args[2]));
+	c.insn_store(result->entry, c.insn_move(args[2]));
 	auto v = Variable::new_temporary("v", args[0].t->element());
 	v->create_entry(c);
 	c.insn_foreach(args[0], c.env.void_, v, nullptr, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
-		c.insn_store(result->val, c.insn_call(function, {v, c.insn_load(result->val)}));
+		c.insn_store(result->entry, c.insn_call(function, {v, c.insn_load(result->entry)}));
 		return { c.env };
 	}, true);
-	return c.insn_load(result->val);
+	return c.insn_load(result->entry);
 }
 
 Compiler::value ArraySTD::iter(Compiler& c, std::vector<Compiler::value> args, int) {

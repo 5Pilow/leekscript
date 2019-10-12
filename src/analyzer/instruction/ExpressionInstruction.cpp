@@ -24,6 +24,10 @@ void ExpressionInstruction::pre_analyze(SemanticAnalyzer* analyzer) {
 	value->pre_analyze(analyzer);
 }
 
+void ExpressionInstruction::set_end_section(Section* end_section) {
+	value->set_end_section(end_section);
+}
+
 void ExpressionInstruction::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	auto& env = analyzer->env;
 	// std::cout << "ExpressionInstruction::analyze() " << is_void << std::endl;

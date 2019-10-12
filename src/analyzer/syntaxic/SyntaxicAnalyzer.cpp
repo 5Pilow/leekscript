@@ -197,10 +197,10 @@ void SyntaxicAnalyzer::blockEnd(Block* block, Section* after) {
 			after->add_predecessor(block->sections.back());
 		}
 	} else {
-		auto end_section = new Section(env, "end_block");
-		block->sections.back()->add_successor(end_section);
-		end_section->add_predecessor(block->sections.back());
-		block->end_section = end_section;
+		// auto end_section = new Section(env, "end_block");
+		// block->sections.back()->add_successor(end_section);
+		// end_section->add_predecessor(block->sections.back());
+		// block->end_section = end_section;
 	}
 }
 
@@ -1291,9 +1291,6 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 		f->condition_section = new Section(env, "condition");
 		f->end_section = new Section(env, "end");
 
-		f->condition_section->predecessors.push_back(wrapper_section);
-		wrapper_section->successors.push_back(f->condition_section);
-
 		if (t->type == TokenType::LET or t->type == TokenType::VAR) eat();
 
 		if (nt->type == TokenType::COMMA || nt->type == TokenType::COLON) {
@@ -1306,7 +1303,14 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 
 		eat(TokenType::IN);
 
-		f->container = std::unique_ptr<Value>(eatExpression(block));
+		f->container = std::unique_ptr<Value>(eatExpression(f->wrapper_block.get()));
+
+		if (f->container->jumping) {
+			f->container->set_end_section(f->condition_section);
+		} else {
+			f->condition_section->predecessors.push_back(wrapper_section);
+			wrapper_section->successors.push_back(f->condition_section);
+		}
 
 		if (parenthesis)
 			eat(TokenType::CLOSING_PARENTHESIS);

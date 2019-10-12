@@ -1039,6 +1039,15 @@ Compiler::value Compiler::insn_load_member(Compiler::value v, int pos) {
 	return { builder.CreateLoad(s), type->pointed()->member(pos) };
 }
 
+Compiler::value Compiler::insn_member_address(Compiler::value v, int pos) {
+	auto type = v.t->fold();
+	assert(check_value(v));
+	assert(type->is_pointer());
+	assert(type->pointed()->is_struct());
+	auto s = builder.CreateStructGEP(type->pointed()->llvm(*this), v.v, pos);
+	return { s, type->pointed()->member(pos)->pointer() };
+}
+
 void Compiler::insn_store(Compiler::value x, Compiler::value y) {
 	// std::cout << "insn_store " << x.t << " " << x.v->getType() << " " << y.t << std::endl;
 	assert(check_value(x));
@@ -1404,42 +1413,35 @@ Compiler::value Compiler::iterator_rend(Compiler::value v, Compiler::value it) {
 	assert(false);
 }
 
-Compiler::value Compiler::iterator_get(const Type* collectionType, Compiler::value it, Compiler::value previous) {
+Compiler::value Compiler::iterator_get(const Type* collectionType, Compiler::value it) {
 	assert(it.t->llvm(*this) == it.v->getType());
-	assert(previous.t->llvm(*this) == previous.v->getType());
+	// assert(previous.t->llvm(*this) == previous.v->getType());
 	if (collectionType->is_array()) {
-		if (previous.t->must_manage_memory()) {
-			insn_call(env.void_, {previous}, "Value.delete_previous");
-		}
 		auto e = insn_load(it);
 		auto f = insn_load(e);
 		insn_inc_refs(f);
-		return f;
+		return e;
 	}
 	if (collectionType->is_interval()) {
 		return insn_load_member(it, 1);
 	}
 	if (collectionType->is_string()) {
 		auto int_char = insn_call(env.integer, {it}, "String.iterator_get");
-		return insn_call(env.tmp_string, {int_char, previous}, "String.iterator_get.1");
+		return insn_call(env.tmp_string, {int_char}, "String.iterator_get.1");
 	}
 	if (collectionType->is_map()) {
-		if (previous.t->must_manage_memory()) {
-			insn_call(env.void_, {previous}, "Value.delete_previous");
-		}
 		auto node = insn_load(it);
-		auto e = insn_load_member(node, 5);
+		auto m = insn_member_address(node, 5);
+		auto e = insn_load(m);
 		insn_inc_refs(e);
-		return e;
+		return m;
 	}
 	if (collectionType->is_set()) {
-		if (previous.t->must_manage_memory()) {
-			insn_call(env.void_, {previous}, "Value.delete_previous");
-		}
 		auto node = insn_load_member(it, 0);
-		auto e = insn_load_member(node, 4);
+		auto m = insn_member_address(node, 4);
+		auto e = insn_load(m);
 		insn_inc_refs(e);
-		return e;
+		return m;
 	}
 	if (collectionType->is_integer()) {
 		return insn_int_div(insn_load_member(it, 0), insn_load_member(it, 1));
@@ -1450,13 +1452,9 @@ Compiler::value Compiler::iterator_get(const Type* collectionType, Compiler::val
 	assert(false);
 }
 
-Compiler::value Compiler::iterator_rget(const Type* collectionType, Compiler::value it, Compiler::value previous) {
+Compiler::value Compiler::iterator_rget(const Type* collectionType, Compiler::value it) {
 	assert(it.t->llvm(*this) == it.v->getType());
-	assert(previous.t->llvm(*this) == previous.v->getType());
 	if (collectionType->is_array()) {
-		if (previous.t->must_manage_memory()) {
-			insn_call(env.void_, {previous}, "Value.delete_previous");
-		}
 		auto e = insn_load(it);
 		auto f = insn_load(e);
 		insn_inc_refs(f);
@@ -1467,12 +1465,9 @@ Compiler::value Compiler::iterator_rget(const Type* collectionType, Compiler::va
 	}
 	if (collectionType->is_string()) {
 		auto int_char = insn_call(env.integer, {it}, "String.iterator_get");
-		return insn_call(env.string, {int_char, previous}, "String.iterator_get.1");
+		return insn_call(env.string, {int_char}, "String.iterator_get.1");
 	}
 	if (collectionType->is_map()) {
-		if (previous.t->must_manage_memory()) {
-			insn_call(env.void_, {previous}, "Value.delete_previous");
-		}
 		auto node = insn_load(it);
 		auto e = [&]() { if (collectionType->element()->is_integer() and collectionType->key()->is_integer()) {
 			return insn_call(collectionType->element(), {node}, "Map.iterator_rget");
@@ -1487,9 +1482,6 @@ Compiler::value Compiler::iterator_rget(const Type* collectionType, Compiler::va
 		return e;
 	}
 	if (collectionType->is_set()) {
-		if (previous.t->must_manage_memory()) {
-			insn_call(env.void_, {previous}, "Value.delete_previous");
-		}
 		auto node = insn_load_member(it, 0);
 		auto e = insn_load_member(node, 4);
 		insn_inc_refs(e);
@@ -1504,10 +1496,9 @@ Compiler::value Compiler::iterator_rget(const Type* collectionType, Compiler::va
 	assert(false);
 }
 
-Compiler::value Compiler::iterator_key(Compiler::value v, Compiler::value it, Compiler::value previous) {
+Compiler::value Compiler::iterator_key(Compiler::value v, Compiler::value it) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	assert(it.t->llvm(*this) == it.v->getType());
-	// assert(previous.t->llvm(*this) == previous.v->getType());
 	if (v.t->is_array()) {
 		auto array_begin = insn_array_at(v, new_integer(0));
 		if (v.t->element()->is_polymorphic()) array_begin = { builder.CreatePointerCast(array_begin.v, env.any->pointer()->llvm(*this)), env.any->pointer() };
@@ -1523,9 +1514,6 @@ Compiler::value Compiler::iterator_key(Compiler::value v, Compiler::value it, Co
 		return insn_call(env.integer, {it}, "String.iterator_key");
 	}
 	if (v.t->is_map()) {
-		if (previous.t->must_manage_memory()) {
-			insn_call(env.void_, {previous}, "Value.delete_previous");
-		}
 		auto node = insn_load(it);
 		auto e = insn_load_member(node, 4);
 		insn_inc_refs(e);
@@ -1543,10 +1531,9 @@ Compiler::value Compiler::iterator_key(Compiler::value v, Compiler::value it, Co
 	assert(false);
 }
 
-Compiler::value Compiler::iterator_rkey(Compiler::value v, Compiler::value it, Compiler::value previous) {
+Compiler::value Compiler::iterator_rkey(Compiler::value v, Compiler::value it) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	assert(it.t->llvm(*this) == it.v->getType());
-	// assert(previous.t->llvm(*this) == previous.v->getType());
 	if (v.t->is_array()) {
 		auto array_begin = insn_array_at(v, new_integer(0));
 		if (v.t->element()->is_polymorphic()) array_begin = { builder.CreatePointerCast(array_begin.v, env.any->pointer()->llvm(*this)), env.any->pointer() };
@@ -1562,9 +1549,6 @@ Compiler::value Compiler::iterator_rkey(Compiler::value v, Compiler::value it, C
 		return insn_call(env.integer, {it}, "String.iterator_key");
 	}
 	if (v.t->is_map()) {
-		if (previous.t->must_manage_memory()) {
-			insn_call(env.void_, {previous}, "Value.delete_previous");
-		}
 		auto node = insn_load(it);
 		auto e = insn_call(v.t->key(), {node}, "Map.iterator_rkey");
 		insn_inc_refs(e);
@@ -1679,7 +1663,7 @@ Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* ou
 	add_temporary_value(container);
 
 	// Create variables
-	auto value_var = var->val;
+	auto value_var = var->entry;
 	if (container.t->element()->is_polymorphic()) {
 		insn_store(value_var, new_null());
 		add_temporary_variable(var);
@@ -1687,7 +1671,7 @@ Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* ou
 
 	Compiler::value key_var { env };
 	if (key) {
-		key_var = key->val;
+		key_var = key->entry;
 		if (container.t->key()->is_polymorphic()) {
 			insn_store(key_var, new_null());
 			add_temporary_variable(key);
@@ -1722,10 +1706,10 @@ Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* ou
 	// loop label:
 	insn_label(&loop_label);
 	// Get Value
-	insn_store(value_var, reversed ? iterator_rget(container.t, it, insn_load(value_var)) : iterator_get(container.t, it, insn_load(value_var)));
+	insn_store(value_var, reversed ? iterator_rget(container.t, it) : iterator_get(container.t, it));
 	// Get Key
 	if (key) {
-		insn_store(key_var, reversed ? iterator_rkey(container, it, insn_load(key_var)) : iterator_key(container, it, insn_load(key_var)));
+		insn_store(key_var, reversed ? iterator_rkey(container, it) : iterator_key(container, it));
 	}
 	// Body
 	auto body_v = body(insn_load(value_var), key ? insn_load(key_var) : value { env });
@@ -1752,8 +1736,8 @@ Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* ou
 
 	// loop2 label:
 		insn_label(&loop2_label);
-		insn_store(value_var, reversed ? iterator_rget(container.t, it, insn_load(value_var)) : iterator_get(container.t, it, insn_load(value_var)));
-		if (key) insn_store(key_var, reversed ? iterator_rkey(container, it, insn_load(key_var)) : iterator_key(container, it, insn_load(key_var)));
+		insn_store(value_var, reversed ? iterator_rget(container.t, it) : iterator_get(container.t, it));
+		if (key) insn_store(key_var, reversed ? iterator_rkey(container, it) : iterator_key(container, it));
 		// Body 2
 		auto body2_v = body2(insn_load(value_var), key ? insn_load(key_var) : value(env));
 		if (body2_v.v) {
@@ -2131,18 +2115,19 @@ void Compiler::delete_variables_block(int deepness) {
 				auto it = section->variables.find(variable.first);
 				if (it != section->variables.end()) {
 					const auto& var = it->second;
-					// std::cout << "delete variable block " << var << " " << var->type << " " << var->val.v << " scope " << (int) var->scope << " " << var->assignment << std::endl;
-					if (var->val.v and variable.second->scope != VarScope::CAPTURE) {
-						if (var->type->is_mpz_ptr()) {
-							insn_delete_mpz(var->val);
-						} else if (var->type->must_manage_memory()) {
-							insn_delete(insn_load(var->val));
-						}
+					// std::cout << "delete variable block " << var << " " << var->type << " " << var->entry.v << " scope " << (int) var->scope << " " << var->assignment << " section " << section->id << std::endl;
+					if (variable.second->scope != VarScope::CAPTURE) {
+						var->delete_value(*this);
 					}
 					break;
 				}
 				section = section->predecessors.size() ? section->predecessors[0] : nullptr;
 			}
+		}
+		auto& temporary_variables = blocks.back()[i]->temporary_variables;
+		for (const auto& variable : temporary_variables) {
+			// std::cout << "delete temporary variable " << variable->name << std::endl;
+			variable->delete_value(*this);
 		}
 		for (const auto& value : blocks.back()[i]->temporary_values) {
 			// std::cout << "delete temporary value " << value.t << std::endl;
@@ -2159,10 +2144,6 @@ void Compiler::delete_variables_block(int deepness) {
 			} else {
 				insn_delete(value);
 			}
-		}
-		auto& temporary_variables = blocks.back()[i]->temporary_variables;
-		for (const auto& variable : temporary_variables) {
-			insn_delete_variable(variable->val);
 		}
 	}
 }
@@ -2226,9 +2207,9 @@ Section* Compiler::current_section() const {
 // Variables
 
 Compiler::value Compiler::add_external_var(Variable* variable) {
-	variable->val = create_entry("ctx." + variable->name, variable->type);
-	insn_store(variable->val, insn_load(get_symbol("ctx." + variable->name, variable->type->pointer())));
-	return variable->val;
+	variable->entry = create_entry("ctx." + variable->name, variable->type);
+	insn_store(variable->entry, insn_load(get_symbol("ctx." + variable->name, variable->type->pointer())));
+	return variable->entry;
 }
 
 void Compiler::export_context_variable(const std::string& name, Compiler::value v) {

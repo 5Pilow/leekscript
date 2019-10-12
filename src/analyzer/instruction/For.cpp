@@ -80,7 +80,7 @@ void For::pre_analyze(SemanticAnalyzer* analyzer) {
 			if (old_var != current->variables.end()) {
 				analyzer->enter_section(current);
 				auto new_var = analyzer->update_var(old_var->second, false);
-				current->add_conversion(old_var->second, new_var, mutation.section);
+				current->add_conversion({ old_var->second, new_var, mutation.variable, mutation.section });
 				conversions.push_back({ new_var, old_var->second, mutation.section });
 				analyzer->leave_section();
 

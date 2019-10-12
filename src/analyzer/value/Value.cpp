@@ -10,6 +10,8 @@ namespace ls {
 
 Value::Value(Environment& env) : type(env.any), return_type(env.void_), constant(false) {}
 
+void Value::set_end_section(Section* end_section) {}
+
 Call Value::get_callable(SemanticAnalyzer*, int argument_count) const {
 	return {};
 }

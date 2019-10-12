@@ -5,6 +5,8 @@ namespace ls {
 
 Instruction::Instruction(Environment& env) : type(env.void_), return_type(env.void_) {}
 
+void Instruction::set_end_section(Section*) {}
+
 void Instruction::pre_analyze(SemanticAnalyzer*) {}
 
 void Instruction::analyze(SemanticAnalyzer* analyzer) {

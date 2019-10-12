@@ -250,14 +250,14 @@ Compiler::value Expression::compile(Compiler& c) const {
 		auto array_access = dynamic_cast<ArrayAccess*>(v1.get());
 		if (array_access && array_access->key == nullptr) {
 			if (auto vv = dynamic_cast<VariableValue*>(array_access->array.get())) {
-				auto previous_value = c.insn_load(vv->var->parent->val);
+				auto previous_value = c.insn_load(vv->var->parent->entry);
 				auto converted = c.insn_convert(previous_value, vv->var->type);
 				if (previous_value.v == converted.v) {
-					vv->var->val = vv->var->parent->val;
+					vv->var->entry = vv->var->parent->entry;
 				} else {
 					vv->var->create_entry(c);
 					vv->var->store_value(c, c.insn_move_inc(converted));
-					c.insn_delete_variable(vv->var->parent->val);
+					c.insn_delete_variable(vv->var->parent->entry);
 				}
 			}
 			auto x_addr = ((LeftValue*) array_access->array.get())->compile_l(c);

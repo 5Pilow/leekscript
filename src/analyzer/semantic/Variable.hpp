@@ -48,9 +48,12 @@ public:
 	std::vector<Phi*> phis;
 	bool assignment = false;
 	Class* clazz = nullptr;
+	Value* array = nullptr;
+	bool injected = false;
 	#if COMPILER
-	Compiler::value val;
+	Compiler::value entry; // Entry containing the value
 	Compiler::value addr_val;
+	Compiler::value val; // Direct access to value
 	LSClass* lsclass = nullptr;
 	#endif
 

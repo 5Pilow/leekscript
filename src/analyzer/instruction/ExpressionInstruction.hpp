@@ -15,7 +15,10 @@ public:
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
 
+	virtual void set_end_section(Section*) override;
+
 	virtual void pre_analyze(SemanticAnalyzer* analyzer) override;
+
 	virtual void analyze(SemanticAnalyzer*, const Type* type) override;
 
 	#if COMPILER

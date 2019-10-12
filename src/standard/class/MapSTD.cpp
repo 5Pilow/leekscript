@@ -97,7 +97,7 @@ MapSTD::MapSTD(Environment& env) : Module(env, "Map") {
 	auto iV2 = env.template_("V2");
 	template_(iK1, iV1, iK2, iV2).
 	method("insert", {
-		{env.boolean, {Type::map(iK1, iV1), iK2, iV2}, ADDR(insert), 0, { new ConvertMutator() }}
+		{env.boolean, {Type::map(iK1, iV1), iK2, iV2}, ADDR(insert), 0, { }}
     });
 
 	auto cK = env.template_("K");
@@ -432,7 +432,7 @@ Compiler::value MapSTD::fold_left(Compiler& c, std::vector<Compiler::value> args
 	auto init_type = function.t->argument(0);
 	auto result = Variable::new_temporary("r", init_type);
 	result->create_entry(c);
-	c.insn_store(result->val, c.insn_convert(c.insn_move(args[2]), init_type));
+	c.insn_store(result->entry, c.insn_convert(c.insn_move(args[2]), init_type));
 	c.add_temporary_variable(result);
 	auto v = Variable::new_temporary("v", args[0].t->element());
 	auto k = Variable::new_temporary("k", args[0].t->key());
@@ -441,10 +441,10 @@ Compiler::value MapSTD::fold_left(Compiler& c, std::vector<Compiler::value> args
 	c.add_temporary_variable(v);
 	c.add_temporary_variable(k);
 	c.insn_foreach(args[0], c.env.void_, v, k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
-		c.insn_store(result->val, c.insn_call(function, {c.insn_load(result->val), k, v}));
+		c.insn_store(result->entry, c.insn_call(function, {c.insn_load(result->entry), k, v}));
 		return { c.env };
 	});
-	return c.insn_load(result->val);
+	return c.insn_load(result->entry);
 }
 
 Compiler::value MapSTD::fold_right(Compiler& c, std::vector<Compiler::value> args, int) {
@@ -452,7 +452,7 @@ Compiler::value MapSTD::fold_right(Compiler& c, std::vector<Compiler::value> arg
 	auto init_type = function.t->argument(2);
 	auto result = Variable::new_temporary("r", init_type);
 	result->create_entry(c);
-	c.insn_store(result->val, c.insn_convert(c.insn_move(args[2]), init_type));
+	c.insn_store(result->entry, c.insn_convert(c.insn_move(args[2]), init_type));
 	c.add_temporary_variable(result);
 	auto v = Variable::new_temporary("v", args[0].t->element());
 	auto k = Variable::new_temporary("k", args[0].t->key());
@@ -461,10 +461,10 @@ Compiler::value MapSTD::fold_right(Compiler& c, std::vector<Compiler::value> arg
 	c.add_temporary_variable(v);
 	c.add_temporary_variable(k);
 	c.insn_foreach(args[0], c.env.void_, v, k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
-		c.insn_store(result->val, c.insn_call(function, {k, v, c.insn_load(result->val)}));
+		c.insn_store(result->entry, c.insn_call(function, {k, v, c.insn_load(result->entry)}));
 		return { c.env };
 	}, true);
-	return c.insn_load(result->val);
+	return c.insn_load(result->entry);
 }
 
 Compiler::value MapSTD::iter(Compiler& c, std::vector<Compiler::value> args, int) {

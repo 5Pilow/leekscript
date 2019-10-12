@@ -315,16 +315,16 @@ void Function::compile_captures(Compiler& c) const {
 	((Function*) this)->captures_compiled = true;
 	// std::cout << "Function::compile_captures" << std::endl;
 	for (const auto& capture : captures) {
-		if (capture->parent->val.v) {
+		if (capture->parent->entry.v) {
 			// std::cout << "Convert capture " << capture << " " << (void*) capture << " " << (int)capture->scope << " parent " << capture->parent << " " << capture->parent->val.v << " " << capture->parent->val.t << " " << (void*) capture->parent << std::endl;
 			if (capture->parent->type->is_polymorphic()) {
-				capture->val = capture->parent->val;
+				capture->entry = capture->parent->entry;
 				// c.insn_inc_refs(c.insn_load(capture->val));
 			} else {
-				capture->val = c.create_entry(capture->name, c.env.any);
-				auto value = c.insn_convert(c.insn_load(capture->parent->val), c.env.any);
+				capture->entry = c.create_entry(capture->name, c.env.any);
+				auto value = c.insn_convert(c.insn_load(capture->parent->entry), c.env.any);
 				c.insn_inc_refs(value);
-				c.insn_store(capture->val, value);
+				c.insn_store(capture->entry, value);
 			}
 		}
 	}
@@ -333,7 +333,7 @@ void Function::compile_captures(Compiler& c) const {
 void Function::export_context(Compiler& c) const {
 	// int deepness = c.get_current_function_blocks();
 	for (const auto& variable : c.fun->body->sections.back()->variables) {
-		c.export_context_variable(variable.second->name, c.insn_load(variable.second->val));
+		c.export_context_variable(variable.second->name, c.insn_load(variable.second->entry));
 	}
 }
 #endif

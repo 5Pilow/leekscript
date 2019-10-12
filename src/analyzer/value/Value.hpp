@@ -49,7 +49,10 @@ public:
 
 	virtual Location location() const = 0;
 
+	virtual void set_end_section(Section* end_section);
+
 	virtual void pre_analyze(SemanticAnalyzer*);
+
 	virtual const Type* will_take(SemanticAnalyzer*, const std::vector<const Type*>& args_type, int level);
 	virtual bool will_store(SemanticAnalyzer*, const Type*);
 	virtual bool elements_will_store(SemanticAnalyzer*, const Type*, int level);

@@ -66,9 +66,9 @@ void iterator_begin(LSString* str, LSString::iterator* it) {
 	it->character = 0;
 }
 LSString* iterator_get(unsigned int c, LSString* previous) {
-	if (previous != nullptr) {
-		LSValue::delete_ref(previous);
-	}
+	// if (previous != nullptr) {
+		// LSValue::delete_ref(previous);
+	// }
 	char dest[5];
 	u8_toutf8(dest, 5, &c, 1);
 	auto s = new LSString(dest);
@@ -533,17 +533,17 @@ Compiler::value StringSTD::fold_fun(Compiler& c, std::vector<Compiler::value> ar
 	auto result = Variable::new_temporary("r", args[2].t);
 	result->create_entry(c);
 	c.add_temporary_variable(result);
-	c.insn_store(result->val, c.insn_move_inc(args[2]));
+	c.insn_store(result->entry, c.insn_move_inc(args[2]));
 	auto v = Variable::new_temporary("v", args[0].t->element());
 	v->create_entry(c);
 	c.add_temporary_variable(v);
 	c.insn_foreach(args[0], c.env.void_, v, nullptr, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
-		auto r = c.insn_call(function, {c.insn_load(result->val), v});
-		c.insn_delete(c.insn_load(result->val));
-		c.insn_store(result->val, c.insn_move_inc(r));
+		auto r = c.insn_call(function, {c.insn_load(result->entry), v});
+		c.insn_delete(c.insn_load(result->entry));
+		c.insn_store(result->entry, c.insn_move_inc(r));
 		return { c.env };
 	});
-	return c.insn_load(result->val);
+	return c.insn_load(result->entry);
 }
 
 LSValue* StringSTD::string_right(LSString* string, int pos) {

@@ -39,6 +39,7 @@ public:
 
 	void add_instruction(Instruction* instruction);
 	void add_instruction(std::unique_ptr<Instruction> instruction);
+	virtual void set_end_section(Section* end_section) override;
 
 	void analyze_global_functions(SemanticAnalyzer* analyzer);
 	void setup_branch(SemanticAnalyzer* analyzer);

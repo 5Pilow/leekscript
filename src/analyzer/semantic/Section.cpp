@@ -31,8 +31,8 @@ void Section::add_predecessor(Section* predecessor) {
 	predecessors.push_back(predecessor);
 }
 
-void Section::add_conversion(Variable* variable, Variable* variable2, const Section* mutation) {
-	conversions.push_back({ variable, variable2, mutation });
+void Section::add_conversion(Conversion conversion) {
+	conversions.push_back(conversion);
 }
 
 std::string tabs(int indent) {
@@ -66,14 +66,10 @@ void Section::print(std::ostream& os, int indent, PrintOptions options) const {
 	}
 
 	auto print_conversions = [&]() {
-		i = 0;
 		for (const auto& conversion : conversions) {
 			os << color << "┃" << END_COLOR << tabs(indent + 1);
-			os << std::get<0>(conversion) << " " << std::get<0>(conversion)->type << " = (" << std::get<1>(conversion)->type << ") " << std::get<0>(conversion)->parent << " [" << std::get<1>(conversion) << " " << std::get<1>(conversion)->type << " " << std::get<2>(conversion)->color << std::get<2>(conversion)->id << END_COLOR << "]";
-			i++;
-			if (not (i == conversions.size() && options.condensed)) {
-				os << std::endl;
-			}
+			os << conversion.old_parent << " " << conversion.old_parent->type << " = (" << conversion.new_parent->type << ") " << conversion.old_parent->parent << " [" << conversion.new_parent << " " << conversion.new_parent->type << " " << conversion.section->color << conversion.section->id << END_COLOR << "]";
+			os << std::endl;
 		}
 	};
 
@@ -86,7 +82,7 @@ void Section::print(std::ostream& os, int indent, PrintOptions options) const {
 		os << color << "┃" << END_COLOR;
 		os << tabs(indent + 1);
 		instruction->print(os, indent + 1, options);
-		if (!options.condensed or conversions.size()) os << std::endl;
+		if (!options.condensed or !conversions.size()) os << std::endl;
 	}
 	if (first_jump) {
 		print_conversions();
@@ -95,7 +91,10 @@ void Section::print(std::ostream& os, int indent, PrintOptions options) const {
 
 void Section::pre_analyze(SemanticAnalyzer* analyzer) {
 
-	variables.clear();
+	for (auto it = variables.begin(); it != variables.end(); ) {
+		if (not it->second->injected) it = variables.erase(it);
+		else ++it;
+    }
 	conversions.clear();
 	phis.clear();
 
@@ -160,11 +159,11 @@ void Section::analyze_end(SemanticAnalyzer* analyzer) {
 	// std::cout << "Section::analyze_end " << color << id << END_COLOR << std::endl;
 	for (auto& conversion : conversions) {
 
-		// auto parent = std::get<0>(conversion)->section->variables.at(std::get<0>(conversion)->name);
-		auto parent = std::get<0>(conversion)->parent;
+		// auto parent = conversion.old_parent->section->variables.at(conversion.old_parent->name);
+		auto parent = conversion.old_parent->parent;
 
-		// std::cout << "Section analyze_end " << std::get<0>(conversion) << " " << std::get<0>(conversion)->type << " = (" << parent->type << ") " << parent << std::endl;
-		std::get<0>(conversion)->type = parent->type;
+		// std::cout << "Section analyze_end " << conversion.old_parent << " " << conversion.old_parent->type << " = (" << parent->type << ") " << parent << std::endl;
+		conversion.old_parent->type = parent->type;
 	}
 }
 
@@ -172,10 +171,17 @@ void Section::reanalyze_conversions(SemanticAnalyzer* analyzer) {
 	// std::cout << "Section::analyze_end " << color << id << END_COLOR << std::endl;
 	for (auto& conversion : conversions) {
 
-		auto parent = std::get<2>(conversion)->variables.at(std::get<0>(conversion)->name);
+		// std::cout << "get var " << conversion.child->name << " in section " << conversion.section->id << std::endl;
 
-		// std::cout << "Section reanalyze_conversions " << std::get<0>(conversion) << " " << std::get<0>(conversion)->type << " = (" << parent->type << ") " << parent << std::endl;
-		std::get<0>(conversion)->type = std::get<0>(conversion)->type->operator + ( parent->type);
+		auto parent = conversion.section->variables.at(conversion.child->name);
+
+		// std::cout << "Section reanalyze_conversions " << conversion.old_parent << " " << conversion.old_parent->type << " = (" << parent->type << ") " << parent << std::endl;
+
+		if (conversion.child->parent->array) {
+			conversion.old_parent->type = Type::array(parent->type);
+		} else {
+			conversion.old_parent->type = conversion.old_parent->type->operator + ( parent->type );
+		}
 	}
 }
 
@@ -194,8 +200,8 @@ Compiler::value Section::compile(Compiler& c) const {
 
 	for (const auto& phi : phis) {
 		// std::cout << "phi " << phi->variable1 << " " << phi->value1.v << " " << phi->variable2 << " " << phi->value2.v << " " << phi->variable1->type << " " << phi->variable2->type << std::endl;
-		if (phi->variable1->root == phi->variable2->root and phi->variable1->type == phi->variable2->type) {
-			phi->variable->val = phi->variable1->val;
+		if (phi->variable1->type == phi->variable2->type) {
+			phi->variable->entry = phi->variable1->entry;
 			phi->active = false;
 		} else {
 			// std::cout << "compile phi " << phi->variable << " " << phi->variable->type << " " << phi->value1.t << " " << phi->value2.t << std::endl;
@@ -203,8 +209,8 @@ Compiler::value Section::compile(Compiler& c) const {
 			// std::cout << "phi " << phi->variable << " type " << phi->variable->type << std::endl;
 			auto phi_type = phi->variable->type->is_mpz_ptr() ? env.mpz : phi->variable->type;
 			phi->phi_node = c.insn_phi(phi_type, c.insn_convert(phi->value1, phi_type), phi->section1, c.insn_convert(phi->value2, phi_type), phi->section2);
-			phi->variable->val = c.create_entry(phi->variable->name, phi_type);
-			c.insn_store(phi->variable->val, phi->phi_node);
+			phi->variable->entry = c.create_entry(phi->variable->name, phi_type);
+			c.insn_store(phi->variable->entry, phi->phi_node);
 			// } else {
 				// phi->variable->val = phi->variable1->val;
 				// std::cout << "half phi: " << phi->variable << " " << phi->variable->type << " " << phi->variable->val.t << std::endl;
@@ -221,15 +227,15 @@ void Section::compile_end(Compiler& c) const {
 
 	// Conversions
 	for (const auto& conversion : conversions) {
-		// std::cout << "Convert variable " << std::get<0>(conversion) << " " << std::get<0>(conversion)->type << " = " << std::get<0>(conversion)->parent << " " << std::get<0>(conversion)->parent->type << std::endl;
-		if (std::get<0>(conversion)->type != std::get<1>(conversion)->parent->type) {
-			auto val = c.insn_convert(std::get<0>(conversion)->parent->get_value(c), std::get<1>(conversion)->type);
-			std::get<0>(conversion)->create_entry(c);
-			std::get<0>(conversion)->store_value(c, c.insn_move_inc(val));
-			std::get<0>(conversion)->parent->delete_value(c);
+		// std::cout << "Convert variable " << conversion.old_parent << " " << conversion.old_parent->type << " = " << conversion.old_parent->parent << " " << conversion.old_parent->parent->type << std::endl;
+		if (conversion.old_parent->type != conversion.new_parent->parent->type) {
+			auto val = c.insn_convert(conversion.old_parent->parent->get_value(c), conversion.new_parent->type);
+			conversion.old_parent->create_entry(c);
+			conversion.old_parent->store_value(c, c.insn_move_inc(val));
+			conversion.old_parent->parent->delete_value(c);
 		} else {
-			// std::cout << "no conversion needed: " << std::get<0>(conversion)->type << " " << std::get<0>(conversion)->val.t << " => " << std::get<1>(conversion)->parent << " " << std::get<1>(conversion)->parent->val.t << std::endl;
-			std::get<0>(conversion)->val = std::get<1>(conversion)->parent->val;
+			// std::cout << "no conversion needed: " << conversion.old_parent->type << " " << conversion.old_parent->val.t << " => " << conversion.new_parent->parent << " " << conversion.new_parent->parent->val.t << std::endl;
+			conversion.old_parent->entry = conversion.new_parent->parent->entry;
 		}
 		// std::cout << "converted value = " << val.t << std::endl;
 	}
@@ -245,14 +251,16 @@ void Section::compile_end(Compiler& c) const {
 				const auto& var1 = phi->variable1;
 				// std::cout << "Block export value1 " << var1 << " " << var1->type << " " << var1->val.t << " convert to " << phi->variable->type << std::endl;
 
-				// TODO : normalement pas besoin de faire une condition ici
-				if (var1->type != phi->variable->type) {
-					phi->value1 = c.insn_convert(c.insn_load(var1->val), phi->variable->type);
-				} else {
-					phi->value1 = c.insn_load(var1->val);
-				}
-				if (phi->phi_node.v) {
-					((llvm::PHINode*) phi->phi_node.v)->addIncoming(phi->value1.v, this->basic_block);
+				if (var1->entry.v) {
+					// TODO : normalement pas besoin de faire une condition ici
+					if (var1->type != phi->variable->type) {
+						phi->value1 = c.insn_convert(c.insn_load(var1->entry), phi->variable->type);
+					} else {
+						phi->value1 = c.insn_load(var1->entry);
+					}
+					if (phi->phi_node.v) {
+						((llvm::PHINode*) phi->phi_node.v)->addIncoming(phi->value1.v, this->basic_block);
+					}
 				}
 			}
 			if (phi->section2 == this) {
@@ -260,9 +268,9 @@ void Section::compile_end(Compiler& c) const {
 				// std::cout << "Block export value2 " << var2 << " " << var2->type << " convert to " <<  phi->variable->type << std::endl;
 				// TODO : normalement pas besoin de faire une condition ici
 				if (var2->type != phi->variable->type) {
-					phi->value2 = c.insn_convert(c.insn_load(var2->val), phi->variable->type);
+					phi->value2 = c.insn_convert(c.insn_load(var2->entry), phi->variable->type);
 				} else {
-					phi->value2 = c.insn_load(var2->val);
+					phi->value2 = c.insn_load(var2->entry);
 				}
 				if (phi->phi_node.v) {
 					((llvm::PHINode*) phi->phi_node.v)->addIncoming(phi->value2.v, this->basic_block);

@@ -37,7 +37,10 @@ public:
 	virtual void print(std::ostream&, int indent, PrintOptions options) const = 0;
 	virtual Location location() const = 0;
 
+	virtual void set_end_section(Section* end_section);
+
 	virtual void pre_analyze(SemanticAnalyzer* analyzer);
+
 	virtual void analyze(SemanticAnalyzer* analyzer);
 	virtual void analyze(SemanticAnalyzer* analyzer, const Type* type) = 0;
 

@@ -33,8 +33,8 @@ void Test::test_loops() {
 	code("if true { return 5 } else { 2 }").equals("5");
 	code("if false { 5 } else { return 2 }").equals("2");
 	code("if false { return 5 } else { 2 }").equals("2");
-	// code("let a = 5m if true { a } else { 2m }").equals("5");
-	// code("let a = 5m if true { a } else { a }").equals("5");
+	code("let a = 5m if true { a } else { 2m }").equals("5");
+	code("let a = 5m if true { a } else { a }").equals("5");
 	code("if true then 1 else 2 end").equals("1");
 	code("if true then if false then 1 else 2 end end").equals("2");
 	code("if true then if false then 1 end else 2 end").equals("null");
@@ -124,7 +124,7 @@ void Test::test_loops() {
 	code("var a = 0 for var i = 0; i < 10; i++ { if i < 5 { continue } a++ } a").equals("5");
 	code("var a = 0 for var i = 0; i < 10; i++ { if i > 5 { break } a++ } a").equals("6");
 	code("var c = 0 for var t = []; t.size() < 10; t.push('x') { c++ } c").equals("10");
-	// code("var s = 0 for var m = [1: 3, 2: 2, 3: 1]; m; var l = 0 for k, x in m { l = k } m.erase(l) { for x in m { s += x } } s").equals("14");
+	DISABLED_code("var s = 0 for var m = [1: 3, 2: 2, 3: 1]; m; var l = 0 for k, x in m { l = k } m.erase(l) { for x in m { s += x } } s").equals("14");
 	code("for var i = 0; ['', i < 10][1]; i++ {}").equals("(void)");
 	code("var i = ['', 1][1] for ; i < 10; i <<= 1 {}").equals("(void)");
 	code("for (var i = 0, j = 0; i < 5; i++, j++) { System.print(i + ', ' + j) }").output("0, 0\n1, 1\n2, 2\n3, 3\n4, 4\n");
@@ -170,8 +170,11 @@ void Test::test_loops() {
 	 * Foreach loops
 	 */
 	header("Foreach loops");
+	section("Empty containers");
 	code("for v in [] {}").equals("(void)");
 	code("for v in new Array {}").equals("(void)");
+
+	section("Normal containers");
 	code("for v in [1, 2, 3, 4] {}").equals("(void)");
 	code("for (v in [1, 2, 3, 4]) {}").equals("(void)");
 	code("for (v in [1, 2, 3, 4]) do end").equals("(void)");
@@ -183,11 +186,11 @@ void Test::test_loops() {
 	code("var a = 0 let x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] for i in x { if i < 5 { continue } a++ } a").equals("5");
 	code("var s = 0 for k : v in [1, 2, 3, 4] { s += k * v } s").equals("20");
 	code("var s = '' for k : v in ['a': 1, 'b': 2, 'c': 3, 'd': 4] { s += v * k } s").equals("'abbcccdddd'");
-	// code("(a -> { var s = 0.0; for x in a { s += x } s })([1, 2, 3, 4.25])").equals("10.25");
-	// code("var y = '' for k, x in { var x = [] x.push(4) x } { y += k + ':' + x + ' ' } y").equals("'0:4 '");
-	// code("var y = '' for k, x in { var x = [1: 2] x.insert(3, 4) x } { y += k + ':' + x + ' ' } y").equals("'1:2 3:4 '");
-	// code("var y = '' for k, x in { var x = [1: 2.5] x.insert(3, 4) x } { y += k + ':' + x + ' ' } y").equals("'1:2.5 3:4 '");
-	// code("var y = '' for k, x in { var x = [1: '2'] x.insert(3, 4) x } { y += k + ':' + x + ' ' } y").equals("'1:2 3:4 '");
+	DISABLED_code("(a -> { var s = 0.0; for x in a { s += x } s })([1, 2, 3, 4.25])").equals("10.25");
+	code("var y = '' for k, x in { var x = [] x.push(4) x } { y += k + ':' + x + ' ' } y").equals("'0:4 '");
+	code("var y = '' for k, x in { var x = [1: 2] x.insert(3, 4) x } { y += k + ':' + x + ' ' } y").equals("'1:2 3:4 '");
+	code("var y = '' for k, x in { var x = [1: 2.5] x.insert(3, 4) x } { y += k + ':' + x + ' ' } y").equals("'1:2.5 3:4 '");
+	code("var y = '' for k, x in { var x = [1: '2'] x.insert(3, 4) x } { y += k + ':' + x + ' ' } y").equals("'1:2 3:4 '");
 	code("var y = 'test' for x in 1 { y = x } y").equals("1");
 	code("var y = 'test' for x in 'salut' { y = x } y").equals("'t'");
 	code("var x = 'test' for x in [1] {} x").equals("'test'");
@@ -212,7 +215,7 @@ void Test::test_loops() {
 	code("[for var i = 0; i < 5; ++i { i }]").equals("[0, 1, 2, 3, 4]");
 	code("[for var i = 1; i <= 10; ++i { [for var j = 1; j <= 3; ++j { if i == 3 break 2 i * j}] }]").equals("[[1, 2, 3], [2, 4, 6]]");
 	code("[for x in [1, 2, 3] { x }]").equals("[1, 2, 3]");
-	DISABLED_code("let a = ['a': 'b', 'c': 'd'] [for k, x in a { k + x }]").equals("['ab', 'cd']");
+	code("let a = ['a': 'b', 'c': 'd'] [for k, x in a { k + x }]").equals("['ab', 'cd']");
 	DISABLED_code("[for x in [1, 2, 3] {[ for y in [1, 2, 3] { if y == 2 continue x * y }] }]").equals("[[1, 3], [2, 6], [3, 9]]");
 	DISABLED_code("let sorted = [for x in <5, 2, 4, 1, 3> { x }] sorted").equals("[1, 2, 3, 4, 5]");
 	code("[for i in [1..10] { i }]").equals("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]");

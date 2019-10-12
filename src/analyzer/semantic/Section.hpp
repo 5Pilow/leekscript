@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include "../instruction/Instruction.hpp"
+#include "Conversion.hpp"
 
 namespace ls {
 
@@ -23,7 +24,7 @@ public:
     std::vector<Section*> successors;
 	std::unordered_map<std::string, Variable*> variables;
 	std::vector<Phi*> phis;
-	std::vector<std::tuple<Variable*, Variable*, const Section*>> conversions;
+	std::vector<Conversion> conversions;
     #if COMPILER
 	llvm::BasicBlock* first_basic_block = nullptr;
 	llvm::BasicBlock* basic_block = nullptr;
@@ -38,7 +39,7 @@ public:
     void add_successor(Section* successor);
     void add_predecessor(Section* predecessor);
 
-    void add_conversion(Variable* variable, Variable* variable2, const Section* mutation);
+    void add_conversion(Conversion conversion);
 
     void print(std::ostream& os, int indent, PrintOptions options) const;
 

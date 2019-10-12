@@ -217,6 +217,7 @@ public:
 	value insn_to_bool(value v);
 	value insn_load(value v);
 	value insn_load_member(value v, int pos);
+	value insn_member_address(value v, int pos);
 	void  insn_store(value, value);
 	void  insn_store_member(value, int, value);
 	value insn_typeof(value v);
@@ -246,10 +247,10 @@ public:
 	value iterator_rbegin(value v);
 	value iterator_end(value v, value it);
 	value iterator_rend(value v, value it);
-	value iterator_get(const Type* collectionType, value it, value previous);
-	value iterator_rget(const Type* collectionType, value it, value previous);
-	value iterator_key(value v, value it, value previous);
-	value iterator_rkey(value v, value it, value previous);
+	value iterator_get(const Type* collectionType, value it);
+	value iterator_rget(const Type* collectionType, value it);
+	value iterator_key(value v, value it);
+	value iterator_rkey(value v, value it);
 	void iterator_increment(const Type* collectionType, value it);
 	void iterator_rincrement(const Type* collectionType, value it);
 	value insn_foreach(value v, const Type* output, Variable* var, Variable* key, std::function<value(value, value)>, bool reversed = false, std::function<value(value, value)> body2 = nullptr);
