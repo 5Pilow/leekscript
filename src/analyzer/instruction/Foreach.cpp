@@ -321,12 +321,12 @@ Compiler::value Foreach::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Instruction> Foreach::clone() const {
+std::unique_ptr<Instruction> Foreach::clone(Block* parent) const {
 	auto f = std::make_unique<Foreach>(type->env);
 	f->key = key;
 	f->value = value;
-	f->container = container->clone();
-	f->body = unique_static_cast<Block>(body->clone());
+	f->container = container->clone(parent);
+	f->body = unique_static_cast<Block>(body->clone(parent));
 	return f;
 }
 

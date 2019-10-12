@@ -119,9 +119,9 @@ Compiler::value PostfixExpression::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> PostfixExpression::clone() const {
+std::unique_ptr<Value> PostfixExpression::clone(Block* parent) const {
 	auto pe = std::make_unique<PostfixExpression>(type->env);
-	pe->expression = unique_static_cast<LeftValue>(expression->clone());
+	pe->expression = unique_static_cast<LeftValue>(expression->clone(parent));
 	pe->operatorr = operatorr;
 	return pe;
 }

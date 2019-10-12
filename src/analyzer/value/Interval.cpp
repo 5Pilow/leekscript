@@ -49,12 +49,12 @@ Compiler::value Interval::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> Interval::clone() const {
+std::unique_ptr<Value> Interval::clone(Block* parent) const {
 	auto interval = std::make_unique<Interval>(type->env);
 	interval->opening_bracket = opening_bracket;
 	interval->closing_bracket = closing_bracket;
-	interval->start = start->clone();
-	interval->end = end->clone();
+	interval->start = start->clone(parent);
+	interval->end = end->clone(parent);
 	return interval;
 }
 

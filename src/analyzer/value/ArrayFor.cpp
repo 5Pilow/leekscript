@@ -39,9 +39,9 @@ Compiler::value ArrayFor::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> ArrayFor::clone() const {
+std::unique_ptr<Value> ArrayFor::clone(Block* parent) const {
 	auto af = std::make_unique<ArrayFor>(type->env);
-	af->forr = forr->clone();
+	af->forr = forr->clone(parent);
 	return af;
 }
 

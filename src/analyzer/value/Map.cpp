@@ -102,15 +102,15 @@ Compiler::value Map::compile(Compiler &c) const {
 }
 #endif
 
-std::unique_ptr<Value> Map::clone() const {
+std::unique_ptr<Value> Map::clone(Block* parent) const {
 	auto map = std::make_unique<Map>(type->env);
 	map->opening_bracket = opening_bracket;
 	map->closing_bracket = closing_bracket;
 	for (const auto& k : keys) {
-		map->keys.push_back(k->clone());
+		map->keys.push_back(k->clone(parent));
 	}
 	for (const auto& v : values) {
-		map->values.push_back(v->clone());
+		map->values.push_back(v->clone(parent));
 	}
 	return map;
 }

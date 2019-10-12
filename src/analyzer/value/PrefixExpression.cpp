@@ -233,8 +233,8 @@ Compiler::value PrefixExpression::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> PrefixExpression::clone() const {
-	return std::make_unique<PrefixExpression>(type->env, operatorr, expression->clone());
+std::unique_ptr<Value> PrefixExpression::clone(Block* parent) const {
+	return std::make_unique<PrefixExpression>(type->env, operatorr, expression->clone(parent));
 }
 
 }

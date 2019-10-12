@@ -81,7 +81,7 @@ void Test::test_classes() {
 	code("[].map").equals("<function>");
 	code("[].azertyuiop").error(ls::Error::NO_SUCH_ATTRIBUTE, {"azertyuiop", "Array"});
 	code("[[], ''][0].azertyuiop").exception(ls::vm::Exception::NO_SUCH_ATTRIBUTE);
-	code("let my_map = [].map; my_map([1, 2, 3], x -> x ** 2)").equals("[1, 4, 9]");
+	DISABLED_code("let my_map = [].map; my_map([1, 2, 3], x -> x ** 2)").equals("[1, 4, 9]");
 	code("[].map == [].map").equals("true");
 	code("{}.map == {}.map").equals("true");
 	code("[].map == {}.map").equals("false");

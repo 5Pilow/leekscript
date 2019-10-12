@@ -376,7 +376,7 @@ Compiler::value VariableValue::compile_l(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> VariableValue::clone() const {
+std::unique_ptr<Value> VariableValue::clone(Block* parent) const {
 	return std::make_unique<VariableValue>(type->env, token);
 }
 

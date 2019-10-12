@@ -43,6 +43,7 @@ void Test::test_loops() {
 	code("var L = 5 if L < 1 {;}").equals("(void)");
 	code("var L = 5 if L > 1 {;}").equals("(void)");
 	code("if (false) { return 'hello' }").equals("null");
+	code("let x = { if 1 2 else 3 } let y = { if x == 0 { 'error' } else { 8 * x } } y").equals("16");
 
 	section("Conditions with other types");
 	code("if 1212 { 'ok' } else { 5 }").equals("'ok'");
@@ -236,7 +237,7 @@ void Test::test_loops() {
 	code("continue").error(ls::Error::Type::CONTINUE_MUST_BE_IN_LOOP, {});
 	code("while (true) { break 2 }").error(ls::Error::Type::BREAK_MUST_BE_IN_LOOP, {});
 	code("while (true) { continue 2 }").error(ls::Error::Type::CONTINUE_MUST_BE_IN_LOOP, {});
-	DISABLED_code("var r = 0 for x in [1, 2] { for y in [3, 4] { r = 10 * x + y if x + y >= 5 break 2 }} r").equals("14");
+	code("var r = 0 for x in [1, 2] { for y in [3, 4] { r = 10 * x + y if x + y >= 5 break 2 }} r").equals("14");
 	DISABLED_code("var r = 0 for x in [1, 2] { for y in [3, 4] { r = 10 * x + y continue 2 } r = 0 } r").equals("23");
 	code("for x in ['a'] { let a = 'a' { let b = 'b' break let c = 'c' } let d = 'd' } 0").equals("0");
 	code("for x in ['a'] { let a = 'a' for y in ['a'] { let b = 'b' break let c = 'c' } let d = 'd' } 0").equals("0");

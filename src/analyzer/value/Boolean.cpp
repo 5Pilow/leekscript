@@ -27,7 +27,7 @@ Compiler::value Boolean::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> Boolean::clone() const {
+std::unique_ptr<Value> Boolean::clone(Block* parent) const {
 	auto b = std::make_unique<Boolean>(type->env, token);
 	b->value = value;
 	return b;

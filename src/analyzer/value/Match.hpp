@@ -27,8 +27,8 @@ public:
 		Compiler::value match(Compiler &c, Compiler::value v) const;
 		#endif
 
-		Pattern&& clone() const {
-			Pattern p { begin->clone(), end->clone() };
+		Pattern&& clone(Block* parent) const {
+			Pattern p { begin->clone(parent), end->clone(parent) };
 			p.interval = interval;
 			return std::move(p);
 		}
@@ -52,7 +52,7 @@ public:
 	virtual Compiler::value compile(Compiler&) const override;
 	#endif
 
-	virtual std::unique_ptr<Value> clone() const override;
+	virtual std::unique_ptr<Value> clone(Block* parent) const override;
 };
 
 }

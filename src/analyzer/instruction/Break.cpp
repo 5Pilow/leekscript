@@ -50,7 +50,7 @@ Compiler::value Break::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Instruction> Break::clone() const {
+std::unique_ptr<Instruction> Break::clone(Block* parent) const {
 	auto b = std::make_unique<Break>(type->env);
 	b->token = token;
 	b->deepness = deepness;

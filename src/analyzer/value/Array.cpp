@@ -162,12 +162,12 @@ Compiler::value Array::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> Array::clone() const {
+std::unique_ptr<Value> Array::clone(Block* parent) const {
 	auto array = std::make_unique<Array>(type->env);
 	array->opening_bracket = opening_bracket;
 	array->closing_bracket = closing_bracket;
 	for (const auto& ex : expressions) {
-		array->expressions.push_back(ex->clone());
+		array->expressions.push_back(ex->clone(parent));
 	}
 	return array;
 }

@@ -352,11 +352,11 @@ Compiler::value Expression::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> Expression::clone() const {
+std::unique_ptr<Value> Expression::clone(Block* parent) const {
 	auto ex = std::make_unique<Expression>(type->env);
-	ex->v1 = v1->clone();
+	ex->v1 = v1->clone(parent);
 	ex->op = op;
-	ex->v2 = v2 ? v2->clone() : nullptr;
+	ex->v2 = v2 ? v2->clone(parent) : nullptr;
 	return ex;
 }
 

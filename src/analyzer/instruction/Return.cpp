@@ -61,8 +61,8 @@ Compiler::value Return::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Instruction> Return::clone() const {
-	auto ex = expression ? expression->clone() : nullptr;
+std::unique_ptr<Instruction> Return::clone(Block* parent) const {
+	auto ex = expression ? expression->clone(parent) : nullptr;
 	return std::make_unique<Return>(type->env, std::move(ex));
 }
 

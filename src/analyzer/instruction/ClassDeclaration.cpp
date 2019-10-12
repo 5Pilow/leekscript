@@ -58,11 +58,11 @@ Compiler::value ClassDeclaration::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Instruction> ClassDeclaration::clone() const {
+std::unique_ptr<Instruction> ClassDeclaration::clone(Block* parent) const {
 	auto cd = std::make_unique<ClassDeclaration>(type->env, token);
 	cd->name = name;
 	for (const auto& f : fields) {
-		cd->fields.push_back(unique_static_cast<VariableDeclaration>(f->clone()));
+		cd->fields.push_back(unique_static_cast<VariableDeclaration>(f->clone(parent)));
 	}
 	return cd;
 }

@@ -52,13 +52,13 @@ Compiler::value Object::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> Object::clone() const {
+std::unique_ptr<Value> Object::clone(Block* parent) const {
 	auto o = std::make_unique<Object>(type->env);
 	for (const auto& k : keys) {
 		o->keys.push_back(k);
 	}
 	for (const auto& v : values) {
-		o->values.push_back(v->clone());
+		o->values.push_back(v->clone(parent));
 	}
 	return o;
 }

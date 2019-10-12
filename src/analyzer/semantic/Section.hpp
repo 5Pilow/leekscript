@@ -19,12 +19,13 @@ public:
     Environment& env;
     std::string color;
     std::string name;
-	std::vector<std::unique_ptr<Instruction>> instructions;
+	std::vector<Instruction*> instructions;
     std::vector<Section*> predecessors;
     std::vector<Section*> successors;
 	std::unordered_map<std::string, Variable*> variables;
 	std::vector<Phi*> phis;
 	std::vector<Conversion> conversions;
+	bool is_end_of_block = false;
     #if COMPILER
 	llvm::BasicBlock* first_basic_block = nullptr;
 	llvm::BasicBlock* basic_block = nullptr;
@@ -53,8 +54,6 @@ public:
     Compiler::value compile(Compiler& c) const;
     void compile_end(Compiler& c) const;
     #endif
-
-	Section* clone() const;
 };
 
 }

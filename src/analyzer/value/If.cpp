@@ -136,13 +136,16 @@ Compiler::value If::compile(Compiler& c) const {
 		}
 	}
 
-	c.enter_section(end_section);
+	if (end_section) {
+		c.enter_section(end_section);
 
-	auto r = [&]() -> Compiler::value { if (type->is_void()) {
-		return { c.env };
-	} else {
-		return c.insn_phi(type, then_v, then->sections.back(), else_v, elze->sections.back());
-	}}();
+		auto r = [&]() -> Compiler::value { if (type->is_void()) {
+			return { c.env };
+		} else {
+			return c.insn_phi(type, then_v, then->sections.back(), else_v, elze->sections.back());
+		}}();
+		return r;
+	}
 
 	// for (const auto& phi : phis) {
 	// 	// std::cout << "phi " << phi->variable1 << " " << phi->value1.v << " " << phi->variable2 << " " << phi->value2.v << std::endl;
@@ -161,26 +164,27 @@ Compiler::value If::compile(Compiler& c) const {
 	// 		// c.insn_delete_variable(phi->variable->phi->variable1->val);
 	// 	}
 	// }
-
-	return r;
 }
 #endif
 
-std::unique_ptr<Value> If::clone() const {
+std::unique_ptr<Value> If::clone(Block* parent) const {
 	auto iff = std::make_unique<If>(type->env);
 	iff->ternary = ternary;
-	iff->condition = condition->clone();
-	iff->then = unique_static_cast<Block>(then->clone());
-	iff->elze = elze ? unique_static_cast<Block>(elze->clone()) : nullptr;
+	iff->condition = condition->clone(parent);
+	iff->then = unique_static_cast<Block>(then->clone(parent));
+	iff->elze = elze ? unique_static_cast<Block>(elze->clone(parent)) : nullptr;
 
-	// iff->end_section = new Section(type->env, "end_if");
-
-	// iff->then->sections.back()->add_successor(iff->end_section);
-	// iff->end_section->add_predecessor(iff->then->sections.back());
-
-	// iff->elze->sections.back()->add_successor(iff->end_section);
-	// iff->end_section->add_predecessor(iff->elze->sections.back());
-
+	if (not iff->then->returning or (iff->elze and not iff->elze->returning)) {
+		iff->end_section = new Section(type->env, "end_if");
+		if (not iff->then->returning) {
+			iff->then->sections.back()->add_successor(iff->end_section);
+			iff->end_section->add_predecessor(iff->then->sections.back());
+		}
+		if (iff->elze and not iff->elze->returning) {
+			iff->elze->sections.back()->add_successor(iff->end_section);
+			iff->end_section->add_predecessor(iff->elze->sections.back());
+		}
+	}
 	return iff;
 }
 

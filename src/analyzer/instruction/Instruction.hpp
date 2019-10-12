@@ -49,7 +49,7 @@ public:
 	virtual Compiler::value compile_end(Compiler&) const;
 	#endif
 
-	virtual std::unique_ptr<Instruction> clone() const = 0;
+	virtual std::unique_ptr<Instruction> clone(Block* parent) const = 0;
 
 	std::string tabs(int indent) const;
 };

@@ -40,9 +40,9 @@ Compiler::value AbsoluteValue::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> AbsoluteValue::clone() const {
+std::unique_ptr<Value> AbsoluteValue::clone(Block* parent) const {
 	auto abs = std::make_unique<AbsoluteValue>(type->env);
-	abs->expression = expression->clone();
+	abs->expression = expression->clone(parent);
 	abs->open_pipe = open_pipe;
 	abs->close_pipe = close_pipe;
 	return abs;

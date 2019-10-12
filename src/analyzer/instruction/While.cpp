@@ -20,9 +20,10 @@ void While::print(std::ostream& os, int indent, PrintOptions options) const {
 	// 	os << std::get<0>(conversion) << " " << std::get<0>(conversion)->type << " = (" << std::get<1>(conversion)->type << ") " << std::get<0>(conversion)->parent << std::endl;
 	// }
 	os << "while (" << std::endl;
-	condition_section->print(os, indent, options);
-
-	os << condition_section->color << "┃ " << END_COLOR << tabs(indent) << ") ";
+	if (condition) {
+		condition->print(os, indent, { options.debug, true, options.condensed });
+		os << condition->sections.front()->color << "┃ " << END_COLOR << tabs(indent) << ") ";
+	}
 	body->print(os, indent, options);
 }
 
@@ -32,14 +33,15 @@ Location While::location() const {
 
 void While::pre_analyze(SemanticAnalyzer* analyzer) {
 
-	const auto& before = condition_section->predecessors[0];
+	const auto& before = condition->sections.front()->predecessors[0];
 
 	mutations.clear();
 	conversions.clear();
-	condition_section->variables.clear();
+	condition->variables.clear();
+	condition->sections.front()->variables.clear();
 	body->sections.back()->variables.clear();
 
-	condition_section->pre_analyze(analyzer);
+	condition->pre_analyze(analyzer);
 
 	analyzer->enter_loop((Instruction*) this);
 	body->pre_analyze(analyzer);
@@ -66,7 +68,7 @@ void While::pre_analyze(SemanticAnalyzer* analyzer) {
 
 	if (mutations.size()) {
 
-		condition_section->pre_analyze(analyzer);
+		condition->pre_analyze(analyzer);
 
 		analyzer->enter_loop((Instruction*) this);
 		mutations.clear(); // Va être re-rempli par la seconde analyse
@@ -74,7 +76,7 @@ void While::pre_analyze(SemanticAnalyzer* analyzer) {
 		body->pre_analyze(analyzer);
 		analyzer->leave_loop();
 
-		for (const auto& phi : condition_section->phis) {
+		for (const auto& phi : condition->sections.front()->phis) {
 			// std::cout << "While phi " << phi->variable << std::endl;
 			for (const auto& mutation : mutations) {
 				// std::cout << "While mutation " << mutation.variable << " " << mutation.section->id << std::endl;
@@ -91,11 +93,11 @@ void While::analyze(SemanticAnalyzer* analyzer, const Type*) {
 
 	analyzer->leave_section(); // Leave previous section
 
-	condition_section->analyze(analyzer);
-	condition_section->instructions.front()->analyze(analyzer);
-	condition_section->analyze_end(analyzer);
+	condition->sections.front()->analyze(analyzer);
+	condition->sections.front()->instructions.front()->analyze(analyzer);
+	condition->sections.front()->analyze_end(analyzer);
 
-	throws = condition_section->instructions.front()->throws;
+	throws = condition->sections.front()->instructions[0]->throws;
 
 	analyzer->enter_loop((Instruction*) this);
 	body->is_void = true;
@@ -107,9 +109,11 @@ void While::analyze(SemanticAnalyzer* analyzer, const Type*) {
 	}
 
 	if (conversions.size()) {
-		condition_section->analyze(analyzer);
-		condition_section->instructions.front()->analyze(analyzer);
-		throws = condition_section->instructions.front()->throws;
+		condition->sections.front()->analyze(analyzer);
+		condition->sections.front()->instructions.front()->analyze(analyzer);
+		condition->sections.front()->analyze_end(analyzer);
+
+		throws = condition->sections.front()->instructions[0]->throws;
 
 		analyzer->enter_loop((Instruction*) this);
 		body->is_void = true;
@@ -131,16 +135,14 @@ Compiler::value While::compile(Compiler& c) const {
 	c.leave_section(); // Leave previous section
 
 	// Condition section
-	c.enter_section(condition_section);
-	auto cond = condition_section->instructions.front()->compile(c);
-	auto cond_boolean = c.insn_to_bool(cond);
-	condition_section->instructions.front()->compile_end(c);
-	c.insn_delete_temporary(cond);
-
-	c.leave_section_condition(cond_boolean);
-
+	auto cond = condition->compile(c);
 	c.inc_ops(1);
-	c.enter_loop(end_section, condition_section);
+	auto cond_boolean = c.insn_to_bool(cond);
+	condition->sections.back()->condition = cond_boolean;
+	c.insn_delete_temporary(cond);
+	condition->compile_end(c);
+
+	c.enter_loop(end_section, condition->sections.front());
 	auto body_v = body->compile(c);
 	if (body_v.v) {
 		c.insn_delete_temporary(body_v);
@@ -152,11 +154,13 @@ Compiler::value While::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Instruction> While::clone() const {
+std::unique_ptr<Instruction> While::clone(Block* parent) const {
 	auto w = std::make_unique<While>(type->env);
 	w->token = token;
-	w->condition_section = condition_section;
-	w->body = unique_static_cast<Block>(body->clone());
+	if (condition) {
+		w->condition = unique_static_cast<Block>(condition->clone(parent));
+	}
+	w->body = unique_static_cast<Block>(body->clone(parent));
 	return w;
 }
 

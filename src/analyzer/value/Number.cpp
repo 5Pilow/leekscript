@@ -135,7 +135,7 @@ Compiler::value Number::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> Number::clone() const {
+std::unique_ptr<Value> Number::clone(Block* parent) const {
 	return std::make_unique<Number>(type->env, value, token);
 }
 

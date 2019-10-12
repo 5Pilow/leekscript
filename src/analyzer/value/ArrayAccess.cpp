@@ -331,11 +331,11 @@ void ArrayAccess::compile_end(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> ArrayAccess::clone() const {
+std::unique_ptr<Value> ArrayAccess::clone(Block* parent) const {
 	auto aa = std::make_unique<ArrayAccess>(type->env);
-	aa->array = array->clone();
-	aa->key = key->clone();
-	aa->key2 = key2 ? key2->clone() : nullptr;
+	aa->array = array->clone(parent);
+	aa->key = key->clone(parent);
+	aa->key2 = key2 ? key2->clone(parent) : nullptr;
 	aa->open_bracket = open_bracket;
 	aa->close_bracket = close_bracket;
 	return aa;

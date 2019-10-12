@@ -85,10 +85,10 @@ Compiler::value Set::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> Set::clone() const {
+std::unique_ptr<Value> Set::clone(Block* parent) const {
 	auto s = std::make_unique<Set>(type->env);
 	for (const auto& v : expressions) {
-		s->expressions.push_back(v->clone());
+		s->expressions.push_back(v->clone(parent));
 	}
 	return s;
 }

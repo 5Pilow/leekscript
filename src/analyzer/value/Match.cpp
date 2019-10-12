@@ -179,13 +179,13 @@ Compiler::value Match::Pattern::match(Compiler &c, Compiler::value v) const {
 }
 #endif
 
-std::unique_ptr<Value> Match::clone() const {
+std::unique_ptr<Value> Match::clone(Block* parent) const {
 	auto match = std::make_unique<Match>(type->env);
-	match->value = value->clone();
+	match->value = value->clone(parent);
 	for (const auto& pl : pattern_list) {
 		match->pattern_list.push_back({});
 		for (const auto& p : pl) {
-			match->pattern_list.back().emplace_back(p.clone());
+			match->pattern_list.back().emplace_back(p.clone(parent));
 		}
 	}
 	return match;

@@ -26,7 +26,7 @@ public:
 	virtual Compiler::value compile(Compiler&) const override;
 	#endif
 
-	virtual std::unique_ptr<Instruction> clone() const override;
+	virtual std::unique_ptr<Instruction> clone(Block* parent) const override;
 };
 
 }

@@ -52,8 +52,8 @@ Compiler::value Throw::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Instruction> Throw::clone() const {
-	auto ex = expression ? expression->clone() : nullptr;
+std::unique_ptr<Instruction> Throw::clone(Block* parent) const {
+	auto ex = expression ? expression->clone(parent) : nullptr;
 	return std::make_unique<Throw>(type->env, token, std::move(ex));
 }
 

@@ -38,7 +38,7 @@ Compiler::value Continue::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Instruction> Continue::clone() const {
+std::unique_ptr<Instruction> Continue::clone(Block* parent) const {
 	auto c = std::make_unique<Continue>(type->env);
 	c->deepness = deepness;
 	return c;

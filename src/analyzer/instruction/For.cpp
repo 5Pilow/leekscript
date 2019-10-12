@@ -19,8 +19,8 @@ void For::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "for " << std::endl;
 	init->print(os, indent, { options.debug, true, options.sections });
 	os << " ;" << std::endl;
-	if (condition_section != nullptr) {
-		condition_section->print(os, indent, { options.debug, true, options.sections });
+	if (condition) {
+		condition->print(os, indent, { options.debug, true, options.sections });
 	}
 	os << " ;" << std::endl;
 	increment->print(os, indent, { options.debug, true, options.sections });
@@ -43,7 +43,9 @@ void For::pre_analyze(SemanticAnalyzer* analyzer) {
 
 	mutations.clear();
 	conversions.clear();
-	condition_section->variables.clear();
+	if (condition) {
+		condition->sections.front()->variables.clear();
+	}
 	increment->sections.back()->variables.clear();
 	body->sections.back()->variables.clear();
 
@@ -58,13 +60,15 @@ void For::pre_analyze(SemanticAnalyzer* analyzer) {
 
 	analyzer->enter_loop((Instruction*) this);
 
-	if (condition_section != nullptr) {
-		condition_section->pre_analyze(analyzer);
+	if (condition) {
+		condition->pre_analyze(analyzer);
 	}
 
 	body->pre_analyze(analyzer);
 
-	increment->pre_analyze(analyzer);
+	if (increment->reachable()) {
+		increment->pre_analyze(analyzer);
+	}
 	analyzer->leave_loop();
 
 	// for (const auto& mutation : mutations) {
@@ -98,20 +102,26 @@ void For::pre_analyze(SemanticAnalyzer* analyzer) {
 		analyzer->enter_loop((Instruction*) this);
 		mutations.clear(); // Va être re-rempli par la seconde analyse
 
-		condition_section->pre_analyze(analyzer);
+		if (condition) {
+			condition->pre_analyze(analyzer);
+		}
 
 		body->pre_analyze(analyzer);
 
-		increment->pre_analyze(analyzer);
+		if (increment->reachable()) {
+			increment->pre_analyze(analyzer);
+		}
 		analyzer->leave_loop();
 
-		for (const auto& phi : condition_section->phis) {
-			// std::cout << "For phi " << phi->variable << std::endl;
-			for (const auto& mutation : mutations) {
-				// std::cout << "For mutation " << mutation.variable << " " << mutation.section->id << std::endl;
-				if (mutation.variable->name == phi->variable2->name) {
-					phi->variable2 = mutation.variable;
-					// std::cout << "For set var for phi " << phi->variable2 << std::endl;
+		if (condition) {
+			for (const auto& phi : condition->sections.front()->phis) {
+				// std::cout << "For phi " << phi->variable << std::endl;
+				for (const auto& mutation : mutations) {
+					// std::cout << "For mutation " << mutation.variable << " " << mutation.section->id << std::endl;
+					if (mutation.variable->name == phi->variable2->name) {
+						phi->variable2 = mutation.variable;
+						// std::cout << "For set var for phi " << phi->variable2 << std::endl;
+					}
 				}
 			}
 		}
@@ -155,14 +165,11 @@ void For::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	}
 
 	// Condition
-	if (condition_section != nullptr) {
-		analyzer->enter_section(condition_section);
-		condition_section->analyze(analyzer);
-		if (condition_section->instructions.size()) {
-			condition_section->instructions[0]->analyze(analyzer);
-			throws |= condition_section->instructions[0]->throws;
-		}
-		analyzer->leave_section();
+	if (condition) {
+		condition->sections.front()->analyze(analyzer);
+		condition->sections.front()->instructions.front()->analyze(analyzer);
+		condition->sections.front()->analyze_end(analyzer);
+		throws |= condition->sections.front()->instructions[0]->throws;
 	}
 
 	// Body
@@ -178,39 +185,7 @@ void For::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	analyzer->leave_loop();
 
 	// Increment
-	analyzer->enter_block(increment.get());
-	for (const auto& section : increment->sections) {
-		section->analyze(analyzer);
-		analyzer->enter_section(section);
-		for (const auto& ins : section->instructions) {
-			ins->is_void = true;
-			ins->analyze(analyzer);
-			throws |= ins->throws;
-			if (ins->may_return) {
-				may_return = ins->may_return;
-				return_type = return_type->operator + (ins->return_type);
-			}
-			if (ins->returning) { break; }
-		}
-		analyzer->leave_section();
-	}
-
-	analyzer->leave_block();
-
-	for (const auto& conversion : conversions) {
-		std::get<0>(conversion)->section->reanalyze_conversions(analyzer);
-	}
-
-	if (conversions.size()) {
-		condition_section->analyze(analyzer);
-		condition_section->instructions.front()->analyze(analyzer);
-		throws = condition_section->instructions.front()->throws;
-
-		analyzer->enter_loop((Instruction*) this);
-		body->is_void = true;
-		body->analyze(analyzer);
-		analyzer->leave_loop();
-
+	if (increment->reachable()) {
 		analyzer->enter_block(increment.get());
 		for (const auto& section : increment->sections) {
 			section->analyze(analyzer);
@@ -226,6 +201,45 @@ void For::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 				if (ins->returning) { break; }
 			}
 			analyzer->leave_section();
+		}
+	}
+
+	analyzer->leave_block();
+
+	for (const auto& conversion : conversions) {
+		std::get<0>(conversion)->section->reanalyze_conversions(analyzer);
+	}
+
+	if (conversions.size()) {
+		if (condition) {
+			condition->sections.front()->analyze(analyzer);
+			condition->sections.front()->instructions.front()->analyze(analyzer);
+			condition->sections.front()->analyze_end(analyzer);
+			throws |= condition->sections.front()->instructions[0]->throws;
+		}
+
+		analyzer->enter_loop((Instruction*) this);
+		body->is_void = true;
+		body->analyze(analyzer);
+		analyzer->leave_loop();
+
+		if (increment->reachable()) {
+			analyzer->enter_block(increment.get());
+			for (const auto& section : increment->sections) {
+				section->analyze(analyzer);
+				analyzer->enter_section(section);
+				for (const auto& ins : section->instructions) {
+					ins->is_void = true;
+					ins->analyze(analyzer);
+					throws |= ins->throws;
+					if (ins->may_return) {
+						may_return = ins->may_return;
+						return_type = return_type->operator + (ins->return_type);
+					}
+					if (ins->returning) { break; }
+				}
+				analyzer->leave_section();
+			}
 		}
 	}
 	analyzer->leave_block();
@@ -254,7 +268,7 @@ Compiler::value For::compile(Compiler& c) const {
 		}
 		for (const auto& ins : section->instructions) {
 			ins->compile(c);
-			if (dynamic_cast<Return*>(ins.get())) {
+			if (dynamic_cast<Return*>(ins)) {
 				auto return_v = c.clone(output_v);
 				c.leave_block();
 				return return_v;
@@ -265,22 +279,23 @@ Compiler::value For::compile(Compiler& c) const {
 
 	// Cond
 	c.leave_section();
-	c.enter_section(condition_section);
 
-	c.inc_ops(1);
-	if (condition_section->instructions.size()) {
-		auto condition_v = condition_section->instructions.front()->compile(c);
-		auto bool_v = c.insn_to_bool(condition_v);
-		condition_section->instructions.front()->compile_end(c);
-		c.insn_delete_temporary(condition_v);
-		c.leave_section_condition(bool_v);
-	} else {
-		c.leave_section();
+	if (condition) {
+		if (condition) {
+			auto condition_v = condition->compile(c);
+			auto bool_v = c.insn_to_bool(condition_v);
+			condition->sections.back()->condition = bool_v;
+			c.insn_delete_temporary(condition_v);
+			condition->compile_end(c);
+		} else {
+			c.leave_section();
+		}
 	}
 
 	// Body
-	c.enter_loop(end_section, condition_section);
+	c.enter_loop(end_section, nullptr);
 	auto body_v = body->compile(c);
+	c.inc_ops(1);
 	if (output_v.v && body_v.v) {
 		c.insn_push_array(output_v, body_v);
 	}
@@ -289,10 +304,12 @@ Compiler::value For::compile(Compiler& c) const {
 	c.leave_loop();
 
 	// Inc
-	c.enter_block(increment.get());
-	increment->compile(c);
-	increment->compile_end(c);
-	c.leave_block();
+	if (increment->reachable()) {
+		c.enter_block(increment.get());
+		increment->compile(c);
+		increment->compile_end(c);
+		c.leave_block();
+	}
 
 	// End
 	c.enter_section(end_section);
@@ -304,13 +321,13 @@ Compiler::value For::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Instruction> For::clone() const {
+std::unique_ptr<Instruction> For::clone(Block* parent) const {
 	auto f = std::make_unique<For>(type->env);
 	f->token = token;
-	f->init = unique_static_cast<Block>(init->clone());
-	if (condition_section) f->condition_section = condition_section->clone();
-	f->increment = unique_static_cast<Block>(increment->clone());
-	f->body = unique_static_cast<Block>(body->clone());
+	f->init = unique_static_cast<Block>(init->clone(parent));
+	if (condition) f->condition = unique_static_cast<Block>(condition->clone(parent));
+	f->increment = unique_static_cast<Block>(increment->clone(parent));
+	f->body = unique_static_cast<Block>(body->clone(parent));
 	return f;
 }
 

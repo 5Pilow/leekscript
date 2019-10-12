@@ -34,7 +34,7 @@ Compiler::value String::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> String::clone() const {
+std::unique_ptr<Value> String::clone(Block* parent) const {
 	return std::make_unique<String>(type->env, token);
 }
 

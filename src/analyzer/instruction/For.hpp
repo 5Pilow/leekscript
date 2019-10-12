@@ -17,7 +17,7 @@ public:
 
 	Token* token;
 	std::unique_ptr<Block> init;
-	Section* condition_section = nullptr;
+	std::unique_ptr<Block> condition;
 	std::unique_ptr<Block> increment;
 	std::unique_ptr<Block> body;
 	std::vector<std::tuple<Variable*, Variable*, const Section*>> conversions;
@@ -35,7 +35,7 @@ public:
 	virtual Compiler::value compile(Compiler&) const override;
 	#endif
 
-	virtual std::unique_ptr<Instruction> clone() const override;
+	virtual std::unique_ptr<Instruction> clone(Block* parent) const override;
 };
 
 }

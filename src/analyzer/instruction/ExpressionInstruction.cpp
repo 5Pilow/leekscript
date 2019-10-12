@@ -56,8 +56,8 @@ Compiler::value ExpressionInstruction::compile_end(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Instruction> ExpressionInstruction::clone() const {
-	return std::make_unique<ExpressionInstruction>(type->env, value->clone());
+std::unique_ptr<Instruction> ExpressionInstruction::clone(Block* parent) const {
+	return std::make_unique<ExpressionInstruction>(type->env, value->clone(parent));
 }
 
 }

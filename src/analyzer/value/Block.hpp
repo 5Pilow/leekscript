@@ -14,6 +14,7 @@ class Variable;
 class Block : public Value {
 public:
 
+	std::vector<std::unique_ptr<Instruction>> instructions;
 	std::vector<Section*> sections;
 	bool is_function_block = false;
 	bool temporary_mpz = false;
@@ -42,6 +43,7 @@ public:
 	void analyze_global_functions(SemanticAnalyzer* analyzer);
 	void setup_branch(SemanticAnalyzer* analyzer);
 	virtual void pre_analyze(SemanticAnalyzer* analyzer) override;
+	bool reachable();
 	void create_assignments(SemanticAnalyzer* analyzer);
 	virtual void analyze(SemanticAnalyzer* analyzer) override;
 
@@ -50,7 +52,7 @@ public:
 	void compile_end(Compiler&) const override;
 	#endif
 
-	virtual std::unique_ptr<Value> clone() const override;
+	virtual std::unique_ptr<Value> clone(Block* parent) const override;
 };
 
 }

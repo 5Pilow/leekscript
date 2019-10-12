@@ -348,11 +348,11 @@ Compiler::value FunctionCall::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> FunctionCall::clone() const {
+std::unique_ptr<Value> FunctionCall::clone(Block* parent) const {
 	auto fc = std::make_unique<FunctionCall>(type->env, token);
-	fc->function = function->clone();
+	fc->function = function->clone(parent);
 	for (const auto& a : arguments) {
-		fc->arguments.emplace_back(a->clone());
+		fc->arguments.emplace_back(a->clone(parent));
 	}
 	fc->closing_parenthesis = closing_parenthesis;
 	return fc;

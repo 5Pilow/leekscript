@@ -335,9 +335,9 @@ Compiler::value ObjectAccess::compile_l(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> ObjectAccess::clone() const {
+std::unique_ptr<Value> ObjectAccess::clone(Block* parent) const {
 	auto oa = std::make_unique<ObjectAccess>(type->env, field);
-	oa->object = object->clone();
+	oa->object = object->clone(parent);
 	return oa;
 }
 

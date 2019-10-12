@@ -39,6 +39,11 @@ Location VariableDeclaration::location() const {
 	return {keyword->location.file, keyword->location.start, end};
 }
 
+void VariableDeclaration::set_end_section(Section* end_section) {
+	assert(expressions.size());
+	expressions.back()->set_end_section(end_section);
+}
+
 void VariableDeclaration::analyze_global_functions(SemanticAnalyzer* analyzer) const {
 	if (global && function) {
 		auto& env = analyzer->env;
@@ -121,7 +126,7 @@ Compiler::value VariableDeclaration::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Instruction> VariableDeclaration::clone() const {
+std::unique_ptr<Instruction> VariableDeclaration::clone(Block* parent) const {
 	auto vd = std::make_unique<VariableDeclaration>(type->env);
 	vd->keyword = keyword;
 	vd->global = global;
@@ -131,7 +136,7 @@ std::unique_ptr<Instruction> VariableDeclaration::clone() const {
 		vd->variables.push_back(v);
 	}
 	for (const auto& v : expressions) {
-		vd->expressions.push_back(v ? v->clone() : nullptr);
+		vd->expressions.push_back(v ? v->clone(parent) : nullptr);
 	}
 	return vd;
 }

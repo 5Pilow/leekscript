@@ -26,7 +26,7 @@ Compiler::value Nulll::compile(Compiler& c) const {
 }
 #endif
 
-std::unique_ptr<Value> Nulll::clone() const {
+std::unique_ptr<Value> Nulll::clone(Block* parent) const {
 	return std::make_unique<Nulll>(type->env, token);
 }
 

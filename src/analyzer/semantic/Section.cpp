@@ -13,11 +13,7 @@ size_t Section::current_id = 0;
 
 Section::Section(Environment& env, std::string name) : env(env), name(name), condition(env) {
 	id = current_id++;
-	if (id >= COLORS.size()) {
-		color = C_PINK;
-	} else {
-		color = COLORS[id];
-	}
+	color = COLORS[id % COLORS.size()];
 }
 Section::Section(Environment& env, std::string name, Section* predecessor) : Section(env, name) {
 	predecessors.push_back(predecessor);
@@ -304,13 +300,5 @@ void Section::compile_end(Compiler& c) const {
 }
 
 #endif
-
-Section* Section::clone() const {
-	auto s = new Section(env, name);
-	for (const auto& i : instructions) {
-		s->instructions.push_back(i->clone());
-	}
-	return s;
-}
 
 }

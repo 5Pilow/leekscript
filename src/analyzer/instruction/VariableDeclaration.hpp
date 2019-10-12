@@ -26,6 +26,8 @@ public:
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
 
+	virtual void set_end_section(Section* end_section) override;
+
 	void analyze_global_functions(SemanticAnalyzer* analyzer) const;
 	virtual void pre_analyze(SemanticAnalyzer* analyzer) override;
 	virtual void analyze(SemanticAnalyzer*, const Type* req_type) override;
@@ -34,7 +36,7 @@ public:
 	virtual Compiler::value compile(Compiler&) const override;
 	#endif
 
-	virtual std::unique_ptr<Instruction> clone() const override;
+	virtual std::unique_ptr<Instruction> clone(Block* parent) const override;
 };
 
 }
