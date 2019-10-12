@@ -1,0 +1,23 @@
+function solve(D) {
+    var x = 1l
+    while x++ {
+        var s = ((x * x - 1) / D).sqrt()
+        if s.long() == s {
+            print((x * x - 1) / D)
+            print(s)
+            print(s.long())
+            return x
+        }
+    }
+}
+
+solve(61)
+/*
+var max = 0
+var maxD = 0
+for D in [1..1000] {
+    if D.sqrt().isInteger() continue
+    var x = solve(D)
+    x > max ? { max = x maxD = D } : 0
+}
+maxD
