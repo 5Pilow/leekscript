@@ -78,8 +78,23 @@ bool Type::must_manage_memory() const {
 const Type* Type::operator + (const Type* type) const {
 	if (is_void() or is_never()) return type;
 	if (type->is_void() or type->is_never()) return this;
-	if (is_array() and type->is_array() and type->element() == type->env.never) return this;
-	if (is_array() and element() == type->env.never and type->is_array()) return type;
+
+	if (is_array() and type->is_array()) {
+		const auto& sum = element()->operator + (type->element());
+		if (sum == element()) return this;
+		if (sum == type->element()) return type;
+	}
+	if (is_set() and type->is_set()) {
+		const auto& sum = element()->operator + (type->element());
+		if (sum == element()) return this;
+		if (sum == type->element()) return type;
+	}
+	if (is_map() and type->is_map()) {
+		const auto& key_sum = key()->operator + (type->key());
+		const auto& element_sum = element()->operator + (type->element());
+		if (key_sum == key() and element_sum == element()) return this;
+		if (key_sum == type->key() and element_sum == type->element()) return type;
+	}
 	return Type::compound({this, type});
 }
 const Type* Type::operator * (const Type* t2) const {
