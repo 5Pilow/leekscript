@@ -196,7 +196,7 @@ const Type* Function::will_take(SemanticAnalyzer* analyzer, const std::vector<co
 		return v->second->type;
 	} else {
 		auto v = current_version ? current_version : default_version;
-		if (auto ei = dynamic_cast<ExpressionInstruction*>(v->body->instructions[0].get())) {
+		if (auto ei = dynamic_cast<ExpressionInstruction*>(v->body->sections[0]->instructions[0].get())) {
 			if (auto f = dynamic_cast<Function*>(ei->value.get())) {
 
 				analyzer->enter_function(v);
@@ -231,7 +231,7 @@ void Function::set_version(SemanticAnalyzer* analyzer, const std::vector<const T
 		has_version = true;
 	} else {
 		auto v = current_version ? current_version : default_version;
-		if (auto ei = dynamic_cast<ExpressionInstruction*>(v->body->instructions[0].get())) {
+		if (auto ei = dynamic_cast<ExpressionInstruction*>(v->body->sections[0]->instructions[0].get())) {
 			if (auto f = dynamic_cast<Function*>(ei->value.get())) {
 				f->set_version(analyzer, args, level - 1);
 			}
@@ -332,7 +332,7 @@ void Function::compile_captures(Compiler& c) const {
 
 void Function::export_context(Compiler& c) const {
 	// int deepness = c.get_current_function_blocks();
-	for (const auto& variable : c.fun->body->variables) {
+	for (const auto& variable : c.fun->body->sections.back()->variables) {
 		c.export_context_variable(variable.second->name, c.insn_load(variable.second->val));
 	}
 }

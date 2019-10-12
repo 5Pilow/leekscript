@@ -6,14 +6,14 @@
 
 namespace ls {
 
-Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), type(type), clazz(clazz), call(call)
+Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), section(section), type(type), clazz(clazz), call(call)
 #if COMPILER
 , val(type->env), addr_val(type->env)
 #endif
 {}
 
 #if COMPILER
-Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, LSClass* lsclass, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), type(type), clazz(clazz), lsclass(lsclass), call(call), val(type->env), addr_val(type->env) {}
+Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, LSClass* lsclass, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), section(section), type(type), clazz(clazz), lsclass(lsclass), call(call), val(type->env), addr_val(type->env) {}
 #endif
 
 const Type* Variable::get_entry_type(Environment& env) const {
@@ -60,13 +60,13 @@ void Variable::store_value(Compiler& c, Compiler::value value) {
 	if (value.t->is_mpz_ptr()) {
 		auto v = c.insn_load(value);
 		c.insn_store(val, v);
-		if (phi) {
+		for (const auto& phi : phis) {
 			if (phi->variable1 == this) phi->value1 = v;
 			if (phi->variable2 == this) phi->value2 = v;
 		}
 	} else {
 		c.insn_store(val, value);
-		if (phi) {
+		for (const auto& phi : phis) {
 			if (phi->variable1 == this) phi->value1 = value;
 			if (phi->variable2 == this) phi->value2 = value;
 		}
@@ -75,7 +75,7 @@ void Variable::store_value(Compiler& c, Compiler::value value) {
 #endif
 
 Variable* Variable::new_temporary(std::string name, const Type* type) {
-	return new Variable(name, VarScope::LOCAL, type, 0, nullptr, nullptr, nullptr, nullptr);
+	return new Variable(name, VarScope::LOCAL, type, 0, nullptr, nullptr, nullptr, nullptr, nullptr);
 }
 
 const Type* Variable::get_type_for_variable_from_expression(Environment& env, const Type* expression_type) {

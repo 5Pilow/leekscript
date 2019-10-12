@@ -8,6 +8,7 @@ Foreach::Foreach(Environment& env) : Instruction(env) {
 	wrapper_block = std::make_unique<Block>(env);
 	key_var = nullptr;
 	value_var = nullptr;
+	jumping = true;
 }
 
 void Foreach::print(std::ostream& os, int indent, PrintOptions options) const {
@@ -48,32 +49,32 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 	body->is_loop_body = true;
 	body->pre_analyze(analyzer);
 
-	for (const auto& variable : body->mutations) {
-		if ((variable->root ? variable->root : variable)->block != body.get()) {
-			mutations.push_back(variable);
-		}
-	}
-	if (mutations.size()) {
-		body2 = std::move(unique_static_cast<Block>(body->clone()));
-		body2->is_loop_body = true;
-		for (const auto& variable : body->variables) {
-			if (variable.second->root and variable.second->root->block != body.get()) {
-				body2->variables.insert({ variable.first, variable.second });
-			}
-		}
-		body2->is_loop = true;
-		body2->pre_analyze(analyzer);
-	}
+	// for (const auto& variable : body->mutations) {
+	// 	if ((variable->root ? variable->root : variable)->block != body.get()) {
+	// 		mutations.push_back(variable);
+	// 	}
+	// }
+	// if (mutations.size()) {
+	// 	body2 = std::move(unique_static_cast<Block>(body->clone()));
+	// 	body2->is_loop_body = true;
+	// 	for (const auto& variable : body->variables) {
+	// 		if (variable.second->root and variable.second->root->block != body.get()) {
+	// 			body2->variables.insert({ variable.first, variable.second });
+	// 		}
+	// 	}
+	// 	body2->is_loop = true;
+	// 	body2->pre_analyze(analyzer);
+	// }
 	analyzer->leave_block();
 
-	for (const auto& variable : body->variables) {
-		// std::cout << "Foreach assignment " << variable.second << " " << (void*) variable.second->block->branch << " " << (void*) analyzer->current_block()->branch << std::endl;
-		if (variable.second->parent) {
-			auto new_var = analyzer->update_var(variable.second->parent);
-			variable.second->assignment = true;
-			assignments.push_back({ new_var, variable.second });
-		}
-	}
+	// for (const auto& variable : body->variables) {
+	// 	// std::cout << "Foreach assignment " << variable.second << " " << (void*) variable.second->block->branch << " " << (void*) analyzer->current_block()->branch << std::endl;
+	// 	if (variable.second->parent) {
+	// 		auto new_var = analyzer->update_var(variable.second->parent);
+	// 		variable.second->assignment = true;
+	// 		assignments.push_back({ new_var, variable.second });
+	// 	}
+	// }
 }
 
 void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {

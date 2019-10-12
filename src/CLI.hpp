@@ -44,6 +44,7 @@ struct CLI_options {
 	bool example = false;		// E
 	bool execute_ir = false;	// R --execute-ir
 	bool execute_bitcode = false; // W --execute_bitcode
+	bool sections = false;		// S --sections
 };
 
 class CLI {

@@ -5,7 +5,12 @@
 
 namespace ls {
 
-ExpressionInstruction::ExpressionInstruction(Environment& env, std::unique_ptr<Value> value) : Instruction(env), value(std::move(value)) {}
+ExpressionInstruction::ExpressionInstruction(Environment& env, std::unique_ptr<Value> value) : Instruction(env), value(std::move(value)) {
+	if (this->value != nullptr) {
+		jumping = this->value->jumping;
+		end_section = this->value->end_section;
+	}
+}
 
 void ExpressionInstruction::print(std::ostream& os, int indent, PrintOptions options) const {
 	value->print(os, indent, options);

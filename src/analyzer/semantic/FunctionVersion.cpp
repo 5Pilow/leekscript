@@ -111,7 +111,7 @@ void FunctionVersion::pre_analyze(SemanticAnalyzer* analyzer, const std::vector<
 	for (unsigned i = 0; i < parent->arguments.size(); ++i) {
 		auto type = i < args.size() ? args.at(i) : (i < parent->defaultValues.size() && parent->defaultValues.at(i) != nullptr ? parent->defaultValues.at(i)->type : env.any);
 		auto name = parent->arguments.at(i)->content;
-		auto arg = new Variable(name, VarScope::PARAMETER, type, i, nullptr, analyzer->current_function(), nullptr, nullptr);
+		auto arg = new Variable(name, VarScope::PARAMETER, type, i, nullptr, analyzer->current_function(), nullptr, nullptr, nullptr);
 		initial_arguments.insert({ name, arg });
 		arguments.insert({ name, arg });
 	}
@@ -275,7 +275,7 @@ void FunctionVersion::create_function(Compiler& c) {
 		}
 		f->setPersonalityFn(personalityfn);
 	}
-	block = llvm::BasicBlock::Create(c.getContext(), "start", f);
+	block = body->sections.front()->basic_block;
 }
 
 Compiler::value FunctionVersion::compile(Compiler& c, bool compile_body) {
@@ -347,6 +347,7 @@ Compiler::value FunctionVersion::compile(Compiler& c, bool compile_body) {
 
 		if (compile_body) {
 			body->compile(c);
+			body->compile_end(c);
 		} else {
 			compile_return(c, { c.env });
 		}
@@ -428,8 +429,9 @@ void FunctionVersion::compile_return(Compiler& c, Compiler::value v, bool delete
 			if (return_type->is_bool()) v = c.new_bool(false);
 			else if (return_type->is_real()) v = c.new_real(0);
 			else if (return_type->is_long()) v = c.new_long(0);
+			else if (return_type->is_integer()) v = c.new_integer(0);
 			// else if (return_type->is_raw_function()) v = c.new_null_pointer();
-			else v = c.new_integer(0);
+			else v = c.new_null();
 		}
 		if (return_type->is_any()) {
 			v = c.insn_convert(v, return_type);

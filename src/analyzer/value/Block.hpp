@@ -5,6 +5,7 @@
 #include <vector>
 #include "../instruction/Instruction.hpp"
 #include "Value.hpp"
+#include "../semantic/Section.hpp"
 
 namespace ls {
 
@@ -13,29 +14,32 @@ class Variable;
 class Block : public Value {
 public:
 
+	std::vector<Section*> sections;
 	bool is_function_block = false;
 	bool is_loop_body = false;
 	bool is_loop = false;
-	std::vector<std::unique_ptr<Instruction>> instructions;
 	bool temporary_mpz = false;
 	bool mpz_pointer = false;
 	bool was_reference = false;
-	std::unordered_map<std::string, Variable*> variables;
+	// std::unordered_map<std::string, Variable*> variables;
 	Block* branch = nullptr;
 	std::vector<std::pair<Variable*, Variable*>> assignments;
 	std::vector<Variable*> temporary_variables;
 	std::vector<Variable*> mutations;
 	bool enabled = true;
 	#if COMPILER
-	std::vector<llvm::BasicBlock*> blocks;
 	std::vector<Compiler::value> temporary_values;
 	std::vector<Compiler::value> temporary_expression_values;
+	Compiler::value return_value;
 	#endif
 
 	Block(Environment& env, bool is_function_block = false);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
+
+	void add_instruction(Instruction* instruction);
+	void add_instruction(std::unique_ptr<Instruction> instruction);
 
 	void analyze_global_functions(SemanticAnalyzer* analyzer);
 	void setup_branch(SemanticAnalyzer* analyzer);
@@ -45,6 +49,7 @@ public:
 
 	#if COMPILER
 	Compiler::value compile(Compiler&) const override;
+	void compile_end(Compiler&) const override;
 	#endif
 
 	virtual std::unique_ptr<Value> clone() const override;

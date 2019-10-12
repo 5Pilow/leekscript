@@ -19,6 +19,7 @@ public:
 	bool body2_activated = false;
 	std::vector<std::pair<Variable*, Variable*>> assignments;
 	std::vector<Variable*> mutations;
+	Section* end_section = nullptr;
 
 	const Type* key_type;
 	const Type* value_type;

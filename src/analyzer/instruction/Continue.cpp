@@ -6,6 +6,7 @@ namespace ls {
 
 Continue::Continue(Environment& env) : Instruction(env) {
 	deepness = 1;
+	jumping = true;
 }
 
 void Continue::print(std::ostream& os, int, PrintOptions) const {
@@ -30,7 +31,7 @@ void Continue::analyze(SemanticAnalyzer* analyzer, const Type*) {
 #if COMPILER
 Compiler::value Continue::compile(Compiler& c) const {
 	c.delete_variables_block(c.get_current_loop_blocks(deepness));
-	c.insn_branch(c.get_current_loop_cond_label(deepness));
+	c.insn_branch(c.get_current_loop_cond_section(deepness));
 	c.insert_new_generation_block();
 	return { c.env };
 }

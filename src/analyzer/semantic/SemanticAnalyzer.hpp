@@ -23,6 +23,7 @@ class Token;
 class Callable;
 class Call;
 class Block;
+class Section;
 
 class SemanticAnalyzer {
 public:
@@ -31,6 +32,7 @@ public:
 	Program* program;
 	std::vector<Function*> functions;
 	std::vector<std::vector<Block*>> blocks;
+	std::vector<std::vector<Section*>> sections;
 	std::vector<FunctionVersion*> functions_stack;
 	std::stack<int> loops;
 	std::vector<Error> errors;
@@ -44,9 +46,12 @@ public:
 	void leave_function();
 	void enter_block(Block* block);
 	void leave_block();
+	void enter_section(Section* section);
+	void leave_section();
 	void add_function(Function*);
 	FunctionVersion* current_function() const;
 	Block* current_block() const;
+	Section* current_section() const;
 
 	void enter_loop();
 	void leave_loop();

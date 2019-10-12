@@ -33,6 +33,8 @@ public:
 	std::map<std::vector<const Type*>, std::string> versions;
 	bool is_void = false;
 	bool throws = false;
+	bool jumping = false; // Indicates that the value contains a jump
+	Section* end_section = nullptr;
 
 	Value() = delete;
 	Value(Environment& env);

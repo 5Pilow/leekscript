@@ -82,11 +82,11 @@ Environment::Environment(bool legacy) :
 	std(*this, legacy)
 {}
 
-void Environment::analyze(Program& program, bool format, bool debug) {
+void Environment::analyze(Program& program, bool format, bool debug, bool sections) {
 	auto resolver = new Resolver();
 	SyntaxicAnalyzer syn { *this, resolver };
 	SemanticAnalyzer sem { *this };
-	program.analyze(syn, sem, format, debug);
+	program.analyze(syn, sem, format, debug, sections);
 }
 
 #if COMPILER

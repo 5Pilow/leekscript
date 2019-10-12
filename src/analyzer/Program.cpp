@@ -41,7 +41,7 @@ Program::~Program() {
 	#endif
 }
 
-void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format, bool debug) {
+void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format, bool debug, bool sections) {
 
 	auto parse_start = std::chrono::high_resolution_clock::now();
 
@@ -75,7 +75,7 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 
 	if (format or debug) {
 		std::cout << "main() ";
-		print(std::cout, debug);
+		print(std::cout, debug, sections);
 		std::cout << std::endl;
 	}
 	result.analyzed = true;
@@ -213,10 +213,10 @@ Variable* Program::get_operator(const std::string& name) {
 	ex->v1 = std::make_unique<VariableValue>(env, new Token(TokenType::IDENT, main_file, 0, 1, 0, "x"));
 	ex->v2 = std::make_unique<VariableValue>(env, new Token(TokenType::IDENT, main_file, 2, 1, 2, "y"));
 	ex->op = std::make_shared<Operator>(new Token(token_types.at(std::distance(ops.begin(), o)), main_file, 1, 1, 1, name));
-	f->body->instructions.emplace_back(new ExpressionInstruction(env, std::move(ex)));
+	f->body->add_instruction(std::make_unique<ExpressionInstruction>(env, std::move(ex)));
 	auto type = Type::fun(env.any, { env.any, env.any });
 
-	auto var = new Variable(name, VarScope::INTERNAL, type, 0, f, nullptr, nullptr, nullptr);
+	auto var = new Variable(name, VarScope::INTERNAL, type, 0, f, nullptr, nullptr, nullptr, nullptr);
 	operators.insert({name, var});
 	return var;
 }
@@ -274,9 +274,9 @@ std::string Program::execute(VM& vm) {
 }
 #endif
 
-void Program::print(std::ostream& os, bool debug) const {
+void Program::print(std::ostream& os, bool debug, bool sections) const {
 	if (main) {
-		main->default_version->body->print(os, 0, { debug, false, false });
+		main->default_version->body->print(os, 0, { debug, false, sections });
 	} else {
 		os << "(ll file)";
 	}

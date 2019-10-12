@@ -12,7 +12,8 @@ class While : public Instruction {
 public:
 
 	Token* token;
-	std::unique_ptr<Value> condition;
+	Section* condition_section = nullptr;
+	// std::unique_ptr<Value> condition;
 	std::unique_ptr<Block> body;
 	std::unique_ptr<Block> body2;
 	bool body2_activated = false;

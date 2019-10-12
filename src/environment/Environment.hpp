@@ -114,7 +114,7 @@ public:
 	/**
 	 * Analyze a `Program`.
 	 */
-	void analyze(Program& program, bool format = false, bool debug = false);
+	void analyze(Program& program, bool format = false, bool debug = false, bool sections = false);
 
 	#if COMPILER
 	/**

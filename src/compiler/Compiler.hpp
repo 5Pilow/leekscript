@@ -54,6 +54,7 @@ class FunctionVersion;
 class Variable;
 class Block;
 class Environment;
+class Section;
 
 class Compiler {
 public:
@@ -91,9 +92,10 @@ public:
 	std::vector<int> functions_blocks;
 	std::stack<llvm::BasicBlock*> function_llvm_blocks;
 	std::vector<int> loops_blocks; // how many blocks are open in the current loop
-	std::vector<label*> loops_end_labels;
-	std::vector<label*> loops_cond_labels;
+	std::vector<Section*> loops_end_sections;
+	std::vector<Section*> loops_cond_sections;
 	std::vector<std::vector<Block*>> blocks;
+	std::vector<std::vector<Section*>> sections;
 	std::vector<std::vector<std::vector<catcher>>> catchers;
 	std::map<std::pair<std::string, const Type*>, function_entry> mappings;
 	std::stack<int> exception_line;
@@ -129,10 +131,7 @@ public:
 	}
 
 	/// CreateEntryBlockAlloca - Create an alloca instruction in the entry block of the function.  This is used for mutable variables etc.
-	llvm::AllocaInst* CreateEntryBlockAlloca(const std::string& VarName, llvm::Type* type) const {
-		llvm::IRBuilder<> builder(&F->getEntryBlock(), F->getEntryBlock().begin());
-		return builder.CreateAlloca(type, nullptr, VarName);
-	}
+	llvm::AllocaInst* CreateEntryBlockAlloca(const std::string& VarName, llvm::Type* type) const;
 
 	void init();
 	void end();
@@ -259,15 +258,17 @@ public:
 	label insn_init_label(std::string name);
 	void insn_if(value v, std::function<void()> then, std::function<void()> elze = nullptr);
 	void insn_if_new(value cond, label* then, label* elze);
+	void insn_if_sections(value cond, Section* then, Section* elze);
 	void insn_if_not(value v, std::function<void()> then);
 	void insn_throw(value v);
 	void insn_throw_object(vm::Exception type);
 	void insn_label(label*);
 	void insn_branch(label* l);
+	void insn_branch(Section* s);
 	void insn_return(value v);
 	void insn_return_void();
 	value insn_phi(const Type* type, value v1, label l1, value v2, label l2);
-	value insn_phi(const Type* type, value v1, Block* b1, value v2, Block* b2);
+	value insn_phi(const Type* type, value v1, Section* b1, value v2, Section* b2);
 
 	// Call functions
 	value insn_invoke(const Type* return_type, std::vector<value> args, std::string name);
@@ -280,6 +281,9 @@ public:
 	// Blocks
 	void enter_block(Block* block);
 	void leave_block(bool delete_vars = true);
+	void enter_section(Section* section);
+	void leave_section();
+	void leave_section_condition(Compiler::value condition);
 	void delete_variables_block(int deepness); // delete all variables in the #deepness current blocks
 	void enter_function(llvm::Function* F, bool is_closure, FunctionVersion* fun);
 	void leave_function();
@@ -288,6 +292,7 @@ public:
 	bool is_current_function_closure() const;
 	void insert_new_generation_block();
 	Block* current_block() const;
+	Section* current_section() const;
 
 	// Variables
 	value add_external_var(Variable*);
@@ -299,10 +304,10 @@ public:
 	void pop_temporary_expression_value();
 
 	// Loops
-	void enter_loop(label*, label*);
+	void enter_loop(Section*, Section*);
 	void leave_loop();
-	label* get_current_loop_end_label(int deepness) const;
-	label* get_current_loop_cond_label(int deepness) const;
+	Section* get_current_loop_end_section(int deepness) const;
+	Section* get_current_loop_cond_section(int deepness) const;
 	int get_current_loop_blocks(int deepness) const;
 
 	/** Operations **/

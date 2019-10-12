@@ -74,7 +74,7 @@ Block* SyntaxicAnalyzer::eatMain(File* file) {
 		} else if (t->type == TokenType::SEMICOLON) {
 			eat();
 		} else {
-			auto ins = eatInstruction();
+			auto ins = eatInstruction(block);
 			// Include instruction
 			if (auto ei = dynamic_cast<ExpressionInstruction*>(ins)) {
 				if (auto fc = dynamic_cast<FunctionCall*>(ei->value.get())) {
@@ -84,8 +84,8 @@ Block* SyntaxicAnalyzer::eatMain(File* file) {
 							if (vv->name == "include" and str) {
 								auto included_file = resolver->resolve(str->token->content, file->context);
 								auto included_block = SyntaxicAnalyzer(env, resolver).analyze(included_file);
-								for (auto& ins : included_block->instructions) {
-									block->instructions.push_back(std::move(ins));
+								for (auto& section : included_block->sections) {
+									block->sections.push_back(std::move(section));
 								}
 								continue;
 							}
@@ -94,7 +94,7 @@ Block* SyntaxicAnalyzer::eatMain(File* file) {
 				}
 			}
 			if (ins) {
-				block->instructions.emplace_back(ins);
+				block->add_instruction(ins);
 			}
 		}
 	}
@@ -121,17 +121,17 @@ bool SyntaxicAnalyzer::isObject() {
 	return false;
 }
 
-Value* SyntaxicAnalyzer::eatBlockOrObject() {
+Value* SyntaxicAnalyzer::eatBlockOrObject(Block* block, Section* before, Section* after) {
 	if (isObject()) {
-		return eatObject();
+		return eatObject(block);
 	} else {
-		return eatBlock();
+		return eatBlock(block, false, false, before, after);
 	}
 }
 
-Block* SyntaxicAnalyzer::eatBlock(bool is_function_block) {
+Block* SyntaxicAnalyzer::eatBlock(Block* parent, bool is_function_block, bool single_instruction, Section* before, Section* after) {
 
-	Block* block = new Block(env, is_function_block);
+	auto block = blockInit(parent, before, is_function_block);
 
 	bool brace = false;
 	if (t->type == TokenType::OPEN_BRACE) {
@@ -139,27 +139,70 @@ Block* SyntaxicAnalyzer::eatBlock(bool is_function_block) {
 		eat();
 	}
 
-	while (true) {
-		if (t->type == TokenType::CLOSING_BRACE) {
-			eat();
-			break;
-		} else if (t->type == TokenType::FINISHED || t->type == TokenType::ELSE || t->type == TokenType::END || t->type == TokenType::IN) {
-			if (brace) {
-				file->errors.push_back(Error(Error::Type::BLOCK_NOT_CLOSED, t, {}));
+	if (single_instruction) {
+		// std::cout << "eat single instruction " << (int)t->type << std::endl;
+		block->add_instruction(eatInstruction(block));
+	} else {
+		while (true) {
+			if (t->type == TokenType::CLOSING_BRACE) {
+				eat();
+				break;
+			} else if (t->type == TokenType::FINISHED || t->type == TokenType::ELSE || t->type == TokenType::END || t->type == TokenType::IN) {
+				if (brace) {
+					file->errors.push_back(Error(Error::Type::BLOCK_NOT_CLOSED, t, {}));
+				}
+				break;
+			} else if (t->type == TokenType::SEMICOLON) {
+				eat();
+			} else {
+				Instruction* ins = eatInstruction(block);
+				if (ins) block->add_instruction(ins);
 			}
-			break;
-		} else if (t->type == TokenType::SEMICOLON) {
-			eat();
-		} else {
-			Instruction* ins = eatInstruction();
-			if (ins) block->instructions.emplace_back(ins);
 		}
 	}
+	blockEnd(block, after);
+	return block;
+}
+
+Block* SyntaxicAnalyzer::newBlock(Block* parent, Value* value) {
+	auto block = blockInit(parent, nullptr, false);
+	block->add_instruction(new ExpressionInstruction(env, std::unique_ptr<Value>(value)));
+	blockEnd(block, nullptr);
+	return block;
+}
+Block* SyntaxicAnalyzer::newEmptyBlock(Block* parent, Section* after) {
+	auto block = blockInit(parent, nullptr, false);
+	blockEnd(block, after);
+	return block;
+}
+
+Block* SyntaxicAnalyzer::blockInit(Block* parent, Section* before, bool is_function_block) {
+
+	auto block = new Block(env, is_function_block);
+
+	auto real_before = before ? before : parent->sections.back();
+
+	auto start_section = block->sections.front();
+	real_before->add_successor(start_section);
+	start_section->add_predecessor(real_before);
 
 	return block;
 }
 
-Object* SyntaxicAnalyzer::eatObject() {
+void SyntaxicAnalyzer::blockEnd(Block* block, Section* after) {
+	if (after) {
+		block->sections.back()->add_successor(after);
+		after->add_predecessor(block->sections.back());
+		// block->end_section = after;
+	} else {
+		auto end_section = new Section(env, "end");
+		block->sections.back()->add_successor(end_section);
+		end_section->add_predecessor(block->sections.back());
+		block->end_section = end_section;
+	}
+}
+
+Object* SyntaxicAnalyzer::eatObject(Block* block) {
 
 	eat(TokenType::OPEN_BRACE);
 
@@ -169,7 +212,7 @@ Object* SyntaxicAnalyzer::eatObject() {
 
 		o->keys.push_back(eatIdent());
 		eat(TokenType::COLON);
-		o->values.emplace_back(eatExpression());
+		o->values.emplace_back(eatExpression(block));
 
 		if (t->type == TokenType::COMMA) {
 			eat();
@@ -180,14 +223,14 @@ Object* SyntaxicAnalyzer::eatObject() {
 	return o;
 }
 
-Instruction* SyntaxicAnalyzer::eatInstruction() {
+Instruction* SyntaxicAnalyzer::eatInstruction(Block* block) {
 
 	switch (t->type) {
 
 		case TokenType::LET:
 		case TokenType::VAR:
 		case TokenType::GLOBAL:
-			return eatVariableDeclaration();
+			return eatVariableDeclaration(block);
 
 		case TokenType::NUMBER:
 		case TokenType::PI:
@@ -220,13 +263,13 @@ Instruction* SyntaxicAnalyzer::eatInstruction() {
 		case TokenType::LOWER_EQUALS:
 		case TokenType::GREATER_EQUALS:
 		case TokenType::OR:
-			return new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression()));
+			return new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression(block)));
 
 		case TokenType::MATCH:
-			return new ExpressionInstruction(env, std::unique_ptr<Value>(eatMatch(false)));
+			return new ExpressionInstruction(env, std::unique_ptr<Value>(eatMatch(block, false)));
 
 		case TokenType::FUNCTION:
-			return eatFunctionDeclaration();
+			return eatFunctionDeclaration(block);
 
 		case TokenType::RETURN: {
 			eat();
@@ -234,7 +277,7 @@ Instruction* SyntaxicAnalyzer::eatInstruction() {
 				or t->type == TokenType::ELSE or t->type == TokenType::END or t->type == TokenType::SEMICOLON) {
 				return new Return(env);
 			} else {
-				return new Return(env, std::unique_ptr<Value>(eatExpression()));
+				return new Return(env, std::unique_ptr<Value>(eatExpression(block)));
 			}
 		}
 		case TokenType::THROW: {
@@ -243,7 +286,7 @@ Instruction* SyntaxicAnalyzer::eatInstruction() {
 				or t->type == TokenType::ELSE or t->type == TokenType::END) {
 				return new Throw(env, throw_token);
 			} else {
-				return new Throw(env, throw_token, std::unique_ptr<Value>(eatExpression()));
+				return new Throw(env, throw_token, std::unique_ptr<Value>(eatExpression(block)));
 			}
 		}
 		case TokenType::BREAK:
@@ -253,13 +296,13 @@ Instruction* SyntaxicAnalyzer::eatInstruction() {
 			return eatContinue();
 
 		case TokenType::CLASS:
-			return eatClassDeclaration();
+			return eatClassDeclaration(block);
 
 		case TokenType::FOR:
-			return eatFor();
+			return eatFor(block);
 
 		case TokenType::WHILE:
-			return eatWhile();
+			return eatWhile(block);
 
 		default:
 			// std::cout << "Unexpected token : " << (int)t->type << " (" << t->content << ")" << std::endl;
@@ -269,7 +312,7 @@ Instruction* SyntaxicAnalyzer::eatInstruction() {
 	}
 }
 
-VariableDeclaration* SyntaxicAnalyzer::eatVariableDeclaration() {
+VariableDeclaration* SyntaxicAnalyzer::eatVariableDeclaration(Block* block) {
 
 	auto vd = new VariableDeclaration(env);
 
@@ -287,7 +330,10 @@ VariableDeclaration* SyntaxicAnalyzer::eatVariableDeclaration() {
 	vd->variables.push_back(ident);
 	if (t->type == TokenType::EQUAL) {
 		eat(TokenType::EQUAL);
-		vd->expressions.emplace_back(eatExpression());
+		auto expression = eatExpression(block);
+		vd->jumping |= expression->jumping;
+		vd->end_section = expression->end_section;
+		vd->expressions.emplace_back(expression);
 	} else {
 		vd->expressions.push_back(nullptr);
 	}
@@ -298,7 +344,10 @@ VariableDeclaration* SyntaxicAnalyzer::eatVariableDeclaration() {
 		vd->variables.push_back(ident);
 		if (t->type == TokenType::EQUAL) {
 			eat(TokenType::EQUAL);
-			vd->expressions.emplace_back(eatExpression());
+			auto expression = eatExpression(block);
+			vd->jumping |= expression->jumping;
+			vd->end_section = expression->end_section;
+			vd->expressions.emplace_back(expression);
 		} else {
 			vd->expressions.push_back(nullptr);
 		}
@@ -306,7 +355,7 @@ VariableDeclaration* SyntaxicAnalyzer::eatVariableDeclaration() {
 	return vd;
 }
 
-Function* SyntaxicAnalyzer::eatFunction(Token* token) {
+Function* SyntaxicAnalyzer::eatFunction(Block* block, Token* token) {
 
 	if (t->type == TokenType::FUNCTION) {
 		token = eat_get();
@@ -323,7 +372,7 @@ Function* SyntaxicAnalyzer::eatFunction(Token* token) {
 		Value* defaultValue = nullptr;
 		if (t->type == TokenType::EQUAL) {
 			eat();
-			defaultValue = eatExpression();
+			defaultValue = eatExpression(block);
 		}
 
 		f->addArgument(ident, defaultValue);
@@ -339,7 +388,7 @@ Function* SyntaxicAnalyzer::eatFunction(Token* token) {
 		braces = true;
 	}
 
-	f->body = eatBlock(true);
+	f->body = eatBlock(block, true);
 
 	if (!braces) {
 		eat(TokenType::END);
@@ -348,7 +397,7 @@ Function* SyntaxicAnalyzer::eatFunction(Token* token) {
 	return f;
 }
 
-VariableDeclaration* SyntaxicAnalyzer::eatFunctionDeclaration() {
+VariableDeclaration* SyntaxicAnalyzer::eatFunctionDeclaration(Block* block) {
 
 	auto token = eat_get(TokenType::FUNCTION);
 
@@ -357,7 +406,7 @@ VariableDeclaration* SyntaxicAnalyzer::eatFunctionDeclaration() {
 	vd->function = true;
 
 	vd->variables.emplace_back(eatIdent());
-	vd->expressions.emplace_back(eatFunction(token));
+	vd->expressions.emplace_back(eatFunction(block, token));
 
 	return vd;
 }
@@ -411,14 +460,14 @@ void SyntaxicAnalyzer::splitCurrentOrInTwoPipes() {
 	nt = &file->tokens.at(i + 1);
 }
 
-Value* SyntaxicAnalyzer::eatSimpleExpression(bool pipe_opened, bool set_opened, bool comma_list, Value* initial) {
+Value* SyntaxicAnalyzer::eatSimpleExpression(Block* block, bool pipe_opened, bool set_opened, bool comma_list, Value* initial) {
 
 	Value* e = nullptr;
 
 	if (initial == nullptr) {
 		if (t->type == TokenType::OPEN_PARENTHESIS) {
 
-			e = eatLambdaOrParenthesisExpression(pipe_opened, set_opened, comma_list);
+			e = eatLambdaOrParenthesisExpression(block, pipe_opened, set_opened, comma_list);
 
 		} else if (t->type == TokenType::PIPE or (t->type == TokenType::OR and t->content == "||")) {
 
@@ -430,7 +479,7 @@ Value* SyntaxicAnalyzer::eatSimpleExpression(bool pipe_opened, bool set_opened, 
 			auto open_pipe = eat_get();
 			auto av = new AbsoluteValue(env);
 			av->open_pipe = open_pipe;
-			av->expression = std::unique_ptr<Value>(eatExpression(true));
+			av->expression = std::unique_ptr<Value>(eatExpression(block, true));
 
 			// We want a closing pipe, if there's a || operator, we split it
 			if (t->type == TokenType::OR and t->content == "||") {
@@ -452,7 +501,7 @@ Value* SyntaxicAnalyzer::eatSimpleExpression(bool pipe_opened, bool set_opened, 
 					if (beginingOfExpression(t->type)) {
 
 						auto op = new Operator(minus);
-						auto ex = eatExpression(pipe_opened, set_opened);
+						auto ex = eatExpression(block, pipe_opened, set_opened);
 						auto expr = dynamic_cast<Expression*>(ex);
 
 						if (expr and expr->op->priority >= op->priority) {
@@ -473,7 +522,7 @@ Value* SyntaxicAnalyzer::eatSimpleExpression(bool pipe_opened, bool set_opened, 
 					auto plus = eat_get(); // eat the +
 
 					if (beginingOfExpression(t->type)) {
-						e = eatExpression(pipe_opened);
+						e = eatExpression(block, pipe_opened);
 					} else {
 						// No expression after the +, so it's the variable '+'
 						e = new VariableValue(env, plus);
@@ -484,7 +533,7 @@ Value* SyntaxicAnalyzer::eatSimpleExpression(bool pipe_opened, bool set_opened, 
 
 					if (beginingOfExpression(t->type)) {
 						auto op = std::make_shared<Operator>(tilde);
-						auto ex = new PrefixExpression(env, op, std::unique_ptr<Value>(eatSimpleExpression()));
+						auto ex = new PrefixExpression(env, op, std::unique_ptr<Value>(eatSimpleExpression(block)));
 						e = new Expression(env, ex);
 					} else {
 						// No expression after the ~, so it's the variable '~'
@@ -492,11 +541,11 @@ Value* SyntaxicAnalyzer::eatSimpleExpression(bool pipe_opened, bool set_opened, 
 					}
 				} else {
 					auto op = std::make_shared<Operator>(eat_get());
-					auto ex = new PrefixExpression(env, op, std::unique_ptr<Value>(eatSimpleExpression()));
+					auto ex = new PrefixExpression(env, op, std::unique_ptr<Value>(eatSimpleExpression(block)));
 					e = new Expression(env, ex);
 				}
 			} else {
-				e = eatValue(comma_list);
+				e = eatValue(block, comma_list);
 			}
 		}
 	} else {
@@ -518,11 +567,11 @@ Value* SyntaxicAnalyzer::eatSimpleExpression(bool pipe_opened, bool set_opened, 
 				if (t->type == TokenType::CLOSING_BRACKET) {
 					aa->key = nullptr;
 				} else {
-					aa->key = std::unique_ptr<Value>(eatExpression());
+					aa->key = std::unique_ptr<Value>(eatExpression(block));
 				}
 				if (t->type == TokenType::COLON) {
 					eat();
-					aa->key2 = std::unique_ptr<Value>(eatExpression());
+					aa->key2 = std::unique_ptr<Value>(eatExpression(block));
 				}
 				aa->close_bracket = eat_get(TokenType::CLOSING_BRACKET);
 				e = aa;
@@ -536,12 +585,12 @@ Value* SyntaxicAnalyzer::eatSimpleExpression(bool pipe_opened, bool set_opened, 
 				fc->function = std::unique_ptr<Value>(e);
 
 				if (t->type != TokenType::CLOSING_PARENTHESIS) {
-					fc->arguments.emplace_back(eatExpression(false, false, nullptr, true));
+					fc->arguments.emplace_back(eatExpression(block, false, false, nullptr, true));
 					while (t->type != TokenType::CLOSING_PARENTHESIS && t->type != TokenType::FINISHED) {
 						if (t->type == TokenType::COMMA) {
 							eat();
 						}
-						fc->arguments.emplace_back(eatExpression(false, false, nullptr, true));
+						fc->arguments.emplace_back(eatExpression(block, false, false, nullptr, true));
 					}
 				}
 				fc->closing_parenthesis = eat_get(TokenType::CLOSING_PARENTHESIS);
@@ -586,10 +635,10 @@ Value* SyntaxicAnalyzer::eatSimpleExpression(bool pipe_opened, bool set_opened, 
 	return e;
 }
 
-Value* SyntaxicAnalyzer::eatExpression(bool pipe_opened, bool set_opened, Value* initial, bool comma_list) {
+Value* SyntaxicAnalyzer::eatExpression(Block* block, bool pipe_opened, bool set_opened, Value* initial, bool comma_list) {
 
 	Expression* ex = nullptr;
-	Value* e = (initial != nullptr) ? initial : eatSimpleExpression(pipe_opened, set_opened, comma_list);
+	Value* e = (initial != nullptr) ? initial : eatSimpleExpression(block, pipe_opened, set_opened, comma_list);
 
 	// Opérateurs binaires
 	while (t->type == TokenType::PLUS || t->type == TokenType::MINUS ||
@@ -634,7 +683,7 @@ Value* SyntaxicAnalyzer::eatExpression(bool pipe_opened, bool set_opened, Value*
 				ex->v1.reset(e);
 			}
 		}
-		ex->append(std::shared_ptr<Operator>(op), eatSimpleExpression());
+		ex->append(std::shared_ptr<Operator>(op), eatSimpleExpression(block));
 	}
 	if (ex != nullptr) {
 		e = ex;
@@ -646,22 +695,24 @@ Value* SyntaxicAnalyzer::eatExpression(bool pipe_opened, bool set_opened, Value*
 		auto ternary = new If(env, true);
 		ternary->condition = std::unique_ptr<Value>(e);
 
-		auto then = new Block(env);
-		then->instructions.emplace_back(new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression())));
+		block->end_section = new Section(env, "end");
+
+		auto then = eatBlock(block, false, true);
 		ternary->then = std::unique_ptr<Block>(then);
 
 		eat(TokenType::COLON);
 
-		auto elze = new Block(env);
-		elze->instructions.emplace_back(new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression())));
+		auto elze = eatBlock(block, false, true);
 		ternary->elze = std::unique_ptr<Block>(elze);
+
+		ternary->end_section = block->end_section;
 		return ternary;
 	}
 
 	return e;
 }
 
-Value* SyntaxicAnalyzer::eatValue(bool comma_list) {
+Value* SyntaxicAnalyzer::eatValue(Block* block, bool comma_list) {
 
 	switch (t->type) {
 
@@ -714,26 +765,26 @@ Value* SyntaxicAnalyzer::eatValue(bool comma_list) {
 
 		case TokenType::AROBASE:
 		case TokenType::IDENT:
-			return eatLambdaOrParenthesisExpression(false, false, comma_list);
+			return eatLambdaOrParenthesisExpression(block, false, false, comma_list);
 			break;
 
 		case TokenType::OPEN_BRACKET:
-			return eatArrayOrMap();
+			return eatArrayOrMap(block);
 
 		case TokenType::LOWER:
-			return eatSetOrLowerOperator();
+			return eatSetOrLowerOperator(block);
 
 		case TokenType::OPEN_BRACE:
-			return eatBlockOrObject();
+			return eatBlockOrObject(block);
 
 		case TokenType::IF:
-			return eatIf();
+			return eatIf(block);
 
 		case TokenType::MATCH:
-			return eatMatch(true);
+			return eatMatch(block, true);
 
 		case TokenType::FUNCTION:
-			return eatFunction(nullptr);
+			return eatFunction(block, nullptr);
 
 		case TokenType::ARROW:
 		{
@@ -741,7 +792,7 @@ Value* SyntaxicAnalyzer::eatValue(bool comma_list) {
 			Function* l = new Function(env, token);
 			l->lambda = true;
 			l->body = new Block(env, true);
-			l->body->instructions.emplace_back(new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression())));
+			l->body->add_instruction(new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression(l->body))));
 			return l;
 		}
 
@@ -760,7 +811,7 @@ Value* SyntaxicAnalyzer::eatValue(bool comma_list) {
  * Can return:
  *   <variable_value>, <expression>, <lambda>
  */
-Value* SyntaxicAnalyzer::eatLambdaOrParenthesisExpression(bool pipe_opened, bool set_opened, bool comma_list) {
+Value* SyntaxicAnalyzer::eatLambdaOrParenthesisExpression(Block* block, bool pipe_opened, bool set_opened, bool comma_list) {
 	bool parenthesis = false;
 	if (t->type == TokenType::OPEN_PARENTHESIS) {
 		eat();
@@ -768,10 +819,10 @@ Value* SyntaxicAnalyzer::eatLambdaOrParenthesisExpression(bool pipe_opened, bool
 	}
 	if (parenthesis and t->type != TokenType::IDENT) {
 		if (t->type == TokenType::CLOSING_PARENTHESIS) {
-			return eatValue(); // error, expected a value got ')', it's wrong
+			return eatValue(block); // error, expected a value got ')', it's wrong
 		}
 		// (...)
-		auto ex = eatExpression();
+		auto ex = eatExpression(block);
 		ex->parenthesis = true;
 		eat(TokenType::CLOSING_PARENTHESIS);
 		return ex;
@@ -781,14 +832,14 @@ Value* SyntaxicAnalyzer::eatLambdaOrParenthesisExpression(bool pipe_opened, bool
 	if (t->type == TokenType::EQUAL) {
 		// var =
 		auto eq = eat_get();
-		auto ex = eatExpression();
+		auto ex = eatExpression(block);
 		// var = <ex>
 		if (parenthesis and t->type == TokenType::CLOSING_PARENTHESIS) {
 			// (var = <ex>)
 			eat();
 			if (t->type == TokenType::ARROW) {
 				// (var = <ex>) ->  [lambda]
-				return eatLambdaContinue(false, ident, ex, comma_list);
+				return eatLambdaContinue(block, false, ident, ex, comma_list);
 			} else {
 				// (var = <ex>) <token ?>	[expression]
 				Expression* e = new Expression(env);
@@ -800,18 +851,18 @@ Value* SyntaxicAnalyzer::eatLambdaOrParenthesisExpression(bool pipe_opened, bool
 			}
 		} else if (t->type == TokenType::COMMA or t->type == TokenType::ARROW) {
 			// var = <ex> ,|->  [lambda]
-			return eatLambdaContinue(parenthesis, ident, ex, comma_list);
+			return eatLambdaContinue(block, parenthesis, ident, ex, comma_list);
 		} else {
 			// var = <ex> <?>
 			Expression* e = new Expression(env);
 			e->v1.reset(new VariableValue(env, ident));
 			e->op = std::make_shared<Operator>(eq);
 			e->v2.reset(ex);
-			return eatExpression(pipe_opened, set_opened, e);
+			return eatExpression(block, pipe_opened, set_opened, e);
 		}
 	} else if (t->type == TokenType::ARROW) {
 		// var ->
-		return eatLambdaContinue(parenthesis, ident, nullptr, comma_list);
+		return eatLambdaContinue(block, parenthesis, ident, nullptr, comma_list);
 	} else if (t->type == TokenType::COMMA) {
 		// var,  [lambda]
 		if (!parenthesis && comma_list) {
@@ -821,7 +872,7 @@ Value* SyntaxicAnalyzer::eatLambdaOrParenthesisExpression(bool pipe_opened, bool
 		int a = findNextArrow();
 		int c = findNextColon();
 		if (parenthesis or (a != -1 and (a < p or p == -1) and (a < c or c == -1))) {
-			return eatLambdaContinue(parenthesis, ident, nullptr, comma_list);
+			return eatLambdaContinue(block, parenthesis, ident, nullptr, comma_list);
 		} else {
 			return new VariableValue(env, ident);
 		}
@@ -831,14 +882,14 @@ Value* SyntaxicAnalyzer::eatLambdaOrParenthesisExpression(bool pipe_opened, bool
 				// (var)
 				eat();
 				if (t->type == TokenType::ARROW) {
-					return eatLambdaContinue(false, ident, nullptr, comma_list);
+					return eatLambdaContinue(block, false, ident, nullptr, comma_list);
 				}
 				return new VariableValue(env, ident);
 			} else {
 				// ( var + ... )
 				auto v = new VariableValue(env, ident);
-				auto exx = eatSimpleExpression(false, false, false, v);
-				auto ex = eatExpression(pipe_opened, set_opened, exx);
+				auto exx = eatSimpleExpression(block, false, false, false, v);
+				auto ex = eatExpression(block, pipe_opened, set_opened, exx);
 				ex->parenthesis = true;
 				eat(TokenType::CLOSING_PARENTHESIS);
 				return ex;
@@ -852,7 +903,7 @@ Value* SyntaxicAnalyzer::eatLambdaOrParenthesisExpression(bool pipe_opened, bool
 /*
  * Continue to eat a lambda starting from a comma or the arrow
  */
-Value* SyntaxicAnalyzer::eatLambdaContinue(bool parenthesis, Ident ident, Value* expression, bool comma_list) {
+Value* SyntaxicAnalyzer::eatLambdaContinue(Block* block, bool parenthesis, Ident ident, Value* expression, bool comma_list) {
 	auto l = new Function(env, nullptr);
 	l->lambda = true;
 	// Add first argument
@@ -864,7 +915,7 @@ Value* SyntaxicAnalyzer::eatLambdaContinue(bool parenthesis, Ident ident, Value*
 		Value* defaultValue = nullptr;
 		if (t->type == TokenType::EQUAL) {
 			eat();
-			defaultValue = eatExpression();
+			defaultValue = eatExpression(block);
 		}
 		l->addArgument(ident, defaultValue);
 	}
@@ -875,14 +926,14 @@ Value* SyntaxicAnalyzer::eatLambdaContinue(bool parenthesis, Ident ident, Value*
 	auto token = eat_get(TokenType::ARROW);
 	l->token = token;
 	l->body = new Block(env, true);
-	l->body->instructions.emplace_back(new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression(false, false, nullptr, comma_list))));
+	l->body->add_instruction(new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression(l->body, false, false, nullptr, comma_list))));
 	if (parenthesis) {
 		eat(TokenType::CLOSING_PARENTHESIS);
 	}
 	return l;
 }
 
-Value* SyntaxicAnalyzer::eatArrayOrMap() {
+Value* SyntaxicAnalyzer::eatArrayOrMap(Block* block) {
 
 	auto opening_bracket = eat_get(TokenType::OPEN_BRACKET);
 
@@ -906,12 +957,12 @@ Value* SyntaxicAnalyzer::eatArrayOrMap() {
 	// Array For
 	if (t->type == TokenType::FOR) {
 		ArrayFor* arrayFor = new ArrayFor(env);
-		arrayFor->forr = std::unique_ptr<Instruction>(eatFor());
+		arrayFor->forr = std::unique_ptr<Instruction>(eatFor(block));
 		eat(TokenType::CLOSING_BRACKET);
 		return arrayFor;
 	}
 
-	Value* value = eatExpression(false, false, nullptr, true);
+	Value* value = eatExpression(block, false, false, nullptr, true);
 
 	// eatInterval
 	if (t->type == TokenType::TWO_DOTS) {
@@ -920,7 +971,7 @@ Value* SyntaxicAnalyzer::eatArrayOrMap() {
 		interval->opening_bracket = opening_bracket;
 		interval->start = std::unique_ptr<Value>(value);
 		eat();
-		interval->end = std::unique_ptr<Value>(eatExpression());
+		interval->end = std::unique_ptr<Value>(eatExpression(block));
 
 		interval->closing_bracket = eat_get(TokenType::CLOSING_BRACKET);
 		return interval;
@@ -933,14 +984,14 @@ Value* SyntaxicAnalyzer::eatArrayOrMap() {
 		map->opening_bracket = opening_bracket;
 		map->keys.emplace_back(value);
 		eat();
-		map->values.emplace_back(eatExpression());
+		map->values.emplace_back(eatExpression(block));
 
 		while (t->type != TokenType::CLOSING_BRACKET && t->type != TokenType::FINISHED) {
 			if (t->type == TokenType::COMMA)
 				eat();
-			map->keys.emplace_back(eatExpression());
+			map->keys.emplace_back(eatExpression(block));
 			eat(TokenType::COLON);
-			map->values.emplace_back(eatExpression());
+			map->values.emplace_back(eatExpression(block));
 		}
 		map->closing_bracket = eat_get(TokenType::CLOSING_BRACKET);
 		return map;
@@ -954,7 +1005,7 @@ Value* SyntaxicAnalyzer::eatArrayOrMap() {
 		eat();
 	}
 	while (t->type != TokenType::CLOSING_BRACKET && t->type != TokenType::FINISHED) {
-		array->expressions.emplace_back(eatExpression(false, false, nullptr, true));
+		array->expressions.emplace_back(eatExpression(block, false, false, nullptr, true));
 		if (t->type == TokenType::COMMA)
 			eat();
 	}
@@ -962,7 +1013,7 @@ Value* SyntaxicAnalyzer::eatArrayOrMap() {
 	return array;
 }
 
-Value* SyntaxicAnalyzer::eatSetOrLowerOperator() {
+Value* SyntaxicAnalyzer::eatSetOrLowerOperator(Block* block) {
 
 	auto lower = eat_get();
 
@@ -977,24 +1028,26 @@ Value* SyntaxicAnalyzer::eatSetOrLowerOperator() {
 		return set;
 	}
 
-	set->expressions.emplace_back(eatExpression(false, true));
+	set->expressions.emplace_back(eatExpression(block, false, true));
 
 	while (t->type != TokenType::GREATER && t->type != TokenType::FINISHED) {
 		if (t->type == TokenType::COMMA) eat();
-		set->expressions.emplace_back(eatExpression(false, true));
+		set->expressions.emplace_back(eatExpression(block, false, true));
 	}
 	eat(TokenType::GREATER);
 
 	return set;
 }
 
-If* SyntaxicAnalyzer::eatIf() {
+Value* SyntaxicAnalyzer::eatIf(Block* block) {
 
 	auto iff = new If(env);
 
 	eat(TokenType::IF);
 
-	iff->condition = std::unique_ptr<Value>(eatExpression());
+	iff->condition = std::unique_ptr<Value>(eatExpression(block));
+
+	iff->end_section = new Section(env, "end");
 
 	bool braces = false;
 	bool then = false;
@@ -1006,18 +1059,16 @@ If* SyntaxicAnalyzer::eatIf() {
 	}
 
 	if (then or braces) {
-		Value* v = eatBlockOrObject();
+		Value* v = eatBlockOrObject(block, nullptr, iff->end_section);
 		if (dynamic_cast<Block*>(v)) {
 			iff->then = std::unique_ptr<Block>((Block*) v);
 		} else {
-			auto block = new Block(env);
-			block->instructions.emplace_back(new ExpressionInstruction(env, std::unique_ptr<Value>(v)));
-			iff->then = std::unique_ptr<Block>(block);
+			auto then = newBlock(block, v);
+			iff->then = std::unique_ptr<Block>(then);
 		}
 	} else {
-		Block* block = new Block(env);
-		block->instructions.emplace_back(eatInstruction());
-		iff->then = std::unique_ptr<Block>(block);
+		auto then = eatBlock(block, false, true, nullptr, iff->end_section);
+		iff->then = std::unique_ptr<Block>(then);
 	}
 
 	if (t->type == TokenType::ELSE) {
@@ -1029,19 +1080,22 @@ If* SyntaxicAnalyzer::eatIf() {
 		}
 
 		if (then or bracesElse) {
-			Value* v = eatBlockOrObject();
+			Value* v = eatBlockOrObject(block);
 			if (dynamic_cast<Block*>(v)) {
 				iff->elze = std::unique_ptr<Block>((Block*) v);
 			} else {
-				Block* block = new Block(env);
-				block->instructions.emplace_back(new ExpressionInstruction(env, std::unique_ptr<Value>(v)));
-				iff->elze = std::unique_ptr<Block>(block);
+				auto elze = newBlock(block, v);
+				iff->elze = std::unique_ptr<Block>(elze);
 			}
 		} else {
-			Block* body = new Block(env);
-			body->instructions.emplace_back(eatInstruction());
+			auto body = eatBlock(block, false, true);
 			iff->elze = std::unique_ptr<Block>(body);
 		}
+	} else {
+		iff->elze = std::unique_ptr<Block>(newEmptyBlock(block, iff->end_section));
+		// No else
+		// block->sections.back()->add_successor(block->end_section);
+		// block->end_section->add_predecessor(block->sections.back());
 	}
 
 	if (then) {
@@ -1051,34 +1105,34 @@ If* SyntaxicAnalyzer::eatIf() {
 	return iff;
 }
 
-Match* SyntaxicAnalyzer::eatMatch(bool force_value) {
+Match* SyntaxicAnalyzer::eatMatch(Block* block, bool force_value) {
 
 	Match* match = new Match(env);
 
 	eat(TokenType::MATCH);
 
-	match->value.reset(eatExpression());
+	match->value.reset(eatExpression(block));
 
 	eat(TokenType::OPEN_BRACE);
 
 	while (t->type != TokenType::CLOSING_BRACE && t->type != TokenType::FINISHED) {
 		std::vector<Match::Pattern> patterns;
-		patterns.push_back(eatMatchPattern());
+		patterns.push_back(eatMatchPattern(block));
 		while (t->type == TokenType::PIPE) {
 			eat();
-			patterns.push_back(eatMatchPattern());
+			patterns.push_back(eatMatchPattern(block));
 		}
 		match->pattern_list.emplace_back(std::move(patterns));
 		eat(TokenType::COLON);
 		if (t->type == TokenType::OPEN_BRACE) {
-			match->returns.emplace_back(eatBlockOrObject());
+			match->returns.emplace_back(eatBlockOrObject(block));
 		} else if (force_value) {
 			Block* block = new Block(env);
-			block->instructions.emplace_back(new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression())));
+			block->add_instruction(new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression(block))));
 			match->returns.emplace_back(block);
 		} else {
 			Block* body = new Block(env);
-			body->instructions.emplace_back(eatInstruction());
+			body->add_instruction(eatInstruction(body));
 			match->returns.emplace_back(body);
 		}
 
@@ -1089,7 +1143,7 @@ Match* SyntaxicAnalyzer::eatMatch(bool force_value) {
 	return match;
 }
 
-Match::Pattern SyntaxicAnalyzer::eatMatchPattern() {
+Match::Pattern SyntaxicAnalyzer::eatMatchPattern(Block* block) {
 
 	if (t->type == TokenType::TWO_DOTS) {
 		eat();
@@ -1097,25 +1151,25 @@ Match::Pattern SyntaxicAnalyzer::eatMatchPattern() {
 		if (t->type == TokenType::COLON || t->type == TokenType::PIPE) {
 			return Match::Pattern(std::unique_ptr<Value>(nullptr), std::unique_ptr<Value>(nullptr));
 		} else {
-			return Match::Pattern(std::unique_ptr<Value>(nullptr), std::unique_ptr<Value>(eatSimpleExpression()));
+			return Match::Pattern(std::unique_ptr<Value>(nullptr), std::unique_ptr<Value>(eatSimpleExpression(block)));
 		}
 	}
 
-	Value* value = eatSimpleExpression();
+	Value* value = eatSimpleExpression(block);
 
 	if (t->type == TokenType::TWO_DOTS) {
 		eat();
 		if (t->type == TokenType::COLON || t->type == TokenType::PIPE) {
 			return Match::Pattern(std::unique_ptr<Value>(value), std::unique_ptr<Value>(nullptr));
 		} else {
-			return Match::Pattern(std::unique_ptr<Value>(value), std::unique_ptr<Value>(eatSimpleExpression()));
+			return Match::Pattern(std::unique_ptr<Value>(value), std::unique_ptr<Value>(eatSimpleExpression(block)));
 		}
 	} else {
 		return Match::Pattern(std::unique_ptr<Value>(value));
 	}
 }
 
-Instruction* SyntaxicAnalyzer::eatFor() {
+Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 
 	auto for_token = eat_get(TokenType::FOR);
 
@@ -1144,8 +1198,8 @@ Instruction* SyntaxicAnalyzer::eatFor() {
 			if (t->type == TokenType::FINISHED || t->type == TokenType::SEMICOLON || t->type == TokenType::IN || t->type == TokenType::OPEN_BRACE) {
 				break;
 			}
-			auto ins = eatInstruction();
-			if (ins) init_block->instructions.emplace_back(ins);
+			auto ins = eatInstruction(init_block);
+			if (ins) init_block->add_instruction(ins);
 		}
 
 		// for inits; condition; increments { body }
@@ -1161,7 +1215,7 @@ Instruction* SyntaxicAnalyzer::eatFor() {
 			f->condition = nullptr;
 			eat();
 		} else {
-			f->condition = std::unique_ptr<Value>(eatExpression());
+			f->condition = std::unique_ptr<Value>(eatExpression(init_block));
 			eat(TokenType::SEMICOLON);
 		}
 
@@ -1171,8 +1225,8 @@ Instruction* SyntaxicAnalyzer::eatFor() {
 			if (t->type == TokenType::FINISHED || t->type == TokenType::SEMICOLON || t->type == TokenType::DO || t->type == TokenType::OPEN_BRACE || t->type == TokenType::CLOSING_PARENTHESIS) {
 				break;
 			}
-			auto ins = eatInstruction();
-			if (ins) increment_block->instructions.emplace_back(ins);
+			auto ins = eatInstruction(increment_block);
+			if (ins) increment_block->add_instruction(ins);
 			if (t->type == TokenType::COMMA) {
 				eat(TokenType::COMMA);
 			}
@@ -1184,14 +1238,14 @@ Instruction* SyntaxicAnalyzer::eatFor() {
 
 		// body
 		if (t->type == TokenType::OPEN_BRACE) {
-			f->body = std::unique_ptr<Block>(eatBlock());
+			f->body = std::unique_ptr<Block>(eatBlock(block));
 		} else if (t->type == TokenType::DO) {
 			eat(TokenType::DO);
-			f->body = std::unique_ptr<Block>(eatBlock());
+			f->body = std::unique_ptr<Block>(eatBlock(block));
 			eat(TokenType::END);
 		} else {
 			auto block = new Block(env);
-			block->instructions.emplace_back(eatInstruction());
+			block->add_instruction(eatInstruction(block));
 			f->body = std::unique_ptr<Block>(block);
 		}
 		return f;
@@ -1200,6 +1254,7 @@ Instruction* SyntaxicAnalyzer::eatFor() {
 
 		// for key , value in container { body }
 		auto f = new Foreach(env);
+		f->end_section = new Section(env, "end");
 
 		if (t->type == TokenType::LET or t->type == TokenType::VAR) eat();
 
@@ -1213,29 +1268,39 @@ Instruction* SyntaxicAnalyzer::eatFor() {
 
 		eat(TokenType::IN);
 
-		f->container = std::unique_ptr<Value>(eatExpression());
+		f->container = std::unique_ptr<Value>(eatExpression(block));
 
 		if (parenthesis)
 			eat(TokenType::CLOSING_PARENTHESIS);
 
 		// body
 		if (t->type == TokenType::OPEN_BRACE) {
-			f->body = std::unique_ptr<Block>(eatBlock());
+			f->body = std::unique_ptr<Block>(eatBlock(block));
 		} else {
 			eat(TokenType::DO);
-			f->body = std::unique_ptr<Block>(eatBlock());
+			f->body = std::unique_ptr<Block>(eatBlock(block));
 			eat(TokenType::END);
 		}
+		f->body->sections.back()->add_predecessor(f->end_section);
 
 		return f;
 	}
 }
 
-Instruction* SyntaxicAnalyzer::eatWhile() {
+Instruction* SyntaxicAnalyzer::eatWhile(Block* block) {
 
 	auto while_token = eat_get(TokenType::WHILE);
 
+	auto current_section = block->sections.back();
+
 	auto w = new While(env);
+
+	w->condition_section = new Section(env, "condition");
+	current_section->add_successor(w->condition_section);
+	w->condition_section->add_predecessor(current_section);
+
+	w->end_section = new Section(env, "end");
+
 	w->token = while_token;
 
 	bool parenthesis = false;
@@ -1246,7 +1311,9 @@ Instruction* SyntaxicAnalyzer::eatWhile() {
 		eat();
 	}
 
-	w->condition = std::unique_ptr<Value>(eatExpression());
+	auto condition_expression = eatExpression(block);
+	auto condition_instruction = new ExpressionInstruction(env, std::unique_ptr<Value>(condition_expression));
+	w->condition_section->instructions.emplace_back(std::unique_ptr<Instruction>(condition_instruction));
 
 	if (parenthesis) {
 		eat(TokenType::CLOSING_PARENTHESIS);
@@ -1257,11 +1324,18 @@ Instruction* SyntaxicAnalyzer::eatWhile() {
 		eat(TokenType::DO);
 	}
 
-	w->body = std::unique_ptr<Block>(eatBlock());
+	w->body = std::unique_ptr<Block>(eatBlock(block, false, false, w->condition_section, w->condition_section));
+
+	// w->condition_section->add_predecessor(w->body->sections.back());
+
+	w->condition_section->add_successor(w->end_section);
+	w->end_section->add_predecessor(w->condition_section);
 
 	if (!braces) {
 		eat(TokenType::END);
 	}
+
+	std::cout << "while end_section " << w->end_section << std::endl;
 
 	return w;
 }
@@ -1301,7 +1375,7 @@ Continue* SyntaxicAnalyzer::eatContinue() {
 	return c;
 }
 
-ClassDeclaration* SyntaxicAnalyzer::eatClassDeclaration() {
+ClassDeclaration* SyntaxicAnalyzer::eatClassDeclaration(Block* block) {
 
 	eat(TokenType::CLASS);
 
@@ -1311,7 +1385,7 @@ ClassDeclaration* SyntaxicAnalyzer::eatClassDeclaration() {
 	eat(TokenType::OPEN_BRACE);
 
 	while (t->type == TokenType::LET) {
-		cd->fields.emplace_back(eatVariableDeclaration());
+		cd->fields.emplace_back(eatVariableDeclaration(block));
 	}
 
 	eat(TokenType::CLOSING_BRACE);

@@ -26,6 +26,8 @@ public:
 	bool may_return = false;
 	bool is_void = false;
 	bool throws = false;
+	bool jumping = false; // Indicates the instruction contains a jump
+	Section* end_section = nullptr;
 
 	Instruction(Environment& env);
 	virtual ~Instruction() {}

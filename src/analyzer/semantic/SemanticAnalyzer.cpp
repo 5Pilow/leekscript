@@ -15,7 +15,7 @@ SemanticAnalyzer::SemanticAnalyzer(Environment& env) : env(env) {
 	program = nullptr;
 	for (const auto& clazz : env.std.classes) {
 		auto const_class = env.const_class(clazz.first);
-		globals.insert({ clazz.first, std::make_unique<Variable>(clazz.first, VarScope::INTERNAL, const_class, 0, nullptr, nullptr, nullptr, clazz.second->clazz.get()) });
+		globals.insert({ clazz.first, std::make_unique<Variable>(clazz.first, VarScope::INTERNAL, const_class, 0, nullptr, nullptr, nullptr, nullptr, clazz.second->clazz.get()) });
 	}
 }
 
@@ -45,6 +45,7 @@ void SemanticAnalyzer::analyze(Program* program) {
 void SemanticAnalyzer::enter_function(FunctionVersion* f) {
 	// std::cout << "enter function" << std::endl;
 	blocks.push_back({});
+	sections.push_back({});
 	loops.push(0);
 	functions_stack.push_back(f);
 }
@@ -52,6 +53,7 @@ void SemanticAnalyzer::enter_function(FunctionVersion* f) {
 void SemanticAnalyzer::leave_function() {
 	// std::cout << "leave function" << std::endl;
 	blocks.pop_back();
+	sections.pop_back();
 	functions_stack.pop_back();
 	loops.pop();
 }
@@ -66,11 +68,24 @@ void SemanticAnalyzer::leave_block() {
 	blocks.back().pop_back();
 }
 
+void SemanticAnalyzer::enter_section(Section* section) {
+	// std::cout << "enter section" << std::endl;
+	sections.back().push_back(section);
+}
+
+void SemanticAnalyzer::leave_section() {
+	// std::cout << "leave section" << std::endl;
+	sections.back().pop_back();
+}
+
 FunctionVersion* SemanticAnalyzer::current_function() const {
 	return functions_stack.back();
 }
 Block* SemanticAnalyzer::current_block() const {
 	return blocks.back().back();
+}
+Section* SemanticAnalyzer::current_section() const {
+	return sections.back().back();
 }
 
 void SemanticAnalyzer::enter_loop() {
@@ -118,13 +133,17 @@ Variable* SemanticAnalyzer::get_var(const std::string& v) {
 		const auto& fvars = blocks[f];
 		int b = fvars.size() - 1;
 		while (b >= 0) {
-			const auto& vars = fvars[b]->variables;
-			// std::cout << "Block variables : ";
-			// for (const auto& v : vars) std::cout << v.first << " " << v.second << ", ";
-			// std::cout << std::endl;
-			auto i = vars.find(v);
-			if (i != vars.end()) {
-				return i->second;
+			int s = fvars[b]->sections.size() - 1;
+			while (s >= 0) {
+				const auto& vars = fvars[b]->sections[s]->variables;
+				// std::cout << "Block variables : ";
+				// for (const auto& v : vars) std::cout << v.first << " " << v.second << ", ";
+				// std::cout << std::endl;
+				auto i = vars.find(v);
+				if (i != vars.end()) {
+					return i->second;
+				}
+				s--;
 			}
 			b--;
 		}
@@ -138,29 +157,31 @@ Variable* SemanticAnalyzer::add_var(Token* v, const Type* type, Value* value) {
 		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
 		return nullptr;
 	}
-	if (blocks.back().back()->variables.find(v->content) != blocks.back().back()->variables.end()) {
-		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
-		return nullptr;
+	for (const auto& section : blocks.back().back()->sections) {
+		if (section->variables.find(v->content) != section->variables.end()) {
+			add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
+			return nullptr;
+		}
 	}
-	blocks.back().back()->variables.insert(std::pair<std::string, Variable*>(
+	return sections.back().back()->variables.insert(std::pair<std::string, Variable*>(
 		v->content,
-		new Variable(v->content, VarScope::LOCAL, type, 0, value, current_function(), current_block(), nullptr)
-	));
-	return blocks.back().back()->variables.at(v->content);
+		new Variable(v->content, VarScope::LOCAL, type, 0, value, current_function(), current_block(), current_section(), nullptr)
+	)).first->second;
 }
 
 Variable* SemanticAnalyzer::add_global_var(Token* v, const Type* type, Value* value) {
 	// std::cout << "blocks " << blocks.size() << std::endl;
-	auto& vars = (*blocks.begin()->begin())->variables;
-	if (vars.find(v->content) != vars.end()) {
-		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
-		return nullptr;
+	for (const auto& section : blocks.begin()->front()->sections) {
+		auto& vars = section->variables;
+		if (vars.find(v->content) != vars.end()) {
+			add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
+			return nullptr;
+		}
 	}
-	vars.insert(std::pair<std::string, Variable*>(
+	return blocks.begin()->front()->sections.front()->variables.insert(std::pair<std::string, Variable*>(
 		v->content,
-		new Variable(v->content, VarScope::LOCAL, type, 0, value, current_function(), current_block(), nullptr)
-	));
-	return vars.at(v->content);
+		new Variable(v->content, VarScope::LOCAL, type, 0, value, current_function(), current_block(), current_section(), nullptr)
+	)).first->second;
 }
 
 void SemanticAnalyzer::add_function(Function* l) {
@@ -170,7 +191,7 @@ void SemanticAnalyzer::add_function(Function* l) {
 Variable* SemanticAnalyzer::convert_var_to_any(Variable* var) {
 	// std::cout << "SemanticAnalyser::convert_var_to_any(" << var->name << ")" << std::endl;
 	if (var->type->is_polymorphic()) return var;
-	auto new_var = new Variable(var->name, var->scope, env.any, 0, nullptr, var->function, var->block, nullptr);
+	auto new_var = new Variable(var->name, var->scope, env.any, 0, nullptr, var->function, var->block, var->section, nullptr);
 	// Search recursively in the functions
 
 	int f = functions_stack.size() - 1;
@@ -183,9 +204,12 @@ Variable* SemanticAnalyzer::convert_var_to_any(Variable* var) {
 		// Search in the local variables of the function
 		int b = blocks.at(f).size() - 1;
 		while (b >= 0) {
-			auto& vars = blocks.at(f).at(b)->variables;
-			if (vars.find(var->name) != vars.end()) {
-				vars.at(var->name) = new_var;
+			for (const auto& section : blocks.at(f).at(b)->sections) {
+				auto& vars = section->variables;
+				if (vars.find(var->name) != vars.end()) {
+					vars.at(var->name) = new_var;
+					break;
+				}
 			}
 			b--;
 		}
@@ -204,7 +228,7 @@ Variable* SemanticAnalyzer::update_var(Variable* variable) {
 		// a.1 = 5.5
 		// a.2 = 'salut'
 		auto root = variable->root ? variable->root : variable;
-		new_variable = new Variable(root->name, variable->scope, env.any, root->index, nullptr, current_function(), current_block(), nullptr);
+		new_variable = new Variable(root->name, variable->scope, env.any, root->index, nullptr, current_function(), current_block(), current_section(), nullptr);
 		new_variable->parent = variable;
 		new_variable->id = ++root->generator;
 		new_variable->root = root;
@@ -217,7 +241,7 @@ Variable* SemanticAnalyzer::update_var(Variable* variable) {
 		//    a.1.1 = 'salut'
 		// }
 		auto root = variable->root ? variable->root : variable;
-		new_variable = new Variable(variable->name, variable->scope, env.any, variable->index, nullptr, current_function(), current_block(), nullptr);
+		new_variable = new Variable(variable->name, variable->scope, env.any, variable->index, nullptr, current_function(), current_block(), current_section(), nullptr);
 		new_variable->id = ++variable->generator;
 		new_variable->parent = variable;
 		new_variable->root = root;
@@ -226,7 +250,7 @@ Variable* SemanticAnalyzer::update_var(Variable* variable) {
 		// std::cout << "update argument " << new_variable->name << std::endl;
 		current_function()->arguments[new_variable->name] = new_variable;
 	} else {
-		current_block()->variables[new_variable->name] = new_variable;
+		current_section()->variables[new_variable->name] = new_variable;
 	}
 	current_block()->mutations.push_back(new_variable);
 	return new_variable;

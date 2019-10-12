@@ -6,13 +6,17 @@
 
 namespace ls {
 
-For::For(Environment& env) : Instruction(env) {}
+For::For(Environment& env) : Instruction(env) {
+	jumping = true;
+}
 
 void For::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "for";
-	for (const auto& ins : init->instructions) {
-		os << " ";
-		ins->print(os, indent + 1, options);
+	for (const auto& section : init->sections) {
+		for (const auto& ins : section->instructions) {
+			os << " ";
+			ins->print(os, indent + 1, options);
+		}
 	}
 	os << "; ";
 	if (condition != nullptr) {
@@ -51,60 +55,62 @@ Location For::location() const {
 void For::pre_analyze(SemanticAnalyzer* analyzer) {
 	init->setup_branch(analyzer);
 	analyzer->enter_block(init.get());
-	for (const auto& ins : init->instructions) {
-		ins->pre_analyze(analyzer);
+	for (const auto& section : init->sections) {
+		for (const auto& ins : section->instructions) {
+			ins->pre_analyze(analyzer);
+		}
 	}
 	if (condition != nullptr) {
 		condition->pre_analyze(analyzer);
 	}
 	body->is_loop_body = true;
 	body->pre_analyze(analyzer);
-	for (const auto& variable : body->variables) {
-		init->variables[variable.first] = variable.second;
-		if (variable.second->root and variable.second->root->block != body.get()) {
-			variable.second->assignment = true;
-		}
-	}
+	// for (const auto& variable : body->variables) {
+	// 	init->variables[variable.first] = variable.second;
+	// 	if (variable.second->root and variable.second->root->block != body.get()) {
+	// 		variable.second->assignment = true;
+	// 	}
+	// }
 
 	increment->pre_analyze(analyzer);
 
-	if (body->variables.size() or increment->variables.size()) {
-		body2 = std::move(unique_static_cast<Block>(body->clone()));
-		body2->is_loop_body = true;
-		body2->is_loop = true;
-		body2->pre_analyze(analyzer);
-	}
+	// if (body->variables.size() or increment->variables.size()) {
+	// 	body2 = std::move(unique_static_cast<Block>(body->clone()));
+	// 	body2->is_loop_body = true;
+	// 	body2->is_loop = true;
+	// 	body2->pre_analyze(analyzer);
+	// }
 
-	if (increment->variables.size()) {
-		increment2 = std::move(unique_static_cast<Block>(increment->clone()));
-		increment2->is_loop_body = true;
-		increment2->is_loop = true;
-		increment2->pre_analyze(analyzer);
+	// if (increment->variables.size()) {
+	// 	increment2 = std::move(unique_static_cast<Block>(increment->clone()));
+	// 	increment2->is_loop_body = true;
+	// 	increment2->is_loop = true;
+	// 	increment2->pre_analyze(analyzer);
 
-		if (condition != nullptr) {
-			condition2 = std::move(condition->clone());
-			condition2->pre_analyze(analyzer);
-		}
-	}
+	// 	if (condition != nullptr) {
+	// 		condition2 = std::move(condition->clone());
+	// 		condition2->pre_analyze(analyzer);
+	// 	}
+	// }
 
 	analyzer->leave_block();
 
-	for (const auto& variable : init->variables) {
-		// std::cout << "For update_var " << variable.second << " " << (void*) variable.second->block->branch << " " << (void*) analyzer->current_block()->branch << std::endl;
-		if (variable.second->parent and variable.second->root->block != init.get()) {
-			auto new_var = analyzer->update_var(variable.second->parent);
-			variable.second->assignment = true;
-			assignments.push_back({ new_var, variable.second });
-		}
-	}
-	for (const auto& variable : body->variables) {
-		// std::cout << "Foreach assignment " << variable.second << " " << (void*) variable.second->block->branch << " " << (void*) analyzer->current_block()->branch << std::endl;
-		if (variable.second->parent and variable.second->root->block != init.get()) {
-			auto new_var = analyzer->update_var(variable.second->parent);
-			variable.second->assignment = true;
-			assignments.push_back({ new_var, variable.second });
-		}
-	}
+	// for (const auto& variable : init->variables) {
+	// 	// std::cout << "For update_var " << variable.second << " " << (void*) variable.second->block->branch << " " << (void*) analyzer->current_block()->branch << std::endl;
+	// 	if (variable.second->parent and variable.second->root->block != init.get()) {
+	// 		auto new_var = analyzer->update_var(variable.second->parent);
+	// 		variable.second->assignment = true;
+	// 		assignments.push_back({ new_var, variable.second });
+	// 	}
+	// }
+	// for (const auto& variable : body->variables) {
+	// 	// std::cout << "Foreach assignment " << variable.second << " " << (void*) variable.second->block->branch << " " << (void*) analyzer->current_block()->branch << std::endl;
+	// 	if (variable.second->parent and variable.second->root->block != init.get()) {
+	// 		auto new_var = analyzer->update_var(variable.second->parent);
+	// 		variable.second->assignment = true;
+	// 		assignments.push_back({ new_var, variable.second });
+	// 	}
+	// }
 }
 
 void For::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
@@ -123,18 +129,20 @@ void For::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	throws = false;
 
 	// Init
-	for (const auto& ins : init->instructions) {
-		ins->is_void = true;
-		ins->analyze(analyzer);
-		throws |= ins->throws;
-		if (ins->may_return) {
-			returning = ins->returning;
-			may_return = ins->may_return;
-			return_type = return_type->operator + (ins->return_type);
-		}
-		if (ins->returning) {
-			analyzer->leave_block();
-			return;
+	for (const auto& section : init->sections) {
+		for (const auto& ins : section->instructions) {
+			ins->is_void = true;
+			ins->analyze(analyzer);
+			throws |= ins->throws;
+			if (ins->may_return) {
+				returning = ins->returning;
+				may_return = ins->may_return;
+				return_type = return_type->operator + (ins->return_type);
+			}
+			if (ins->returning) {
+				analyzer->leave_block();
+				return;
+			}
 		}
 	}
 
@@ -158,16 +166,18 @@ void For::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 
 	// Increment
 	analyzer->enter_block(increment.get());
-	for (const auto& ins : increment->instructions) {
-		ins->is_void = true;
-		ins->analyze(analyzer);
-		throws |= ins->throws;
-		if (ins->may_return) {
-			returning = ins->returning;
-			may_return = ins->may_return;
-			return_type = return_type->operator + (ins->return_type);
+	for (const auto& section : increment->sections) {
+		for (const auto& ins : section->instructions) {
+			ins->is_void = true;
+			ins->analyze(analyzer);
+			throws |= ins->throws;
+			if (ins->may_return) {
+				returning = ins->returning;
+				may_return = ins->may_return;
+				return_type = return_type->operator + (ins->return_type);
+			}
+			if (ins->returning) { break; }
 		}
-		if (ins->returning) { break; }
 	}
 	for (const auto& assignment : increment->assignments) {
 		assignment.first->type = assignment.second->type;
@@ -184,10 +194,12 @@ void For::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	// Increment 2
 	if (increment2) {
 		analyzer->enter_block(increment2.get());
-		for (const auto& ins : increment2->instructions) {
-			ins->is_void = true;
-			ins->analyze(analyzer);
-			if (ins->returning) { break; }
+		for (const auto& section : increment2->sections) {
+			for (const auto& ins : section->instructions) {
+				ins->is_void = true;
+				ins->analyze(analyzer);
+				if (ins->returning) { break; }
+			}
 		}
 		analyzer->leave_block();
 	}
@@ -231,12 +243,14 @@ Compiler::value For::compile(Compiler& c) const {
 	}
 
 	// Init
-	for (const auto& ins : init->instructions) {
-		ins->compile(c);
-		if (dynamic_cast<Return*>(ins.get())) {
-			auto return_v = c.clone(output_v);
-			c.leave_block();
-			return return_v;
+	for (const auto& section : init->sections) {
+		for (const auto& ins : section->instructions) {
+			ins->compile(c);
+			if (dynamic_cast<Return*>(ins.get())) {
+				auto return_v = c.clone(output_v);
+				c.leave_block();
+				return return_v;
+			}
 		}
 	}
 	c.insn_branch(&cond_label);
@@ -256,7 +270,7 @@ Compiler::value For::compile(Compiler& c) const {
 
 	// Body
 	c.insn_label(&loop_label);
-	c.enter_loop(&end_label, &inc_label);
+	// c.enter_loop(&end_label, &inc_label);
 	auto body_v = body->compile(c);
 	if (output_v.v && body_v.v) {
 		c.insn_push_array(output_v, body_v);
@@ -286,7 +300,7 @@ Compiler::value For::compile(Compiler& c) const {
 		}
 		// Body 2
 		c.insn_label(&loop2_label);
-		c.enter_loop(&end_label, &inc2_label);
+		// c.enter_loop(&end_label, &inc2_label);
 		auto body2_v = (body2 ? body2 : body)->compile(c);
 		if (output_v.v && body2_v.v) {
 			// transfer the ownership of the temporary variable `body_v`

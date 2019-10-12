@@ -42,7 +42,7 @@ public:
 	Program(Environment& env, const std::string& code, const std::string& file_name);
 	virtual ~Program();
 
-	void analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format, bool debug);
+	void analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format, bool debug, bool sections);
 
 	/*
 	 * Compile the program with a VM and a context (json)
@@ -63,7 +63,7 @@ public:
 	std::string execute(VM& vm);
 	#endif
 
-	void print(std::ostream& os, bool debug = false) const;
+	void print(std::ostream& os, bool debug = false, bool sections = false) const;
 
 	std::string underline_code(Location location, Location focus) const;
 };

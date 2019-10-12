@@ -3,7 +3,9 @@
 
 namespace ls {
 
-Match::Match(Environment& env) : Value(env) {}
+Match::Match(Environment& env) : Value(env) {
+	jumping = true;
+}
 
 void Match::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "match ";

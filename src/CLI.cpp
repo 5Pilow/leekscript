@@ -46,6 +46,7 @@ void CLI::setup_options(CLI11::App& app, CLI_options& options, int argc, char* a
     app.add_flag("-r,--execute_ir", options.execute_ir, "Execute as an IR file (.ll or .ir)");
     app.add_flag("-c,--execute_bitcode", options.execute_bitcode, "Execute as an bitcode file (.bc)");
 	app.add_flag("--documentation", options.documentation, "Generate and output the documentation as JSON");
+	app.add_flag("-s,--sections", options.sections, "Output sections colors");
     try {
         app.parse(argc, argv);
     } catch (const CLI11::ParseError& e) {
@@ -155,7 +156,7 @@ int CLI::execute_file(std::string file, CLI_options options) {
 	if (options.json_output)
 		env.output = &oss;
 	Program program { env, code, file_name };
-	env.analyze(program, options.format, options.debug);
+	env.analyze(program, options.format, options.debug, options.sections);
 	env.compile(program, options.format, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
 	env.execute(program, options.format, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
 	print_result(program.result, oss.str(), options.json_output, options.display_time, options.operations);

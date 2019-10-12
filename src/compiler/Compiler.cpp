@@ -112,6 +112,11 @@ llvm::orc::VModuleKey Compiler::addModule(std::unique_ptr<llvm::Module> M, bool 
 	return K;
 }
 
+llvm::AllocaInst* Compiler::CreateEntryBlockAlloca(const std::string& VarName, llvm::Type* type) const {
+	llvm::IRBuilder<> builder(&F->getEntryBlock(), F->getEntryBlock().begin());
+	return builder.CreateAlloca(type, nullptr, VarName);
+}
+
 void Compiler::init() {
 	mappings.clear();
 	global_strings.clear();
@@ -1671,7 +1676,7 @@ Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* ou
 	auto loop_label = insn_init_label("loop");
 	auto loop2_label = insn_init_label("loop2");
 
-	enter_loop(&end_label, &it_label);
+	// enter_loop(&end_label, &it_label);
 
 	auto it = reversed ? iterator_rbegin(container) : iterator_begin(container);
 
@@ -1765,11 +1770,15 @@ void Compiler::insn_if(Compiler::value condition, std::function<void()> then, st
 		insn_branch(&label_end);
 	}
 	insn_label(&label_end);
-	current_block()->blocks.push_back(label_end.block);
+	// current_block()->blocks.push_back(label_end.block);
 }
 void Compiler::insn_if_new(Compiler::value cond, label* then, label* elze) {
 	assert(cond.t->llvm(*this) == cond.v->getType());
 	builder.CreateCondBr(cond.v, then->block, elze->block);
+}
+void Compiler::insn_if_sections(Compiler::value cond, Section* then, Section* elze) {
+	assert(cond.t->llvm(*this) == cond.v->getType());
+	builder.CreateCondBr(cond.v, then->first_basic_block, elze->first_basic_block);
 }
 
 void Compiler::insn_if_not(Compiler::value condition, std::function<void()> then) {
@@ -1819,6 +1828,9 @@ void Compiler::insn_label(label* l) {
 void Compiler::insn_branch(label* l) {
 	builder.CreateBr(l->block);
 }
+void Compiler::insn_branch(Section* s) {
+	builder.CreateBr(s->basic_block);
+}
 
 void Compiler::insn_return(Compiler::value v) {
 	assert(check_value(v));
@@ -1856,7 +1868,7 @@ Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Compile
 	return {phi, folded_type};
 }
 
-Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Block* b1, Compiler::value v2, Block* b2) {
+Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Section* s1, Compiler::value v2, Section* s2) {
 	if (!v2.v) return v1;
 	if (!v1.v) return v2;
 	const auto folded_type = type->fold();
@@ -1865,11 +1877,11 @@ Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Block* 
 	assert(v1.v != nullptr);
 	// std::cout << "v1 type " << v1.t << ", " << folded_type << ", " << type << std::endl;
 	// assert(v1.t == folded_type);
-	phi->addIncoming(v1.v, b1->blocks.back());
+	phi->addIncoming(v1.v, s1->basic_block);
 	assert(v2.v != nullptr);
 	// std::cout << "v2 type " << v2.t << ", " << folded_type << ", " << type << std::endl;
 	// assert(v2.t == folded_type);
-	phi->addIncoming(v2.v, b2->blocks.back());
+	phi->addIncoming(v2.v, s2->basic_block);
 	return {phi, folded_type};
 }
 
@@ -2021,16 +2033,27 @@ void Compiler::log(const std::string&& str) { assert(false); }
 
 // Blocks
 void Compiler::enter_block(Block* block) {
+	// std::cout << "enter_block" << std::endl;
 	blocks.back().push_back(block);
 	if (!loops_blocks.empty()) {
 		loops_blocks.back()++;
 	}
 	functions_blocks.back()++;
 	catchers.back().push_back({});
+	if (sections.back().size() && current_section()->successors.size() == 1) {
+		leave_section(); // If there's a current section, close it
+	}
 }
+
 void Compiler::leave_block(bool delete_vars) {
+	// std::cout << "leave_block" << std::endl;
 	if (delete_vars) {
 		delete_variables_block(1);
+	}
+	// End of the block, enter the next section in the parent block
+	const auto& block = blocks.back().back();
+	if (block->sections.size() and block->sections.back()->successors.size() and block->sections.back()->successors[0]->predecessors.size() == 1) {
+		enter_section(block->sections.back()->successors[0]);
 	}
 	blocks.back().pop_back();
 	if (!loops_blocks.empty()) {
@@ -2039,13 +2062,44 @@ void Compiler::leave_block(bool delete_vars) {
 	functions_blocks.back()--;
 	catchers.back().pop_back();
 }
+
+void Compiler::enter_section(Section* section) {
+	if (current_section() != section) {
+		// std::cout << "enter section " << section->id << std::endl;
+		sections.back().push_back(section);
+	}
+	if (not section->added) {
+		section->pre_compile(*this);
+		F->getBasicBlockList().push_back(section->basic_block);
+		section->added = true;
+		builder.SetInsertPoint(section->basic_block);
+		section->compile(*this);
+	}
+}
+
+void Compiler::leave_section() {
+	// std::cout << "leave section " << sections.back().back()->id << std::endl;
+	if (!sections.back().back()->left) {
+		sections.back().back()->compile_end(*this);
+		sections.back().back()->left = true;
+	}
+	sections.back().pop_back();
+}
+void Compiler::leave_section_condition(Compiler::value condition) {
+	// std::cout << "leave section " << sections.back().back()->id << std::endl;
+	sections.back().back()->condition = condition;
+	sections.back().back()->compile_end(*this);
+	sections.back().back()->left = true;
+	sections.back().pop_back();
+}
+
 void Compiler::delete_variables_block(int deepness) {
 	// std::cout << "blocks " << blocks.size() << std::endl;
 	for (int i = blocks.back().size() - 1; i >= (int) blocks.back().size() - deepness; --i) {
-		auto& variables = blocks.back()[i]->variables;
+		auto& variables = blocks.back()[i]->sections.back()->variables;
 		for (auto it = variables.begin(); it != variables.end(); ++it) {
 			// std::cout << "delete variable block " << it->second << " " << it->second->type << " " << it->second->val.v << " scope " << (int)it->second->scope << " " << it->second->assignment << std::endl;
-			if (it->second->phi or it->second->assignment or not it->second->val.v or it->second->scope == VarScope::CAPTURE) continue;
+			if (it->second->phis.size() or it->second->assignment or not it->second->val.v or it->second->scope == VarScope::CAPTURE) continue;
 			if (it->second->type->is_mpz_ptr()) {
 				insn_delete_mpz(it->second->val);
 			} else if (it->second->type->must_manage_memory()) {
@@ -2077,6 +2131,7 @@ void Compiler::delete_variables_block(int deepness) {
 
 void Compiler::enter_function(llvm::Function* F, bool is_closure, FunctionVersion* fun) {
 	blocks.push_back({});
+	sections.push_back({});
 	functions.push(F);
 	functions2.push(fun);
 	functions_blocks.push_back(0);
@@ -2096,6 +2151,7 @@ void Compiler::enter_function(llvm::Function* F, bool is_closure, FunctionVersio
 
 void Compiler::leave_function() {
 	blocks.pop_back();
+	sections.pop_back();
 	functions.pop();
 	functions2.pop();
 	functions_blocks.pop_back();
@@ -2123,6 +2179,10 @@ void Compiler::insert_new_generation_block() {
 }
 Block* Compiler::current_block() const {
 	return blocks.back().back();
+}
+Section* Compiler::current_section() const {
+	if (not sections.back().size()) return nullptr;
+	return sections.back().back();
 }
 
 // Variables
@@ -2161,21 +2221,21 @@ void Compiler::pop_temporary_expression_value() {
 }
 
 // Loops
-void Compiler::enter_loop(Compiler::label* end_label, Compiler::label* cond_label) {
-	loops_end_labels.push_back(end_label);
-	loops_cond_labels.push_back(cond_label);
+void Compiler::enter_loop(Section* end_section, Section* cond_section) {
+	loops_end_sections.push_back(end_section);
+	loops_cond_sections.push_back(cond_section);
 	loops_blocks.push_back(0);
 }
 void Compiler::leave_loop() {
-	loops_end_labels.pop_back();
-	loops_cond_labels.pop_back();
+	loops_end_sections.pop_back();
+	loops_cond_sections.pop_back();
 	loops_blocks.pop_back();
 }
-Compiler::label* Compiler::get_current_loop_end_label(int deepness) const {
-	return loops_end_labels[loops_end_labels.size() - deepness];
+Section* Compiler::get_current_loop_end_section(int deepness) const {
+	return loops_end_sections[loops_end_sections.size() - deepness];
 }
-Compiler::label* Compiler::get_current_loop_cond_label(int deepness) const {
-	return loops_cond_labels[loops_cond_labels.size() - deepness];
+Section* Compiler::get_current_loop_cond_section(int deepness) const {
+	return loops_cond_sections[loops_cond_sections.size() - deepness];
 }
 int Compiler::get_current_loop_blocks(int deepness) const {
 	int sum = 0;

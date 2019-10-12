@@ -37,6 +37,7 @@ public:
 	Value* value = nullptr;
 	FunctionVersion* function;
 	Block* block = nullptr;
+	Section* section = nullptr;
 	const Type* type;
 	std::vector<const Type*> version;
 	Call call;
@@ -44,7 +45,7 @@ public:
 	int generator = 0;
 	Variable* root = nullptr;
 	Variable* parent = nullptr;
-	Phi* phi = nullptr;
+	std::vector<Phi*> phis;
 	bool assignment = false;
 	Class* clazz = nullptr;
 	#if COMPILER
@@ -53,9 +54,9 @@ public:
 	LSClass* lsclass = nullptr;
 	#endif
 
-	Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, Call call = {});
+	Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, Call call = {});
 	#if COMPILER
-	Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Class* clazz, LSClass* lsclass, Call call = {});
+	Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, LSClass* lsclass, Call call = {});
 	#endif
 
 	const Type* get_entry_type(Environment& env) const;
