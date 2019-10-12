@@ -452,8 +452,11 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 	method("mpz_sqrt", {
 		{env.void_, {env.mpz_ptr, env.mpz_ptr}, ADDR((void*) mpz_sqrt)}
 	}, PRIVATE);
-	method("mpz_clear", {
+	method("mpz_ptr_clear", {
 		{env.void_, {env.mpz_ptr}, ADDR((void*) mpz_clear)}
+	}, PRIVATE);
+	method("mpz_clear", {
+		{env.void_, {env.mpz}, ADDR((void*) mpz_value_clear)}
 	}, PRIVATE);
 	method("int_to_string", {
 		{env.tmp_string, {env.integer}, ADDR((void*) int_to_string)}
@@ -464,8 +467,11 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 	method("real_to_string", {
 		{env.tmp_string, {env.real}, ADDR((void*) real_to_string)}
 	}, PRIVATE);
+	method("mpz_ptr_to_string", {
+		{env.tmp_string, {env.mpz_ptr}, ADDR((void*) mpz_ptr_to_string)}
+	}, PRIVATE);
 	method("mpz_to_string", {
-		{env.tmp_string, {env.mpz_ptr}, ADDR((void*) mpz_to_string)}
+		{env.tmp_string, {env.mpz}, ADDR((void*) mpz_to_string)}
 	}, PRIVATE);
 	double (*logreal)(double) = std::log;
 	method("m_log", {
@@ -1281,16 +1287,26 @@ LSValue* NumberSTD::long_to_string(long x) {
 LSValue* NumberSTD::real_to_string(double x) {
 	return new LSString(LSNumber::print(x));
 }
-LSValue* NumberSTD::mpz_to_string(mpz_t x) {
+LSValue* NumberSTD::mpz_ptr_to_string(mpz_t x) {
 	// TODO dynamic buffer size
 	char buff[10000];
 	mpz_get_str(buff, 10, x);
+	return new LSString(buff);
+}
+LSValue* NumberSTD::mpz_to_string(__mpz_struct x) {
+	// TODO dynamic buffer size
+	char buff[10000];
+	mpz_get_str(buff, 10, &x);
 	return new LSString(buff);
 }
 bool NumberSTD::isint(LSNumber* x) {
 	auto is = x->value == (int) x->value;
 	LSValue::delete_temporary(x);
 	return is;
+}
+
+void NumberSTD::mpz_value_clear(__mpz_struct x) {
+	mpz_clear(&x);
 }
 
 #endif

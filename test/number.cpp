@@ -127,8 +127,7 @@ void Test::test_numbers() {
 	code("let a = { 1209876543789765432456765432087654321 } a").equals("1209876543789765432456765432087654321");
 	code("var a = 5m a = 12m").equals("12");
 	code("var a = 5m a = 12m a").equals("12");
-	// TODO no mpz.string() method (only mpz*)
-	DISABLED_code("let f = -> 12m f().string()").equals("'12'");
+	code("let f = -> 12m f().string()").equals("'12'");
 
 	section("Integer division by zero");
 	code("1 \\ 0").exception(ls::vm::Exception::DIVISION_BY_ZERO);

@@ -1070,7 +1070,7 @@ void Compiler::insn_delete_variable(Compiler::value v) {
 void Compiler::insn_delete_temporary(Compiler::value v) {
 	assert(v.t->llvm(*this) == v.v->getType());
 	if (not v.t->temporary) return;
-	if (v.t == env.tmp_mpz_ptr) {
+	if (v.t == env.tmp_mpz_ptr || v.t == env.tmp_mpz) {
 		insn_delete_mpz(v);
 	} if (v.t->must_manage_memory()) {
 		insn_call(env.void_, {v}, "Value.delete");
@@ -1177,7 +1177,11 @@ Compiler::value Compiler::insn_clone_mpz(Compiler::value mpz) {
 void Compiler::insn_delete_mpz(Compiler::value mpz) {
 	// std::cout << "delete mpz " << mpz.t << std::endl;
 	assert(check_value(mpz));
-	insn_call(env.void_, {mpz}, "Number.mpz_clear");
+	if (mpz.t->is_mpz_ptr()) {
+		insn_call(env.void_, {mpz}, "Number.mpz_ptr_clear");
+	} else {
+		insn_call(env.void_, {mpz}, "Number.mpz_clear");
+	}
 	increment_mpz_deleted();
 }
 

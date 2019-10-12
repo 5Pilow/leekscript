@@ -33,10 +33,12 @@ Compiler::value JsonSTD::encode(Compiler& c, std::vector<Compiler::value> args, 
 	} else if (args[0].t->is_bool()) {
 		return c.insn_call(c.env.tmp_string, args, "Boolean.to_string");
 	} else if (args[0].t->is_mpz_ptr()) {
+		auto s = c.insn_call(c.env.tmp_string, args, "Number.mpz_ptr_to_string");
+		c.insn_delete_temporary(args[0]);
+		return s;
+	} else if (args[0].t->is_mpz()) {
 		auto s = c.insn_call(c.env.tmp_string, args, "Number.mpz_to_string");
-		if (args[0].t->temporary) {
-			c.insn_delete_mpz(args[0]);
-		}
+		c.insn_delete_temporary(args[0]);
 		return s;
 	}
 	// Default type : pointer

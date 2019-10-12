@@ -725,6 +725,10 @@ Compiler::value ValueSTD::to_string(Compiler& c, std::vector<Compiler::value> ar
 	} else if (args[0].t->is_long()) {
 		return c.insn_call(c.env.tmp_string, args, "Number.long_to_string");
 	} else if (args[0].t->is_mpz_ptr()) {
+		auto s = c.insn_call(c.env.tmp_string, args, "Number.mpz_ptr_to_string");
+		c.insn_delete_temporary(args[0]);
+		return s;
+	} else if (args[0].t->is_mpz()) {
 		auto s = c.insn_call(c.env.tmp_string, args, "Number.mpz_to_string");
 		c.insn_delete_temporary(args[0]);
 		return s;

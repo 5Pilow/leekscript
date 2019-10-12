@@ -194,9 +194,11 @@ public:
 	static LSValue* int_to_string(int);
 	static LSValue* long_to_string(long);
 	static LSValue* real_to_string(double);
-	static LSValue* mpz_to_string(mpz_t x);
+	static LSValue* mpz_ptr_to_string(mpz_t x);
+	static LSValue* mpz_to_string(__mpz_struct x);
 
 	static bool isint(LSNumber* x);
+	static void mpz_value_clear(__mpz_struct x);
 
 	#endif
 };
