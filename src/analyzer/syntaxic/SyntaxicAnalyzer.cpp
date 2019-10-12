@@ -180,11 +180,13 @@ Block* SyntaxicAnalyzer::blockInit(Block* parent, Section* before, bool is_funct
 
 	auto block = new Block(env, is_function_block);
 
-	auto real_before = before ? before : parent->sections.back();
+	auto real_before = before ? before : (parent ? parent->sections.back() : nullptr);
 
-	auto start_section = block->sections.front();
-	real_before->add_successor(start_section);
-	start_section->add_predecessor(real_before);
+	if (real_before) {
+		auto start_section = block->sections.front();
+		real_before->add_successor(start_section);
+		start_section->add_predecessor(real_before);
+	}
 
 	return block;
 }
@@ -390,7 +392,7 @@ Function* SyntaxicAnalyzer::eatFunction(Block* block, Token* token) {
 		braces = true;
 	}
 
-	f->body = eatBlock(block, true);
+	f->body = eatBlock(nullptr, true);
 
 	if (!braces) {
 		eat(TokenType::END);

@@ -180,6 +180,10 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	analyzer->enter_loop((Instruction*) this);
 	body->analyze(analyzer);
 	throws |= body->throws;
+	if (body->may_return) {
+		may_return = body->may_return;
+		return_type = body->return_type;
+	}
 	if (req_type->is_array()) {
 		type = Type::tmp_array(body->type);
 	}
@@ -218,6 +222,10 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 		analyzer->enter_loop((Instruction*) this);
 		body->is_void = true;
 		body->analyze(analyzer);
+		if (body->may_return) {
+			may_return = body->may_return;
+			return_type = body->return_type;
+		}
 		analyzer->leave_loop();
 
 		analyzer->leave_block();

@@ -45,7 +45,8 @@ void VariableDeclaration::analyze_global_functions(SemanticAnalyzer* analyzer) c
 		auto var = variables.at(0);
 		const auto& expr = expressions.at(0);
 		auto v = analyzer->add_global_var(var, Type::fun(env.void_, {}), expr.get());
-		((VariableDeclaration*) this)->vars.insert({ var->content, v });
+		((VariableDeclaration*) this)->global_vars.insert({ var->content, v });
+		expr->pre_analyze(analyzer);
 	}
 }
 
@@ -98,7 +99,7 @@ void VariableDeclaration::analyze(SemanticAnalyzer* analyzer, const Type*) {
 Compiler::value VariableDeclaration::compile(Compiler& c) const {
 	for (unsigned i = 0; i < variables.size(); ++i) {
 		const auto& name = variables[i]->content;
-		const auto& variable = vars.at(name);
+		const auto& variable = (global ? global_vars : vars).at(name);
 		if (expressions[i] != nullptr) {
 			const auto& ex = expressions[i];
 			if (dynamic_cast<Function*>(ex.get()) and not ex->type->is_closure()) {

@@ -249,7 +249,6 @@ Compiler::value Block::compile(Compiler& c) const {
 						return val;
 					}
 				}();
-				has_returned = true;
 				section->instructions[i]->compile_end(c);
 				if (is_function_block and c.vm->context) {
 					c.fun->parent->export_context(c);
@@ -280,22 +279,24 @@ Compiler::value Block::compile(Compiler& c) const {
 			}
 		}
 		if (s < sections.size() - 1 and c.current_section() == section) {
-			c.leave_section();
+			c.leave_section(not returning);
 		}
-		// if (has_returned and ) {
-		// 	return return_value;
-		// }
+		if (has_returned) {
+			return return_value;
+		}
 	}
 	return return_value;
 }
 
 void Block::compile_end(Compiler& c) const {
-	c.delete_variables_block(1);
+	if (not returning) {
+		c.delete_variables_block(1);
+	}
 	if (c.current_section() == sections.back()) {
-		c.leave_section();
+		c.leave_section(not returning);
 	}
 	c.leave_block(false);
-	if (is_function_block) {
+	if (is_function_block and not returning) {
 		c.fun->compile_return(c, return_value);
 	}
 }

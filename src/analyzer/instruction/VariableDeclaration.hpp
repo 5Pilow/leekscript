@@ -18,6 +18,7 @@ public:
 	bool function;
 	std::vector<Token*> variables;
 	std::vector<std::unique_ptr<Value>> expressions;
+	std::map<std::string, Variable*> global_vars;
 	std::map<std::string, Variable*> vars;
 
 	VariableDeclaration(Environment& env);

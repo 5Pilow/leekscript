@@ -92,7 +92,7 @@ void Section::print(std::ostream& os, int indent, PrintOptions options) const {
 void Section::pre_analyze(SemanticAnalyzer* analyzer) {
 
 	for (auto it = variables.begin(); it != variables.end(); ) {
-		if (not it->second->injected) it = variables.erase(it);
+		if (not it->second->injected and not it->second->global) it = variables.erase(it);
 		else ++it;
     }
 	conversions.clear();

@@ -206,7 +206,7 @@ Variable* SemanticAnalyzer::add_global_var(Token* v, const Type* type, Value* va
 	}
 	return blocks.begin()->front()->sections.front()->variables.insert(std::pair<std::string, Variable*>(
 		v->content,
-		new Variable(v->content, VarScope::LOCAL, type, 0, value, current_function(), current_block(), current_section(), nullptr)
+		new Variable(v->content, VarScope::LOCAL, type, 0, value, current_function(), current_block(), current_section(), nullptr, {}, true)
 	)).first->second;
 }
 

@@ -50,6 +50,7 @@ public:
 	Class* clazz = nullptr;
 	Value* array = nullptr;
 	bool injected = false;
+	bool global = false;
 	#if COMPILER
 	Compiler::value entry; // Entry containing the value
 	Compiler::value addr_val;
@@ -57,7 +58,7 @@ public:
 	LSClass* lsclass = nullptr;
 	#endif
 
-	Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, Call call = {});
+	Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, Call call = {}, bool global = false);
 	#if COMPILER
 	Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, LSClass* lsclass, Call call = {});
 	#endif
