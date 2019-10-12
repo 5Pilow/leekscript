@@ -53,27 +53,25 @@ void FunctionCall::pre_analyze(SemanticAnalyzer* analyzer) {
 	function->pre_analyze(analyzer);
 
 	bool var_updated = false;
-	if (not analyzer->current_block()->is_loop) {
-		if (auto object_access = dynamic_cast<const ObjectAccess*>(function.get())) {
-			if (auto vv = dynamic_cast<VariableValue*>(object_access->object.get())) {
-				if (vv->var->scope != VarScope::CAPTURE and vv->var->scope != VarScope::INTERNAL) {
-					// std::cout << "FC update_var " << vv->var;
-					vv->var = analyzer->update_var(vv->var);
-					// std::cout << " to " << vv->var << std::endl;
-					vv->update_variable = true;
+	if (auto object_access = dynamic_cast<const ObjectAccess*>(function.get())) {
+		if (auto vv = dynamic_cast<VariableValue*>(object_access->object.get())) {
+			if (vv->var->scope != VarScope::CAPTURE and vv->var->scope != VarScope::INTERNAL) {
+				// std::cout << "FC update_var " << vv->var;
+				vv->var = analyzer->update_var(vv->var);
+				// std::cout << " to " << vv->var << std::endl;
+				vv->update_variable = true;
+				var_updated = true;
+			}
+		} else if (auto aa = dynamic_cast<ArrayAccess*>(object_access->object.get())) {
+			if (auto vv = dynamic_cast<VariableValue*>(aa->array.get())) {
+				vv->var = analyzer->update_var(vv->var);
+				vv->update_variable = true;
+				var_updated = true;
+			} else if (auto aa2 = dynamic_cast<ArrayAccess*>(aa->array.get())) {
+				if (auto vv2 = dynamic_cast<VariableValue*>(aa2->array.get())) {
+					vv2->var = analyzer->update_var(vv2->var);
+					vv2->update_variable = true;
 					var_updated = true;
-				}
-			} else if (auto aa = dynamic_cast<ArrayAccess*>(object_access->object.get())) {
-				if (auto vv = dynamic_cast<VariableValue*>(aa->array.get())) {
-					vv->var = analyzer->update_var(vv->var);
-					vv->update_variable = true;
-					var_updated = true;
-				} else if (auto aa2 = dynamic_cast<ArrayAccess*>(aa->array.get())) {
-					if (auto vv2 = dynamic_cast<VariableValue*>(aa2->array.get())) {
-						vv2->var = analyzer->update_var(vv2->var);
-						vv2->update_variable = true;
-						var_updated = true;
-					}
 				}
 			}
 		}
@@ -82,7 +80,7 @@ void FunctionCall::pre_analyze(SemanticAnalyzer* analyzer) {
 	for (const auto& argument : arguments) {
 		argument->pre_analyze(analyzer);
 	}
-	if (not analyzer->current_block()->is_loop and not var_updated) {
+	if (not var_updated) {
 		if (arguments.size()) {
 			if (auto vv = dynamic_cast<VariableValue*>(arguments[0].get())) {
 				if (vv->var and vv->var->scope != VarScope::CAPTURE and vv->var->scope != VarScope::INTERNAL) {

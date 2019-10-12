@@ -39,10 +39,10 @@ int Test::all() {
 
 	std::vector<std::function<void(Test*)>> tests = {
 		&Test::test_types,
+		&Test::test_utils,
 		&Test::test_legacy_array,
 		&Test::test_general,
 		&Test::test_booleans,
-		&Test::test_loops,
 		&Test::test_numbers,
 		&Test::test_strings,
 		&Test::test_arrays,
@@ -50,17 +50,17 @@ int Test::all() {
 		&Test::test_map,
 		&Test::test_set,
 		&Test::test_objects,
-		&Test::test_functions,
+		&Test::test_loops,
+		// &Test::test_functions,
 		&Test::test_classes,
 		&Test::test_operators,
-		&Test::test_exceptions,
+		// &Test::test_exceptions,
 		&Test::test_operations,
 		&Test::test_system,
 		&Test::test_json,
-		&Test::test_files,
-		&Test::test_toplevel,
+		// &Test::test_files,
+		// &Test::test_toplevel,
 		&Test::test_doc,
-		&Test::test_utils,
 	};
 	omp_set_num_threads(1);
 	// omp_set_num_threads(tests.size());

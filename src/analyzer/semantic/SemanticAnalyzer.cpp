@@ -245,6 +245,7 @@ Variable* SemanticAnalyzer::convert_var_to_any(Variable* var) {
 }
 
 Variable* SemanticAnalyzer::update_var(Variable* variable, bool add_mutation) {
+	if (variable->injected) return variable;
 	// std::cout << "update_var " << variable << " " << (int) variable->scope << std::endl;
 	Variable* new_variable;
 	if (current_block() == variable->block) {
@@ -255,7 +256,6 @@ Variable* SemanticAnalyzer::update_var(Variable* variable, bool add_mutation) {
 		// a.2 = 'salut'
 		auto root = variable->root ? variable->root : variable;
 		new_variable = new Variable(root->name, variable->scope, env.void_, root->index, nullptr, current_function(), current_block(), current_section(), nullptr);
-		new_variable->parent = variable;
 		new_variable->id = variable->id + 1;
 		new_variable->root = root;
 	} else {
@@ -269,9 +269,11 @@ Variable* SemanticAnalyzer::update_var(Variable* variable, bool add_mutation) {
 		auto root = variable->root ? variable->root : variable;
 		new_variable = new Variable(variable->name, variable->scope, env.void_, variable->index, nullptr, current_function(), current_block(), current_section(), nullptr);
 		new_variable->id = variable->id + 1;
-		new_variable->parent = variable;
 		new_variable->root = root;
 	}
+	new_variable->parent = variable;
+	new_variable->injected = variable->injected;
+
 	if (variable->scope == VarScope::PARAMETER) {
 		// std::cout << "update argument " << new_variable->name << std::endl;
 		current_function()->arguments[new_variable->name] = new_variable;

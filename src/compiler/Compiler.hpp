@@ -282,8 +282,8 @@ public:
 	// Blocks
 	void enter_block(Block* block);
 	void leave_block(bool delete_vars = true);
-	void enter_section(Section* section);
-	void leave_section();
+	void enter_section(Section* section, bool compile = true);
+	void leave_section(bool compile_jump = true);
 	void leave_section_condition(Compiler::value condition);
 	void delete_variables_block(int deepness); // delete all variables in the #deepness current blocks
 	void enter_function(llvm::Function* F, bool is_closure, FunctionVersion* fun);

@@ -302,8 +302,8 @@ Compiler::value FunctionVersion::compile(Compiler& c, bool compile_body) {
 
 		c.enter_function((llvm::Function*) fun.v, parent->captures.size() > 0, this);
 
-		// c.enter_section(body->sections.front());
-		c.builder.SetInsertPoint(block);
+		c.enter_section(body->sections.front(), false);
+		// c.builder.SetInsertPoint(block);
 
 		// Declare context vars
 		if (parent->is_main_function and c.vm->context) {
@@ -347,6 +347,8 @@ Compiler::value FunctionVersion::compile(Compiler& c, bool compile_body) {
 			capture->store_value(c, c.insn_get_capture(capture->index, c.env.any));
 			capture->create_addr_entry(c, c.insn_get_capture_l(capture->index, c.env.any));
 		}
+
+		c.leave_section(false);
 
 		if (compile_body) {
 			body->compile(c);

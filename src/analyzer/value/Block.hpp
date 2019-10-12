@@ -16,8 +16,6 @@ public:
 
 	std::vector<Section*> sections;
 	bool is_function_block = false;
-	bool is_loop_body = false;
-	bool is_loop = false;
 	bool temporary_mpz = false;
 	bool mpz_pointer = false;
 	bool was_reference = false;

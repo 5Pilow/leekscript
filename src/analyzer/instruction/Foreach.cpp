@@ -67,7 +67,6 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 	analyzer->leave_section();
 	analyzer->leave_block();
 
-	body->is_loop_body = true;
 	body->pre_analyze(analyzer);
 
 	analyzer->leave_loop();
@@ -103,9 +102,18 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 		mutations.clear(); // Va être re-rempli par la seconde analyse
 
 		analyzer->enter_section(condition_section);
-		//
+
+		// Delete previously injected variables
 		// if (body->sections.size()) {
-		// 	body->sections.front()->variables.clear();
+		// 	for (auto it = body->sections.front()->variables.begin(); it != body->sections.front()->variables.end(); ) {
+		// 		std::cout << "erase? " << it->second << " " << it->second->injected << " " << it->second->root << " " << it->second->root->injected << std::endl;
+		// 		if (it->second->root->injected) {
+		// 			it->second = it->second->root;
+		// 			it++;
+		// 		}
+		// 		else ++it;
+		// 	}
+		// 	// body->sections.front()->variables.clear();
 		// }
 
 		container->pre_analyze(analyzer);

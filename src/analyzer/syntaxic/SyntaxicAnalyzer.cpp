@@ -960,6 +960,7 @@ Value* SyntaxicAnalyzer::eatArrayOrMap(Block* block) {
 		ArrayFor* arrayFor = new ArrayFor(env);
 		arrayFor->forr = std::unique_ptr<Instruction>(eatFor(block));
 		eat(TokenType::CLOSING_BRACKET);
+		arrayFor->end_section = arrayFor->forr->end_section;
 		return arrayFor;
 	}
 
@@ -1210,7 +1211,7 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 
 		// for inits; condition; increments { body }
 		auto f = new For(env);
-		loops.push(f);
+		loops.push_back(f);
 		f->token = for_token;
 
 		f->end_section = new Section(env, "end");
@@ -1273,7 +1274,7 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 			f->condition_section->predecessors.push_back(f->increment->sections.back());
 		}
 
-		loops.pop();
+		loops.pop_back();
 		return f;
 
 	} else {
@@ -1287,7 +1288,7 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 		wrapper_section->predecessors.push_back(current_section);
 		current_section->successors.push_back(wrapper_section);
 
-		loops.push(f);
+		loops.push_back(f);
 		f->condition_section = new Section(env, "condition");
 		f->end_section = new Section(env, "end");
 
@@ -1333,7 +1334,7 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 		f->increment_section->successors.push_back(f->condition_section);
 		f->condition_section->predecessors.push_back(f->increment_section);
 
-		loops.pop();
+		loops.pop_back();
 		return f;
 	}
 }
@@ -1345,7 +1346,7 @@ Instruction* SyntaxicAnalyzer::eatWhile(Block* block) {
 	auto current_section = block->sections.back();
 
 	auto w = new While(env);
-	loops.push(w);
+	loops.push_back(w);
 
 	w->condition_section = new Section(env, "condition");
 	w->continue_section = w->condition_section;
@@ -1390,7 +1391,7 @@ Instruction* SyntaxicAnalyzer::eatWhile(Block* block) {
 
 	// std::cout << "while end_section " << w->end_section << std::endl;
 
-	loops.pop();
+	loops.pop_back();
 
 	return w;
 }
@@ -1399,9 +1400,6 @@ Break* SyntaxicAnalyzer::eatBreak(Block* block) {
 	auto token = eat_get(TokenType::BREAK);
 	Break* b = new Break(env);
 	b->token = token;
-	b->end_section = loops.top()->end_section;
-	block->sections.back()->add_successor(loops.top()->end_section);
-	loops.top()->end_section->add_predecessor(block->sections.back());
 
 	if (t->type == TokenType::NUMBER /*&& t->line == lt->line*/) {
 		int deepness = std::stoi(t->content);
@@ -1413,16 +1411,21 @@ Break* SyntaxicAnalyzer::eatBreak(Block* block) {
 		}
 	}
 
+	if (b->deepness > loops.size()) {
+		file->errors.push_back(Error(Error::Type::BREAK_MUST_BE_IN_LOOP, t, {}));
+	} else {
+		auto loop = loops.at(loops.size() - b->deepness);
+
+		b->end_section = loop->end_section;
+		block->sections.back()->add_successor(loop->end_section);
+		loop->end_section->add_predecessor(block->sections.back());
+	}
 	return b;
 }
 
 Continue* SyntaxicAnalyzer::eatContinue(Block* block) {
 	eat(TokenType::CONTINUE);
 	Continue* c = new Continue(env);
-	auto condition = loops.top()->continue_section;
-	c->end_section = condition;
-	block->sections.back()->add_successor(condition);
-	condition->add_predecessor(block->sections.back());
 
 	if (t->type == TokenType::NUMBER /*&& t->line == lt->line*/) {
 		int deepness = std::stoi(t->content);
@@ -1433,7 +1436,15 @@ Continue* SyntaxicAnalyzer::eatContinue(Block* block) {
 			eat();
 		}
 	}
-
+	if (c->deepness > loops.size()) {
+		file->errors.push_back(Error(Error::Type::CONTINUE_MUST_BE_IN_LOOP, t, {}));
+	} else {
+		auto loop = loops.at(loops.size() - c->deepness);
+		auto condition = loop->continue_section;
+		c->end_section = condition;
+		block->sections.back()->add_successor(condition);
+		condition->add_predecessor(block->sections.back());
+	}
 	return c;
 }
 

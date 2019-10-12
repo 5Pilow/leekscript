@@ -3,7 +3,9 @@
 
 namespace ls {
 
-ArrayFor::ArrayFor(Environment& env) : Value(env) {}
+ArrayFor::ArrayFor(Environment& env) : Value(env) {
+	jumping = true;
+}
 
 void ArrayFor::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << "[";

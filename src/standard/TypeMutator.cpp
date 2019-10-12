@@ -38,7 +38,7 @@ int ConvertMutator::compile(Compiler& c, CallableVersion* callable, std::vector<
 		}
 		for (const auto& phi : vv->var->phis) {
 			if (phi->variable2 == vv->var) {
-				c.insn_delete_temporary(phi->value1);
+				// c.insn_delete_temporary(phi->value1);
 			}
 		}
 		if (vv->var->scope == VarScope::CAPTURE) {

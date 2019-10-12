@@ -180,7 +180,7 @@ void Test::test_general() {
 	code("var a = 5.5 a = 1000m").equals("1000");
 	code("var a = 5.5 a = 2m ** 100").equals("1267650600228229401496703205376");
 	code("var a = 2m a = 5").equals("5");
-	DISABLED_code("var a = 5.5 System.print(a) a = 2 System.print(a) a = 200l System.print(a) a = 1000m System.print(a) a = 'hello' System.print(a)").output("5.5\n2\n200\n1000\nhello\n");
+	code("var a = 5.5 System.print(a) a = 2 System.print(a) a = 200l System.print(a) a = 1000m System.print(a) a = 'hello' System.print(a)").output("5.5\n2\n200\n1000\nhello\n");
 	code("var a = [] a = 5m").equals("5");
 
 	section("Value.copy()");

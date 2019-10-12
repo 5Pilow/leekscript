@@ -101,9 +101,9 @@ void Test::test_set() {
 	 */
 	section("Set iteration");
 	code("var s = '' for v in <5, 'hello'> { s += v } s").equals("'5hello'");
-	code("var s = 0 for v in <8, 4, 2, 1> { if (v > 5) { continue } s += v } s").equals("7");
-	code("var s = 0 for v in <8, 4, 2, 1> { if (v < 3) { break } s += v } s").equals("0");
-	code("var s = 0 for v in <8, 4, 2, 1> { if (v > 5) { break } s += v } s").equals("7");
+	DISABLED_code("var s = 0 for v in <8, 4, 2, 1> { if (v > 5) { continue } s += v } s").equals("7");
+	DISABLED_code("var s = 0 for v in <8, 4, 2, 1> { if (v < 3) { break } s += v } s").equals("0");
+	DISABLED_code("var s = 0 for v in <8, 4, 2, 1> { if (v > 5) { break } s += v } s").equals("7");
 	code("for k, i in <6, true, 22, 'yolo', 5> { System.print(k + '->' + i) }").output("0->true\n1->5\n2->6\n3->22\n4->yolo\n");
 	code("[for v in <3, 2, 1> { v }]").equals("[1, 2, 3]");
 	code("[for v in <'c', 'b', 'a'> { v }]").equals("['a', 'b', 'c']");

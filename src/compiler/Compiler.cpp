@@ -315,6 +315,8 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 	// assert(v.t->llvm(*this) == v.v->getType());
 	if (!v.v) { return v; }
 	if (v.t->not_temporary() == t) return v;
+	if (v.t->not_constant() == t or t->not_constant() == v.t) return v;
+
 	if (v.t->is_function()) {
 		if (t == env.i8_ptr) {
 			return { builder.CreatePointerCast(v.v, t->llvm(*this)), t };
@@ -2074,7 +2076,7 @@ void Compiler::leave_block(bool delete_vars) {
 	catchers.back().pop_back();
 }
 
-void Compiler::enter_section(Section* section) {
+void Compiler::enter_section(Section* section, bool compile) {
 	if (current_section() != section) {
 		// std::cout << "enter section " << section->id << std::endl;
 		sections.back().push_back(section);
@@ -2088,9 +2090,9 @@ void Compiler::enter_section(Section* section) {
 	}
 }
 
-void Compiler::leave_section() {
+void Compiler::leave_section(bool compile_jump) {
 	// std::cout << "leave section " << sections.back().back()->id << std::endl;
-	if (!sections.back().back()->left) {
+	if (compile_jump and !sections.back().back()->left) {
 		sections.back().back()->compile_end(*this);
 		sections.back().back()->left = true;
 	}

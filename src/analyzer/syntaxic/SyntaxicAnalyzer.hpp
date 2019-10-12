@@ -40,7 +40,7 @@ class SyntaxicAnalyzer {
 	std::vector<std::pair<unsigned,size_t>> stack;
 	Token* finished_token;
 	File* file;
-	std::stack<Instruction*> loops;
+	std::vector<Instruction*> loops;
 
 public:
 

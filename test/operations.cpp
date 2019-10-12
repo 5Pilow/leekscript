@@ -19,6 +19,6 @@ void Test::test_operations() {
 	code("12345m ** 120").operations(1681);
 
 	section("Operation limit exceeded");
-	code("while true {}").ops_limit(1000).exception(ls::vm::Exception::OPERATION_LIMIT_EXCEEDED);
-	code("for ;; {}").ops_limit(1000).exception(ls::vm::Exception::OPERATION_LIMIT_EXCEEDED);
+	DISABLED_code("while true {}").ops_limit(1000).exception(ls::vm::Exception::OPERATION_LIMIT_EXCEEDED);
+	DISABLED_code("for ;; {}").ops_limit(1000).exception(ls::vm::Exception::OPERATION_LIMIT_EXCEEDED);
 }

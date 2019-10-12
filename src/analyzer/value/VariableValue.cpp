@@ -23,7 +23,7 @@ VariableValue::VariableValue(Environment& env, Token* token) : LeftValue(env), t
 }
 
 bool VariableValue::isLeftValue() const {
-	return scope != VarScope::INTERNAL; // Internal variables are not left-value
+	return scope != VarScope::INTERNAL and (not var or not var->val.v); // Internal variables are not left-value
 }
 
 void VariableValue::print(std::ostream& os, int, PrintOptions options) const {
@@ -157,7 +157,7 @@ void VariableValue::pre_analyze(SemanticAnalyzer* analyzer) {
 void VariableValue::analyze(SemanticAnalyzer* analyzer) {
 	const auto& env = analyzer->env;
 	if (var != nullptr) {
-		if (update_variable) {
+		if (update_variable and var->parent) {
 			var->type = var->parent->type;
 			var->value = var->parent->value;
 		}
