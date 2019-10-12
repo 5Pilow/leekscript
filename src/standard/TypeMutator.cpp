@@ -135,8 +135,12 @@ int ChangeValueMutator::compile(Compiler& c, CallableVersion* callable, std::vec
 			}
 			for (const auto& phi : vv->var->phis) {
 				if (phi->variable2 == vv->var) {
-					std::cout << "type mutator load value" << std::endl;
-					phi->value2 = c.insn_load(vv->var->val);
+					// std::cout << "type mutator load value" << std::endl;
+					if (vv->var->type->is_mpz_ptr()) {
+						phi->value2 = vv->var->val;
+					} else {
+						phi->value2 = c.insn_load(vv->var->val);
+					}
 				}
 			}
 			return 0;

@@ -50,6 +50,7 @@ void VariableDeclaration::analyze_global_functions(SemanticAnalyzer* analyzer) c
 }
 
 void VariableDeclaration::pre_analyze(SemanticAnalyzer* analyzer) {
+	vars.clear();
 	if (global && function) return;
 	auto& env = analyzer->env;
 	for (unsigned i = 0; i < variables.size(); ++i) {
@@ -91,6 +92,7 @@ void VariableDeclaration::analyze(SemanticAnalyzer* analyzer, const Type*) {
 			if (constant) v->type = v->type->add_constant();
 		}
 		vars.insert({var->content, v});
+		// std::cout << "VD type " << v << " " << (void*) v << " " << v->type << std::endl;
 	}
 }
 

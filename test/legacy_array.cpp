@@ -102,12 +102,12 @@ void Test::test_legacy_array() {
     empty->removeIndex(0);
     test("empty.print()", empty->to_string(), "[]");
 
-    const int S = 613;
+    const size_t S = 613;
     section("large legacy array");
     auto exe_start = std::chrono::high_resolution_clock::now();
     auto large = new ls::LSLegacyArray(vm);
     vm->enable_operations = false;
-    for (int i = 0; i < S; ++i) {
+    for (size_t i = 0; i < S; ++i) {
         large->push(ls::LSNumber::get(12));
     }
     auto exe_end = std::chrono::high_resolution_clock::now();

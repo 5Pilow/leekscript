@@ -3,6 +3,7 @@
 #include "../semantic/SemanticAnalyzer.hpp"
 #include "../semantic/Variable.hpp"
 #include "../value/Phi.hpp"
+#include "../semantic/Mutation.hpp"
 #include "../../colors.h"
 
 namespace ls {
@@ -14,78 +15,107 @@ While::While(Environment& env) : Instruction(env) {
 }
 
 void While::print(std::ostream& os, int indent, PrintOptions options) const {
-	os << "while ("<< std::endl;
-	// condition->print(os, indent + 1, options);
-	condition_section->print(os, indent, options);
-	os << " " << tabs(indent) << ") ";
-	body->print(os, indent, options);
-	if (body2_activated) {
-		os << " ";
-		body2->print(os, indent, options);
-	}
-	// for (const auto& assignment : assignments) {
-	// 	os << std::endl << tabs(indent) << assignment.first << " " << assignment.first->type << " = " << assignment.second << " " << assignment.second->type;
+
+	// for (const auto& conversion : conversions) {
+	// 	os << std::get<0>(conversion) << " " << std::get<0>(conversion)->type << " = (" << std::get<1>(conversion)->type << ") " << std::get<0>(conversion)->parent << std::endl;
 	// }
+	os << "while (" << std::endl;
+	condition_section->print(os, indent, options);
+
+	os << condition_section->color << "┃ " << END_COLOR << tabs(indent) << ") ";
+	body->print(os, indent, options);
 }
 
 Location While::location() const {
 	return token->location;
 }
 
-
 void While::pre_analyze(SemanticAnalyzer* analyzer) {
+
+	const auto& before = condition_section->predecessors[0];
+
+	mutations.clear();
+	conversions.clear();
+	condition_section->variables.clear();
+	body->sections.back()->variables.clear();
+
 	condition_section->pre_analyze(analyzer);
-	body->is_loop_body = true;
+
+	analyzer->enter_loop((Instruction*) this);
 	body->pre_analyze(analyzer);
+	analyzer->leave_loop();
 
-	// for (const auto& variable : body->mutations) {
-	// 	if ((variable->root ? variable->root : variable)->block != body.get()) {
-	// 		mutations.push_back(variable);
-	// 	}
-	// }
+	// std::cout << "While mutations : " << mutations.size() << std::endl;
+	for (const auto& mutation : mutations) {
+		auto current = before;
+		// std::cout << "mutation : " << mutation.variable << std::endl;
+		while (current) {
+			auto old_var = current->variables.find(mutation.variable->name);
+			if (old_var != current->variables.end()) {
+				analyzer->enter_section(current);
+				auto new_var = analyzer->update_var(old_var->second, false);
+				current->add_conversion(old_var->second, new_var, mutation.section);
+				conversions.push_back({ new_var, old_var->second, mutation.section });
+				analyzer->leave_section();
+				// std::cout << "While add conversion " << new_var << " from " << old_var->second << " section " << current->color << current->id << END_COLOR << std::endl;
+				break;
+			}
+			current = current->predecessors.size() ? current->predecessors[0] : nullptr;
+		}
+	}
 
-	// if (mutations.size()) {
-	// 	body2 = std::move(unique_static_cast<Block>(body->clone()));
-	// 	body2->is_loop_body = true;
-	// 	body2->is_loop = true;
-	// 	for (const auto& variable : body->variables) {
-	// 		if (variable.second->parent and variable.second->parent->block != body.get()) {
-	// 			body2->variables.insert({ variable.first, variable.second });
-	// 		}
-	// 	}
-	// 	body2->pre_analyze(analyzer);
-	// }
-	// for (const auto& variable : body->variables) {
-	// 	// std::cout << "Foreach assignment " << variable.second << " " << (void*) variable.second->block->branch << " " << (void*) analyzer->current_block()->branch << std::endl;
-	// 	if (variable.second->parent) {
-	// 		auto new_var = analyzer->update_var(variable.second->parent);
-	// 		variable.second->assignment = true;
-	// 		assignments.push_back({ new_var, variable.second });
-	// 	}
-	// }
+	if (mutations.size()) {
+
+		condition_section->pre_analyze(analyzer);
+
+		analyzer->enter_loop((Instruction*) this);
+		mutations.clear(); // Va être re-rempli par la seconde analyse
+
+		body->pre_analyze(analyzer);
+		analyzer->leave_loop();
+
+		for (const auto& phi : condition_section->phis) {
+			// std::cout << "phi " << phi->variable << std::endl;
+			for (const auto& mutation : mutations) {
+				// std::cout << "mutation " << mutation.variable << " " << mutation.section->id << std::endl;
+				if (mutation.variable->name == phi->variable2->name) {
+					phi->variable2 = mutation.variable;
+					// std::cout << "set var for phi " << phi->variable2 << std::endl;
+				}
+			}
+		}
+	}
 }
 
 void While::analyze(SemanticAnalyzer* analyzer, const Type*) {
+
+	analyzer->leave_section(); // Leave previous section
+
 	condition_section->analyze(analyzer);
 	condition_section->instructions.front()->analyze(analyzer);
+	condition_section->analyze_end(analyzer);
+
 	throws = condition_section->instructions.front()->throws;
 
-	analyzer->enter_loop();
+	analyzer->enter_loop((Instruction*) this);
 	body->is_void = true;
-	if (body2) body2->is_void = true;
 	body->analyze(analyzer);
-
-	// body2_activated = std::any_of(mutations.begin(), mutations.end(), [&](Variable* variable) {
-	// 	std::cout << "mutation " << variable->parent << " " << variable->parent->type << " => " << variable << " " << variable->type << std::endl;
-	// 	return variable->parent->type != variable->type;
-	// });
-	// std::cout << "body2 activated " << body2_activated << std::endl;
-	// if (body2_activated) {
-	// 	body2->analyze(analyzer);
-	// } else if (body2) {
-	// 	body2->enabled = false;
-	// }
 	analyzer->leave_loop();
+
+	for (const auto& conversion : conversions) {
+		std::get<0>(conversion)->section->reanalyze_conversions(analyzer);
+	}
+
+	if (conversions.size()) {
+		condition_section->analyze(analyzer);
+		condition_section->instructions.front()->analyze(analyzer);
+		throws = condition_section->instructions.front()->throws;
+
+		analyzer->enter_loop((Instruction*) this);
+		body->is_void = true;
+		body->analyze(analyzer);
+		analyzer->leave_loop();
+	}
 
 	throws |= body->throws;
 	if (body->may_return) {
@@ -93,10 +123,6 @@ void While::analyze(SemanticAnalyzer* analyzer, const Type*) {
 		returning = body->returning;
 		return_type = body->return_type;
 	}
-
-	// for (const auto& assignment : assignments) {
-	// 	assignment.first->type = assignment.second->type;
-	// }
 }
 
 #if COMPILER
@@ -109,6 +135,7 @@ Compiler::value While::compile(Compiler& c) const {
 	c.enter_section(condition_section);
 	auto cond = condition_section->instructions.front()->compile(c);
 	auto cond_boolean = c.insn_to_bool(cond);
+	condition_section->instructions.front()->compile_end(c);
 	c.insn_delete_temporary(cond);
 
 	c.leave_section_condition(cond_boolean);
@@ -122,11 +149,6 @@ Compiler::value While::compile(Compiler& c) const {
 	body->compile_end(c);
 	c.leave_loop();
 
-	// for (const auto& assignment : assignments) {
-	// 	// std::cout << "Store variable " << assignment.first << " = " << assignment.second << std::endl;
-	// 	assignment.first->val = c.create_entry(assignment.first->name, assignment.first->type);
-	// 	c.insn_store(assignment.first->val, c.insn_load(assignment.second->val));
-	// }
 	return { c.env };
 }
 #endif

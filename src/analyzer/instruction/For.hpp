@@ -5,6 +5,7 @@
 #include "../value/Value.hpp"
 #include "../value/Block.hpp"
 #include "Instruction.hpp"
+#include "../semantic/Mutation.hpp"
 
 namespace ls {
 
@@ -16,13 +17,11 @@ public:
 
 	Token* token;
 	std::unique_ptr<Block> init;
-	std::unique_ptr<Value> condition;
-	std::unique_ptr<Value> condition2;
+	Section* condition_section = nullptr;
 	std::unique_ptr<Block> increment;
-	std::unique_ptr<Block> increment2;
 	std::unique_ptr<Block> body;
-	std::unique_ptr<Block> body2;
-	std::vector<std::pair<Variable*, Variable*>> assignments;
+	std::vector<std::tuple<Variable*, Variable*, const Section*>> conversions;
+	std::vector<Mutation> mutations;
 
 	For(Environment& env);
 

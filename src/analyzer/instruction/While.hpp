@@ -4,21 +4,20 @@
 #include <vector>
 #include "../value/Value.hpp"
 #include "../value/Block.hpp"
-class Variable;
+#include "../semantic/Mutation.hpp"
 
 namespace ls {
+
+class Variable;
 
 class While : public Instruction {
 public:
 
 	Token* token;
 	Section* condition_section = nullptr;
-	// std::unique_ptr<Value> condition;
 	std::unique_ptr<Block> body;
-	std::unique_ptr<Block> body2;
-	bool body2_activated = false;
-	std::vector<std::pair<Variable*, Variable*>> assignments;
-	std::vector<Variable*> mutations;
+	std::vector<std::tuple<Variable*, Variable*, const Section*>> conversions;
+	std::vector<Mutation> mutations;
 
 	While(Environment& env);
 

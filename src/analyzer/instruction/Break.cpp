@@ -7,6 +7,7 @@ namespace ls {
 Break::Break(Environment& env) : Instruction(env) {
 	deepness = 1;
 	jumping = true;
+	jump_to_existing_section = true;
 }
 
 void Break::print(std::ostream& os, int, PrintOptions) const {
@@ -43,8 +44,8 @@ Compiler::value Break::compile(Compiler& c) const {
 	 *	}
 	 */
 	c.delete_variables_block(c.get_current_loop_blocks(deepness));
-	c.insn_branch(c.get_current_loop_end_section(deepness));
-	c.insert_new_generation_block();
+	// c.insn_branch(c.get_current_loop_end_section(deepness));
+	// c.insert_new_generation_block();
 	return { c.env };
 }
 #endif

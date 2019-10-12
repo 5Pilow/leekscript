@@ -4,10 +4,14 @@
 #include "../Context.hpp"
 #include "../error/Error.hpp"
 #include "../instruction/VariableDeclaration.hpp"
+#include "../instruction/While.hpp"
+#include "../instruction/For.hpp"
+#include "../instruction/Foreach.hpp"
 #include "../../standard/Module.hpp"
 #include <functional>
 #include "Variable.hpp"
 #include "FunctionVersion.hpp"
+#include "../../colors.h"
 
 namespace ls {
 
@@ -46,7 +50,7 @@ void SemanticAnalyzer::enter_function(FunctionVersion* f) {
 	// std::cout << "enter function" << std::endl;
 	blocks.push_back({});
 	sections.push_back({});
-	loops.push(0);
+	loops.push_back({});
 	functions_stack.push_back(f);
 }
 
@@ -55,12 +59,15 @@ void SemanticAnalyzer::leave_function() {
 	blocks.pop_back();
 	sections.pop_back();
 	functions_stack.pop_back();
-	loops.pop();
+	loops.pop_back();
 }
 
 void SemanticAnalyzer::enter_block(Block* block) {
 	// std::cout << "enter block" << std::endl;
 	blocks.back().push_back(block);
+	if (sections.back().size() && current_section()->successors.size() == 1) {
+		leave_section(); // If there's a current section, close it
+	}
 }
 
 void SemanticAnalyzer::leave_block() {
@@ -75,6 +82,7 @@ void SemanticAnalyzer::enter_section(Section* section) {
 
 void SemanticAnalyzer::leave_section() {
 	// std::cout << "leave section" << std::endl;
+	sections.back().back()->analyze_end(this);
 	sections.back().pop_back();
 }
 
@@ -85,19 +93,23 @@ Block* SemanticAnalyzer::current_block() const {
 	return blocks.back().back();
 }
 Section* SemanticAnalyzer::current_section() const {
+	if (not sections.back().size()) return nullptr;
 	return sections.back().back();
 }
+Instruction* SemanticAnalyzer::current_loop() const {
+	return loops.back().back();
+}
 
-void SemanticAnalyzer::enter_loop() {
-	loops.top()++;
+void SemanticAnalyzer::enter_loop(Instruction* loop) {
+	loops.back().push_back(loop);
 }
 
 void SemanticAnalyzer::leave_loop() {
-	loops.top()--;
+	loops.back().pop_back();
 }
 
 bool SemanticAnalyzer::in_loop(int deepness) const {
-	return loops.top() >= deepness;
+	return loops.back().size() >= deepness;
 }
 
 Variable* SemanticAnalyzer::get_var(const std::string& v) {
@@ -130,23 +142,34 @@ Variable* SemanticAnalyzer::get_var(const std::string& v) {
 		// }
 
 		// Search in the local variables of the function
-		const auto& fvars = blocks[f];
-		int b = fvars.size() - 1;
-		while (b >= 0) {
-			int s = fvars[b]->sections.size() - 1;
-			while (s >= 0) {
-				const auto& vars = fvars[b]->sections[s]->variables;
-				// std::cout << "Block variables : ";
-				// for (const auto& v : vars) std::cout << v.first << " " << v.second << ", ";
-				// std::cout << std::endl;
-				auto i = vars.find(v);
-				if (i != vars.end()) {
-					return i->second;
-				}
-				s--;
+		auto section = sections[f].back();
+		while (section != nullptr) {
+			// std::cout << "search " << v << " in section " << section->color << section->id << END_COLOR << std::endl;
+			auto i = section->variables.find(v);
+			if (i != section->variables.end()) {
+				return i->second;
 			}
-			b--;
+			section = section->predecessors.size() ? section->predecessors[0] : nullptr;
 		}
+
+
+		// const auto& fvars = blocks[f];
+		// int b = fvars.size() - 1;
+		// while (b >= 0) {
+		// 	int s = fvars[b]->sections.size() - 1;
+		// 	while (s >= 0) {
+		// 		const auto& vars = fvars[b]->sections[s]->variables;
+		// 		// std::cout << "Section [" << fvars[b]->sections[s]->id << "] variables : ";
+		// 		// for (const auto& v : vars) std::cout << v.first << " " << v.second << ", ";
+		// 		// std::cout << std::endl;
+		// 		auto i = vars.find(v);
+		// 		if (i != vars.end()) {
+		// 			return i->second;
+		// 		}
+		// 		s--;
+		// 	}
+		// 	b--;
+		// }
 		f--;
 	}
 	return nullptr;
@@ -157,16 +180,19 @@ Variable* SemanticAnalyzer::add_var(Token* v, const Type* type, Value* value) {
 		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
 		return nullptr;
 	}
-	for (const auto& section : blocks.back().back()->sections) {
-		if (section->variables.find(v->content) != section->variables.end()) {
-			add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
-			return nullptr;
-		}
+	const auto& block = blocks.back().back();
+	if (block->variables.find(v->content) != block->variables.end()) {
+		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
+		return nullptr;
 	}
-	return sections.back().back()->variables.insert(std::pair<std::string, Variable*>(
-		v->content,
-		new Variable(v->content, VarScope::LOCAL, type, 0, value, current_function(), current_block(), current_section(), nullptr)
-	)).first->second;
+	auto var = new Variable(v->content, VarScope::LOCAL, type, 0, value, current_function(), current_block(), current_section(), nullptr);
+
+	block->variables.insert({ v->content, var });
+	assert(current_section());
+	current_section()->variables.insert({ v->content, var });
+	// std::cout << "var " << v->content << " added in " << block->sections.back()->id << std::endl;
+
+	return var;
 }
 
 Variable* SemanticAnalyzer::add_global_var(Token* v, const Type* type, Value* value) {
@@ -218,7 +244,7 @@ Variable* SemanticAnalyzer::convert_var_to_any(Variable* var) {
 	return new_var;
 }
 
-Variable* SemanticAnalyzer::update_var(Variable* variable) {
+Variable* SemanticAnalyzer::update_var(Variable* variable, bool add_mutation) {
 	// std::cout << "update_var " << variable << " " << (int) variable->scope << std::endl;
 	Variable* new_variable;
 	if (current_block() == variable->block) {
@@ -228,9 +254,9 @@ Variable* SemanticAnalyzer::update_var(Variable* variable) {
 		// a.1 = 5.5
 		// a.2 = 'salut'
 		auto root = variable->root ? variable->root : variable;
-		new_variable = new Variable(root->name, variable->scope, env.any, root->index, nullptr, current_function(), current_block(), current_section(), nullptr);
+		new_variable = new Variable(root->name, variable->scope, env.void_, root->index, nullptr, current_function(), current_block(), current_section(), nullptr);
 		new_variable->parent = variable;
-		new_variable->id = ++root->generator;
+		new_variable->id = variable->id + 1;
 		new_variable->root = root;
 	} else {
 		// std::cout << "branch" << std::endl;
@@ -241,8 +267,8 @@ Variable* SemanticAnalyzer::update_var(Variable* variable) {
 		//    a.1.1 = 'salut'
 		// }
 		auto root = variable->root ? variable->root : variable;
-		new_variable = new Variable(variable->name, variable->scope, env.any, variable->index, nullptr, current_function(), current_block(), current_section(), nullptr);
-		new_variable->id = ++variable->generator;
+		new_variable = new Variable(variable->name, variable->scope, env.void_, variable->index, nullptr, current_function(), current_block(), current_section(), nullptr);
+		new_variable->id = variable->id + 1;
 		new_variable->parent = variable;
 		new_variable->root = root;
 	}
@@ -252,7 +278,17 @@ Variable* SemanticAnalyzer::update_var(Variable* variable) {
 	} else {
 		current_section()->variables[new_variable->name] = new_variable;
 	}
-	current_block()->mutations.push_back(new_variable);
+	// Ajout d'une mutation
+	if (in_loop(1) && add_mutation) {
+		auto loop = current_loop();
+		if (auto w = dynamic_cast<While*>(loop)) {
+			w->mutations.push_back({ new_variable, new_variable->section });
+		} else if (auto f = dynamic_cast<For*>(loop)) {
+			f->mutations.push_back({ new_variable, new_variable->section });
+		} else if (auto f = dynamic_cast<Foreach*>(loop)) {
+			f->mutations.push_back({ new_variable, new_variable->section });
+		}
+	}
 	return new_variable;
 }
 

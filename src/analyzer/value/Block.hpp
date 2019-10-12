@@ -21,19 +21,18 @@ public:
 	bool temporary_mpz = false;
 	bool mpz_pointer = false;
 	bool was_reference = false;
-	// std::unordered_map<std::string, Variable*> variables;
+	std::unordered_map<std::string, Variable*> variables;
 	Block* branch = nullptr;
 	std::vector<std::pair<Variable*, Variable*>> assignments;
 	std::vector<Variable*> temporary_variables;
 	std::vector<Variable*> mutations;
-	bool enabled = true;
 	#if COMPILER
 	std::vector<Compiler::value> temporary_values;
 	std::vector<Compiler::value> temporary_expression_values;
 	Compiler::value return_value;
 	#endif
 
-	Block(Environment& env, bool is_function_block = false);
+	Block(Environment& env, bool is_function_block = false, bool init_first_section = true);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;

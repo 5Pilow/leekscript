@@ -1,6 +1,6 @@
 var singles = []
 var groups = ['s' : 12] groups.erase('s')
-var first = ['s' : 's'] first.erase('s')
+var first = [:]
 var i = 405
 
 while i++ {

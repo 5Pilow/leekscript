@@ -1,0 +1,19 @@
+var start = 12
+var mp = 10
+
+var cells = [start]
+var grow = [start]
+
+while mp-- {
+    var res = []
+    for var cell in grow {
+        var n = [5, 12, 302, 515]
+        for c in n {
+            if !cells.contains(c) and !res.contains(c) {
+                res += c
+            }
+        }
+    }
+    grow = res
+    cells += res
+}

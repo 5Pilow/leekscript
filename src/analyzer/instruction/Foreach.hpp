@@ -5,6 +5,7 @@
 #include "../value/Value.hpp"
 #include "../value/Block.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
+#include "../semantic/Mutation.hpp"
 
 namespace ls {
 
@@ -15,11 +16,10 @@ public:
 	Token* value = nullptr;
 	std::unique_ptr<Value> container;
 	std::unique_ptr<Block> body;
-	std::unique_ptr<Block> body2;
-	bool body2_activated = false;
-	std::vector<std::pair<Variable*, Variable*>> assignments;
-	std::vector<Variable*> mutations;
-	Section* end_section = nullptr;
+	std::vector<Mutation> mutations;
+	std::vector<std::tuple<Variable*, Variable*, const Section*>> conversions;
+	Section* condition_section = nullptr;
+	Section* increment_section = nullptr;
 
 	const Type* key_type;
 	const Type* value_type;

@@ -1,6 +1,8 @@
 #include "Foreach.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
 #include "../semantic/Variable.hpp"
+#include "../../colors.h"
+#include "../value/Phi.hpp"
 
 namespace ls {
 
@@ -12,8 +14,11 @@ Foreach::Foreach(Environment& env) : Instruction(env) {
 }
 
 void Foreach::print(std::ostream& os, int indent, PrintOptions options) const {
-	os << "for ";
+	os << "for " << std::endl;
+	wrapper_block->print(os, indent, { options.debug, true, options.sections });
+	condition_section->print(os, indent, { options.debug, true, options.sections });
 
+	os << condition_section->color << "┃" << END_COLOR << tabs(indent + 1);
 	if (key != nullptr) {
 		os << key->content << " " << container->type->key();
 		os << " : ";
@@ -25,13 +30,9 @@ void Foreach::print(std::ostream& os, int indent, PrintOptions options) const {
 
 	os << " ";
 	body->print(os, indent, options);
-	if (body2_activated) {
-		os << " ";
-		body2->print(os, indent, options);
-	}
-	for (const auto& assignment : assignments) {
-		os << std::endl << tabs(indent) << assignment.first << " " << assignment.first->type << " = " << assignment.second << " " << assignment.second->type;
-	}
+
+	os << std::endl;
+	increment_section->print(os, indent, { options.debug, true, options.sections });
 }
 
 Location Foreach::location() const {
@@ -40,41 +41,78 @@ Location Foreach::location() const {
 
 void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 	auto& env = analyzer->env;
+
+	mutations.clear();
+	conversions.clear();
+	body->sections.back()->variables.clear();
+
 	analyzer->enter_block(wrapper_block.get());
-	container->pre_analyze(analyzer);
+
+	analyzer->enter_section(wrapper_block->sections.front());
+
 	if (key != nullptr) {
 		key_var = analyzer->add_var(key, env.void_, nullptr);
 	}
 	value_var = analyzer->add_var(value, env.void_, nullptr);
+
+	analyzer->leave_section();
+
+	analyzer->enter_loop((Instruction*) this);
+
+	analyzer->enter_section(condition_section);
+	container->pre_analyze(analyzer);
+	analyzer->leave_section();
+
 	body->is_loop_body = true;
 	body->pre_analyze(analyzer);
 
-	// for (const auto& variable : body->mutations) {
-	// 	if ((variable->root ? variable->root : variable)->block != body.get()) {
-	// 		mutations.push_back(variable);
-	// 	}
-	// }
-	// if (mutations.size()) {
-	// 	body2 = std::move(unique_static_cast<Block>(body->clone()));
-	// 	body2->is_loop_body = true;
-	// 	for (const auto& variable : body->variables) {
-	// 		if (variable.second->root and variable.second->root->block != body.get()) {
-	// 			body2->variables.insert({ variable.first, variable.second });
-	// 		}
-	// 	}
-	// 	body2->is_loop = true;
-	// 	body2->pre_analyze(analyzer);
-	// }
-	analyzer->leave_block();
+	analyzer->leave_loop();
 
-	// for (const auto& variable : body->variables) {
-	// 	// std::cout << "Foreach assignment " << variable.second << " " << (void*) variable.second->block->branch << " " << (void*) analyzer->current_block()->branch << std::endl;
-	// 	if (variable.second->parent) {
-	// 		auto new_var = analyzer->update_var(variable.second->parent);
-	// 		variable.second->assignment = true;
-	// 		assignments.push_back({ new_var, variable.second });
-	// 	}
-	// }
+	// std::cout << "Foreach mutations : " << mutations.size() << std::endl;
+	const auto& before = wrapper_block->sections.back();
+	for (const auto& mutation : mutations) {
+		auto current = before;
+		while (current) {
+			auto old_var = current->variables.find(mutation.variable->name);
+			if (old_var != current->variables.end()) {
+				analyzer->enter_section(current);
+				auto new_var = analyzer->update_var(old_var->second, false);
+				current->add_conversion(old_var->second, new_var, mutation.section);
+				conversions.push_back({ new_var, old_var->second, mutation.section });
+				analyzer->leave_section();
+
+				// std::cout << "Foreach add conversion " << new_var << " from " << old_var->second << " section " << current->color << current->id << END_COLOR << std::endl;
+				break;
+			}
+			current = current->predecessors.size() ? current->predecessors[0] : nullptr;
+		}
+	}
+
+	// std::cout << "conversions: " << conversions.size() << std::endl;
+
+	if (mutations.size()) {
+
+		analyzer->enter_loop((Instruction*) this);
+		mutations.clear(); // Va être re-rempli par la seconde analyse
+
+		condition_section->pre_analyze(analyzer);
+
+		body->pre_analyze(analyzer);
+
+		analyzer->leave_loop();
+
+		for (const auto& phi : condition_section->phis) {
+			// std::cout << "phi " << phi->variable << std::endl;
+			for (const auto& mutation : mutations) {
+				// std::cout << "mutation " << mutation.variable << " " << mutation.section->id << std::endl;
+				if (mutation.variable->name == phi->variable2->name) {
+					phi->variable2 = mutation.variable;
+					// std::cout << "set var for phi " << phi->variable2 << std::endl;
+				}
+			}
+		}
+	}
+	// analyzer->leave_block();
 }
 
 void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
@@ -84,14 +122,14 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	} else {
 		type = env.void_;
 		body->is_void = true;
-		if (body2) {
-			body2->is_void = true;
-		}
 	}
 	analyzer->enter_block(wrapper_block.get());
+	analyzer->enter_section(wrapper_block->sections.front());
 
 	container->analyze(analyzer);
 	throws = container->throws;
+
+	analyzer->leave_section();
 
 	if (not container->type->is_void() and not container->type->iterable() and not container->type->is_any()) {
 		analyzer->add_error({Error::Type::VALUE_NOT_ITERABLE, container->location(), container->location(), {container->to_string(), container->type->to_string()}});
@@ -105,45 +143,134 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	}
 	value_var->type = value_type;
 
-	analyzer->enter_loop();
+	analyzer->enter_section(condition_section);
+	condition_section->analyze(analyzer);
+	analyzer->leave_section();
+
+	analyzer->enter_loop((Instruction*) this);
 	body->analyze(analyzer);
 	throws |= body->throws;
 	if (req_type->is_array()) {
 		type = Type::tmp_array(body->type);
 	}
 
-	body2_activated = std::any_of(mutations.begin(), mutations.end(), [&](Variable* variable) {
-		// std::cout << "mutation " << variable->parent << " " << variable->parent->type << " => " << variable << " " << variable->type << std::endl;
-		return variable->parent->type != variable->type;
-	});
-	if (body2_activated) {
-		body2->analyze(analyzer);
-	} else if (body2) {
-		body2->enabled = false;
-	}
 	analyzer->leave_loop();
 	analyzer->leave_block();
 
-	for (const auto& assignment : assignments) {
-		assignment.first->type = assignment.second->type;
+	for (const auto& conversion : conversions) {
+		std::get<0>(conversion)->section->reanalyze_conversions(analyzer);
+	}
+
+	if (conversions.size()) {
+
+		analyzer->enter_block(wrapper_block.get());
+
+		analyzer->enter_section(condition_section);
+		condition_section->analyze(analyzer);
+		analyzer->leave_section();
+
+		analyzer->enter_loop((Instruction*) this);
+		body->is_void = true;
+		body->analyze(analyzer);
+		analyzer->leave_loop();
+
+		analyzer->leave_block();
 	}
 }
 
 #if COMPILER
 Compiler::value Foreach::compile(Compiler& c) const {
+
+	c.enter_block(wrapper_block.get());
+	c.enter_section(wrapper_block->sections.front());
+
 	auto container_v = container->compile(c);
 	value_var->create_entry(c);
 	if (key_var) key_var->create_entry(c);
-	auto result = c.insn_foreach(container_v, type->element(), value_var, key_var, [&](Compiler::value value, Compiler::value key) {
-		return body->compile(c);
-	}, false, body2_activated ? [&](Compiler::value value, Compiler::value key) {
-		return body2->compile(c);
-	} : (std::function<Compiler::value (Compiler::value, Compiler::value)>) nullptr);
-	for (const auto& assignment : assignments) {
-		// std::cout << "Store variable " << assignment.first << " = " << assignment.second << std::endl;
-		assignment.first->val = assignment.second->val;
+
+	auto output = type->element();
+
+	// Potential output [for ...]
+	Compiler::value output_v { c.env };
+	output_v.t = c.env.void_;
+	if (not output->is_void()) {
+		output_v = c.new_array(output, {});
+		c.insn_inc_refs(output_v);
+		c.add_temporary_value(output_v); // Why create variable? in case of `break 2` the output must be deleted
 	}
-	return result;
+
+	c.insn_inc_refs(container_v);
+	c.add_temporary_value(container_v);
+
+	// Create variables
+	auto value_v = value_var->val;
+	if (container_v.t->element()->is_polymorphic()) {
+		c.insn_store(value_v, c.new_null());
+		c.add_temporary_variable(value_var);
+	}
+
+	Compiler::value key_v { c.env };
+	if (key) {
+		key_v = key_var->val;
+		if (container_v.t->key()->is_polymorphic()) {
+			c.insn_store(key_v, c.new_null());
+			c.add_temporary_variable(key_var);
+		}
+	}
+
+	// enter_loop(&end_label, &it_label);
+
+	auto it = c.iterator_begin(container_v);
+
+	// For arrays, if begin iterator is 0, jump to end directly
+	if (container_v.t->is_array()) {
+		auto empty_array = c.insn_pointer_eq(it, c.new_null_pointer(it.t));
+		// c.insn_if_new(empty_array, &end_label, &cond_label);
+		c.leave_section_condition(empty_array);
+	} else {
+		// c.insn_branch(&cond_label);
+		c.leave_section();
+	}
+
+	// cond label:
+	c.enter_section(condition_section);
+
+	// Condition to continue
+	auto finished = c.iterator_end(container_v, it);
+	c.leave_section_condition(c.insn_not(finished));
+
+	// loop label:
+	body->sections.front()->pre_compile(c);
+	c.builder.SetInsertPoint(body->sections.front()->basic_block);
+
+	// Get Value
+	c.insn_store(value_v, c.iterator_get(container_v.t, it, c.insn_load(value_v)));
+	// Get Key
+	if (key) {
+		c.insn_store(key_v, c.iterator_key(container_v, it, c.insn_load(key_v)));
+	}
+	// Body
+	auto body_v = body->compile(c);
+	if (body_v.v) {
+		if (output_v.v) {
+			c.insn_push_array(output_v, body_v);
+		} else {
+			c.insn_delete_temporary(body_v);
+		}
+	}
+	c.leave_section();
+
+	// it++
+	c.enter_section(increment_section);
+	c.iterator_increment(container_v.t, it);
+	c.leave_section();
+
+	c.enter_section(end_section);
+
+	auto return_v = c.clone(output_v); // otherwise it is delete by the leave_block
+	c.leave_block(); // { for x in ['a' 'b'] { ... }<--- not this block }<--- this block
+
+	return return_v;
 }
 #endif
 

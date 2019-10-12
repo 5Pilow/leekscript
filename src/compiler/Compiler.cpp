@@ -386,9 +386,27 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 		if (v.t->element()->is_never()) {
 			if (delete_previous) insn_delete(v);
 			insn_delete_temporary(v);
-			if (t->element()->is_integer()) {
-				return insn_call(t, {}, "Map.new.2");
+			if (t->key()->is_integer()) {
+				if (t->element()->is_integer()) {
+					return insn_call(t, {}, "Map.new.8");
+				}
+			} else {
+				if (t->element()->is_integer()) {
+					return insn_call(t, {}, "Map.new.2");
+				}
 			}
+		}
+		assert(false);
+	}
+	if (v.t->is_null()) {
+		if (t->is_bool()) {
+			return new_bool(false);
+		} else if (t->is_integer()) {
+			return new_integer(0);
+		} else if (t->is_real()) {
+			return new_real(0);
+		} else if (t->is_long()) {
+			return new_long(0);
 		}
 	}
 	if (v.t->fold()->is_polymorphic()) {
@@ -407,6 +425,7 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 	} else if (t->is_long()) {
 		return to_long(v);
 	}
+	// std::cout << "no conversion" << std::endl;
 	return v;
 }
 
@@ -1829,7 +1848,7 @@ void Compiler::insn_branch(label* l) {
 	builder.CreateBr(l->block);
 }
 void Compiler::insn_branch(Section* s) {
-	builder.CreateBr(s->basic_block);
+	builder.CreateBr(s->first_basic_block);
 }
 
 void Compiler::insn_return(Compiler::value v) {
@@ -2046,14 +2065,15 @@ void Compiler::enter_block(Block* block) {
 }
 
 void Compiler::leave_block(bool delete_vars) {
-	// std::cout << "leave_block" << std::endl;
+	// std::cout << "leave_block " << delete_vars << blocks.back().back() << std::endl;
 	if (delete_vars) {
+		// std::cout << "delete block variables" << std::endl;
 		delete_variables_block(1);
 	}
 	// End of the block, enter the next section in the parent block
 	const auto& block = blocks.back().back();
 	if (block->sections.size() and block->sections.back()->successors.size() and block->sections.back()->successors[0]->predecessors.size() == 1) {
-		enter_section(block->sections.back()->successors[0]);
+		// enter_section(block->sections.back()->successors[0]);
 	}
 	blocks.back().pop_back();
 	if (!loops_blocks.empty()) {
@@ -2096,14 +2116,25 @@ void Compiler::leave_section_condition(Compiler::value condition) {
 void Compiler::delete_variables_block(int deepness) {
 	// std::cout << "blocks " << blocks.size() << std::endl;
 	for (int i = blocks.back().size() - 1; i >= (int) blocks.back().size() - deepness; --i) {
-		auto& variables = blocks.back()[i]->sections.back()->variables;
-		for (auto it = variables.begin(); it != variables.end(); ++it) {
-			// std::cout << "delete variable block " << it->second << " " << it->second->type << " " << it->second->val.v << " scope " << (int)it->second->scope << " " << it->second->assignment << std::endl;
-			if (it->second->phis.size() or it->second->assignment or not it->second->val.v or it->second->scope == VarScope::CAPTURE) continue;
-			if (it->second->type->is_mpz_ptr()) {
-				insn_delete_mpz(it->second->val);
-			} else if (it->second->type->must_manage_memory()) {
-				insn_delete(insn_load(it->second->val));
+		const auto& block = blocks.back()[i];
+		// std::cout << "delete_variables " << variables.size() << std::endl;
+		for (const auto& variable : block->variables) {
+			auto section = block->sections.back();
+			while (section) {
+				auto it = section->variables.find(variable.first);
+				if (it != section->variables.end()) {
+					const auto& var = it->second;
+					// std::cout << "delete variable block " << var << " " << var->type << " " << var->val.v << " scope " << (int) var->scope << " " << var->assignment << std::endl;
+					if (var->val.v and variable.second->scope != VarScope::CAPTURE) {
+						if (var->type->is_mpz_ptr()) {
+							insn_delete_mpz(var->val);
+						} else if (var->type->must_manage_memory()) {
+							insn_delete(insn_load(var->val));
+						}
+					}
+					break;
+				}
+				section = section->predecessors.size() ? section->predecessors[0] : nullptr;
 			}
 		}
 		for (const auto& value : blocks.back()[i]->temporary_values) {

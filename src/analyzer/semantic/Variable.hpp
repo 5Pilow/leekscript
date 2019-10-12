@@ -67,6 +67,7 @@ public:
 	void create_entry(Compiler& c);
 	void create_addr_entry(Compiler& c, Compiler::value);
 	void store_value(Compiler& c, Compiler::value);
+	void delete_value(Compiler& c);
 	#endif
 
 	static Variable* new_temporary(std::string name, const Type* type);

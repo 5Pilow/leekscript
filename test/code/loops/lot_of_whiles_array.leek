@@ -1,0 +1,21 @@
+var i = 2
+var c = []
+while (i--) {
+    var j = 3
+    while (j--) {
+        var k = 5
+        while k-- {
+            var l = 7
+            while l-- {
+                var m = 11
+                while m-- {
+                    var n = 13
+                    while n-- {
+                        c += 1
+                    }
+                }
+            }
+        }
+    }
+}
+c.size()

@@ -72,6 +72,14 @@ void Variable::store_value(Compiler& c, Compiler::value value) {
 		}
 	}
 }
+
+void Variable::delete_value(Compiler& c) {
+	if (type->is_mpz_ptr()) {
+		c.insn_delete_mpz(val);
+	} else if (type->must_manage_memory()) {
+		c.insn_delete(c.insn_load(val));
+	}
+}
 #endif
 
 Variable* Variable::new_temporary(std::string name, const Type* type) {

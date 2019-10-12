@@ -1,6 +1,5 @@
 var N = 2000000
-// TODO use only []
-var numbers = [0]
+var numbers = []
 numbers.fill(1, N + 1)
 numbers[1] = 0
 
@@ -12,7 +11,8 @@ for var i = 2; i < S; ++i {
 		}
 	}
 }
-
+numbers.size()
+/*
 var sum = 0l
 for i, p in numbers {
 	if p sum += i

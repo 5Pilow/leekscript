@@ -121,7 +121,7 @@ Compiler::value If::compile(Compiler& c) const {
 	c.leave_section_condition(cond_boolean);
 
 	then_v = c.insn_convert(then->compile(c), type->fold());
-	if (!then_v.v) then_v = c.insn_convert(c.new_null(), type->fold());
+	if (!then_v.v and not then->returning) then_v = c.insn_convert(c.new_null(), type->fold());
 	then->compile_end(c);
 
 	if (compile_elze) {

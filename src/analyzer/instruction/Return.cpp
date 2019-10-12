@@ -8,6 +8,9 @@ namespace ls {
 Return::Return(Environment& env, std::unique_ptr<Value> v) : Instruction(env), expression(std::move(v)) {
 	returning = true;
 	may_return = true;
+	jumping = true;
+	jump_to_existing_section = true;
+	// end_section = (Section*) (void*) 121212; // fake end_section to indicate the return is leaving somewhere
 }
 
 void Return::print(std::ostream& os, int indent, PrintOptions options) const {
@@ -53,7 +56,7 @@ Compiler::value Return::compile(Compiler& c) const {
 	} else {
 		c.fun->compile_return(c, { c.env }, true);
 	}
-	c.insert_new_generation_block();
+	// c.insert_new_generation_block();
 	return { c.env };
 }
 #endif

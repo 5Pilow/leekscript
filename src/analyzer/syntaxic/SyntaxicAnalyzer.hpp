@@ -40,6 +40,7 @@ class SyntaxicAnalyzer {
 	std::vector<std::pair<unsigned,size_t>> stack;
 	Token* finished_token;
 	File* file;
+	std::stack<Instruction*> loops;
 
 public:
 
@@ -57,7 +58,7 @@ public:
 	bool isObject();
 	Value* eatBlockOrObject(Block* block, Section* before = nullptr, Section* after = nullptr);
 	Block* eatBlock(Block* block, bool is_function_block = false, bool single_instruction = false, Section* before = nullptr, Section* after = nullptr);
-	Block* newBlock(Block* block, Value* value);
+	Block* newBlock(Block* block, Value* value, Section* after = nullptr);
 	Block* newEmptyBlock(Block* block, Section* after = nullptr);
 	Block* blockInit(Block* parent, Section* before, bool is_function_block);
 	void blockEnd(Block* block, Section* after);
@@ -69,8 +70,8 @@ public:
 	Match::Pattern eatMatchPattern(Block* block);
 	Instruction* eatFor(Block* block);
 	Instruction* eatWhile(Block* block);
-	Break* eatBreak();
-	Continue* eatContinue();
+	Break* eatBreak(Block* block);
+	Continue* eatContinue(Block* block);
 	ClassDeclaration* eatClassDeclaration(Block* block);
 	VariableDeclaration* eatVariableDeclaration(Block* block);
 	Function* eatFunction(Block* block, Token* token);

@@ -97,7 +97,7 @@ MapSTD::MapSTD(Environment& env) : Module(env, "Map") {
 	auto iV2 = env.template_("V2");
 	template_(iK1, iV1, iK2, iV2).
 	method("insert", {
-		{env.boolean, {Type::map(iK1, iV1), iK2, iV2}, ADDR(insert)}
+		{env.boolean, {Type::map(iK1, iV1), iK2, iV2}, ADDR(insert), 0, { new ConvertMutator() }}
     });
 
 	auto cK = env.template_("K");

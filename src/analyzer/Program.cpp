@@ -67,16 +67,15 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 
 	type = main->type->return_type();
 
-	if (sem.errors.size()) {
-		result.compilation_success = false;
-		result.errors = sem.errors;
-		return;
-	}
-
 	if (format or debug) {
 		std::cout << "main() ";
 		print(std::cout, debug, sections);
 		std::cout << std::endl;
+	}
+	if (sem.errors.size()) {
+		result.compilation_success = false;
+		result.errors = sem.errors;
+		return;
 	}
 	result.analyzed = true;
 }

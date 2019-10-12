@@ -24,6 +24,7 @@ public:
 	Block* block2;
 	Section* section2;
 	Variable* variable2;
+	bool active = true;
 	#if COMPILER
 	Compiler::value value1;
 	Compiler::value value2;

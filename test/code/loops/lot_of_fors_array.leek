@@ -1,0 +1,13 @@
+var c = []
+for var i = 0; i < 3; i++ {
+    for var j = 0; j < 5; j++ {
+        for var k = 0; k < 7; k++ {
+            for var l = 0; l < 11; l++ {
+                for var m = 0; m < 13; m++ {
+                    c += 1
+                }
+            }
+        }
+    }
+}
+c.size()

@@ -12,12 +12,14 @@
 
 namespace ls {
 
-Block::Block(Environment& env, bool is_function_block) : Value(env), is_function_block(is_function_block)
+Block::Block(Environment& env, bool is_function_block, bool init_first_section) : Value(env), is_function_block(is_function_block)
 #if COMPILER
 , return_value(env)
 #endif
 {
-	sections.push_back(new Section { env, "block" });
+	if (init_first_section) {
+		sections.push_back(new Section { env, "block" });
+	}
 	jumping = true;
 }
 
@@ -36,7 +38,9 @@ void Block::print(std::ostream& os, int indent, PrintOptions options) const {
 		os << tabs(indent) << "}";
 	}
 	if (options.debug) {
-		os << " " << type;
+		if (!options.condensed) {
+			os << " " << type;
+		}
 		if (may_return) os << " ==>" << return_type;
 		// for (const auto& assignment : assignments) {
 		// 	os << std::endl << tabs(indent) << assignment.first << " " << assignment.first->type << " = " << assignment.second << " " << assignment.second->type;
@@ -58,11 +62,21 @@ void Block::add_instruction(Instruction* instruction) {
 
 void Block::add_instruction(std::unique_ptr<Instruction> instruction) {
 	if (!instruction) return; // it's possible that the instruction is null (parse failed)
+	// std::cout << "add instruction ";
+	// instruction->print(std::cout, 0, {});
+	// std::cout << std::endl;
+	// std::cout << "jumping " << std::boolalpha << instruction->jumping << " end_section " << instruction->end_section << std::endl;
 	jumping |= instruction->jumping;
 	auto last = sections.back()->instructions.emplace_back(std::move(instruction)).get();
 	if (last->jumping) {
-		assert(last->end_section);
-		sections.push_back(last->end_section);
+		if (not last->jump_to_existing_section) {
+			// std::cout << "add end section" << std::endl;
+			assert(last->end_section);
+			sections.push_back(last->end_section);
+		}
+	}
+	if (last->returning) {
+		returning = true;
 	}
 }
 
@@ -87,6 +101,7 @@ void Block::setup_branch(SemanticAnalyzer* analyzer) {
 }
 
 void Block::pre_analyze(SemanticAnalyzer* analyzer) {
+	variables.clear();
 	setup_branch(analyzer);
 	analyzer->enter_block(this);
 	for (const auto& section : sections) {
@@ -145,7 +160,9 @@ void Block::analyze(SemanticAnalyzer* analyzer) {
 				break; // no need to analyze after a return
 			}
 		}
-		analyzer->leave_section();
+		if (s < sections.size() - 1 and analyzer->current_section() == section) {
+			analyzer->leave_section();
+		}
 	}
 
 	analyzer->leave_block();
@@ -181,20 +198,34 @@ Compiler::value Block::compile(Compiler& c) const {
 
 	c.enter_block((Block*) this);
 
+	bool has_returned = false;
+
 	for (unsigned s = 0; s < sections.size(); ++s) {
 		const auto& section = sections[s];
-		auto last_section = (s == sections.size() - 1) or (s == sections.size() - 2 and sections.back()->instructions.size() == 0);
+		auto last_section = s == sections.size() - 1;
+		auto pre_last_section = s == sections.size() - 2;
 		c.enter_section(section);
+
+		// std::cout << "compile section " << section->id << " last = " << std::boolalpha << last_section << std::endl;
+
 		for (unsigned i = 0; i < section->instructions.size(); ++i) {
+
+			// std::cout << "compile instruction ";
+			// section->instructions[i]->print(std::cout, 0, {});
+			// std::cout << std::endl;
+
+			auto last_instruction = (last_section and i == section->instructions.size() - 1) or (pre_last_section and sections.back()->instructions.size() == 0 and i == section->instructions.size() - 1);
+			// std::cout << "last = " << std::boolalpha << last_instruction << std::endl;
 
 			auto val = section->instructions[i]->compile(c);
 
 			if (section->instructions[i]->returning) {
 				// no need to compile after a return
 				section->instructions[i]->compile_end(c);
-				return { c.env };
+				has_returned = true;
+				break;
 			}
-			if (not last_section or i < section->instructions.size() - 1) { // not the last instruction
+			if (not last_instruction) { // not the last instruction
 				section->instructions[i]->compile_end(c);
 				if (val.v != nullptr && !section->instructions[i]->type->is_void()) {
 					c.insn_delete_temporary(val);
@@ -216,6 +247,7 @@ Compiler::value Block::compile(Compiler& c) const {
 						return val;
 					}
 				}();
+				has_returned = true;
 				section->instructions[i]->compile_end(c);
 				if (is_function_block and c.vm->context) {
 					c.fun->parent->export_context(c);
@@ -242,21 +274,25 @@ Compiler::value Block::compile(Compiler& c) const {
 				// 	// std::cout << "Store variable " << assignment.first << " = " << assignment.second << std::endl;
 				// 	assignment.first->val = assignment.second->val;
 				// }
-				return return_value;
+				break;
 			}
 		}
 		if (s < sections.size() - 1 and c.current_section() == section) {
 			c.leave_section();
 		}
+		// if (has_returned and ) {
+		// 	return return_value;
+		// }
 	}
-	return { c.env };
+	return return_value;
 }
 
 void Block::compile_end(Compiler& c) const {
+	c.delete_variables_block(1);
 	if (c.current_section() == sections.back()) {
 		c.leave_section();
 	}
-	c.leave_block();
+	c.leave_block(false);
 	if (is_function_block) {
 		c.fun->compile_return(c, return_value);
 	}
@@ -265,11 +301,12 @@ void Block::compile_end(Compiler& c) const {
 #endif
 
 std::unique_ptr<Value> Block::clone() const {
-	auto b = std::make_unique<Block>(type->env, is_function_block);
+	auto b = std::make_unique<Block>(type->env, is_function_block, false);
 	for (const auto& section : sections) {
-		for (const auto& i : section->instructions) {
-			b->add_instruction(i->clone());
-		}
+		b->sections.push_back(section->clone());
+		// for (const auto& i : section->instructions) {
+		// 	b->add_instruction(i->clone());
+		// }
 	}
 	return b;
 }

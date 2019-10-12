@@ -24,6 +24,7 @@ class Callable;
 class Call;
 class Block;
 class Section;
+class Instruction;
 
 class SemanticAnalyzer {
 public:
@@ -33,8 +34,8 @@ public:
 	std::vector<Function*> functions;
 	std::vector<std::vector<Block*>> blocks;
 	std::vector<std::vector<Section*>> sections;
+	std::vector<std::vector<Instruction*>> loops;
 	std::vector<FunctionVersion*> functions_stack;
-	std::stack<int> loops;
 	std::vector<Error> errors;
 	std::unordered_map<std::string, std::unique_ptr<Variable>> globals;
 
@@ -52,8 +53,9 @@ public:
 	FunctionVersion* current_function() const;
 	Block* current_block() const;
 	Section* current_section() const;
+	Instruction* current_loop() const;
 
-	void enter_loop();
+	void enter_loop(Instruction* loop);
 	void leave_loop();
 	bool in_loop(int deepness) const;
 
@@ -61,7 +63,7 @@ public:
 	Variable* add_global_var(Token*, const Type*, Value*);
 	Variable* get_var(const std::string& name);
 	Variable* convert_var_to_any(Variable* var);
-	Variable* update_var(Variable* variable);
+	Variable* update_var(Variable* variable, bool add_mutation = true);
 
 	void add_error(Error ex);
 
