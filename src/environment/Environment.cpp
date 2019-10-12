@@ -92,7 +92,7 @@ void Environment::analyze(Program& program, bool format, bool debug, bool sectio
 #if COMPILER
 
 void Environment::compile(Program& program, bool format, bool debug, bool ops, bool assembly, bool pseudo_code, bool optimized_ir, bool execute_ir, bool execute_bitcode) {
-	vm.enable_operations = operation_limit > 0;
+	vm.enable_operations = ops or operation_limit > 0;
 	program.compile(compiler, format, debug, assembly, pseudo_code, optimized_ir, execute_ir, execute_bitcode);
 }
 
