@@ -323,6 +323,7 @@ public:
 	// Utils
 	static void print_mpz(__mpz_struct value);
 	bool check_value(value) const;
+	bool check_value_not_void(value) const;
 	void increment_mpz_created();
 	void increment_mpz_deleted();
 };

@@ -1916,7 +1916,7 @@ Compiler::value Compiler::insn_invoke(const Type* return_type, std::vector<Compi
 	std::vector<llvm::Value*> llvm_args;
 	std::vector<llvm::Type*> llvm_types;
 	for (unsigned i = 0, e = args.size(); i != e; ++i) {
-		assert(check_value(args[i]));
+		assert(check_value_not_void(args[i]));
 		llvm_args.push_back(args[i].v);
 		llvm_types.push_back(args[i].t->llvm(*this));
 	}
@@ -1949,7 +1949,7 @@ Compiler::value Compiler::insn_call(Compiler::value fun, std::vector<Compiler::v
 		args.insert(args.begin(), fun);
 	}
 	for (unsigned i = 0, e = args.size(); i != e; ++i) {
-		assert(args[i].t->llvm(*this) == args[i].v->getType());
+		assert(check_value_not_void(args[i]));
 		llvm_args.push_back(args[i].v);
 	}
 	auto r = [&]() { if (dynamic_cast<const Function_object_type*>(fun.t)) {
@@ -1983,7 +1983,7 @@ Compiler::value Compiler::insn_call(Compiler::value fun, std::vector<Compiler::v
 Compiler::value Compiler::insn_call(const Type* return_type, std::vector<Compiler::value> args, std::string name, bool readonly) {
 	std::vector<llvm::Value*> llvm_args;
 	for (unsigned i = 0, e = args.size(); i != e; ++i) {
-		assert(check_value(args[i]));
+		assert(check_value_not_void(args[i]));
 		llvm_args.push_back(args[i].v);
 	}
 	llvm::Function* lambda;
@@ -2020,7 +2020,7 @@ Compiler::value Compiler::insn_invoke(const Type* return_type, std::vector<Compi
 	std::vector<llvm::Value*> llvm_args;
 	std::vector<llvm::Type*> llvm_types;
 	for (unsigned i = 0, e = args.size(); i != e; ++i) {
-		assert(args[i].t->llvm(*this) == args[i].v->getType());
+		assert(check_value_not_void(args[i]));
 		llvm_args.push_back(args[i].v);
 		llvm_types.push_back(args[i].t->llvm(*this));
 	}
@@ -2368,18 +2368,28 @@ void Compiler::print_mpz(__mpz_struct value) {
 
 bool Compiler::check_value(value v) const {
 	if (v.t == nullptr || v.t->is_void()) {
-		//return v.v == nullptr;
-		return true;
-	} else {
-		/*
-		auto r = v.t->llvm((Compiler&)*this) == v.v->getType();
-		if (!r) {
-			std::cout << BOLD << "Wrong value type" << END_COLOR <<  ": " << v.t << " " << C_GREY << "ls " << END_COLOR << v.t->llvm((Compiler&)*this) << C_GREY << " llvm " << END_COLOR << v.v->getType() << std::endl;
-		}
-		return r;
-		*/
-	return true;
+		// Type is null or void, the value must be null too
+		return v.v == nullptr;
 	}
+	if (!v.v) {
+		// The type is not null and not void, and the value is null, error
+		std::cout << BOLD << "Value is null" << END_COLOR << std::endl;
+		return false;
+	}
+	// Check if the value type matches the type
+	auto r = v.t->llvm((Compiler&)*this) == v.v->getType();
+	if (!r) {
+		std::cout << BOLD << "Wrong value type" << END_COLOR <<  ": " << v.t << " " << C_GREY << "ls " << END_COLOR << v.t->llvm((Compiler&)*this) << C_GREY << " llvm " << END_COLOR << v.v->getType() << std::endl;
+	}
+	return r;
+}
+
+bool Compiler::check_value_not_void(value v) const {
+	if (v.t->is_void() and !v.v) {
+		std::cout << BOLD << "Value should not be void" << END_COLOR << std::endl;
+		return false;
+	}
+	return check_value(v);
 }
 
 void Compiler::increment_mpz_created() {
