@@ -35,8 +35,6 @@ Location While::location() const {
 
 void While::pre_analyze(SemanticAnalyzer* analyzer) {
 
-	const auto& before = condition->sections.front()->predecessors[0];
-
 	mutations.clear();
 	conversions.clear();
 	condition->variables.clear();

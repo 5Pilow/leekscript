@@ -64,6 +64,7 @@ public:
 	Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, LSClass* lsclass, Call call = {});
 	#endif
 
+	Variable* get_root() const;
 	const Type* get_entry_type(Environment& env) const;
 
 	#if COMPILER

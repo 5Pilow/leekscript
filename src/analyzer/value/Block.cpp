@@ -18,7 +18,7 @@ Block::Block(Environment& env, bool is_function_block, bool init_first_section) 
 #endif
 {
 	if (init_first_section) {
-		sections.push_back(new Section { env, "block" });
+		sections.push_back(new Section { env, "block", this });
 		end_section = sections.back();
 		sections.back()->is_end_of_block = true;
 	}
@@ -76,8 +76,9 @@ void Block::add_instruction(std::unique_ptr<Instruction> instruction) {
 		// std::cout << "add end section " << last->end_section << std::endl;
 		if (last->end_section and not last->end_section->is_end_of_block) {
 			sections.push_back(last->end_section);
+			last->end_section->block = this;
 		} else {
-			auto end_section = new Section(last->type->env, "end_block");
+			auto end_section = new Section(last->type->env, "end_block", this);
 			last->set_end_section(end_section);
 			sections.push_back(end_section);
 		}

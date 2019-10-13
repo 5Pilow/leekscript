@@ -16,6 +16,10 @@ Variable::Variable(std::string name, VarScope scope, const Type* type, int index
 Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, LSClass* lsclass, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), section(section), type(type), clazz(clazz), lsclass(lsclass), call(call), entry(type->env), addr_val(type->env), val(type->env) {}
 #endif
 
+Variable* Variable::get_root() const {
+	return root ? root : (Variable*) this;
+}
+
 const Type* Variable::get_entry_type(Environment& env) const {
 	if (type->is_mpz_ptr()) {
 		return env.mpz;

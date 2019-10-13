@@ -28,7 +28,7 @@ void If::print(std::ostream& os, int indent, PrintOptions options) const {
 		condition->print(os, indent + 1, options);
 		os << ") ";
 		then->print(os, indent, options);
-		if (elze != nullptr and elze->instructions.size()) {
+		if (elze != nullptr and (options.sections or elze->instructions.size())) {
 			os << " else ";
 			elze->print(os, indent, options);
 		}

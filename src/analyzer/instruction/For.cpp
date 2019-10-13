@@ -59,7 +59,6 @@ void For::pre_analyze(SemanticAnalyzer* analyzer) {
 	for (const auto& section : init->sections) {
 		section->pre_analyze(analyzer);
 	}
-	// std::cout << "init section vars : " << init->sections[0]->variables.size() << std::endl;
 
 	analyzer->enter_loop((Instruction*) this);
 

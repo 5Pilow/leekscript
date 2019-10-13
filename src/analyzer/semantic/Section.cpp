@@ -12,7 +12,7 @@ namespace ls {
 const std::vector<std::string> Section::COLORS = { BLUE_BOLD, C_RED, C_YELLOW, GREEN_BOLD, C_PURPLE, C_CYAN, "\033[1;38;5;207m", "\033[1;38;5;208m", "\033[1;38;5;34m", C_PINK };
 size_t Section::current_id = 0;
 
-Section::Section(Environment& env, std::string name) : env(env), name(name), condition(env) {
+Section::Section(Environment& env, std::string name, Block* block) : env(env), name(name), block(block), condition(env) {
 	id = current_id++;
 	color = COLORS[id % COLORS.size()];
 }
@@ -28,8 +28,18 @@ void Section::add_predecessor(Section* predecessor) {
 	predecessors.push_back(predecessor);
 }
 
-void Section::add_conversion(Conversion conversion) {
-	conversions.push_back(conversion);
+Section* Section::common_ancestor(Section* section) const {
+	if (this == section) { return section; }
+	auto s1 = this;
+	while (s1) {
+		auto s2 = section;
+		while (s2) {
+			if (s1 == s2) { return s2; }
+			s2 = s2->predecessors.size() ? s2->predecessors[0] : nullptr;
+		}
+		s1 = s1->predecessors.size() ? s1->predecessors[0] : nullptr;
+	}
+	return nullptr;
 }
 
 std::string tabs(int indent) {
@@ -64,24 +74,7 @@ void Section::print(std::ostream& os, int indent, PrintOptions options) const {
 		}
 	}
 
-	auto print_conversions = [&]() {
-		if (not options.debug) return;
-		for (const auto& conversion : conversions) {
-			if (options.sections) {
-				os << color << "┃" << END_COLOR;
-			}
-			os << tabs(indent + 1);
-			os << conversion.old_parent << " " << conversion.old_parent->type << " = (" << conversion.new_parent->type << ") " << conversion.old_parent->parent << " [" << conversion.new_parent << " " << conversion.new_parent->type << " " << conversion.section->color << conversion.section->id << END_COLOR << "]";
-			os << std::endl;
-		}
-	};
-
-	bool first_jump = true;
 	for (auto& instruction : instructions) {
-		if (instruction->jumping and first_jump) {
-			first_jump = false;
-			print_conversions();
-		}
 		if (options.sections) {
 			os << color << "┃" << END_COLOR;
 		}
@@ -95,9 +88,6 @@ void Section::print(std::ostream& os, int indent, PrintOptions options) const {
 			os << std::endl;
 		}
 	}
-	if (first_jump) {
-		print_conversions();
-	}
 }
 
 void Section::pre_analyze(SemanticAnalyzer* analyzer) {
@@ -106,19 +96,14 @@ void Section::pre_analyze(SemanticAnalyzer* analyzer) {
 		if (not it->second->injected and not it->second->global) it = variables.erase(it);
 		else ++it;
     }
-	conversions.clear();
 	phis.clear();
 
-	// std::cout << "pre_analyze section " << id << " preds = " << predecessors.size() << std::endl;
+	// std::cout << "pre_analyze section " << this << " preds = " << predecessors.size() << std::endl;
 
 	analyzer->enter_section(this);
 	// Build phis
-	auto search_build_phis = [&](Section* section1, Variable* variable, Section* section2, Section* original_section1, Section* original_section2) {
-		if (section1 == section2) return true;
-		auto i = section2->variables.find(variable->name);
-		if (i == section2->variables.end()) return false;
-		auto variable2 = i->second;
-		// auto parent = variable == variable2->parent ? variable : variable->parent;
+	auto search_build_phis = [&](Section* section1, Variable* variable, Section* section2, Variable* variable2, Section* original_section1, Section* original_section2) {
+		// std::cout << variable << " " << variable->get_root() << " " << variable2 << " " << variable2->get_root() << std::endl;
 		auto new_var = analyzer->update_var(variable2);
 		auto phi = new Phi { analyzer->env, new_var, original_section1, variable, original_section2, variable2 };
 		variable->phis.push_back(phi);
@@ -131,18 +116,36 @@ void Section::pre_analyze(SemanticAnalyzer* analyzer) {
 		const auto& section1 = predecessors[0];
 		const auto& section2 = predecessors[1];
 		auto current_s1 = section1;
+		std::set<std::string> found_vars;
 		while (current_s1) {
+			// std::cout << "search phi section " << current_s1->color << current_s1->id << END_COLOR << std::endl;
 			for (const auto& variable : current_s1->variables) {
 				auto variable1 = variable.second;
+				if (found_vars.find(variable1->name) != found_vars.end()) continue;
 				bool found = false;
 				for (const auto& phi : phis) {
-					if ( phi->variable->name == variable1->name) { found = true; break; }
+					if (phi->variable->name == variable1->name) { found = true; break; }
 				}
 				if (found) continue;
+				// std::cout << "variable1 " << variable1 << std::endl;
+
 				auto current_s2 = section2;
-				while (current_s2 and not search_build_phis(current_s1, variable1, current_s2, section1, section2)) {
-					current_s2 = current_s2->predecessors.size() ? current_s2->predecessors[0] : nullptr;
-					if (current_s2 == this) break; // on a bouclé
+				while (current_s2) {
+					auto i = current_s2->variables.find(variable1->name);
+					if (i != current_s2->variables.end()) { // Trouvé
+						if (variable1->get_root() == i->second->get_root()) {
+							// std::cout << "var " << i->second << " found in " << current_s2 << std::endl;
+							found_vars.insert(variable1->name);
+							// Si même variable, pas besoin de phi
+							if (i->second != variable1) {
+								search_build_phis(current_s1, variable1, current_s2, i->second, section1, section2);
+							}
+						}
+						break;
+					} else { // Non trouvé
+						current_s2 = current_s2->predecessors.size() ? current_s2->predecessors[0] : nullptr;
+						if (current_s2 == this) break; // on a bouclé
+					}
 				}
 			}
 			current_s1 = current_s1->predecessors.size() ? current_s1->predecessors[0] : nullptr;
@@ -168,32 +171,6 @@ void Section::analyze(SemanticAnalyzer* analyzer) {
 
 void Section::analyze_end(SemanticAnalyzer* analyzer) {
 	// std::cout << "Section::analyze_end " << color << id << END_COLOR << std::endl;
-	for (auto& conversion : conversions) {
-
-		// auto parent = conversion.old_parent->section->variables.at(conversion.old_parent->name);
-		auto parent = conversion.old_parent->parent;
-
-		// std::cout << "Section analyze_end " << conversion.old_parent << " " << conversion.old_parent->type << " = (" << parent->type << ") " << parent << std::endl;
-		conversion.old_parent->type = parent->type;
-	}
-}
-
-void Section::reanalyze_conversions(SemanticAnalyzer* analyzer) {
-	// std::cout << "Section::analyze_end " << color << id << END_COLOR << std::endl;
-	for (auto& conversion : conversions) {
-
-		// std::cout << "get var " << conversion.child->name << " in section " << conversion.section->id << std::endl;
-
-		auto parent = conversion.section->variables.at(conversion.child->name);
-
-		// std::cout << "Section reanalyze_conversions " << conversion.old_parent << " " << conversion.old_parent->type << " = (" << parent->type << ") " << parent << std::endl;
-
-		if (conversion.child->parent->array) {
-			conversion.old_parent->type = Type::array(parent->type);
-		} else {
-			conversion.old_parent->type = conversion.old_parent->type->operator + ( parent->type );
-		}
-	}
 }
 
 #if COMPILER
@@ -212,24 +189,18 @@ Compiler::value Section::compile(Compiler& c) const {
 	// First pass of phi : create phi nodes
 	for (const auto& phi : phis) {
 		// std::cout << "phi " << phi->variable1 << " " << phi->value1.v << " " << phi->variable2 << " " << phi->value2.v << " " << phi->variable1->type << " " << phi->variable2->type << std::endl;
-		if (phi->variable1->type != phi->variable2->type) {
+		if (not phi->variable1->type->is_mpz() and not phi->variable1->type->is_mpz_ptr()) {
 			// std::cout << "compile phi " << phi->variable << " " << phi->variable->type << " " << phi->value1.t << " " << phi->value2.t << std::endl;
 
 			// std::cout << "phi " << phi->variable << " type " << phi->variable->type << std::endl;
-			auto phi_type = phi->variable->type->is_mpz_ptr() ? env.mpz : phi->variable->type;
+			auto phi_type = phi->variable->type;
 			phi->phi_node = c.insn_phi(phi_type, phi->value1, phi->section1, phi->value2, phi->section2);
-
-			// } else {
-				// phi->variable->val = phi->variable1->val;
-				// std::cout << "half phi: " << phi->variable << " " << phi->variable->type << " " << phi->variable->val.t << std::endl;
-				// phi->active = false;
-			// }
 		}
 	}
 
 	// Second pass of phis : store values in variables
 	for (const auto& phi : phis) {
-		if (phi->variable1->type == phi->variable2->type) {
+		if (not phi->phi_node.v) {
 			phi->variable->entry = phi->variable1->entry;
 			phi->active = false;
 		} else {
@@ -244,21 +215,6 @@ Compiler::value Section::compile(Compiler& c) const {
 
 void Section::compile_end(Compiler& c) const {
 	// std::cout << "Section<" << color << id << END_COLOR << ">::compile_end " << std::endl;
-
-	// Conversions
-	for (const auto& conversion : conversions) {
-		// std::cout << "Convert variable " << conversion.old_parent << " " << conversion.old_parent->type << " = " << conversion.old_parent->parent << " " << conversion.old_parent->parent->type << std::endl;
-		if (conversion.old_parent->type != conversion.new_parent->parent->type) {
-			auto val = c.insn_convert(conversion.old_parent->parent->get_value(c), conversion.new_parent->type);
-			conversion.old_parent->create_entry(c);
-			conversion.old_parent->store_value(c, c.insn_move_inc(val));
-			conversion.old_parent->parent->delete_value(c);
-		} else {
-			// std::cout << "no conversion needed: " << conversion.old_parent->type << " " << conversion.old_parent->val.t << " => " << conversion.new_parent->parent << " " << conversion.new_parent->parent->val.t << std::endl;
-			conversion.old_parent->entry = conversion.new_parent->parent->entry;
-		}
-		// std::cout << "converted value = " << val.t << std::endl;
-	}
 
 	// Export values for phis
 	auto manage_phis = [&](const Section* section) {
@@ -278,7 +234,7 @@ void Section::compile_end(Compiler& c) const {
 						phi->value1 = var1->get_value(c);
 					}
 					if (phi->phi_node.v) {
-						((llvm::PHINode*) phi->phi_node.v)->addIncoming(phi->value1.v, this->basic_block);
+						((llvm::PHINode*) phi->phi_node.v)->addIncoming(phi->value1.v, c.builder.GetInsertBlock());
 					}
 				}
 			}
@@ -297,7 +253,7 @@ void Section::compile_end(Compiler& c) const {
 					// 	std::cout << "phi: " << phi->phi_node.t << " v2: " << phi->value2.t << std::endl;
 					// 	assert(phi->phi_node.t == phi->value2.t);
 					// }
-					((llvm::PHINode*) phi->phi_node.v)->addIncoming(phi->value2.v, this->basic_block);
+					((llvm::PHINode*) phi->phi_node.v)->addIncoming(phi->value2.v, c.builder.GetInsertBlock());
 				}
 			}
 		}
@@ -328,5 +284,14 @@ void Section::compile_end(Compiler& c) const {
 }
 
 #endif
+
+}
+
+namespace ls {
+
+std::ostream& operator << (std::ostream& os, const Section* section) {
+	os << section->color << section->id << " " << section->name << END_COLOR;
+	return os;
+}
 
 }

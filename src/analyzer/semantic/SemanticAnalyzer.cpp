@@ -118,6 +118,8 @@ bool SemanticAnalyzer::in_loop(int deepness) const {
 
 Variable* SemanticAnalyzer::get_var(const std::string& v) {
 
+	// std::cout << "SemanticAnalyzer::get_var " << v << std::endl;
+
 	// Search in global variables
 	auto i = globals.find(v);
 	if (i != globals.end()) {
@@ -138,24 +140,39 @@ Variable* SemanticAnalyzer::get_var(const std::string& v) {
 		if (i != arguments.end()) {
 			return i->second;
 		}
-		// Search in the function captures
-		// const auto& captures = functions_stack[f]->captures_map;
-		// i = captures.find(v->content);
-		// if (i != captures.end()) {
-		// 	return i->second;
-		// }
-
 		// Search in the local variables of the function
-		if (sections[f].size()) {
-			auto section = sections[f].back();
-			while (section != nullptr) {
-				// std::cout << "search " << v << " in section " << section->color << section->id << END_COLOR << std::endl;
-				auto i = section->variables.find(v);
-				if (i != section->variables.end()) {
-					return i->second;
+		int b = blocks[f].size() - 1;
+		if (b >= 0) {
+			auto start_block = blocks[f][b];
+			// std::cout << "start block " << start_block->sections.front()->id << std::endl;
+			if (sections[f].size()) {
+				auto section = sections[f].back();
+				while (section != nullptr) {
+					// std::cout << "search " << v << " in section " << section->color << section->id << END_COLOR << std::endl;
+					auto i = section->variables.find(v);
+					if (i != section->variables.end()) {
+						auto root = i->second->root ? i->second->root : i->second;
+						// std::cout << "root " << root << " " << root->block->sections.front()->id << std::endl;
+						if (root->block == start_block) {
+							// The root variable's block is matching current block so it's the correct variable
+							// std::cout << "OK " << i->second << std::endl;
+							return i->second;
+						} else {
+							// Variable found in section, but the root variable is not matching, it's a shadowed variable
+							if (b == 0) {
+								section = section->predecessors.size() ? section->predecessors[0] : nullptr;
+							} else {
+								start_block = blocks[f][--b];
+								// std::cout << "start block " << start_block->	sections.front()->id << std::endl;
+							}
+						}
+					} else {
+						// std::cout << "not found in " << section->color << section->id << END_COLOR << std::endl;
+						section = section->predecessors.size() ? section->predecessors[0] : nullptr;
+					}
 				}
-				section = section->predecessors.size() ? section->predecessors[0] : nullptr;
 			}
+			// std::cout << "NOT FOUND " << std::endl;
 		}
 
 		// const auto& fvars = blocks[f];

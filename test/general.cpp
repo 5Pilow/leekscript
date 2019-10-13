@@ -97,7 +97,7 @@ void Test::test_general() {
 	code("let a = 12 { let a = 5 } a").equals("12");
 	code("let a = 12 var b = 0 { let a = 5 b = a } b").equals("5");
 	code("{let a = 5} a").error(ls::Error::Type::UNDEFINED_VARIABLE, {"a"});
-	DISABLED_code("{ var x = [] x.push(4) x } x").error(ls::Error::Type::UNDEFINED_VARIABLE, {"x"});
+	code("{ var x = [] x.push(4) x } x").error(ls::Error::Type::UNDEFINED_VARIABLE, {"x"});
 
 	section("Syntaxic errors");
 	code("{").error(ls::Error::Type::BLOCK_NOT_CLOSED, {});
@@ -212,6 +212,7 @@ void Test::test_general() {
 	code("var x = 5 if true if true x = 'a' x").equals("'a'");
 	code("var x = 5 if true if true if true if true if true x = 'a' x").equals("'a'");
 	code("let x = 2 let y = { if x == 0 { return 'error' } 7 * x } y").equals("14");
+	code("var y if false { if true {;} else { y = 2 } } else { y = 5 } y").equals("5");
 
 	section("Assignments with +=");
 	code("var a = 10 a += 0.5 a").equals("10.5");

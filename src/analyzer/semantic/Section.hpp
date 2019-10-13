@@ -22,9 +22,9 @@ public:
 	std::vector<Instruction*> instructions;
     std::vector<Section*> predecessors;
     std::vector<Section*> successors;
+	Block* block = nullptr;
 	std::unordered_map<std::string, Variable*> variables;
 	std::vector<Phi*> phis;
-	std::vector<Conversion> conversions;
 	bool is_end_of_block = false;
     #if COMPILER
 	llvm::BasicBlock* first_basic_block = nullptr;
@@ -34,20 +34,18 @@ public:
     bool left = false;
     #endif
 
-    Section(Environment& env, std::string name);
+    Section(Environment& env, std::string name, Block* block = nullptr);
     Section(Environment& env, std::string name, Section* predecessor);
 
     void add_successor(Section* successor);
     void add_predecessor(Section* predecessor);
-
-    void add_conversion(Conversion conversion);
+	Section* common_ancestor(Section* section) const;
 
     void print(std::ostream& os, int indent, PrintOptions options) const;
 
     void pre_analyze(SemanticAnalyzer* analyzer);
     void analyze(SemanticAnalyzer* analyzer);
     void analyze_end(SemanticAnalyzer* analyzer);
-    void reanalyze_conversions(SemanticAnalyzer* analyzer);
 
     #if COMPILER
     void pre_compile(Compiler& c);
@@ -56,6 +54,10 @@ public:
     #endif
 };
 
+}
+
+namespace ls {
+	std::ostream& operator << (std::ostream& os, const Section*);
 }
 
 #endif

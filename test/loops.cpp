@@ -97,8 +97,8 @@ void Test::test_loops() {
 	code("var s = 0 var j = [] while j.size() < 10 { j += 'a' s++ } s").equals("10");
 	code("var s = [] var i = 10 while (i--) { if i < 5 { s += i } else { s += ('a'.code() + i).char() } } s").equals("['j', 'i', 'h', 'g', 'f', 4, 3, 2, 1, 0]");
 	code("var s = <> var i = 10 while (i--) { if i < 5 { s += i } else { s += ('a'.code() + i).char() } } s").equals("<0, 1, 2, 3, 4, 'f', 'g', 'h', 'i', 'j'>");
-	DISABLED_code("var s = [:] var i = 10 while (i--) { if i < 5 { s[i] = 5.5 } else { s['a'] = i } } s").equals("[:]");
-	DISABLED_code("var s = [:] var i = 10 while (i--) { if i < 5 { s[i] = 12 } else { s[1 / i] = 7 } } s").equals("[:]");
+	code("var s = [:] var i = 10 while (i--) { if i < 5 { s[i] = 5.5 } else { s['a'] = i } } s").equals("[0: 5.5, 1: 5.5, 2: 5.5, 3: 5.5, 4: 5.5, 'a': 5]");
+	code("var s = [:] var i = 10 while (i--) { if i < 5 { s[i] = 12 } else { s[1 / i] = 7 } } s").equals("[0: 12, 0.111111: 7, 0.125: 7, 0.142857: 7, 0.166667: 7, 0.2: 7, 1: 12, 2: 12, 3: 12, 4: 12]");
 	code("var s = [:] var i = 10 while (i--) { if i < 5 { s[i] = 12 } else { s[12] = i } } s").equals("[0: 12, 1: 12, 2: 12, 3: 12, 4: 12, 12: 5]");
 
 	section("Double while loops");
@@ -107,7 +107,7 @@ void Test::test_loops() {
 	code("var s = [] var i = 0 var j = 0 while i < 4 { j = i i++ while j < 4 { j++ s += j }} s").equals("[1, 2, 3, 4, 2, 3, 4, 3, 4, 4]");
 	code("var s = [] var i = 0 while i < 2 { i++ var j = 0 while j < 2 { j++ var k = 0 while k < 2 { k++ s += k }}} s").equals("[1, 2, 1, 2, 1, 2, 1, 2]");
 	code("var s = [] var i = 0 while i < 2 { i++ s += 0.5 var j = 0 while j < 3 { j++ s += j }} s").equals("[0.5, 1, 2, 3, 0.5, 1, 2, 3]");
-	DISABLED_code("var s = [] var i = 0 while i < 2 { i++ s.push([]) var j = 0 while j < 3 { j++ s[|s| - 1] += 1 }} s").equals("[[1, 1, 1], [1, 1, 1]]");
+	code("var s = [] var i = 0 while i < 2 { i++ s.push([]) var j = 0 while j < 3 { j++ s[|s| - 1] += 1 }} s").equals("[[1, 1, 1], [1, 1, 1]]");
 	code("var s = [] var i = 0 while i < 2 { i++ s.push([]) var j = 0 while j < 3 { j++ s[|s| - 1] += ('a'.code() + 3 * (i - 1) + j - 1).char() }} s").equals("[['a', 'b', 'c'], ['d', 'e', 'f']]");
 	file("test/code/loops/lot_of_whiles_int.leek").equals("30030");
 	file("test/code/loops/lot_of_whiles_array.leek").equals("30030");
@@ -188,10 +188,10 @@ void Test::test_loops() {
 	code("var s = 0 for k : v in [1, 2, 3, 4] { s += k * v } s").equals("20");
 	code("var s = '' for k : v in ['a': 1, 'b': 2, 'c': 3, 'd': 4] { s += v * k } s").equals("'abbcccdddd'");
 	code("(a -> { var s = 0.0; for x in a { s += x } s })([1, 2, 3, 4.25])").equals("10.25");
-	DISABLED_code("var y = '' for k, x in { var x = [] x.push(4) x } { y += k + ':' + x + ' ' } y").equals("'0:4 '");
-	DISABLED_code("var y = '' for k, x in { var x = [1: 2] x.insert(3, 4) x } { y += k + ':' + x + ' ' } y").equals("'1:2 3:4 '");
-	DISABLED_code("var y = '' for k, x in { var x = [1: 2.5] x.insert(3, 4) x } { y += k + ':' + x + ' ' } y").equals("'1:2.5 3:4 '");
-	DISABLED_code("var y = '' for k, x in { var x = [1: '2'] x.insert(3, 4) x } { y += k + ':' + x + ' ' } y").equals("'1:2 3:4 '");
+	code("var y = '' for k, x in { var x = [] x.push(4) x } { y += k + ':' + x + ' ' } y").equals("'0:4 '");
+	code("var y = '' for k, x in { var x = [1: 2] x.insert(3, 4) x } { y += k + ':' + x + ' ' } y").equals("'1:2 3:4 '");
+	code("var y = '' for k, x in { var x = [1: 2.5] x.insert(3, 4) x } { y += k + ':' + x + ' ' } y").equals("'1:2.5 3:4 '");
+	code("var y = '' for k, x in { var x = [1: '2'] x.insert(3, 4) x } { y += k + ':' + x + ' ' } y").equals("'1:2 3:4 '");
 	code("var y = 'test' for x in 1 { y = x } y").equals("1");
 	code("var y = 'test' for x in 'salut' { y = x } y").equals("'t'");
 	code("var x = 'test' for x in [1] {} x").equals("'test'");
@@ -261,29 +261,27 @@ void Test::test_loops() {
 	 * Match
 	 */
 	header("Match");
-	/*
-	code("match 50 {}").equals("null");
-	code("match 50 { ..: 4 }").equals("4");
-	code("match 3 { 1 : 1 2 : 2 3 : 3 }").equals("3");
-	code("match 3 { 1 : 1 2 : 2 .. : 3 }").equals("3");
-	code("match 'a' { 'a' : 1 'b' : 2 .. : 3 }").equals("1");
-	code("match 4 { 1 : 1 2 : 2 3 : 3 }").equals("null");
-	code("match 'a' { 1 : 1 'a' : 'a' }").equals("'a'");
-	code("match 1 { 1 : 1 'a' : 'a' }").equals("1");
-	code("match 1 { 1|2 : 1 'a'|[]|{} : 'a' }").equals("1");
-	code("match 1 { (4 - 2)|2| |-1| : 1 'a'|[]|{} : 'a' }").equals("1");
-	code("match 1 + 5 { (4 + 1)|2|8 : 1 'a'|[]|{} : 'a' }").equals("null");
-	code("match 50 { 0..50: 1 50..100: 2 }").equals("2");
-	code("match 50 { ..50: 1 50..: 2 }").equals("2");
-	code("match 50 { ..10: 1 ..100: 2 }").equals("2");
-	code("match 50 { ..100: 1 ..100: 2 }").equals("1");
-	code("match 50 { 100..0: 4 }").equals("null");
-	code("let e = 'e' match e { ..'b': 1 ..'z': 2 }").equals("2");
-	code("match 'e' { 'z'..: 1 'b'..: 2 }").equals("2");
-	code("match [1] { ..[]: 1 ..[2, 2]: 2 }").equals("2");
-	code("match [1] { [2, 2]..: 1 []..: 2 }").equals("2");
-	code("let b = 'b' match 'e' { ..b: 1 1..6|0..9: 2 ..|..: 3}").equals("3");
-	code("let a = match 3 { 1 : 1 2 : 2 3 : 3 } a").equals("3");
-	code("match 2 { 1 : 1 2 : {} 3 : 3 }").equals("{}");
-	*/
+	DISABLED_code("match 50 {}").equals("null");
+	DISABLED_code("match 50 { ..: 4 }").equals("4");
+	DISABLED_code("match 3 { 1 : 1 2 : 2 3 : 3 }").equals("3");
+	DISABLED_code("match 3 { 1 : 1 2 : 2 .. : 3 }").equals("3");
+	DISABLED_code("match 'a' { 'a' : 1 'b' : 2 .. : 3 }").equals("1");
+	DISABLED_code("match 4 { 1 : 1 2 : 2 3 : 3 }").equals("null");
+	DISABLED_code("match 'a' { 1 : 1 'a' : 'a' }").equals("'a'");
+	DISABLED_code("match 1 { 1 : 1 'a' : 'a' }").equals("1");
+	DISABLED_code("match 1 { 1|2 : 1 'a'|[]|{} : 'a' }").equals("1");
+	DISABLED_code("match 1 { (4 - 2)|2| |-1| : 1 'a'|[]|{} : 'a' }").equals("1");
+	DISABLED_code("match 1 + 5 { (4 + 1)|2|8 : 1 'a'|[]|{} : 'a' }").equals("null");
+	DISABLED_code("match 50 { 0..50: 1 50..100: 2 }").equals("2");
+	DISABLED_code("match 50 { ..50: 1 50..: 2 }").equals("2");
+	DISABLED_code("match 50 { ..10: 1 ..100: 2 }").equals("2");
+	DISABLED_code("match 50 { ..100: 1 ..100: 2 }").equals("1");
+	DISABLED_code("match 50 { 100..0: 4 }").equals("null");
+	DISABLED_code("let e = 'e' match e { ..'b': 1 ..'z': 2 }").equals("2");
+	DISABLED_code("match 'e' { 'z'..: 1 'b'..: 2 }").equals("2");
+	DISABLED_code("match [1] { ..[]: 1 ..[2, 2]: 2 }").equals("2");
+	DISABLED_code("match [1] { [2, 2]..: 1 []..: 2 }").equals("2");
+	DISABLED_code("let b = 'b' match 'e' { ..b: 1 1..6|0..9: 2 ..|..: 3}").equals("3");
+	DISABLED_code("let a = match 3 { 1 : 1 2 : 2 3 : 3 } a").equals("3");
+	DISABLED_code("match 2 { 1 : 1 2 : {} 3 : 3 }").equals("{}");
 }
