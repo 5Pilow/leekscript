@@ -137,7 +137,7 @@ void Section::pre_analyze(SemanticAnalyzer* analyzer) {
 	for (const auto& instruction : instructions) {
 		instruction->pre_analyze(analyzer);
 	}
-	if (analyzer->current_section() == this) {
+	if (analyzer->sections.back().size() and analyzer->current_section() == this) {
 		analyzer->leave_section();
 	}
 }

@@ -131,6 +131,13 @@ void FunctionVersion::analyze(SemanticAnalyzer* analyzer, const std::vector<cons
 	// Prepare the placeholder return type for recursive functions
 	type = Type::fun(getReturnType(analyzer->env), args, parent)->pointer();
 
+	// Captures
+	for (auto& capture : captures_inside) {
+		capture->type = capture->parent->type;
+		std::cout << "analyze capture " << capture << " " << capture->type << std::endl;
+	}
+
+	// Arguments
 	std::vector<const Type*> arg_types;
 	for (unsigned i = 0; i < parent->arguments.size(); ++i) {
 		auto type = i < args.size() ? args.at(i) : (i < parent->defaultValues.size() && parent->defaultValues.at(i) != nullptr ? parent->defaultValues.at(i)->type : env.any);
@@ -201,6 +208,7 @@ Variable* FunctionVersion::capture(SemanticAnalyzer* analyzer, Variable* var) {
 		if (parent->captures[i]->name == var->name) {
 			// std::cout << "Capture already exists" << std::endl;
 			auto capture = analyzer->update_var(parent->captures[i]); // Copy : one var outside the function, one inside
+			capture->injected = true;
 			capture->scope = VarScope::CAPTURE;
 			captures_inside.push_back(capture);
 			return capture;
@@ -214,7 +222,10 @@ Variable* FunctionVersion::capture(SemanticAnalyzer* analyzer, Variable* var) {
 		auto parent_version = parent->parent->current_version ? parent->parent->current_version : parent->parent->default_version;
 		analyzer->enter_function(parent_version);
 		analyzer->enter_block(parent_version->body.get());
+		analyzer->enter_section(parent_version->body->sections.front());
 		auto converted_var = analyzer->update_var(var);
+		converted_var->injected = true;
+		analyzer->leave_section();
 		analyzer->leave_block();
 		analyzer->leave_function();
 
@@ -236,7 +247,9 @@ Variable* FunctionVersion::capture(SemanticAnalyzer* analyzer, Variable* var) {
 		auto parent_version = parent->parent->current_version ? parent->parent->current_version : parent->parent->default_version;
 		analyzer->enter_function(parent_version);
 		analyzer->enter_block(parent_version->body.get());
+		analyzer->enter_section(parent_version->body->sections.front());
 		auto capture_in_parent = parent_version->capture(analyzer, var);
+		analyzer->leave_section();
 		analyzer->leave_block();
 		analyzer->leave_function();
 		// std::cout << "capture in parent : " << capture_in_parent << std::endl;
@@ -343,9 +356,10 @@ Compiler::value FunctionVersion::compile(Compiler& c, bool compile_body) {
 
 		// Create captures variables
 		for (const auto& capture : captures_inside) {
-			capture->create_entry(c);
-			capture->store_value(c, c.insn_get_capture(capture->index, c.env.any));
-			capture->create_addr_entry(c, c.insn_get_capture_l(capture->index, c.env.any));
+			// capture->create_entry(c);
+			// capture->store_value(c, c.insn_get_capture(capture->index, c.env.any));
+			capture->entry = c.insn_get_capture_l(capture->index, c.env.any);
+			std::cout << "create capture " << capture << " " << (void*) capture << " from get_capture_l " << (void*) capture->entry.v << std::endl;
 		}
 
 		c.leave_section(false);
@@ -370,7 +384,7 @@ Compiler::value FunctionVersion::compile(Compiler& c, bool compile_body) {
 		if (!parent->is_main_function) {
 			for (const auto& capture : parent->captures) {
 				Compiler::value jit_cap { c.env };
-				// std::cout << "Compile capture " << capture << " " << (int) capture->scope << std::endl;
+				std::cout << "Compile capture " << capture << " " << (int) capture->scope << std::endl;
 				if (capture->parent->scope == VarScope::LOCAL) {
 					auto f = dynamic_cast<Function*>(capture->value);
 					if (f) {

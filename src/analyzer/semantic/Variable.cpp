@@ -53,7 +53,7 @@ void Variable::create_entry(Compiler& c) {
 	entry = c.create_entry(name, t);
 }
 void Variable::create_addr_entry(Compiler& c, Compiler::value value) {
-	// std::cout << "create_entry " << this << std::endl;
+	// std::cout << "create_addr_entry " << this << std::endl;
 	auto t = get_entry_type(c.env)->pointer();
 	addr_val = c.create_entry(name + "_addr", t);
 	c.insn_store(addr_val, value);

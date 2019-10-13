@@ -352,6 +352,7 @@ Compiler::value VariableValue::compile_l(Compiler& c) const {
 	// std::cout << "VV compile_l " << type << " " << var->type << " " << var << std::endl;
 	Compiler::value v { c.env };
 	if (var->parent and not var->entry.v) {
+		// std::cout << "set entry from parent " << std::endl;
 		var->entry = var->parent->entry;
 	}
 	// No internal values here
@@ -362,11 +363,13 @@ Compiler::value VariableValue::compile_l(Compiler& c) const {
 		// std::cout << "parent 3 " << var->parent->parent->parent->val.v << std::endl;
 		v = var->get_address(c);
 	} else if (scope == VarScope::CAPTURE) {
-		if (!var->addr_val.v) {
-			// std::cout << "No addr_val for variable " << var << "!" << std::endl;
-			assert(false);
-		}
-		v = c.insn_load(var->addr_val);
+		v = var->entry;
+		// std::cout << "capture " << var << " " << (void*) var << " entry " << (void*) v.v << std::endl;
+		// if (!var->addr_val.v) {
+		// 	// std::cout << "No addr_val for variable " << var << "!" << std::endl;
+		// 	assert(false);
+		// }
+		// v = c.insn_load(var->addr_val);
 	} else if (scope == VarScope::INTERNAL) {
 		v = c.get_symbol(name, type);
 	} else { /* if (scope == VarScope::PARAMETER) */

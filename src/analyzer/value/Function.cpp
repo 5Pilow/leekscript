@@ -148,6 +148,13 @@ void Function::analyze(SemanticAnalyzer* analyzer) {
 		analyzer->add_function(this);
 		function_added = true;
 	}
+
+	// Captures
+	for (auto& capture : captures) {
+		capture->type = capture->parent->type->is_polymorphic() ? capture->parent->type : analyzer->env.any;
+		std::cout << "Function analyze capture " << capture << " " << capture->type << std::endl;
+	}
+
 	create_default_version(analyzer);
 	if (is_main_function) {
 		default_version->analyze_global_functions(analyzer);
@@ -316,11 +323,13 @@ void Function::compile_captures(Compiler& c) const {
 	// std::cout << "Function::compile_captures" << std::endl;
 	for (const auto& capture : captures) {
 		if (capture->parent->entry.v) {
-			// std::cout << "Convert capture " << capture << " " << (void*) capture << " " << (int)capture->scope << " parent " << capture->parent << " " << capture->parent->val.v << " " << capture->parent->val.t << " " << (void*) capture->parent << std::endl;
+			std::cout << "Convert capture " << capture << " " << capture->type << " " << (void*) capture << " " << (int)capture->scope << " parent " << capture->parent << " " << capture->parent->val.v << " " << capture->parent->type << " " << (void*) capture->parent << std::endl;
 			if (capture->parent->type->is_polymorphic()) {
+				std::cout << "Capture " << capture << " take parent " << capture->parent << std::endl;
 				capture->entry = capture->parent->entry;
 				// c.insn_inc_refs(c.insn_load(capture->val));
 			} else {
+				std::cout << "Capture " << capture << " convert to any " << std::endl;
 				capture->entry = c.create_entry(capture->name, c.env.any);
 				auto value = c.insn_convert(c.insn_load(capture->parent->entry), c.env.any);
 				c.insn_inc_refs(value);

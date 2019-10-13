@@ -42,12 +42,13 @@ int ConvertMutator::compile(Compiler& c, CallableVersion* callable, std::vector<
 			}
 		}
 		if (vv->var->scope == VarScope::CAPTURE) {
-			vv->var->entry = vv->var->parent->entry;
+			// vv->var->entry = vv->var->parent->entry;
 			return 0;
 		}
 		// std::cout << "ConvertMutator " << vv->var << " " << vv->previous_type << " => " << vv->type << std::endl;
 		if (vv->previous_type == vv->type) {
 			// if (not vv->var->val.v) {
+				// std::cout << "set parent entry " << vv->var << std::endl;
 				vv->var->entry = vv->var->parent->entry;
 			// }
 		} else {

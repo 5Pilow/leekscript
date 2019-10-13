@@ -169,7 +169,7 @@ void Block::analyze(SemanticAnalyzer* analyzer) {
 				break; // no need to analyze after a return
 			}
 		}
-		if (s < sections.size() - 1 and analyzer->current_section() == section) {
+		if (s < sections.size() - 1 and analyzer->sections.back().size() and analyzer->current_section() == section) {
 			analyzer->leave_section();
 		}
 	}

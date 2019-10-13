@@ -84,8 +84,8 @@ void Test::test_general() {
 	code("var a = 2 ['a', a = 10]").equals("['a', 10]");
 
 	section("Global variables");
-	// code("global a = 2").equals("(void)");
-	// code("global a = 2, b = 'a'").equals("(void)");
+	DISABLED_code("global a = 2").equals("(void)");
+	DISABLED_code("global a = 2, b = 'a'").equals("(void)");
 
 	section("Variable already defined");
 	code("a").error(ls::Error::Type::UNDEFINED_VARIABLE, {"a"});
@@ -93,11 +93,11 @@ void Test::test_general() {
 	code("let Number = 2").error(ls::Error::Type::VARIABLE_ALREADY_DEFINED, {"Number"});
 
 	section("Sub-blocks");
-	// code("let a = 12 a").equals("12");
-	// code("let a = 12 { let a = 5 } a").equals("12");
-	// code("let a = 12 var b = 0 { let a = 5 b = a } b").equals("5");
-	// code("{let a = 5} a").error(ls::Error::Type::UNDEFINED_VARIABLE, {"a"});
-	// code("{ var x = [] x.push(4) x } x").error(ls::Error::Type::UNDEFINED_VARIABLE, {"x"});
+	code("let a = 12 a").equals("12");
+	code("let a = 12 { let a = 5 } a").equals("12");
+	code("let a = 12 var b = 0 { let a = 5 b = a } b").equals("5");
+	code("{let a = 5} a").error(ls::Error::Type::UNDEFINED_VARIABLE, {"a"});
+	DISABLED_code("{ var x = [] x.push(4) x } x").error(ls::Error::Type::UNDEFINED_VARIABLE, {"x"});
 
 	section("Syntaxic errors");
 	code("{").error(ls::Error::Type::BLOCK_NOT_CLOSED, {});

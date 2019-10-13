@@ -97,7 +97,7 @@ Block* SemanticAnalyzer::current_block() const {
 	return blocks.back().back();
 }
 Section* SemanticAnalyzer::current_section() const {
-	if (not sections.back().size()) return nullptr;
+	assert(sections.back().size());
 	return sections.back().back();
 }
 Instruction* SemanticAnalyzer::current_loop() const {

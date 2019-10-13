@@ -229,8 +229,8 @@ void Test::test_arrays() {
 	code("[1, 2, 3] ~~ x -> [x, x]").equals("[[1, 1], [2, 2], [3, 3]]");
 	// TODO not working anymore because print is compiler method, not direct function
 	DISABLED_code("[1, 2, 3] ~~ System.print").output("1\n2\n3\n");
-	DISABLED_code("var s = '0' let a = [1, 2, 3, 4] let f = x -> s += x a ~~ f s").equals("'01234'");
-	DISABLED_code("var s = 0 let a = [1, 2, 3, 4] let f = x -> s += x a ~~ f s").equals("10");
+	code("var s = '0' let a = [1, 2, 3, 4] let f = x -> s += x a ~~ f s").equals("'01234'");
+	code("var s = 0 let a = [1, 2, 3, 4] let f = x -> s += x a ~~ f s").equals("10");
 
 	section("Array.operator <");
 	code("[1] < [1, 2]").equals("true");
@@ -425,10 +425,10 @@ void Test::test_arrays() {
 	section("Array.iter()");
 	code("Array.iter([1, 2, 3], x -> System.print(x))").output("1\n2\n3\n");
 	code("[4, 5, 6].iter(x -> System.print(x))").output("4\n5\n6\n");
-	DISABLED_code("var a = 0 Array.iter([1, 2, 3], x -> a += x) a").equals("6");
-	DISABLED_code("var a = 2 [1, 2, 3].iter(x -> a *= x) a").equals("12");
-	DISABLED_code("var a = '' Array.iter([1, 2, 3], x -> a += x) a").equals("'123'");
-	DISABLED_code("var s = 0 [1, 2, 3, 4, 5].iter(x -> s += x) s").equals("15");
+	code("var a = 0 Array.iter([1, 2, 3], x -> a += x) a").equals("6");
+	code("var a = 2 [1, 2, 3].iter(x -> a *= x) a").equals("12");
+	code("var a = '' Array.iter([1, 2, 3], x -> a += x) a").equals("'123'");
+	code("var s = 0 [1, 2, 3, 4, 5].iter(x -> s += x) s").equals("15");
 
 	section("Array.partition()");
 	code("Array.partition([1, 2, 3, 4, 5], (x -> x < 3))").equals("[[1, 2], [3, 4, 5]]");

@@ -99,7 +99,7 @@ void Test::test_intervals() {
 	code("[1..100].filter(x -> x > 50 and x < 53)").equals("[51, 52]");
 	code("[1..Number.sqrt(1989)].filter(x -> 1989 % x == 0)").equals("[1, 3, 9, 13, 17, 39]");
 	code("[1..1989.sqrt()].filter(x -> !(1989 % x)).max()").equals("39");
-	// code("let divisors = n -> [1..n.sqrt()].filter(x -> !(n % x)) divisors(1989)").equals("[1, 3, 9, 13, 17, 39]");
+	code("let divisors = n -> [1..n.sqrt()].filter(x -> !(n % x)) divisors(1989)").equals("[1, 3, 9, 13, 17, 39]");
 	code("[0..10].filter(-> true)").equals("[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]");
 	code("[-5..5].filter(-> true)").equals("[-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]");
 	code("[1..10000].filter(x -> x.isPrime() && (x + 256).isPrime()).size()").equals("197");
