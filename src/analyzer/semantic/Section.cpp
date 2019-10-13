@@ -250,7 +250,7 @@ void Section::compile_end(Compiler& c) const {
 				if (var1->entry.v) {
 					// TODO : normalement pas besoin de faire une condition ici
 					if (var1->type != phi->variable->type) {
-						phi->value1 = c.insn_convert(c.insn_load(var1->entry), phi->variable->type);
+						phi->value1 = c.insn_convert(var1->get_value(c), phi->variable->type);
 					} else {
 						phi->value1 = c.insn_load(var1->entry);
 					}
@@ -264,7 +264,7 @@ void Section::compile_end(Compiler& c) const {
 				// std::cout << "Block export value2 " << var2 << " " << var2->type << " convert to " <<  phi->variable->type << std::endl;
 				// TODO : normalement pas besoin de faire une condition ici
 				if (var2->type != phi->variable->type) {
-					phi->value2 = c.insn_convert(c.insn_load(var2->entry), phi->variable->type);
+					phi->value2 = c.insn_convert(var2->get_value(c), phi->variable->type);
 				} else {
 					phi->value2 = c.insn_load(var2->entry);
 				}

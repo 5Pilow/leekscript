@@ -45,7 +45,6 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 
 	mutations.clear();
 	conversions.clear();
-	body->sections.back()->variables.clear();
 
 	analyzer->enter_block(wrapper_block.get());
 
@@ -55,17 +54,21 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 	container->pre_analyze(analyzer);
 	analyzer->leave_section();
 
-	analyzer->enter_block(body.get());
-	analyzer->enter_section(body->sections.front());
-	if (key != nullptr) {
-		key_var = analyzer->add_var(key, env.void_, nullptr);
-		key_var->injected = key_var->loop_variable = true;
+	if (not value_var) {
+		analyzer->enter_block(body.get());
+		analyzer->enter_section(body->sections.front());
+		if (key != nullptr) {
+			key_var = analyzer->add_var(key, env.void_, nullptr);
+			key_var->injected = key_var->loop_variable = true;
+			assert(key_var);
+		}
+		value_var = analyzer->add_var(value, env.void_, nullptr);
+		assert(value_var);
+		value_var->injected = value_var->loop_variable = true;
+		value_var->array = container.get();
+		analyzer->leave_section();
+		analyzer->leave_block();
 	}
-	value_var = analyzer->add_var(value, env.void_, nullptr);
-	value_var->injected = value_var->loop_variable = true;
-	value_var->array = container.get();
-	analyzer->leave_section();
-	analyzer->leave_block();
 
 	body->pre_analyze(analyzer);
 
@@ -325,8 +328,42 @@ std::unique_ptr<Instruction> Foreach::clone(Block* parent) const {
 	auto f = std::make_unique<Foreach>(type->env);
 	f->key = key;
 	f->value = value;
-	f->container = container->clone(parent);
-	f->body = unique_static_cast<Block>(body->clone(parent));
+	f->container = container->clone(f->wrapper_block.get());
+
+	auto wrapper_section = f->wrapper_block->sections[0];
+	wrapper_section->name = "wrapper";
+
+	auto current_section = parent->sections.back();
+
+	wrapper_section->predecessors.push_back(current_section);
+	current_section->successors.push_back(wrapper_section);
+
+	f->condition_section = new Section(type->env, "condition");
+	f->end_section = new Section(type->env, "end");
+
+	if (f->container->jumping) {
+		f->container->set_end_section(f->condition_section);
+	} else {
+		f->condition_section->predecessors.push_back(wrapper_section);
+		wrapper_section->successors.push_back(f->condition_section);
+	}
+
+	f->increment_section = new Section(type->env, "increment");
+	f->continue_section = f->increment_section;
+
+	f->body = unique_static_cast<Block>(body->clone(nullptr));
+
+	f->body->sections.front()->add_predecessor(f->condition_section);
+	f->condition_section->add_successor(f->body->sections.front());
+
+	f->body->set_end_section(f->increment_section);
+
+	f->condition_section->successors.push_back(f->end_section);
+	f->end_section->predecessors.push_back(f->condition_section);
+
+	f->increment_section->successors.push_back(f->condition_section);
+	f->condition_section->predecessors.push_back(f->increment_section);
+
 	return f;
 }
 

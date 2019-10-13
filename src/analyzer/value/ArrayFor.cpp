@@ -42,6 +42,7 @@ Compiler::value ArrayFor::compile(Compiler& c) const {
 std::unique_ptr<Value> ArrayFor::clone(Block* parent) const {
 	auto af = std::make_unique<ArrayFor>(type->env);
 	af->forr = forr->clone(parent);
+	af->end_section = af->forr->end_section;
 	return af;
 }
 

@@ -84,8 +84,8 @@ Block* SyntaxicAnalyzer::eatMain(File* file) {
 							if (vv->name == "include" and str) {
 								auto included_file = resolver->resolve(str->token->content, file->context);
 								auto included_block = SyntaxicAnalyzer(env, resolver).analyze(included_file);
-								for (auto& section : included_block->sections) {
-									block->sections.push_back(std::move(section));
+								for (auto& instruction : included_block->instructions) {
+									block->add_instruction(std::move(instruction).get());
 								}
 								continue;
 							}
@@ -1366,7 +1366,6 @@ Instruction* SyntaxicAnalyzer::eatWhile(Block* block) {
 	auto w = new While(env);
 	loops.push_back(w);
 
-
 	w->end_section = new Section(env, "end");
 
 	w->token = while_token;
@@ -1384,6 +1383,7 @@ Instruction* SyntaxicAnalyzer::eatWhile(Block* block) {
 	w->condition = std::make_unique<Block>(env);
 	w->condition->add_instruction(std::unique_ptr<Instruction>(condition_instruction));
 	w->continue_section = w->condition->sections.front();
+	w->condition->sections.front()->name = "condition";
 
 	current_section->add_successor(w->condition->sections.front());
 	w->condition->sections.front()->add_predecessor(current_section);

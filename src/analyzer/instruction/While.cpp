@@ -9,7 +9,6 @@
 namespace ls {
 
 While::While(Environment& env) : Instruction(env) {
-	// condition = nullptr;
 	body = nullptr;
 	jumping = true;
 }
@@ -39,7 +38,6 @@ void While::pre_analyze(SemanticAnalyzer* analyzer) {
 	conversions.clear();
 	condition->variables.clear();
 	condition->sections.front()->variables.clear();
-	body->sections.back()->variables.clear();
 
 	condition->pre_analyze(analyzer);
 
@@ -157,10 +155,22 @@ Compiler::value While::compile(Compiler& c) const {
 std::unique_ptr<Instruction> While::clone(Block* parent) const {
 	auto w = std::make_unique<While>(type->env);
 	w->token = token;
-	if (condition) {
-		w->condition = unique_static_cast<Block>(condition->clone(parent));
-	}
-	w->body = unique_static_cast<Block>(body->clone(parent));
+
+	auto current_section = parent->sections.back();
+
+	w->end_section = new Section(type->env, "end");
+
+	w->condition = unique_static_cast<Block>(condition->clone(parent));
+	w->condition->sections.front()->name = "condition";
+	w->continue_section = w->condition->sections.front();
+
+	w->body = unique_static_cast<Block>(body->clone(w->condition.get()));
+	w->body->sections.front()->name = "body";
+	w->body->set_end_section(w->condition->sections.front());
+
+	w->condition->sections.front()->add_successor(w->end_section);
+	w->end_section->add_predecessor(w->condition->sections.front());
+
 	return w;
 }
 

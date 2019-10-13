@@ -324,10 +324,56 @@ Compiler::value For::compile(Compiler& c) const {
 std::unique_ptr<Instruction> For::clone(Block* parent) const {
 	auto f = std::make_unique<For>(type->env);
 	f->token = token;
-	f->init = unique_static_cast<Block>(init->clone(parent));
-	if (condition) f->condition = unique_static_cast<Block>(condition->clone(parent));
-	f->increment = unique_static_cast<Block>(increment->clone(parent));
-	f->body = unique_static_cast<Block>(body->clone(parent));
+
+	auto current_section = parent->sections.back();
+
+	f->init = std::make_unique<Block>(type->env);
+
+	auto init_section = f->init->sections[0];
+	init_section->name = "init";
+
+	init_section->predecessors.push_back(current_section);
+	current_section->successors.push_back(init_section);
+	for (const auto& instruction : init->instructions) {
+		f->init->add_instruction(unique_static_cast<Instruction>(instruction->clone(f->init.get())));
+	}
+
+	f->end_section = new Section(type->env, "end_for");
+
+	if (condition) {
+		f->condition = unique_static_cast<Block>(condition->clone(f->init.get()));
+	}
+
+	// increment
+	auto increment_block = new Block(type->env);
+	increment_block->sections.front()->name = "increment";
+	f->continue_section = increment_block->sections.front();
+	for (const auto& instruction : increment->instructions) {
+		increment_block->add_instruction(instruction->clone(increment_block));
+	}
+	f->increment = std::unique_ptr<Block>(increment_block);
+
+	// body
+	auto condition_section = f->condition ? f->condition->sections.front() : init_section;
+
+	f->body = unique_static_cast<Block>(body->clone(f->condition.get()));
+	f->body->set_end_section(f->increment->sections.front());
+
+	if (f->condition) {
+		f->condition->sections.front()->successors.push_back(f->end_section);
+		f->end_section->predecessors.push_back(f->condition->sections.front());
+	}
+
+	if (not f->increment->returning) {
+		if (f->condition) {
+			f->increment->sections.back()->successors.push_back(f->condition->sections.front());
+			f->condition->sections.front()->predecessors.push_back(f->increment->sections.back());
+		} else {
+			f->increment->sections.back()->successors.push_back(f->body->sections.front());
+			f->body->sections.front()->predecessors.push_back(f->increment->sections.back());
+		}
+	}
+
 	return f;
 }
 

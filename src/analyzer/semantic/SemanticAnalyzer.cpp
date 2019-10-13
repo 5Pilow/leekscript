@@ -146,16 +146,17 @@ Variable* SemanticAnalyzer::get_var(const std::string& v) {
 		// }
 
 		// Search in the local variables of the function
-		auto section = sections[f].back();
-		while (section != nullptr) {
-			// std::cout << "search " << v << " in section " << section->color << section->id << END_COLOR << std::endl;
-			auto i = section->variables.find(v);
-			if (i != section->variables.end()) {
-				return i->second;
+		if (sections[f].size()) {
+			auto section = sections[f].back();
+			while (section != nullptr) {
+				// std::cout << "search " << v << " in section " << section->color << section->id << END_COLOR << std::endl;
+				auto i = section->variables.find(v);
+				if (i != section->variables.end()) {
+					return i->second;
+				}
+				section = section->predecessors.size() ? section->predecessors[0] : nullptr;
 			}
-			section = section->predecessors.size() ? section->predecessors[0] : nullptr;
 		}
-
 
 		// const auto& fvars = blocks[f];
 		// int b = fvars.size() - 1;

@@ -125,7 +125,7 @@ void Test::test_loops() {
 	code("var a = 0 for var i = 0; i < 10; i++ { if i < 5 { continue } a++ } a").equals("5");
 	code("var a = 0 for var i = 0; i < 10; i++ { if i > 5 { break } a++ } a").equals("6");
 	code("var c = 0 for var t = []; t.size() < 10; t.push('x') { c++ } c").equals("10");
-	DISABLED_code("var s = 0 for var m = [1: 3, 2: 2, 3: 1]; m; var l = 0 for k, x in m { l = k } m.erase(l) { for x in m { s += x } } s").equals("14");
+	code("var s = 0 for var m = [1: 3, 2: 2, 3: 1]; m; var l = 0 for k, x in m { l = k } m.erase(l) { for x in m { s += x } } s").equals("14");
 	code("for var i = 0; ['', i < 10][1]; i++ {}").equals("(void)");
 	code("var i = ['', 1][1] for ; i < 10; i <<= 1 {}").equals("(void)");
 	code("for (var i = 0, j = 0; i < 5; i++, j++) { System.print(i + ', ' + j) }").output("0, 0\n1, 1\n2, 2\n3, 3\n4, 4\n");
@@ -187,7 +187,7 @@ void Test::test_loops() {
 	code("var a = 0 let x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] for i in x { if i < 5 { continue } a++ } a").equals("5");
 	code("var s = 0 for k : v in [1, 2, 3, 4] { s += k * v } s").equals("20");
 	code("var s = '' for k : v in ['a': 1, 'b': 2, 'c': 3, 'd': 4] { s += v * k } s").equals("'abbcccdddd'");
-	DISABLED_code("(a -> { var s = 0.0; for x in a { s += x } s })([1, 2, 3, 4.25])").equals("10.25");
+	code("(a -> { var s = 0.0; for x in a { s += x } s })([1, 2, 3, 4.25])").equals("10.25");
 	code("var y = '' for k, x in { var x = [] x.push(4) x } { y += k + ':' + x + ' ' } y").equals("'0:4 '");
 	code("var y = '' for k, x in { var x = [1: 2] x.insert(3, 4) x } { y += k + ':' + x + ' ' } y").equals("'1:2 3:4 '");
 	code("var y = '' for k, x in { var x = [1: 2.5] x.insert(3, 4) x } { y += k + ':' + x + ' ' } y").equals("'1:2.5 3:4 '");
@@ -199,6 +199,13 @@ void Test::test_loops() {
 	DISABLED_code("var fs = [] fs.push(s -> {var sum = 0 for v in s {sum += v} sum}) fs[0](<1, 2>)").equals("3"); // TODO issue #243
 	DISABLED_code("var fs = [] fs.push(s -> {[for v in s {v}]}) fs[0](<2,1>)").equals("[1, 2]"); // TODO issue #243
 	code("var s = 0l for i in [0..1000] { s += i ** 2 } s").equals("333833500");
+
+	section("Foreach - double");
+	code("var r = [] for x in [1, 2, 3] { for y in [4, 5, 6] { r += x * y }} r").equals("[4, 5, 6, 8, 10, 12, 12, 15, 18]");
+	code("var r = [] for x in ['a', 'b', 'c'] { for y in [4, 5, 6] { r += x * y }} r").equals("['aaaa', 'aaaaa', 'aaaaaa', 'bbbb', 'bbbbb', 'bbbbbb', 'cccc', 'ccccc', 'cccccc']");
+
+	section("Foreach - mix");
+	code("var n = 3 while (n--) { var r = [] for x in [1, 2, 3] { r += x } print(r) }").output("[1, 2, 3]\n[1, 2, 3]\n[1, 2, 3]\n");
 
 	section("Foreach - return");
 	code("for x in [1] { return 12 }").equals("12");
@@ -225,9 +232,11 @@ void Test::test_loops() {
 	code("[for x in [1, 2, 3] {[ for y in [1, 2, 3] { if y == 2 continue x * y }] }]").equals("[[1, 3], [2, 6], [3, 9]]");
 	code("let sorted = [for x in <5, 2, 4, 1, 3> { x }] sorted").equals("[1, 2, 3, 4, 5]");
 	code("[for i in [1..10] { i }]").equals("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]");
-	DISABLED_code("function attrs(o) { [for k : v in o {v}] } attrs(['a'])").equals("['a']");
-	DISABLED_code("function attrs(o) { [for k : v in o {v}] } attrs([1])").equals("[1]");
-	DISABLED_code("function attrs(o) { [for k : v in o {v}] } attrs([])").equals("[]");
+	code("function attrs(o) { [for k : v in o {v}] } attrs(['a'])").equals("['a']");
+	code("function attrs(o) { [for k : v in o {v}] } attrs([1])").equals("[1]");
+	code("function attrs(o) { [for k : v in o {v}] } attrs([])").equals("[]");
+	code("function f() { [for x in [1, 2, 3] { x }] } f()").equals("[1, 2, 3]");
+	code("function f() { for x in [1, 2, 3] { print(x) } } f()").output("1\n2\n3\n");
 
 	/*
 	 * Break & continue
@@ -238,7 +247,7 @@ void Test::test_loops() {
 	code("while (true) { break 2 }").error(ls::Error::Type::BREAK_MUST_BE_IN_LOOP, {});
 	code("while (true) { continue 2 }").error(ls::Error::Type::CONTINUE_MUST_BE_IN_LOOP, {});
 	code("var r = 0 for x in [1, 2] { for y in [3, 4] { r = 10 * x + y if x + y >= 5 break 2 }} r").equals("14");
-	DISABLED_code("var r = 0 for x in [1, 2] { for y in [3, 4] { r = 10 * x + y continue 2 } r = 0 } r").equals("23");
+	code("var r = 0 for x in [1, 2] { for y in [3, 4] { r = 10 * x + y continue 2 } r = 0 } r").equals("23");
 	code("for x in ['a'] { let a = 'a' { let b = 'b' break let c = 'c' } let d = 'd' } 0").equals("0");
 	code("for x in ['a'] { let a = 'a' for y in ['a'] { let b = 'b' break let c = 'c' } let d = 'd' } 0").equals("0");
 	code("for x in ['a'] { let a = 'a' for y in ['a'] { let b = 'b' break 2 let c = 'c' } let d = 'd' } 0").equals("0");

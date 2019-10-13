@@ -395,10 +395,16 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 					return insn_call(t, {}, "Map.new.8");
 				} else if (t->element()->is_real()) {
 					return insn_call(t, {}, "Map.new.7");
+				} else {
+					return insn_call(t, {}, "Map.new.6");
 				}
 			} else {
 				if (t->element()->is_integer()) {
 					return insn_call(t, {}, "Map.new.2");
+				} else if (t->element()->is_real()) {
+					return insn_call(t, {}, "Map.new.1");
+				} else {
+					return insn_call(t, {}, "Map.new.0");
 				}
 			}
 		}

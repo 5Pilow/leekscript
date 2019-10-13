@@ -1,0 +1,15 @@
+var start = 12
+var mp = 10
+
+var cells = [start]
+var grow = [start]
+
+var res = []
+while (mp--) {
+	var n = [5, 12]
+	for c in n {
+		if true
+			res += c
+	}
+}
+res
