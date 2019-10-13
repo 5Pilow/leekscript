@@ -97,10 +97,8 @@ const Type* Type::operator + (const Type* type) const {
 		if (sum == type->element()) return type;
 	}
 	if (is_map() and type->is_map()) {
-		const auto& key_sum = key()->operator + (type->key());
-		const auto& element_sum = element()->operator + (type->element());
-		if (key_sum == key() and element_sum == element()) return this;
-		if (key_sum == type->key() and element_sum == type->element()) return type;
+		bool tmp = temporary or type->temporary;
+		return (tmp ? Type::tmp_map : Type::map)(key()->operator + (type->key()), element()->operator + (type->element()));
 	}
 	return Type::compound({this, type});
 }

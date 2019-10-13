@@ -632,9 +632,9 @@ Compiler::value ArraySTD::partition(Compiler& c, std::vector<Compiler::value> ar
 Compiler::value ArraySTD::map(Compiler& c, std::vector<Compiler::value> args, int flags) {
 	auto array = args[0];
 	auto function = args[1];
-	auto result = flags & NO_RETURN ? Compiler::value { c.env } : c.new_array(function.t->return_type(), {});
+	auto return_type = function.t->return_type()->is_void() ? c.env.null : function.t->return_type();
+	auto result = flags & NO_RETURN ? Compiler::value { c.env } : c.new_array(return_type, {});
 	auto v = Variable::new_temporary("v", array.t->element());
-	// v->create_entry(c);
 	c.insn_foreach(array, c.env.void_, v, nullptr, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
 		auto x = c.clone(v);
 		c.insn_inc_refs(x);
@@ -776,7 +776,8 @@ Compiler::value ArraySTD::push(Compiler& c, std::vector<Compiler::value> args, i
 		if (args[0].t->element()->fold()->is_integer()) return "Array.vpush.1";
 		if (args[0].t->element()->fold()->is_long()) return "Array.vpush.2";
 		if (args[0].t->element()->fold()->is_real()) return "Array.vpush.3";
-		args[1] = c.insn_convert(args[1], c.env.any);
+		auto convert_type = args[1].t->is_function() or args[1].t->is_function_pointer() ? c.env.any : args[0].t->element();
+		args[1] = c.insn_convert(args[1], convert_type);
 		return "Array.vpush.4";
 	}();
 	c.insn_call(c.env.void_, args, fun);

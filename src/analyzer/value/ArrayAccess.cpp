@@ -194,29 +194,29 @@ Compiler::value ArrayAccess::compile(Compiler& c) const {
 
 			auto k = key->compile(c);
 			key->compile_end(c);
-			k = c.insn_convert(k, map_key_type);
+			k = c.insn_convert(k, map_key_type->fold());
 
 			std::string func;
-			if (map_key_type->is_integer()) {
-				if (type->is_integer()) {
+			if (map_key_type->fold()->is_integer()) {
+				if (type->fold()->is_integer()) {
 					func = "Map.at.0";
-				} else if (type->is_real()) {
+				} else if (type->fold()->is_real()) {
 					func = "Map.at.1";
 				} else {
 					func = "Map.at.2";
 				}
-			} else if (map_key_type->is_real()) {
-				if (type->is_integer()) {
+			} else if (map_key_type->fold()->is_real()) {
+				if (type->fold()->is_integer()) {
 					func = "Map.at.3";
-				} else if (type->is_real()) {
+				} else if (type->fold()->is_real()) {
 					func = "Map.at.4";
 				} else {
 					func = "Map.at.5";
 				}
 			} else {
-				if (type->is_integer()) {
+				if (type->fold()->is_integer()) {
 					func = "Map.at.6";
-				} else if (type->is_real()) {
+				} else if (type->fold()->is_real()) {
 					func = "Map.at.7";
 				} else {
 					func = "Map.at.8";
@@ -286,6 +286,7 @@ Compiler::value ArrayAccess::compile_l(Compiler& c) const {
 		// Compile the key
 		auto k = key->compile(c);
 		key->compile_end(c);
+		k = c.insn_convert(k, array->type->key()->fold());
 		// Access
 		c.mark_offset(location().start.line);
 		if (array->type->is_array()) {
@@ -298,17 +299,19 @@ Compiler::value ArrayAccess::compile_l(Compiler& c) const {
 			return c.insn_array_at(compiled_array, k);
 
 		} else if (array->type->is_map()) {
-			auto f = [&]() { if (array->type->key() == env.integer) {
-				if (array->type->element() == env.integer) return "Map.atL.8";
-				if (array->type->element() == env.real) return "Map.atL.7";
+			auto key_type = array->type->key()->fold();
+			auto element_type = array->type->element()->fold();
+			auto f = [&]() { if (key_type == env.integer) {
+				if (element_type == env.integer) return "Map.atL.8";
+				if (element_type == env.real) return "Map.atL.7";
 				return "Map.atL.6";
-			} else if (array->type->key() == env.real) {
-				if (array->type->element() == env.integer) return "Map.atL.5";
-				if (array->type->element() == env.real) return "Map.atL.4";
+			} else if (key_type == env.real) {
+				if (element_type == env.integer) return "Map.atL.5";
+				if (element_type == env.real) return "Map.atL.4";
 				return "Map.atL.3";
 			} else {
-				if (array->type->element() == env.integer) return "Map.atL.2";
-				if (array->type->element() == env.real) return "Map.atL.1";
+				if (element_type == env.integer) return "Map.atL.2";
+				if (element_type == env.real) return "Map.atL.1";
 				return "Map.atL";
 			}}();
 			return c.insn_call(array->type->element()->pointer(), {compiled_array, k}, f);

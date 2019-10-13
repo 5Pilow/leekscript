@@ -74,15 +74,18 @@ Compiler::value Map::compile(Compiler &c) const {
 
 	std::string create;
 	std::string insert;
-	if (type->key()->is_integer()) {
-		create = type->element()->is_integer() ? "Map.new.8" : type->element()->is_real() ? "Map.new.7" : "Map.new.6";
-		insert = type->element()->is_integer() ? "Map.insert_fun.8" : type->element()->is_real() ? "Map.insert_fun.7" : "Map.insert_fun.6";
-	} else if (type->key()->is_real()) {
-		create = type->element()->is_integer() ? "Map.new.5" : type->element()->is_real() ? "Map.new.4" : "Map.new.3";
-		insert = type->element()->is_integer() ? "Map.insert_fun.5" : type->element()->is_real() ? "Map.insert_fun.4" : "Map.insert_fun.3";
+	auto key_type = type->key()->fold();
+	auto element_type = type->element()->fold();
+	// std::cout << "key = " << key_type << " element_type = " << element_type << std::endl;
+	if (key_type->is_integer()) {
+		create = element_type->is_integer() ? "Map.new.8" : element_type->is_real() ? "Map.new.7" : "Map.new.6";
+		insert = element_type->is_integer() ? "Map.insert_fun.8" : element_type->is_real() ? "Map.insert_fun.7" : "Map.insert_fun.6";
+	} else if (key_type->is_real()) {
+		create = element_type->is_integer() ? "Map.new.5" : element_type->is_real() ? "Map.new.4" : "Map.new.3";
+		insert = element_type->is_integer() ? "Map.insert_fun.5" : element_type->is_real() ? "Map.insert_fun.4" : "Map.insert_fun.3";
 	} else {
-		create = type->element()->is_integer() ? "Map.new.2" : type->element()->is_real() ? "Map.new.1" : "Map.new";
-		insert = type->element()->is_integer() ? "Map.insert_fun.2" : type->element()->is_real() ? "Map.insert_fun.1" : "Map.insert_fun";
+		create = element_type->is_integer() ? "Map.new.2" : element_type->is_real() ? "Map.new.1" : "Map.new";
+		insert = element_type->is_integer() ? "Map.insert_fun.2" : element_type->is_real() ? "Map.insert_fun.1" : "Map.insert_fun";
 	}
 
 	unsigned ops = 0;
