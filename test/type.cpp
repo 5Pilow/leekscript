@@ -148,8 +148,8 @@ void Test::test_types() {
 	test("int + never", env.integer->operator + (env.never), env.integer);
 	test("array<never> + array<int>", ls::Type::array(env.never)->operator + (ls::Type::array(env.integer)), ls::Type::array(env.integer));
 	test("array<int> + array<never>", ls::Type::array(env.integer)->operator + (ls::Type::array(env.never)), ls::Type::array(env.integer));
-	test("array<int>&& + array<real>", ls::Type::tmp_array(env.integer)->operator + (ls::Type::array(env.real)), ls::Type::tmp_compound({ ls::Type::array(env.integer), ls::Type::array(env.real) }));
-	test("array<int>&& + array<real>&&", ls::Type::tmp_array(env.integer)->operator + (ls::Type::tmp_array(env.real)), ls::Type::tmp_compound({ ls::Type::array(env.integer), ls::Type::array(env.real) }));
+	test("array<int>&& + array<real>", ls::Type::tmp_array(env.integer)->operator + (ls::Type::array(env.real)), ls::Type::tmp_array(ls::Type::compound({ env.integer, env.real })));
+	test("array<int>&& + array<real>&&", ls::Type::tmp_array(env.integer)->operator + (ls::Type::tmp_array(env.real)), ls::Type::tmp_array(ls::Type::compound({ env.integer, env.real })));
 	test("array<array<int>> + array<array<never>>", ls::Type::array(ls::Type::array(env.integer))->operator + (ls::Type::array(ls::Type::array(env.never))), ls::Type::array(ls::Type::array(env.integer)));
 	test("map<int, int> + map<never, never>", ls::Type::map(env.integer, env.integer)->operator + (ls::Type::map(env.never, env.never)), ls::Type::map(env.integer, env.integer));
 

@@ -80,9 +80,15 @@ const Type* Type::operator + (const Type* type) const {
 	if (type->is_void() or type->is_never()) return this;
 
 	if (is_array() and type->is_array()) {
-		const auto& sum = element()->operator + (type->element());
-		if (sum == element()) return this;
-		if (sum == type->element()) return type;
+		bool tmp = temporary or type->temporary;
+		if (tmp) {
+			return Type::tmp_array(element()->operator + (type->element()));
+		} else {
+			return Type::array(element()->operator + (type->element()));
+		}
+		// const auto& sum = element()->operator + (type->element());
+		// if (sum == element()) return this;
+		// if (sum == type->element()) return type;
 	}
 	if (is_set() and type->is_set()) {
 		const auto& sum = element()->operator + (type->element());
