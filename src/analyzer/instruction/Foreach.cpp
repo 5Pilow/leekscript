@@ -15,16 +15,27 @@ Foreach::Foreach(Environment& env) : Instruction(env) {
 }
 
 void Foreach::print(std::ostream& os, int indent, PrintOptions options) const {
-	os << "for " << std::endl;
+	os << "for ";
+	if (options.sections) {
+		os << std::endl;
+	}
 	wrapper_block->print(os, indent, { options.debug, true, options.sections });
 	condition_section->print(os, indent, { options.debug, true, options.sections });
 
-	os << condition_section->color << "┃" << END_COLOR << tabs(indent + 1);
+	if (options.sections) {
+		os << condition_section->color << "┃" << END_COLOR << tabs(indent + 1);
+	}
 	if (key != nullptr) {
-		os << key->content << " " << container->type->key();
+		os << key->content;
+		if (options.debug) {
+			os << " " << container->type->key();
+		}
 		os << " : ";
 	}
-	os << value->content << " " << container->type->element();
+	os << value_var;
+	if (options.debug) {
+		os << " " << container->type->element();
+	}
 
 	os << " in ";
 	container->print(os, indent + 1, options);
@@ -32,8 +43,10 @@ void Foreach::print(std::ostream& os, int indent, PrintOptions options) const {
 	os << " ";
 	body->print(os, indent, options);
 
-	os << std::endl;
-	increment_section->print(os, indent, { options.debug, true, options.sections });
+	if (options.sections) {
+		os << std::endl;
+		increment_section->print(os, indent, { options.debug, true, options.sections });
+	}
 }
 
 Location Foreach::location() const {

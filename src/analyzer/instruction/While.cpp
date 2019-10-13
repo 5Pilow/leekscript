@@ -14,14 +14,17 @@ While::While(Environment& env) : Instruction(env) {
 }
 
 void While::print(std::ostream& os, int indent, PrintOptions options) const {
-
-	// for (const auto& conversion : conversions) {
-	// 	os << std::get<0>(conversion) << " " << std::get<0>(conversion)->type << " = (" << std::get<1>(conversion)->type << ") " << std::get<0>(conversion)->parent << std::endl;
-	// }
-	os << "while (" << std::endl;
+	os << "while ";
 	if (condition) {
-		condition->print(os, indent, { options.debug, true, options.condensed });
-		os << condition->sections.front()->color << "┃ " << END_COLOR << tabs(indent) << ") ";
+		os << "(";
+		if (options.sections) {
+			os << std::endl;
+		}
+		condition->print(os, indent, { options.debug, true, options.sections });
+		if (options.sections) {
+			os << condition->sections.front()->color << "┃ " << END_COLOR << tabs(indent);
+		}
+		os << ") ";
 	}
 	body->print(os, indent, options);
 }

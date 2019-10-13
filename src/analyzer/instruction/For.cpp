@@ -16,7 +16,10 @@ void For::print(std::ostream& os, int indent, PrintOptions options) const {
 	// for (const auto& conversion : conversions) {
 	// 	os << conversion.first << " " << conversion.first->type << " = (" << conversion.second->type << ") " << conversion.first->parent << " [" << conversion.second << " " << conversion.second->type << "] ";
 	// }
-	os << "for " << std::endl;
+	os << "for ";
+	if (options.sections) {
+		os << std::endl;
+	}
 	init->print(os, indent, { options.debug, true, options.sections });
 	os << " ;" << std::endl;
 	if (condition) {

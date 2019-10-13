@@ -5,6 +5,7 @@
 #include "../value/Phi.hpp"
 #include "../value/Block.hpp"
 #include "../semantic/Mutation.hpp"
+#include "../instruction/Foreach.hpp"
 
 namespace ls {
 
@@ -36,34 +37,40 @@ std::string tabs(int indent) {
 }
 
 void Section::print(std::ostream& os, int indent, PrintOptions options) const {
-	os << color << "┃ " << id << " " << name << END_COLOR << C_GREY " pred: <";
-	int i = 0;
-	for (const auto& predecessor : predecessors) {
-		if (i++ > 0) os << C_GREY << ", " << END_COLOR;
-		os << predecessor->color << predecessor->id << " " << predecessor->name << END_COLOR;
-	}
-	os << C_GREY << "> vars: [" << END_COLOR;
-	i = 0;
-	for (const auto& variable : variables) {
-		if (i++ > 0) os << C_GREY << ", " << END_COLOR;
-		if (!variable.second) os << "nullptr!!";
-		else os << variable.second;
-	}
-	os << C_GREY << "]" << END_COLOR << C_GREY " succ: <";
-	i = 0;
-	for (const auto& successor : successors) {
-		if (i++ > 0) os << C_GREY << ", " << END_COLOR;
-		os << successor->color << successor->id << " " << successor->name << END_COLOR;
-	}
-	os << C_GREY << ">" << END_COLOR << std::endl;
+	if (options.sections) {
+		os << color << "┃ " << id << " " << name << END_COLOR << C_GREY " pred: <";
+		int i = 0;
+		for (const auto& predecessor : predecessors) {
+			if (i++ > 0) os << C_GREY << ", " << END_COLOR;
+			os << predecessor->color << predecessor->id << " " << predecessor->name << END_COLOR;
+		}
+		os << C_GREY << "> vars: [" << END_COLOR;
+		i = 0;
+		for (const auto& variable : variables) {
+			if (i++ > 0) os << C_GREY << ", " << END_COLOR;
+			if (!variable.second) os << "nullptr!!";
+			else os << variable.second;
+		}
+		os << C_GREY << "]" << END_COLOR << C_GREY " succ: <";
+		i = 0;
+		for (const auto& successor : successors) {
+			if (i++ > 0) os << C_GREY << ", " << END_COLOR;
+			os << successor->color << successor->id << " " << successor->name << END_COLOR;
+		}
+		os << C_GREY << ">" << END_COLOR << std::endl;
 
-	for (const auto& phi : phis) {
-		os << color << "┃" << END_COLOR << tabs(indent + 1) << phi->variable << " = φ(" << phi->variable1 << " " << phi->variable1->type << " " << phi->section1->color << phi->section1->id << END_COLOR << ", " << phi->variable2 << " " << phi->variable2->type << " " << phi->section2->color << phi->section2->id << END_COLOR << ") " << phi->variable->type << std::endl;
+		for (const auto& phi : phis) {
+			os << color << "┃" << END_COLOR << tabs(indent + 1) << phi->variable << " = φ(" << phi->variable1 << " " << phi->variable1->type << " " << phi->section1->color << phi->section1->id << END_COLOR << ", " << phi->variable2 << " " << phi->variable2->type << " " << phi->section2->color << phi->section2->id << END_COLOR << ") " << phi->variable->type << std::endl;
+		}
 	}
 
 	auto print_conversions = [&]() {
+		if (not options.debug) return;
 		for (const auto& conversion : conversions) {
-			os << color << "┃" << END_COLOR << tabs(indent + 1);
+			if (options.sections) {
+				os << color << "┃" << END_COLOR;
+			}
+			os << tabs(indent + 1);
 			os << conversion.old_parent << " " << conversion.old_parent->type << " = (" << conversion.new_parent->type << ") " << conversion.old_parent->parent << " [" << conversion.new_parent << " " << conversion.new_parent->type << " " << conversion.section->color << conversion.section->id << END_COLOR << "]";
 			os << std::endl;
 		}
@@ -75,10 +82,18 @@ void Section::print(std::ostream& os, int indent, PrintOptions options) const {
 			first_jump = false;
 			print_conversions();
 		}
-		os << color << "┃" << END_COLOR;
-		os << tabs(indent + 1);
+		if (options.sections) {
+			os << color << "┃" << END_COLOR;
+		}
+		if (!options.condensed) {
+			os << tabs(indent + 1);
+		}
 		instruction->print(os, indent + 1, options);
-		if (!options.condensed or !conversions.size()) os << std::endl;
+
+		bool already_endl = options.sections and dynamic_cast<Foreach*>(instruction);
+		if (!options.condensed and not already_endl) {
+			os << std::endl;
+		}
 	}
 	if (first_jump) {
 		print_conversions();

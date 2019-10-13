@@ -31,10 +31,11 @@ void Block::print(std::ostream& os, int indent, PrintOptions options) const {
 		os << std::endl;
 	}
 	for (auto& section : sections) {
-		section->print(os, indent, options);
+		bool condensed = options.condensed and not options.sections;
+		section->print(os, indent, { options.debug, condensed, options.sections });
 	}
 	if (!options.condensed) {
-		if (!is_function_block) {
+		if (!is_function_block and options.sections) {
 			os << sections.back()->color << "┃" << END_COLOR;
 		}
 		os << tabs(indent) << "}";
