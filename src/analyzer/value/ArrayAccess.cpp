@@ -177,6 +177,7 @@ Compiler::value ArrayAccess::compile(Compiler& c) const {
 
 	((ArrayAccess*) this)->compiled_array = array->compile(c);
 	c.add_temporary_value(compiled_array);
+	((ArrayAccess*) this)->should_delete_array = true;
 	array->compile_end(c);
 
 	c.inc_ops(2); // Array access : 2 operations
@@ -277,10 +278,12 @@ Compiler::value ArrayAccess::compile_l(Compiler& c) const {
 		if (array->isLeftValue()) {
 			return c.insn_load(static_cast<LeftValue*>(array.get())->compile_l(c));
 		} else {
-			return array->compile(c);
+			auto a = array->compile(c);
+			c.add_temporary_value(a);
+			((ArrayAccess*) this)->should_delete_array = true;
+			return a;
 		}
 	}();
-	c.add_temporary_value(compiled_array);
 
 	if (key2 == nullptr) {
 		// Compile the key
@@ -330,7 +333,9 @@ Compiler::value ArrayAccess::compile_l(Compiler& c) const {
 }
 
 void ArrayAccess::compile_end(Compiler& c) const {
-	c.pop_temporary_value();
+	if (should_delete_array) {
+		c.pop_temporary_value();
+	}
 }
 #endif
 

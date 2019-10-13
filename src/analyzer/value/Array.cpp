@@ -69,7 +69,7 @@ void Array::analyze(SemanticAnalyzer* analyzer) {
 			if (!homogeneous and ex->type->is_array()) {
 				// If the array stores other arrays of different types,
 				// force those arrays to store pointers. (To avoid having unknown array<int> inside arrays.
-				ex->will_store(analyzer, env.any);
+				// ex->will_store(analyzer, env.any);
 			}
 			if (ex->type->is_function()) {
 				std::vector<const Type*> types;

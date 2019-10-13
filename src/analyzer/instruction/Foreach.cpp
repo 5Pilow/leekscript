@@ -63,9 +63,8 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 
 	analyzer->enter_loop((Instruction*) this);
 
-	analyzer->enter_section(condition_section);
+	analyzer->enter_section(wrapper_block->sections.front());
 	container->pre_analyze(analyzer);
-	analyzer->leave_section();
 
 	if (not value_var) {
 		analyzer->enter_block(body.get());
@@ -93,10 +92,10 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 
 		mutations.clear(); // Va être re-rempli par la seconde analyse
 
-		analyzer->enter_section(condition_section);
-
+		wrapper_block->sections.front()->variables.clear();
+		analyzer->enter_section(wrapper_block->sections.front());
 		container->pre_analyze(analyzer);
-		analyzer->leave_section();
+
 		condition_section->pre_analyze(analyzer);
 
 		analyzer->enter_loop((Instruction*) this);
@@ -176,7 +175,10 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 		analyzer->enter_block(wrapper_block.get());
 
 		// Re-analyze container
+		analyzer->enter_section(wrapper_block->sections.front());
 		container->analyze(analyzer);
+		analyzer->leave_section();
+
 		key_type = container->type->key();
 		value_type = container->type->element();
 		if (key != nullptr) {

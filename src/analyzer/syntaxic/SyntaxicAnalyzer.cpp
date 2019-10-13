@@ -1234,6 +1234,7 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 			eat(TokenType::SEMICOLON);
 			auto instruction = new ExpressionInstruction(env, std::move(condition));
 			f->condition = std::make_unique<Block>(env);
+			f->condition->sections.front()->name = "condition";
 			f->condition->add_instruction(std::unique_ptr<Instruction>(instruction));
 
 			f->condition->sections.front()->predecessors.push_back(init_section);
@@ -1273,6 +1274,7 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 			blockEnd(body, f->increment->sections.front());
 			f->body = std::unique_ptr<Block>(body);
 		}
+		f->body->sections.front()->name = "body";
 
 		if (f->condition) {
 			f->condition->sections.front()->successors.push_back(f->end_section);

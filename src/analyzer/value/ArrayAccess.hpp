@@ -18,6 +18,7 @@ public:
 	Token* open_bracket;
 	Token* close_bracket;
 	const Type* map_key_type;
+	bool should_delete_array = false;
 	#if COMPILER
 	Compiler::value compiled_array;
 	#endif
