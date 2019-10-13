@@ -200,6 +200,28 @@ Variable* SemanticAnalyzer::add_var(Token* v, const Type* type, Value* value) {
 	return var;
 }
 
+Variable* SemanticAnalyzer::add_var(Token* v, Variable* var) {
+	if (globals.find(v->content) != globals.end()) {
+		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
+		return nullptr;
+	}
+	const auto& block = blocks.back().back();
+	if (block->variables.find(v->content) != block->variables.end()) {
+		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
+		return nullptr;
+	}
+	var->function = current_function();
+	var->block = current_block();
+	var->section = current_section();
+
+	block->variables.insert({ v->content, var });
+	assert(current_section());
+	current_section()->variables[v->content] = var;
+	// std::cout << "var " << v->content << " added in " << block->sections.back()->id << std::endl;
+
+	return var;
+}
+
 Variable* SemanticAnalyzer::add_global_var(Token* v, const Type* type, Value* value) {
 	// std::cout << "blocks " << blocks.size() << std::endl;
 	for (const auto& section : blocks.begin()->front()->sections) {
