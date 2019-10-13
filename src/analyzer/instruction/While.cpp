@@ -48,25 +48,6 @@ void While::pre_analyze(SemanticAnalyzer* analyzer) {
 	body->pre_analyze(analyzer);
 	analyzer->leave_loop();
 
-	// std::cout << "While mutations : " << mutations.size() << std::endl;
-	for (const auto& mutation : mutations) {
-		auto current = before;
-		// std::cout << "mutation : " << mutation.variable << std::endl;
-		while (current) {
-			auto old_var = current->variables.find(mutation.variable->name);
-			if (old_var != current->variables.end()) {
-				analyzer->enter_section(current);
-				auto new_var = analyzer->update_var(old_var->second, false);
-				current->add_conversion({ old_var->second, new_var, mutation.variable, mutation.section });
-				conversions.push_back({ new_var, old_var->second, mutation.section });
-				analyzer->leave_section();
-				// std::cout << "While add conversion " << new_var << " from " << old_var->second << " section " << current->color << current->id << END_COLOR << std::endl;
-				break;
-			}
-			current = current->predecessors.size() ? current->predecessors[0] : nullptr;
-		}
-	}
-
 	if (mutations.size()) {
 
 		condition->pre_analyze(analyzer);
@@ -105,15 +86,10 @@ void While::analyze(SemanticAnalyzer* analyzer, const Type*) {
 	body->analyze(analyzer);
 	analyzer->leave_loop();
 
-	for (const auto& conversion : conversions) {
-		std::get<0>(conversion)->section->reanalyze_conversions(analyzer);
-	}
-
-	if (conversions.size()) {
+	if (mutations.size()) {
 		condition->sections.front()->analyze(analyzer);
 		condition->sections.front()->instructions.front()->analyze(analyzer);
 		condition->sections.front()->analyze_end(analyzer);
-
 		throws = condition->sections.front()->instructions[0]->throws;
 
 		analyzer->enter_loop((Instruction*) this);

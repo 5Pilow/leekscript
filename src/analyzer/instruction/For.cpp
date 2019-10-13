@@ -74,40 +74,15 @@ void For::pre_analyze(SemanticAnalyzer* analyzer) {
 	}
 	analyzer->leave_loop();
 
-	// for (const auto& mutation : mutations) {
-	// 	std::cout << "mutation " << mutation.variable << " " << mutation.section->id << std::endl;
-	// }
-
-	// std::cout << "For mutations : " << mutations.size() << std::endl;
-	const auto& before = init->sections.back();
-	for (const auto& mutation : mutations) {
-		auto current = before;
-		while (current) {
-			auto old_var = current->variables.find(mutation.variable->name);
-			if (old_var != current->variables.end()) {
-				analyzer->enter_section(current);
-				auto new_var = analyzer->update_var(old_var->second, false);
-				current->add_conversion({ old_var->second, new_var, mutation.variable, mutation.section });
-				conversions.push_back({ new_var, old_var->second, mutation.section });
-				analyzer->leave_section();
-
-				// std::cout << "For add conversion " << new_var << " from " << old_var->second << " section " << current->color << current->id << END_COLOR << std::endl;
-				break;
-			}
-			current = current->predecessors.size() ? current->predecessors[0] : nullptr;
-		}
-	}
-
-	// std::cout << "conversions: " << conversions.size() << std::endl;
-
 	if (mutations.size()) {
 
-		analyzer->enter_loop((Instruction*) this);
 		mutations.clear(); // Va être re-rempli par la seconde analyse
 
 		if (condition) {
 			condition->pre_analyze(analyzer);
 		}
+
+		analyzer->enter_loop((Instruction*) this);
 
 		body->pre_analyze(analyzer);
 
@@ -209,11 +184,7 @@ void For::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 
 	analyzer->leave_block();
 
-	for (const auto& conversion : conversions) {
-		std::get<0>(conversion)->section->reanalyze_conversions(analyzer);
-	}
-
-	if (conversions.size()) {
+	if (mutations.size()) {
 		if (condition) {
 			condition->sections.front()->analyze(analyzer);
 			condition->sections.front()->instructions.front()->analyze(analyzer);

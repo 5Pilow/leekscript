@@ -482,9 +482,27 @@ Compiler::value ArraySTD::op_add(Compiler& c, std::vector<Compiler::value> args,
 	return c.insn_call(Type::tmp_array(args[0].t->element()), {args[0], c.insn_to_any(args[1])}, "Value.operator+");
 }
 
-Compiler::value ArraySTD::array_add_eq(Compiler& c, std::vector<Compiler::value> args, int) {
-	args[1] = c.insn_to_any(args[1]);
-	return c.insn_call(c.env.any, args, "Value.operator+=");
+Compiler::value ArraySTD::array_add_eq(Compiler& c, std::vector<Compiler::value> args, int flags) {
+	if (args[1].t->is_polymorphic()) {
+		args[1] = c.insn_to_any(args[1]);
+		return c.insn_call(c.env.any, args, "Value.operator+=");
+	}
+	args[0] = c.insn_load(args[0]);
+	auto fun = [&]() {
+		const auto& type = args[0].t->element()->fold();
+		if (type->is_bool()) return "Array.vpush";
+		if (type->is_integer()) return "Array.vpush.1";
+		if (type->is_long()) return "Array.vpush.2";
+		if (type->is_real()) {
+			args[1] = c.insn_convert(args[1], c.env.real);
+			return "Array.vpush.3";
+		}
+		args[1] = c.insn_convert(args[1], c.env.any);
+		return "Array.vpush.4";
+	}();
+	c.insn_call(c.env.void_, args, fun);
+	if (flags & NO_RETURN) return { c.env };
+	else return args[0];
 }
 
 Compiler::value ArraySTD::size(Compiler& c, std::vector<Compiler::value> args, int) {

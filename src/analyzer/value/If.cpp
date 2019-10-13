@@ -120,13 +120,13 @@ Compiler::value If::compile(Compiler& c) const {
 
 	c.leave_section_condition(cond_boolean);
 
-	then_v = c.insn_convert(then->compile(c), type->fold());
+	then_v = c.insn_convert(then->compile(c), type->fold(), true);
 	if (!then_v.v and not then->returning) then_v = c.insn_convert(c.new_null(), type->fold());
 	then->compile_end(c);
 
 	if (compile_elze) {
 		if (elze) {
-			else_v = c.insn_convert(elze->compile(c), type->fold());
+			else_v = c.insn_convert(elze->compile(c), type->fold(), true);
 			if (type != c.env.void_ and else_v.t == c.env.void_) {
 				else_v = c.insn_convert(c.new_null(), type->fold());
 			}

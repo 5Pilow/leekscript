@@ -87,54 +87,19 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 
 	analyzer->leave_loop();
 
-	// std::cout << "Foreach mutations : " << mutations.size() << std::endl;
-	const auto& before = wrapper_block->sections.back();
-	for (const auto& mutation : mutations) {
-		// La variable réellement transformée
-		auto mutated_var = mutation.variable->parent->array and dynamic_cast<VariableValue*>(mutation.variable->parent->array) ? ((VariableValue*) mutation.variable->parent->array)->var : mutation.variable;
-		// std::cout << "real mutated var = " << mutated_var << std::endl;
-		auto current = before;
-		while (current) {
-			auto old_var = current->variables.find(mutated_var->name);
-			if (old_var != current->variables.end()) {
-				analyzer->enter_section(current);
-				auto new_var = analyzer->update_var(old_var->second, false);
-				current->add_conversion({ old_var->second, new_var, mutation.variable, mutation.section });
-				conversions.push_back({ new_var, old_var->second, mutation.section });
-				analyzer->leave_section();
-
-				// std::cout << "Foreach add conversion " << new_var << " from " << old_var->second << " section " << current->color << current->id << END_COLOR << std::endl;
-				break;
-			}
-			current = current->predecessors.size() ? current->predecessors[0] : nullptr;
-		}
-	}
-
 	// std::cout << "conversions: " << conversions.size() << std::endl;
 
 	if (mutations.size()) {
 
-		analyzer->enter_loop((Instruction*) this);
 		mutations.clear(); // Va être re-rempli par la seconde analyse
 
 		analyzer->enter_section(condition_section);
 
-		// Delete previously injected variables
-		// if (body->sections.size()) {
-		// 	for (auto it = body->sections.front()->variables.begin(); it != body->sections.front()->variables.end(); ) {
-		// 		std::cout << "erase? " << it->second << " " << it->second->injected << " " << it->second->root << " " << it->second->root->injected << std::endl;
-		// 		if (it->second->root->injected) {
-		// 			it->second = it->second->root;
-		// 			it++;
-		// 		}
-		// 		else ++it;
-		// 	}
-		// 	// body->sections.front()->variables.clear();
-		// }
-
 		container->pre_analyze(analyzer);
 		analyzer->leave_section();
 		condition_section->pre_analyze(analyzer);
+
+		analyzer->enter_loop((Instruction*) this);
 
 		body->pre_analyze(analyzer);
 
@@ -151,7 +116,6 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 			}
 		}
 	}
-	// analyzer->leave_block();
 }
 
 void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
@@ -207,11 +171,7 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	analyzer->leave_loop();
 	analyzer->leave_block();
 
-	for (const auto& conversion : conversions) {
-		std::get<0>(conversion)->section->reanalyze_conversions(analyzer);
-	}
-
-	if (conversions.size()) {
+	if (mutations.size()) {
 
 		analyzer->enter_block(wrapper_block.get());
 

@@ -162,7 +162,7 @@ public:
 	value to_int(value);
 	value to_real(value, bool delete_temporary = false);
 	value to_long(value);
-	value insn_convert(value, const Type*, bool delete_temporary = false);
+	value insn_convert(value, const Type*, bool delete_previous = false);
 	value to_numeric(value);
 
 	// Operators wrapping

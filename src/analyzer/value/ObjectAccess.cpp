@@ -161,7 +161,7 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 	auto vv = dynamic_cast<VariableValue*>(object.get());
 
 	bool found = false;
-	if (object->type->is_class() and vv != nullptr) {
+	if (object->type->is_class() and vv != nullptr and analyzer->globals.find(vv->name) != analyzer->globals.end()) {
 
 		auto std_class = analyzer->globals[vv->name]->clazz;
 		auto i = std_class->methods.find(field->content);
@@ -180,7 +180,7 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 			found = true;
 		}
 	}
-	if (!found and object->type->is_class() and vv != nullptr) {
+	if (!found and object->type->is_class() and vv != nullptr and analyzer->globals.find(vv->name) != analyzer->globals.end()) {
 
 		auto std_class = analyzer->globals[vv->name]->clazz;
 

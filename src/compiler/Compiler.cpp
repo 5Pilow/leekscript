@@ -331,7 +331,7 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 		return insn_call(Type::fun_object(v.t->return_type(), v.t->arguments()), { get_vm(), f }, "Function.new");
 	}
 	if (v.t->is_array() and t->is_array()) {
-		// std::cout << "Convert " << v.t << " to " << t << std::endl;
+		// std::cout << "Convert " << v.t << " to " << t << " delete_previous " << delete_previous << std::endl;
 		if (t->element()->is_polymorphic()) {
 			if (v.t->element() == env.integer) {
 				auto r = insn_call(t, {v}, "Array.int_to_any");
@@ -364,7 +364,12 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 			if (v.t->element()->is_real() or v.t->element()->is_polymorphic()) {
 				if (delete_previous) insn_delete(v);
 				insn_delete_temporary(v);
-				return new_array(env.integer, {});
+				auto a = new_array(env.integer, {});
+				if (delete_previous) {
+					insn_inc_refs(a);
+					a = { a.v, Type::array(env.integer) };
+				}
+				return a;
 			}
 		} else if (t->element()->is_bool()) {
 			return new_array(env.boolean, {});
@@ -372,7 +377,11 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 		if (v.t->element()->is_never()) {
 			if (delete_previous) insn_delete(v);
 			insn_delete_temporary(v);
-			return new_array(t->element(), {});
+			auto a = new_array(t->element(), {});
+			if (delete_previous) {
+				insn_inc_refs(a);
+			}
+			return a;
 		}
 	}
 	if (v.t->is_set() and t->is_set() and t->element()->is_polymorphic()) {
@@ -434,7 +443,11 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 	if (t->is_real()) {
 		return to_real(v, delete_previous);
 	} else if (t->is_integer()) {
-		return to_int(v);
+		if (v.t->is_never()) {
+			return new_integer(0);
+		} else {
+			return to_int(v);
+		}
 	} else if (t->is_long()) {
 		return to_long(v);
 	}
@@ -1866,21 +1879,26 @@ Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Compile
 }
 
 Compiler::value Compiler::insn_phi(const Type* type, Compiler::value v1, Section* s1, Compiler::value v2, Section* s2) {
-	// std::cout << "insn_phi " << type << " " << v1.v << " " << v2.v << std::endl;
-	const auto folded_type = type->fold();
-	const auto llvm_type = folded_type->llvm(*this);
-	auto phi = Compiler::builder.CreatePHI(llvm_type, 2, "phi");
+	// std::cout << "insn_phi " << type << " " << v1.t << " " << v2.t << std::endl;
+	// const auto folded_type = type->fold();
+	auto phi = Compiler::builder.CreatePHI(type->llvm(*this), 2, "phi");
 	if (v1.v) {
-		// std::cout << "v1 type " << v1.t << ", " << folded_type << ", " << type << std::endl;
-		// assert(v1.t == folded_type);
+		// TODO add back
+		// if (v1.t != type) {
+		// 	std::cout << "v1 type " << v1.t << ", " << type << std::endl;
+		// 	assert(false && "v1 type wrong");
+		// }
 		phi->addIncoming(v1.v, s1->basic_block);
 	}
 	if (v2.v) {
-		// std::cout << "v2 type " << v2.t << ", " << folded_type << ", " << type << std::endl;
-		// assert(v2.t == folded_type);
+		// TODO add back
+		// if (v2.t != type) {
+		// 	std::cout << "v2 type " << v2.t << ", " << type << std::endl;
+		// 	assert(false && "v2 type wrong");
+		// }
 		phi->addIncoming(v2.v, s2->basic_block);
 	}
-	return {phi, folded_type};
+	return {phi, type};
 }
 
 // Call functions

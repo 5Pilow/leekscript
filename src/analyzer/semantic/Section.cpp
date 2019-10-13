@@ -209,24 +209,33 @@ Compiler::value Section::compile(Compiler& c) const {
 	// std::cout << "Section<" << id << ">::compile " << std::endl;
 	((Section*) this)->pre_compile(c);
 
+	// First pass of phi : create phi nodes
 	for (const auto& phi : phis) {
 		// std::cout << "phi " << phi->variable1 << " " << phi->value1.v << " " << phi->variable2 << " " << phi->value2.v << " " << phi->variable1->type << " " << phi->variable2->type << std::endl;
-		if (phi->variable1->type == phi->variable2->type) {
-			phi->variable->entry = phi->variable1->entry;
-			phi->active = false;
-		} else {
+		if (phi->variable1->type != phi->variable2->type) {
 			// std::cout << "compile phi " << phi->variable << " " << phi->variable->type << " " << phi->value1.t << " " << phi->value2.t << std::endl;
 
 			// std::cout << "phi " << phi->variable << " type " << phi->variable->type << std::endl;
 			auto phi_type = phi->variable->type->is_mpz_ptr() ? env.mpz : phi->variable->type;
-			phi->phi_node = c.insn_phi(phi_type, c.insn_convert(phi->value1, phi_type), phi->section1, c.insn_convert(phi->value2, phi_type), phi->section2);
-			phi->variable->entry = c.create_entry(phi->variable->name, phi_type);
-			c.insn_store(phi->variable->entry, phi->phi_node);
+			phi->phi_node = c.insn_phi(phi_type, phi->value1, phi->section1, phi->value2, phi->section2);
+
 			// } else {
 				// phi->variable->val = phi->variable1->val;
 				// std::cout << "half phi: " << phi->variable << " " << phi->variable->type << " " << phi->variable->val.t << std::endl;
 				// phi->active = false;
 			// }
+		}
+	}
+
+	// Second pass of phis : store values in variables
+	for (const auto& phi : phis) {
+		if (phi->variable1->type == phi->variable2->type) {
+			phi->variable->entry = phi->variable1->entry;
+			phi->active = false;
+		} else {
+			auto phi_type = phi->variable->type->is_mpz_ptr() ? env.mpz : phi->variable->type;
+			phi->variable->entry = c.create_entry(phi->variable->name, phi_type);
+			c.insn_store(phi->variable->entry, phi->phi_node);
 		}
 	}
 
@@ -261,13 +270,12 @@ void Section::compile_end(Compiler& c) const {
 			if (phi->section1 == this) {
 				const auto& var1 = phi->variable1;
 				// std::cout << "Block export value1 " << var1 << " " << var1->type << " " << var1->val.t << " convert to " << phi->variable->type << std::endl;
-
 				if (var1->entry.v) {
 					// TODO : normalement pas besoin de faire une condition ici
 					if (var1->type != phi->variable->type) {
-						phi->value1 = c.insn_convert(var1->get_value(c), phi->variable->type);
+						phi->value1 = c.insn_convert(var1->get_value(c), phi->variable->type, true);
 					} else {
-						phi->value1 = c.insn_load(var1->entry);
+						phi->value1 = var1->get_value(c);
 					}
 					if (phi->phi_node.v) {
 						((llvm::PHINode*) phi->phi_node.v)->addIncoming(phi->value1.v, this->basic_block);
@@ -279,11 +287,16 @@ void Section::compile_end(Compiler& c) const {
 				// std::cout << "Block export value2 " << var2 << " " << var2->type << " convert to " <<  phi->variable->type << std::endl;
 				// TODO : normalement pas besoin de faire une condition ici
 				if (var2->type != phi->variable->type) {
-					phi->value2 = c.insn_convert(var2->get_value(c), phi->variable->type);
+					phi->value2 = c.insn_convert(var2->get_value(c), phi->variable->type, true);
 				} else {
-					phi->value2 = c.insn_load(var2->entry);
+					phi->value2 = var2->get_value(c);
 				}
 				if (phi->phi_node.v) {
+					// TODO add check
+					// if (phi->phi_node.t != phi->value2.t) {
+					// 	std::cout << "phi: " << phi->phi_node.t << " v2: " << phi->value2.t << std::endl;
+					// 	assert(phi->phi_node.t == phi->value2.t);
+					// }
 					((llvm::PHINode*) phi->phi_node.v)->addIncoming(phi->value2.v, this->basic_block);
 				}
 			}

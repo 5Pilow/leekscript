@@ -284,7 +284,7 @@ Compiler::value VariableValue::compile(Compiler& c) const {
 		const auto& fun = has_version and versions.find(version) != versions.end() ? versions.at(version) : default_version_fun;
 		return c.new_function(fun, type);
 	}
-	if (var->parent and not var->entry.v) {
+	if (var and var->parent and not var->entry.v) {
 		// std::cout << "get parent val " << var->parent->entry.t << std::endl;
 		var->entry = var->parent->entry;
 	}
