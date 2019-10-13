@@ -5,6 +5,7 @@
 #include "../../type/Meta_baseof_type.hpp"
 #include "../../type/Meta_temporary_type.hpp"
 #include "../../type/Meta_not_temporary_type.hpp"
+#include "../../type/Meta_not_void_type.hpp"
 #include "../../standard/Module.hpp"
 #include "../../colors.h"
 #include "../value/ObjectAccess.hpp"
@@ -100,6 +101,14 @@ const Type* build(const Type* type) {
 	if (auto not_tmp = dynamic_cast<const Meta_not_temporary_type*>(type)) {
 		return build(not_tmp->type)->not_temporary();
 	}
+	if (auto not_void = dynamic_cast<const Meta_not_void_type*>(type)) {
+		auto t = build(not_void->type);
+		if (t->is_void()) {
+			return t->env.null;
+		} else {
+			return t;
+		}
+	}
 	if (auto mul = dynamic_cast<const Meta_add_type*>(type)) {
 		return build(mul->t1)->operator + (build(mul->t2));
 	}
@@ -188,6 +197,10 @@ void solve(SemanticAnalyzer* analyzer, const Type* t1, const Type* t2) {
 	}
 	else if (auto baseof = dynamic_cast<const Meta_baseof_type*>(t1)) {
 		solve(analyzer, baseof->type, t2);
+	}
+	else if (auto not_void = dynamic_cast<const Meta_not_void_type*>(t1)) {
+		// std::cout << "not_void " << not_void->type << std::endl;
+		solve(analyzer, not_void->type, t2);
 	}
 	else if (t1->is_array() and t2->is_array()) {
 		solve(analyzer, t1->element(), t2->element());

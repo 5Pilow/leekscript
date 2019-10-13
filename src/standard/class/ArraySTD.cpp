@@ -134,8 +134,8 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	auto R = env.template_("R");
 	template_(E, R).
 	method("map", {
-		{Type::tmp_array(R), {Type::const_array(E), Type::fun(R, {E})}, (void*) map_fun},
-		{Type::tmp_array(R), {Type::const_array(E), Type::fun(R, {E})}, ADDR(map)},
+		{Type::tmp_array(R), {Type::const_array(E), Type::fun(Type::meta_not_void(R), {E})}, (void*) map_fun},
+		{Type::tmp_array(R), {Type::const_array(E), Type::fun(Type::meta_not_void(R), {E})}, ADDR(map)},
 	});
 
 	method("unique", {

@@ -49,7 +49,7 @@ IntervalSTD::IntervalSTD(Environment& env) : Module(env, "Interval") {
 	auto mapR = env.template_("R");
 	template_(mapR).
 	method("map", {
-		{Type::tmp_array(mapR), {env.const_interval, Type::fun(mapR, {env.integer})}, ADDR(ArraySTD::map)},
+		{Type::tmp_array(Type::meta_not_void(mapR)), {env.const_interval, Type::fun(mapR, {env.integer})}, ADDR(ArraySTD::map)},
 	});
 
 	method("sum", {

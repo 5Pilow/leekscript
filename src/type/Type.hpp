@@ -147,6 +147,7 @@ public:
 	static const Type* meta_base_of(const Type* type, const Type* base);
 	static const Type* meta_temporary(const Type* type);
 	static const Type* meta_not_temporary(const Type* type);
+	static const Type* meta_not_void(const Type* type);
 };
 
 std::ostream& operator << (std::ostream&, const Type*);

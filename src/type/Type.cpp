@@ -38,6 +38,7 @@
 #include "Meta_element_type.hpp"
 #include "Meta_temporary_type.hpp"
 #include "Meta_not_temporary_type.hpp"
+#include "Meta_not_void_type.hpp"
 #include "../analyzer/value/Function.hpp"
 #include "../analyzer/value/Value.hpp"
 #include "../environment/Environment.hpp"
@@ -527,6 +528,9 @@ const Type* Type::meta_temporary(const Type* type) {
 }
 const Type* Type::meta_not_temporary(const Type* type) {
 	return new Meta_not_temporary_type(type);
+}
+const Type* Type::meta_not_void(const Type* type) {
+	return new Meta_not_void_type(type);
 }
 
 std::ostream& operator << (std::ostream& os, const Type* type) {
