@@ -44,9 +44,12 @@ void ExpressionInstruction::analyze(SemanticAnalyzer* analyzer, const Type* req_
 	throws = value->throws;
 }
 
-std::vector<std::string> ExpressionInstruction::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
-	std::cout << "ExpressionInstruction " << position << std::endl;
+std::vector<Completion> ExpressionInstruction::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
 	return value->autocomplete(analyzer, position);
+}
+
+Json ExpressionInstruction::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	return value->hover(analyzer, position);
 }
 
 #if COMPILER

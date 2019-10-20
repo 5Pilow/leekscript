@@ -34,7 +34,7 @@ CallableVersion::CallableVersion(std::string name, const Type* type, std::functi
 	{}
 #endif
 CallableVersion::CallableVersion(std::string name, const Type* type, void* addr, std::vector<const TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool unknown, bool v1_addr, bool v2_addr, int flags)
-	: name(name), type(type), addr(addr), value(value), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags)
+	: name(name), type(type), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags), addr(addr)
 	#if COMPILER
 	, extra_arg(type->env)
 	#endif

@@ -150,6 +150,17 @@ bool Array::elements_will_store(SemanticAnalyzer* analyzer, const Type* type, in
 	return false;
 }
 
+Json Array::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	for (const auto& expression : expressions) {
+		if (expression->location().contains(position)) {
+			return expression->hover(analyzer, position);
+		}
+	}
+	return {
+		{ "type", type->json() }
+	};
+}
+
 #if COMPILER
 Compiler::value Array::compile(Compiler& c) const {
 	std::vector<Compiler::value> elements;

@@ -25,9 +25,19 @@ Location AbsoluteValue::location() const {
 void AbsoluteValue::pre_analyze(SemanticAnalyzer* analyzer) {
 	expression->pre_analyze(analyzer);
 }
+
 void AbsoluteValue::analyze(SemanticAnalyzer* analyzer) {
 	expression->analyze(analyzer);
 	constant = expression->constant;
+}
+
+Json AbsoluteValue::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	if (position > open_pipe->location.end.raw and position < close_pipe->location.start.raw) {
+		return expression->hover(analyzer, position);
+	}
+	return {
+		{ "type", type->json() }
+	};
 }
 
 #if COMPILER

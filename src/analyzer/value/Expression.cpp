@@ -221,6 +221,18 @@ void Expression::analyze(SemanticAnalyzer* analyzer) {
 	analyzer->add_error({Error::Type::NO_SUCH_OPERATOR, location(), op->token->location, {v1->type->to_string(), op->character, v2->type->to_string()}});
 }
 
+Json Expression::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	if (v1->location().contains(position)) {
+		return v1->hover(analyzer, position);
+	}
+	if (v2 and v2->location().contains(position)) {
+		return v2->hover(analyzer, position);
+	}
+	return {
+		{ "type", type->json() }
+	};
+}
+
 #if COMPILER
 Compiler::value Expression::compile(Compiler& c) const {
 

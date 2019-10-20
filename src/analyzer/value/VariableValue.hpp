@@ -46,6 +46,7 @@ public:
 	virtual bool elements_will_store(SemanticAnalyzer* analyzer, const Type* type, int level) override;
 	virtual void change_value(SemanticAnalyzer*, Value* value) override;
 	virtual const Type* version_type(std::vector<const Type*>) const override;
+	virtual Json hover(SemanticAnalyzer& analyzer, size_t position) const override;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;

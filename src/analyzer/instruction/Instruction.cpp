@@ -13,8 +13,12 @@ void Instruction::analyze(SemanticAnalyzer* analyzer) {
 	analyze(analyzer, analyzer->env.any);
 }
 
-std::vector<std::string> Instruction::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+std::vector<Completion> Instruction::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
 	return {};
+}
+
+Json Instruction::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	return Json::object();
 }
 
 #if COMPILER

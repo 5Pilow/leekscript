@@ -168,6 +168,7 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 		i = j;
 		nc = code[j];
 		u8_inc(string_chars, &j);
+
 		auto type = getLetterType(c, code[h + 1]);
 		// std::cout << "c = " << c << " nc = " << nc << " " << code.substr(h, i - h) << " " << (int)(unsigned char) c << " " << (int)(unsigned char) nc << " " << (int) type << std::endl;
 

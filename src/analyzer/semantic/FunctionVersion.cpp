@@ -259,10 +259,13 @@ Variable* FunctionVersion::capture(SemanticAnalyzer* analyzer, Variable* var) {
 	}
 }
 
-std::vector<std::string> FunctionVersion::autocomplete(SemanticAnalyzer& analyzer, size_t position) {
+std::vector<Completion> FunctionVersion::autocomplete(SemanticAnalyzer& analyzer, size_t position) {
 	return body->autocomplete(analyzer, position);
 }
 
+Json FunctionVersion::hover(SemanticAnalyzer& analyzer, size_t position) {
+	return body->hover(analyzer, position);
+}
 
 #if COMPILER
 

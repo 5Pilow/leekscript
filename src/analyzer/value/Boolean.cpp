@@ -21,6 +21,12 @@ Location Boolean::location() const {
 	return token->location;
 }
 
+Json Boolean::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	return {
+		{ "type", type->json() }
+	};
+}
+
 #if COMPILER
 Compiler::value Boolean::compile(Compiler& c) const {
 	return c.new_bool(value);

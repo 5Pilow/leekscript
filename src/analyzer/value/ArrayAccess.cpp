@@ -169,6 +169,18 @@ const Type* ArrayAccess::version_type(std::vector<const Type*> version) const {
 	}
 }
 
+Json ArrayAccess::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	if (position < open_bracket->location.start.raw) {
+		return array->hover(analyzer, position);
+	}
+	if (key and position > open_bracket->location.end.raw and position < close_bracket->location.start.raw) {
+		return key->hover(analyzer, position);
+	}
+	return {
+		{ "type", type->json() }
+	};
+}
+
 #if COMPILER
 Compiler::value ArrayAccess::compile(Compiler& c) const {
 	const auto& env = c.env;

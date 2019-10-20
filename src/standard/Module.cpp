@@ -23,9 +23,11 @@ int Module::PRIVATE = 32;
 
 bool Module::STORE_ARRAY_SIZE = true;
 
-Module::Module(Environment& env, std::string name) : env(env), name(name) {
+Module::Module(Environment& env, std::string name, Class* parent) : env(env), name(name) {
 	clazz = std::make_unique<Class>(env, name);
-	if (name != "Value") {
+	if (parent) {
+		clazz->parent = parent;
+	} else if (name != "Value") {
 		clazz->parent = env.std.classes["Value"]->clazz.get();
 	}
 }

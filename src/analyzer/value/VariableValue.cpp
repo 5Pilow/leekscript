@@ -278,6 +278,12 @@ const Type* VariableValue::version_type(std::vector<const Type*> version) const 
 	return type;
 }
 
+Json VariableValue::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	return {
+		{ "type", type->json() }
+	};
+}
+
 #if COMPILER
 Compiler::value VariableValue::compile(Compiler& c) const {
 	// std::cout << "Compile var " << name << " " << type << std::endl;

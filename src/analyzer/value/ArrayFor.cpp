@@ -21,6 +21,15 @@ Location ArrayFor::location() const {
 	return {nullptr, {0, 0, 0}, {0, 0, 0}}; // TODO
 }
 
+Json ArrayFor::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	if (forr->location().contains(position)) {
+		return forr->hover(analyzer, position);
+	}
+	return {
+		{ "type", type->json() }
+	};
+}
+
 void ArrayFor::pre_analyze(SemanticAnalyzer* analyzer) {
 	forr->pre_analyze(analyzer);
 }

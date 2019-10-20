@@ -45,15 +45,15 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 
 	auto parse_start = std::chrono::high_resolution_clock::now();
 
-	main_file = new File(file_name, code, new FileContext());
-	auto block = syn.analyze(main_file);
+	main_file.reset(new File(file_name, code, new FileContext()));
+	auto block = syn.analyze(main_file.get());
 
 	if (main_file->errors.size() > 0) {
 		result.errors = main_file->errors;
 		return;
 	}
 
-	main_token.reset(new Token { TokenType::FUNCTION, main_file, 0, 0, 0, "function" });
+	main_token.reset(new Token { TokenType::FUNCTION, main_file.get(), 0, 0, 0, "function" });
 	main = std::make_unique<Function>(env, main_token.get());
 	main->body = block;
 	main->is_main_function = true;
@@ -80,12 +80,20 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 	}
 }
 
-std::vector<std::string> Program::autocomplete(SemanticAnalyzer& analyzer, size_t position) {
+std::vector<Completion> Program::autocomplete(SemanticAnalyzer& analyzer, size_t position) {
 	if (not result.analyzed) {
 		std::cout << "Program not analyzed yet!" << std::endl;
 		return {};
 	}
 	return main->autocomplete(analyzer, position);
+}
+
+Json Program::hover(SemanticAnalyzer& analyzer, size_t position) {
+	if (not result.analyzed) {
+		std::cout << "Program not analyzed yet!" << std::endl;
+		return {};
+	}
+	return main->hover(analyzer, position);
 }
 
 #if COMPILER
@@ -212,15 +220,15 @@ Variable* Program::get_operator(const std::string& name) {
 	auto o = std::find(ops.begin(), ops.end(), name);
 	if (o == ops.end()) return nullptr;
 
-	auto token = new Token(TokenType::FUNCTION, main_file, 0, 0, 0, "function");
+	auto token = new Token(TokenType::FUNCTION, main_file.get(), 0, 0, 0, "function");
 	auto f = new Function(env, token);
-	f->addArgument(new Token(TokenType::IDENT, main_file, 0, 1, 0, "x"), nullptr);
-	f->addArgument(new Token(TokenType::IDENT, main_file,2, 1, 2, "y"), nullptr);
+	f->addArgument(new Token(TokenType::IDENT, main_file.get(), 0, 1, 0, "x"), nullptr);
+	f->addArgument(new Token(TokenType::IDENT, main_file.get(), 2, 1, 2, "y"), nullptr);
 	f->body = new Block(env, true);
 	auto ex = std::make_unique<Expression>(env);
-	ex->v1 = std::make_unique<VariableValue>(env, new Token(TokenType::IDENT, main_file, 0, 1, 0, "x"));
-	ex->v2 = std::make_unique<VariableValue>(env, new Token(TokenType::IDENT, main_file, 2, 1, 2, "y"));
-	ex->op = std::make_shared<Operator>(new Token(token_types.at(std::distance(ops.begin(), o)), main_file, 1, 1, 1, name));
+	ex->v1 = std::make_unique<VariableValue>(env, new Token(TokenType::IDENT, main_file.get(), 0, 1, 0, "x"));
+	ex->v2 = std::make_unique<VariableValue>(env, new Token(TokenType::IDENT, main_file.get(), 2, 1, 2, "y"));
+	ex->op = std::make_shared<Operator>(new Token(token_types.at(std::distance(ops.begin(), o)), main_file.get(), 1, 1, 1, name));
 	f->body->add_instruction(std::make_unique<ExpressionInstruction>(env, std::move(ex)));
 	auto type = Type::fun(env.any, { env.any, env.any });
 

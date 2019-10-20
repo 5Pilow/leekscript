@@ -67,11 +67,11 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{env.const_integer, env.const_string, env.tmp_string, ADDR((void*) &StringSTD::add_int_r)}
 	});
 	operator_("+=", {
-		{env.mpz_ptr, env.mpz_ptr, env.tmp_mpz_ptr, ADDR(add_eq_mpz_mpz), 0, { new ConvertMutator() }, true},
-		{env.mpz_ptr, env.integer, env.tmp_mpz_ptr, ADDR(add_eq_mpz_int), 0, { new ConvertMutator() }, true},
-		{env.real, env.real, env.real, ADDR(add_eq_real), 0, { new ConvertMutator() }, true},
-		{env.long_, env.long_, env.long_, ADDR(add_eq_real), 0, { new ConvertMutator() }, true},
-		{env.integer, env.integer, env.integer, ADDR(add_eq_real), 0, { new ConvertMutator() }, true}
+		{env.mpz_ptr, env.mpz_ptr, env.tmp_mpz_ptr, ADDR(add_eq_mpz_mpz), 0, { env.convert_mutator }, true},
+		{env.mpz_ptr, env.integer, env.tmp_mpz_ptr, ADDR(add_eq_mpz_int), 0, { env.convert_mutator }, true},
+		{env.real, env.real, env.real, ADDR(add_eq_real), 0, { env.convert_mutator }, true},
+		{env.long_, env.long_, env.long_, ADDR(add_eq_real), 0, { env.convert_mutator }, true},
+		{env.integer, env.integer, env.integer, ADDR(add_eq_real), 0, { env.convert_mutator }, true}
 	});
 	operator_("-", {
 		{env.mpz_ptr, env.mpz_ptr, env.tmp_mpz_ptr, ADDR(sub_mpz_mpz)},
@@ -318,7 +318,9 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{Type::meta_mul(minT1, minT2), {minT1, minT2}, ADDR(min)},
 	});
 
+	#if COMPILER
 	auto gcd = std::gcd<int, int>;
+	#endif
 	method("gcd", {
 		{env.integer, {env.integer, env.integer}, ADDR((void*) gcd)}
 	});
@@ -405,10 +407,10 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{env.void_, {env.mpz_ptr, env.i8_ptr, env.integer}, ADDR((void*) mpz_init_set_str)}
 	}, PRIVATE);
 	method("mpz_get_ui", {
-		{{env.long_}, {env.mpz_ptr}, ADDR((void*) mpz_get_ui)}
+		{env.long_, {env.mpz_ptr}, ADDR((void*) mpz_get_ui)}
 	}, PRIVATE);
 	method("mpz_get_si", {
-		{{env.long_}, {env.mpz_ptr}, ADDR((void*) mpz_get_si)}
+		{env.long_, {env.mpz_ptr}, ADDR((void*) mpz_get_si)}
 	}, PRIVATE);
 	method("mpz_add", {
 		{env.void_, {env.mpz_ptr, env.mpz_ptr, env.mpz_ptr}, ADDR((void*) mpz_add)}
@@ -441,13 +443,13 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{env.void_, {env.mpz_ptr, env.mpz_ptr}, ADDR((void*) mpz_neg)}
 	}, PRIVATE);
 	method("mpz_log", {
-		{{env.integer}, {env.mpz_ptr}, ADDR((void*) mpz_log)}
+		{env.integer, {env.mpz_ptr}, ADDR((void*) mpz_log)}
 	}, PRIVATE);
 	method("mpz_cmp", {
-		{{env.integer}, {env.mpz_ptr, env.mpz_ptr}, ADDR((void*) mpz_cmp)}
+		{env.integer, {env.mpz_ptr, env.mpz_ptr}, ADDR((void*) mpz_cmp)}
 	}, PRIVATE);
 	method("_mpz_cmp_si", {
-		{{env.integer}, {env.mpz_ptr, env.long_}, ADDR((void*) _mpz_cmp_si)}
+		{env.integer, {env.mpz_ptr, env.long_}, ADDR((void*) _mpz_cmp_si)}
 	}, PRIVATE);
 	method("mpz_sqrt", {
 		{env.void_, {env.mpz_ptr, env.mpz_ptr}, ADDR((void*) mpz_sqrt)}

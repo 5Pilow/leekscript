@@ -55,7 +55,7 @@ public:
 	LSClass* lsclass;
 	#endif
 
-	Module(Environment& env, std::string name);
+	Module(Environment& env, std::string name, Class* parent = nullptr);
 	virtual ~Module() {}
 
 	void operator_(std::string name, std::initializer_list<CallableVersion>, std::vector<const Type*> templates = {});

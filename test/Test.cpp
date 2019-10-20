@@ -28,7 +28,7 @@ Test::Test() {
 Test::~Test() {}
 
 int main(int, char**) {
-	ls::init();
+	ls::VM::static_init();
 	srand(time(0));
 	return Test().all();
 }

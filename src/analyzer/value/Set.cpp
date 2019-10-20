@@ -65,6 +65,17 @@ bool Set::will_store(SemanticAnalyzer* analyzer, const Type* type) {
 	return false;
 }
 
+Json Set::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	for (const auto& expression : expressions) {
+		if (expression->location().contains(position)) {
+			return expression->hover(analyzer, position);
+		}
+	}
+	return {
+		{ "type", type->json() }
+	};
+}
+
 #if COMPILER
 Compiler::value Set::compile(Compiler& c) const {
 	auto create = type->element()->is_integer() ? "Set.new.2" : type->element()->is_real() ? "Set.new.1" : "Set.new";

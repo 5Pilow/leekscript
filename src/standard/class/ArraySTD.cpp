@@ -49,9 +49,9 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	template_(pqT, pqE).
 	operator_("+=", {
 		// array<T> += E   ==> array<T | E>
-		{Type::array(pqT), pqE, Type::array(Type::meta_add(pqT, Type::meta_not_temporary(pqE))), ADDR(array_add_eq), 0, { new ConvertMutator() }, true},
+		{Type::array(pqT), pqE, Type::array(Type::meta_add(pqT, Type::meta_not_temporary(pqE))), ADDR(array_add_eq), 0, { env.convert_mutator }, true},
 		// array<T> += array<E>   ==> array<T | E>
-		{Type::array(pqT), Type::array(pqE), Type::array(Type::meta_add(pqT, pqE)), ADDR(array_add_eq), 0, { new ConvertMutator() }, true},
+		{Type::array(pqT), Type::array(pqE), Type::array(Type::meta_add(pqT, pqE)), ADDR(array_add_eq), 0, { env.convert_mutator }, true},
 	});
 
 	auto mulT = env.template_("T");
@@ -261,8 +261,8 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	auto pE = env.template_("E");
 	template_(pT, pE).
 	method("push", {
-		{Type::array(env.any), {env.array, env.const_any}, ADDR((void*) &LSArray<LSValue*>::ls_push), 0, { new ConvertMutator() }},
-		{Type::array(Type::meta_mul(pT, Type::meta_not_temporary(pE))), {Type::array(pT), pE}, ADDR(push), 0, { new ConvertMutator() }},
+		{Type::array(env.any), {env.array, env.const_any}, ADDR((void*) &LSArray<LSValue*>::ls_push), 0, { env.convert_mutator }},
+		{Type::array(Type::meta_mul(pT, Type::meta_not_temporary(pE))), {Type::array(pT), pE}, ADDR(push), 0, { env.convert_mutator }},
 	});
 
 	// void (LSArray<int>::*push_int)(int&&) = &LSArray<int>::push_back;
@@ -278,7 +278,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	auto paY = env.template_("Y");
 	template_(paX, paY).
 	method("pushAll", {
-		{Type::array(Type::meta_add(paX, paY)), {Type::array(paX), Type::array(paY)}, ADDR(push_all), 0, { new ConvertMutator() }}
+		{Type::array(Type::meta_add(paX, paY)), {Type::array(paX), Type::array(paY)}, ADDR(push_all), 0, { env.convert_mutator }}
 	});
 
 	method("join", {
@@ -297,10 +297,10 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	auto T = env.template_("T");
 	template_(T).
 	method("fill", {
-		{Type::array(T), {Type::array(env.void_), T}, ADDR(fill), 0, { new ConvertMutator(STORE_ARRAY_SIZE) }},
-		{Type::array(T), {Type::array(env.void_), T, env.const_integer}, ADDR(fill), 0, { new ConvertMutator() }},
-		{Type::tmp_array(T), {Type::tmp_array(env.void_), T}, ADDR(fill), 0, { new ConvertMutator(STORE_ARRAY_SIZE) }},
-		{Type::tmp_array(T), {Type::tmp_array(env.void_), T, env.const_integer}, ADDR(fill), 0, { new ConvertMutator() }},
+		{Type::array(T), {Type::array(env.void_), T}, ADDR(fill), 0, { env.convert_mutator_array_size }},
+		{Type::array(T), {Type::array(env.void_), T, env.const_integer}, ADDR(fill), 0, { env.convert_mutator }},
+		{Type::tmp_array(T), {Type::tmp_array(env.void_), T}, ADDR(fill), 0, { env.convert_mutator_array_size }},
+		{Type::tmp_array(T), {Type::tmp_array(env.void_), T, env.const_integer}, ADDR(fill), 0, { env.convert_mutator }},
 	});
 
 	method("insert", {

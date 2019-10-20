@@ -56,7 +56,8 @@ public:
 	virtual Call get_callable(SemanticAnalyzer*, int argument_count) const override;
 	void create_version(SemanticAnalyzer* analyzer, const std::vector<const Type*>& args);
 	virtual void analyze(SemanticAnalyzer*) override;
-	virtual std::vector<std::string> autocomplete(SemanticAnalyzer& analyzer, size_t position) const override;
+	virtual std::vector<Completion> autocomplete(SemanticAnalyzer& analyzer, size_t position) const override;
+	virtual Json hover(SemanticAnalyzer& analyzer, size_t position) const override;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;

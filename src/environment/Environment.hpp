@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include "../type/Function_type.hpp"
 #include "../standard/StandardLibrary.hpp"
+#include "../analyzer/semantic/Completion.hpp"
 #if COMPILER
 #include "../compiler/Compiler.hpp"
 #include "../vm/VM.hpp"
@@ -98,6 +99,7 @@ public:
 
 	const TypeMutator* const change_value_mutator;
 	const TypeMutator* const convert_mutator;
+	const TypeMutator* const convert_mutator_array_size;
 
 	#if COMPILER
 	std::unique_ptr<LSClass> value_class;
@@ -128,7 +130,12 @@ public:
 	/**
 	 * Autocomplete a `Program` at a position
 	 */
-	std::vector<std::string> autocomplete(Program& program, size_t position);
+	std::vector<Completion> autocomplete(Program& program, size_t position);
+
+	/**
+	 * Hover a `Program` at a position
+	 */
+	Json hover(Program& program, size_t position);
 
 	#if COMPILER
 	/**

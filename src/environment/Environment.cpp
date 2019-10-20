@@ -81,6 +81,7 @@ Environment::Environment(bool legacy) :
 	set(Type::set(void_)),
 	change_value_mutator(new ChangeValueMutator()),
 	convert_mutator(new ConvertMutator()),
+	convert_mutator_array_size(new ConvertMutator(true)),
 	std(*this, legacy)
 {}
 
@@ -92,9 +93,14 @@ void Environment::analyze(Program& program, bool format, bool debug, bool sectio
 	delete resolver;
 }
 
-std::vector<std::string> Environment::autocomplete(Program& program, size_t position) {
+std::vector<Completion> Environment::autocomplete(Program& program, size_t position) {
 	SemanticAnalyzer sem { *this };
 	return program.autocomplete(sem, position);
+}
+
+Json Environment::hover(Program& program, size_t position) {
+	SemanticAnalyzer sem { *this };
+	return program.hover(sem, position);
 }
 
 #if COMPILER

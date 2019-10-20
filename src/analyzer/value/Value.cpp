@@ -60,8 +60,12 @@ bool Value::is_zero() const {
 	return false;
 }
 
-std::vector<std::string> Value::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+std::vector<Completion> Value::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
 	return {};
+}
+
+Json Value::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	return Json::object();
 }
 
 #if COMPILER

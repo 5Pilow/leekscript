@@ -288,19 +288,30 @@ const Type* FunctionCall::version_type(std::vector<const Type*> version) const {
 	return function_type->return_type()->function()->version_type(version);
 }
 
-std::vector<std::string> FunctionCall::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+std::vector<Completion> FunctionCall::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
 
 	std::cout << "FC complete " << position << " closing= " << closing_parenthesis->location.end.raw << std::endl;
 
 	if (position == closing_parenthesis->location.end.raw) {
-		std::vector<std::string> completions;
+		std::vector<Completion> completions;
 		auto std_class = analyzer.globals[type->class_name()]->clazz;
 		for (const auto& method : std_class->methods) {
-			completions.push_back(method.first);
+			completions.push_back({ method.first, CompletionType::METHOD, method.second.versions.front().type });
 		}
 		return completions;
 	} else if (position < opening_parenthesis->location.start.raw) {
 		return function->autocomplete(analyzer, position);
+	}
+	return {};
+}
+
+Json FunctionCall::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	if (position < opening_parenthesis->location.start.raw) {
+		return function->hover(analyzer, position);
+	} else {
+		return {
+			{ "type", type->json() }
+		};
 	}
 	return {};
 }

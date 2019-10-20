@@ -20,7 +20,8 @@ public:
 	virtual void pre_analyze(SemanticAnalyzer* analyzer) override;
 
 	virtual void analyze(SemanticAnalyzer*, const Type* type) override;
-	virtual std::vector<std::string> autocomplete(SemanticAnalyzer& analyzer, size_t position) const override;
+	virtual std::vector<Completion> autocomplete(SemanticAnalyzer& analyzer, size_t position) const override;
+	virtual Json hover(SemanticAnalyzer& analyzer, size_t position) const override;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;

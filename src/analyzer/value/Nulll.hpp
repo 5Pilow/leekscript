@@ -16,6 +16,7 @@ public:
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;
+	virtual Json hover(SemanticAnalyzer& analyzer, size_t position) const override;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;

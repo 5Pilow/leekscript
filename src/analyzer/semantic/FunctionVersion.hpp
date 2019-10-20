@@ -6,7 +6,9 @@
 #include <memory>
 #include <vector>
 #include "../../constants.h"
+#include "../../util/json.hpp"
 #include "../PrintOptions.hpp"
+#include "Completion.hpp"
 #if COMPILER
 #include "../../compiler/Compiler.hpp"
 #endif
@@ -49,7 +51,8 @@ public:
 	void analyze_global_functions(SemanticAnalyzer* analyzer);
 	void pre_analyze(SemanticAnalyzer* analyzer, const std::vector<const Type*>& args);
 	void analyze(SemanticAnalyzer* analyzer, const std::vector<const Type*>& args);
-	std::vector<std::string> autocomplete(SemanticAnalyzer& analyzer, size_t position);
+	std::vector<Completion> autocomplete(SemanticAnalyzer& analyzer, size_t position);
+	Json hover(SemanticAnalyzer& analyzer, size_t position);
 
 	#if COMPILER
 	void create_function(Compiler& c);

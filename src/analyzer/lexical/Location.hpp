@@ -1,6 +1,8 @@
 #ifndef LOCATION_HPP_
 #define LOCATION_HPP_
 
+#include <stdio.h>
+
 namespace ls {
 
 class File;
@@ -18,6 +20,8 @@ struct Location {
 	Position start;
 	Position end;
 	Location(File* file, Position start, Position end) : file(file), start(start), end(end) {}
+
+	bool contains(size_t position) const;
 };
 
 }

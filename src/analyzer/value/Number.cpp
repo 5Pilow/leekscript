@@ -90,6 +90,18 @@ void Number::analyze(SemanticAnalyzer* analyzer) {
 		} else {
 			type = env.tmp_mpz_ptr;
 		}
+		#else
+		try {
+			int_value = std::stoi(clean_value);
+			type = env.integer;
+		} catch (const std::out_of_range&) {
+			try {
+				long_value = std::stol(clean_value);
+				type = env.long_;
+			} catch (const std::out_of_range&) {
+				type = env.tmp_mpz_ptr;
+			}
+		}
 		#endif
 	}
 	if (pointer) {
@@ -107,10 +119,18 @@ bool Number::is_zero() const {
 	} else if (type->is_mpz_ptr()) {
 		#if COMPILER
 		return mpz_cmp_ui(mpz_value, 0) == 0;
+		#else
+		return false;
 		#endif
 	} else {
 		return int_value == 0;
 	}
+}
+
+Json Number::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	return {
+		{ "type", type->json() }
+	};
 }
 
 #if COMPILER

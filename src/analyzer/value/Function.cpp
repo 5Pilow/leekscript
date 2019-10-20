@@ -281,8 +281,12 @@ Call Function::get_callable(SemanticAnalyzer*, int argument_count) const {
 	return call;
 }
 
-std::vector<std::string> Function::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+std::vector<Completion> Function::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
 	return default_version->autocomplete(analyzer, position);
+}
+
+Json Function::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	return default_version->hover(analyzer, position);
 }
 
 #if COMPILER

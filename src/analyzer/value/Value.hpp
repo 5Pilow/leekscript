@@ -5,11 +5,13 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include "../../util/json.hpp"
 #include "../../constants.h"
 #include "../lexical/Location.hpp"
 #include "../semantic/Call.hpp"
 #include "../semantic/Assignment.hpp"
 #include "../PrintOptions.hpp"
+#include "../semantic/Completion.hpp"
 #if COMPILER
 #include "../../compiler/Compiler.hpp"
 #endif
@@ -64,7 +66,8 @@ public:
 	virtual const Type* version_type(std::vector<const Type*>) const;
 	virtual Call get_callable(SemanticAnalyzer*, int argument_count) const;
 	virtual void analyze(SemanticAnalyzer*);
-	virtual std::vector<std::string> autocomplete(SemanticAnalyzer& analyzer, size_t position) const;
+	virtual std::vector<Completion> autocomplete(SemanticAnalyzer& analyzer, size_t position) const;
+	virtual Json hover(SemanticAnalyzer& analyzer, size_t position) const;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const = 0;

@@ -66,6 +66,9 @@ public:
 	Variable* convert_var_to_any(Variable* var);
 	Variable* update_var(Variable* variable, bool add_mutation = true);
 
+	/**
+	 * Ajoute une erreur
+	 */
 	void add_error(Error ex);
 
 };

@@ -90,7 +90,7 @@ ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
 		{env.const_any, env.const_any, env.any, ADDR(op_add), THROWS},
 	});
 	operator_("+=", {
-		{env.const_any, env.const_any, env.any, ADDR((void*) ls_add_eq), THROWS, { new ConvertMutator() }, true}
+		{env.const_any, env.const_any, env.any, ADDR((void*) ls_add_eq), THROWS, { env.convert_mutator }, true}
 	});
 	operator_("-", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_sub), THROWS},

@@ -16,8 +16,4 @@
 #include "analyzer/semantic/Callable.hpp"
 #include "analyzer/resolver/File.hpp"
 
-namespace ls {
-	#define init() VM::static_init()
-}
-
 #endif

@@ -30,7 +30,7 @@ public:
 	std::vector<Function*> functions;
 	std::string file_name;
 	std::unordered_map<std::string, Variable*> operators;
-	File* main_file = nullptr;
+	std::unique_ptr<File> main_file;
 	Context* context = nullptr;
 	Result result;
 	#if COMPILER
@@ -44,7 +44,8 @@ public:
 	virtual ~Program();
 
 	void analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format, bool debug, bool sections);
-	std::vector<std::string> autocomplete(SemanticAnalyzer& analyzer, size_t position);
+	std::vector<Completion> autocomplete(SemanticAnalyzer& analyzer, size_t position);
+	Json hover(SemanticAnalyzer& analyzer, size_t position);
 
 	/*
 	 * Compile the program with a VM and a context (json)

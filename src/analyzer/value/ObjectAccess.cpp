@@ -104,6 +104,8 @@ Call ObjectAccess::get_callable(SemanticAnalyzer* analyzer, int argument_count) 
 		object_class = analyzer->globals[object_class_name]->clazz;
 	}
 
+	if (not field) return { (Callable*) nullptr };
+
 	// <object>.<method>
 	if (object_class) {
 		auto i = object_class->methods.find(field->content);
@@ -161,12 +163,13 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 		}
 	}
 
+	if (not field) return;
+
 	// Static attribute? (Number.PI <= static attr)
 	auto vv = dynamic_cast<VariableValue*>(object.get());
 
 	bool found = false;
 	if (object->type->is_class() and vv != nullptr and analyzer->globals.find(vv->name) != analyzer->globals.end()) {
-
 		auto std_class = analyzer->globals[vv->name]->clazz;
 		auto i = std_class->methods.find(field->content);
 		if (i != std_class->methods.end()) {
@@ -278,23 +281,38 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 	}
 }
 
-std::vector<std::string> ObjectAccess::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
-	std::cout << "ObjectAccess complete " << position << std::endl;
+std::vector<Completion> ObjectAccess::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+	// std::cout << "ObjectAccess complete " << position << std::endl;
 	if (position >= dot->location.end.raw) {
 
-		std::vector<std::string> completions;
+		std::vector<Completion> completions;
 
-		auto std_class = analyzer.globals[object->type->class_name()]->clazz;
-		for (const auto& method : std_class->methods) {
-			completions.push_back(method.first);
-		}
+		// std::cout << "Object type = " << object->type->class_name() << std::endl;
 
+		// Number.<xxx>
 		auto vv = dynamic_cast<VariableValue*>(object.get());
 		if (object->type->is_class() and vv) {
 			auto std_class = analyzer.globals[vv->name]->clazz;
 			for (const auto& method : std_class->methods) {
-				completions.push_back(method.first);
+				if (method.second.versions.front().flags & Module::PRIVATE) continue;
+				completions.push_back({ method.first, CompletionType::METHOD, method.second.versions.front().type });
 			}
+			for (const auto& field : std_class->static_fields) {
+				completions.push_back({ field.first, CompletionType::FIELD, field.second.type });
+			}
+		}
+
+		// 123.<xxx>
+		Class* current_class = analyzer.globals[object->type->class_name()]->clazz;
+		while (current_class) {
+			for (const auto& field : current_class->fields) {
+				completions.push_back({ field.first, CompletionType::FIELD, field.second.type });
+			}
+			for (const auto& method : current_class->methods) {
+				if (method.second.versions.front().flags & Module::PRIVATE) continue;
+				completions.push_back({ method.first, CompletionType::METHOD, method.second.versions.front().type });
+			}
+			current_class = current_class->parent;
 		}
 
 		return completions;
@@ -302,6 +320,16 @@ std::vector<std::string> ObjectAccess::autocomplete(SemanticAnalyzer& analyzer, 
 	return {};
 }
 
+Json ObjectAccess::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	if (position < dot->location.end.raw) {
+		return object->hover(analyzer, position);
+	} else {
+		return {
+			{ "type", type->json() }
+		};
+	}
+	return {};
+}
 
 #if COMPILER
 Compiler::value ObjectAccess::compile(Compiler& c) const {
