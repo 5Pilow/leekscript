@@ -50,15 +50,17 @@ void ObjectAccess::set_version(SemanticAnalyzer* analyzer, const std::vector<con
 	// std::cout << "ObjectAccess::set_version(" << args << ", " << level << ")" << std::endl;
 	has_version = true;
 	if (call) {
-		for (const auto& m : call->callable->versions) {
-			auto v = m->type->arguments();
-			bool equals = v.size() == args.size() and std::equal(v.begin(), v.end(), args.begin(), [](const Type* a, const Type* b) {
-				return a->operator == (b);
-			});
-			if (equals) {
-				type = Type::fun(m->type->return_type(), v, (const Value*) this)->pointer();
-				version = v;
-				return;
+		for (const auto& callable : call->callables) {
+			for (const auto& m : callable->versions) {
+				auto v = m.type->arguments();
+				bool equals = v.size() == args.size() and std::equal(v.begin(), v.end(), args.begin(), [](const Type* a, const Type* b) {
+					return a->operator == (b);
+				});
+				if (equals) {
+					type = Type::fun(m.type->return_type(), v, (const Value*) this)->pointer();
+					version = v;
+					return;
+				}
 			}
 		}
 	}
@@ -68,13 +70,15 @@ void ObjectAccess::set_version(SemanticAnalyzer* analyzer, const std::vector<con
 const Type* ObjectAccess::version_type(std::vector<const Type*> args) const {
 	// std::cout << "ObjectAccess::version_tyoe(" << args << ")" << std::endl;
 	if (call) {
-		for (const auto& m : call->callable->versions) {
-			auto version = m->type->arguments();
-			bool equals = version.size() == args.size() and std::equal(version.begin(), version.end(), args.begin(), [](const Type* a, const Type* b) {
-				return a->operator == (b);
-			});
-			if (equals) {
-				return Type::fun(m->type->return_type(), args, (const Value*) this)->pointer();
+		for (const auto& callable : call->callables) {
+			for (const auto& m : callable->versions) {
+				auto version = m.type->arguments();
+				bool equals = version.size() == args.size() and std::equal(version.begin(), version.end(), args.begin(), [](const Type* a, const Type* b) {
+					return a->operator == (b);
+				});
+				if (equals) {
+					return Type::fun(m.type->return_type(), args, (const Value*) this)->pointer();
+				}
 			}
 		}
 	}
@@ -130,7 +134,7 @@ Call ObjectAccess::get_callable(SemanticAnalyzer* analyzer, int argument_count) 
 		std::ostringstream oss;
 		oss << object.get() << "." << field->content;
 		auto type = Type::fun_object(env.any, { env.any, env.any });
-		return { new Callable { new CallableVersion { oss.str(), type, this, {}, {}, true, true } }, object.get() };
+		return { { { oss.str(), type, this, {}, {}, true, true } }, object.get() };
 	}
 	return { (Callable*) nullptr };
 }
@@ -170,10 +174,10 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 			auto& method = i->second;
 			int i = 0;
 			for (const auto& m : method.versions) {
-				versions.insert({ m->type->arguments(), std_class->name + "." + field->content + "." + std::to_string(i) });
+				versions.insert({ m.type->arguments(), std_class->name + "." + field->content + "." + std::to_string(i) });
 				i++;
 			}
-			type = Type::fun(method.versions[0]->type->return_type(), method.versions[0]->type->arguments(), (ObjectAccess*) this)->pointer();
+			type = Type::fun(method.versions[0].type->return_type(), method.versions[0].type->arguments(), (ObjectAccess*) this)->pointer();
 			default_version_fun = std_class->name + "." + field->content;
 			class_method = true;
 			call = new Call { &method };
@@ -242,20 +246,20 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 				auto i = object_class->methods.find(field->content);
 				if (i != object_class->methods.end()) {
 					for (const auto& m : i->second.versions) {
-						if (!m->addr) continue;
-						versions.insert({m->type->arguments(), object_class->name + "." + field->content});
+						if (!m.addr) continue;
+						versions.insert({m.type->arguments(), object_class->name + "." + field->content});
 					}
-					type = i->second.versions[0]->type->pointer();
+					type = i->second.versions[0].type->pointer();
 					default_version_fun = object_class->name + "." + field->content;
 					class_method = true;
 				} else {
 					auto i = value_class->methods.find(field->content);
 					if (i != value_class->methods.end()) {
 						for (const auto& m : i->second.versions) {
-							if (!m->addr) continue;
-							versions.insert({ m->type->arguments(), "Value." + field->content });
+							if (!m.addr) continue;
+							versions.insert({ m.type->arguments(), "Value." + field->content });
 						}
-						type = i->second.versions[0]->type;
+						type = i->second.versions[0].type;
 						default_version_fun = "Value." + field->content;
 						class_field = true;
 					} else {

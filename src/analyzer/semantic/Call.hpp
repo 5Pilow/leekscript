@@ -2,6 +2,7 @@
 #define CALL_HPP_
 
 #include <vector>
+#include <memory>
 #include "../../constants.h"
 #if COMPILER
 #include "../../compiler/Compiler.hpp"
@@ -17,15 +18,16 @@ class Value;
 
 class Call {
 public:
-	Callable* callable = nullptr;
+	std::vector<Callable*> callables;
 	Value* object = nullptr;
 
 	Call() {}
-	Call(Callable* callable) : callable(callable) {}
-	Call(Callable* callable, Value* object) : callable(callable), object(object) {}
-	Call(std::vector<const CallableVersion*> versions);
-	Call(std::initializer_list<const CallableVersion*> versions);
-	void add_version(const CallableVersion* v);
+	Call(Callable* callable) : callables({ callable }) {}
+	Call(Callable* callable, Value* object) : callables({ callable }), object(object) {}
+	Call(std::vector<CallableVersion> versions);
+	Call(std::initializer_list<CallableVersion> versions);
+	Call(std::initializer_list<CallableVersion> versions, Value* object);
+	void add_callable(Callable* callable);
 
 	const CallableVersion* resolve(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const;
 	void apply_mutators(SemanticAnalyzer* analyzer, const CallableVersion* version, std::vector<Value*> arguments) const;

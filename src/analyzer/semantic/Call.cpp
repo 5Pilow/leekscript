@@ -9,11 +9,13 @@
 
 namespace ls {
 
-Call::Call(std::vector<const CallableVersion*> versions) : callable(new Callable(versions)) {}
-Call::Call(std::initializer_list<const CallableVersion*> versions) : callable(new Callable(versions)) {}
+// Call::Call(std::vector<CallableVersion> versions) : callable(new Callable { versions }) {}
+Call::Call(std::initializer_list<CallableVersion> versions) : callables({ new Callable { versions } }) {}
 
-void Call::add_version(const CallableVersion* v) {
-	callable->add_version(v);
+Call::Call(std::initializer_list<CallableVersion> versions, Value* object) : callables({ new Callable { versions } }), object(object) {}
+
+void Call::add_callable(Callable* callable) {
+	callables.push_back(callable);
 }
 
 const CallableVersion* Call::resolve(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const {
@@ -21,7 +23,20 @@ const CallableVersion* Call::resolve(SemanticAnalyzer* analyzer, std::vector<con
 	if (object) {
 		arguments.insert(arguments.begin(), object->type);
 	}
-	return callable->resolve(analyzer, arguments);
+	const CallableVersion* best = nullptr;
+	int best_score = std::numeric_limits<int>::max();
+	for (const auto& callable : callables) {
+		for (auto& version : callable->versions) {
+			if ((version.flags & Module::DEFAULT) != 0) continue;
+			auto result = version.get_score(analyzer, arguments);
+			// std::cout << "version " << version << " score " << result.first << std::endl;
+			if ((best == nullptr or result.first <= best_score) and result.first != std::numeric_limits<int>::max()) {
+				best_score = result.first;
+				best = result.second;
+			}
+		}
+	}
+	return best;
 }
 
 void Call::apply_mutators(SemanticAnalyzer* analyzer, const CallableVersion* version, std::vector<Value*> values) const {

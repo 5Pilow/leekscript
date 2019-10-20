@@ -46,10 +46,10 @@ Call ArrayAccess::get_callable(SemanticAnalyzer* analyzer, int argument_count) c
 	const auto& env = analyzer->env;
 	// std::cout << "Array access get callable " << type << std::endl;
 	if (type->is_function()) {
-		return { new Callable { new CallableVersion { "<aa>", type, this } } };
+		return { { { "<aa>", type, this } } };
 	} else {
 		// The array is not homogeneous, so the function inside an array always returns any
-		return { new Callable { new CallableVersion { "<aa>", Type::fun(env.any, { env.any }), this, {}, {}, false, true } } };
+		return { { { "<aa>", Type::fun(env.any, { env.any }), this, {}, {}, false, true } } };
 	}
 }
 

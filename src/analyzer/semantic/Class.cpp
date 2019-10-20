@@ -9,6 +9,12 @@
 
 namespace ls {
 
+Class::field::field(std::string name, const Type* type, void* fun) : name(name), type(type)
+#if COMPILER
+, native_fun(fun)
+#endif
+{}
+
 Class::Class(Environment& env, std::string name) : env(env), name(name) {}
 
 Class::~Class() {
@@ -28,7 +34,7 @@ Class::~Class() {
 	}
 }
 
-const Callable* Class::getOperator(SemanticAnalyzer* analyzer, std::string& name) {
+const Call& Class::getOperator(SemanticAnalyzer* analyzer, std::string& name) {
 	// std::cout << "getOperator(" << name << ")" << std::endl;
 	if (name == "is not") name = "!=";
 	else if (name == "÷") name = "/";
@@ -37,44 +43,36 @@ const Callable* Class::getOperator(SemanticAnalyzer* analyzer, std::string& name
 	if (o != operators_callables.end()) {
 		return o->second;
 	}
-	auto callable = new Callable();
+	Call call;
 	auto i = operators.find(name);
 	if (i != operators.end()) {
-		for (const auto& impl : i->second) {
-			callable->add_version(&impl);
-		}
+		call.add_callable(&i->second);
 	}
 	if (this->name != "Value") {
 		auto value_class = analyzer->globals["Value"]->clazz;
 		auto i = value_class->operators.find(name);
 		if (i != value_class->operators.end()) {
-			for (const auto& impl : i->second) {
-				callable->add_version(&impl);
-			}
+			call.add_callable(&i->second);
 		}
 	}
-	if (callable->versions.size()) {
-		operators_callables.insert({ name, callable });
-		// oppa oppa gangnam style tetetorettt tetetorett ! blank pink in the areaaahhh !! bombayah bomm bayah bom bayahh yah yahh yahhh yahh ! bom bom ba BOMBAYAH !!!ya ya ya ya ya ya OPPA !!
-		return callable;
-	}
-	return nullptr;
+	// oppa oppa gangnam style tetetorettt tetetorett ! blank pink in the areaaahhh !! bombayah bomm bayah bom bayahh yah yahh yahhh yahh ! bom bom ba BOMBAYAH !!!ya ya ya ya ya ya OPPA !!
+	return operators_callables.insert({ name, call }).first->second;
 }
 
 void Class::addMethod(std::string name, std::initializer_list<CallableVersion> impl, std::vector<const Type*> templates, int flags, bool legacy) {
 	Callable callable;
 	for (const auto& v : impl) {
 		if ((v.flags & Module::LEGACY) and not legacy) continue;
-		callable.add_version(new CallableVersion { v });
+		callable.add_version(v);
 	}
 	methods.insert({name, callable});
 	int i = 0;
 	for (auto& m : methods.at(name).versions) {
-		((CallableVersion*) m)->name = this->name + "." + name + "." + std::to_string(i++);
+		m.name = this->name + "." + name + "." + std::to_string(i++);
 		if (templates.size()) {
-			((CallableVersion*) m)->templates = templates;
+			m.templates = templates;
 		}
-		((CallableVersion*) m)->flags |= flags;
+		m.flags |= flags;
 	}
 	// Add first implementation as default method
 	#if COMPILER
@@ -90,7 +88,7 @@ void Class::addField(std::string name, const Type* type, std::function<Compiler:
 }
 #endif
 void Class::addField(std::string name, const Type* type, void* fun) {
-	fields.insert({name, {name, type, fun, nullptr}});
+	fields.insert({name, {name, type, fun}});
 }
 
 void Class::addStaticField(field f) {
@@ -98,15 +96,15 @@ void Class::addStaticField(field f) {
 }
 
 void Class::addOperator(std::string name, std::initializer_list<CallableVersion> impl, std::vector<const Type*> templates, bool legacy) {
-	std::vector<CallableVersion> versions;
+	Callable callable;
 	for (const auto& v : impl) {
 		if ((v.flags & Module::LEGACY) and not legacy) continue;
-		versions.push_back(v);
+		callable.add_version(v);
 	}
-	if (not versions.size()) return;
-	operators.insert({name, versions});
+	if (not callable.versions.size()) return;
+	operators.insert({name, callable});
 	int i = 0;
-	for (auto& m : operators.at(name)) {
+	for (auto& m : operators.at(name).versions) {
 		m.name = this->name + ".operator" + name + "." + std::to_string(i++);
 		if (templates.size()) {
 			m.templates = templates;

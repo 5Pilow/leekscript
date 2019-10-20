@@ -163,11 +163,11 @@ void* VM::resolve_symbol(std::string name) {
 			if (method.substr(0, 8) == "operator") {
 				const auto& op = method.substr(8);
 				const auto& implems = clazz->operators.at(op);
-				return implems.at(version).addr;
+				return implems.versions.at(version).addr;
 			} else {
 				if (clazz->methods.find(method) != clazz->methods.end()) {
 					const auto& implems = clazz->methods.at(method);
-					return implems.versions.at(version)->addr;
+					return implems.versions.at(version).addr;
 				} else if (clazz->static_fields.find(method) != clazz->static_fields.end()) {
 					if (clazz->static_fields.at(method).native_fun) {
 						return clazz->static_fields.at(method).native_fun;

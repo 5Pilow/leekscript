@@ -13,8 +13,9 @@ public:
 	FileContext* context;
 	std::vector<Error> errors;
 	std::vector<Token> tokens;
+	Token finished_token;
 
-	File(std::string path, std::string code, FileContext* context) {
+	File(std::string path, std::string code, FileContext* context) : finished_token({ TokenType::FINISHED, this, 0, 0, 0, "" }) {
 		this->path = path;
 		this->code = code;
 		this->context = context;

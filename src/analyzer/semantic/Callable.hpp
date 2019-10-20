@@ -3,25 +3,26 @@
 
 #include <vector>
 #include <iostream>
+#include <memory>
+#include "CallableVersion.hpp"
 
 namespace ls {
 
 class Value;
-class CallableVersion;
 class SemanticAnalyzer;
 class Type;
 
 class Callable {
 public:
-	std::vector<const CallableVersion*> versions;
+	std::vector<CallableVersion> versions;
 
 	Callable() {}
-	Callable(std::vector<const CallableVersion*> versions) : versions(versions) {}
-	Callable(std::initializer_list<const CallableVersion*> versions) : versions(versions) {}
+	Callable(std::initializer_list<CallableVersion> versions) : versions(versions) {}
+	// Callable(std::initializer_list<std::unique_ptr<const CallableVersion>> versions) : versions(versions) {}
 
 	const CallableVersion* resolve(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const;
 	bool is_compatible(int argument_count);
-	void add_version(const CallableVersion* version);
+	void add_version(CallableVersion version);
 };
 
 }

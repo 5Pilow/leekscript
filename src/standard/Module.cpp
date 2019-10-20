@@ -50,11 +50,11 @@ void Module::static_field(std::string name, const Type* type, std::function<Comp
 }
 #endif
 void Module::static_field(std::string name, const Type* type, void* addr) {
-	clazz->addStaticField({name, type, addr, nullptr});
+	clazz->addStaticField({name, type, addr});
 }
 void Module::static_field_fun(std::string name, const Type* type, void* fun) {
 	#if COMPILER
-	clazz->addStaticField({name, type, fun, nullptr});
+	clazz->addStaticField({name, type, fun});
 	#endif
 }
 void Module::constructor_(std::initializer_list<CallableVersion> methods) {
@@ -122,10 +122,10 @@ void Module::generate_doc(std::ostream& os, std::string translation_file) {
 	e = 0;
 	for (auto& m : clazz->methods) {
 		auto& impl = m.second;
-		if (impl.versions[0]->flags & PRIVATE) continue;
+		if (impl.versions[0].flags & PRIVATE) continue;
 		if (e > 0) os << ",";
 		os << "{\"name\":\"" << m.first << "\",\"type\":";
-		os << impl.versions[0]->type->json();
+		os << impl.versions[0].type->json();
 
 		if (translation_map.find(m.first) != translation_map.end()) {
 			Json json = translation_map[m.first];
@@ -137,7 +137,7 @@ void Module::generate_doc(std::ostream& os, std::string translation_file) {
 			os << ",\"return\":\"" << return_desc << "\"";
 			os << ",\"examples\":" << json["examples"];
 		}
-		os << ",\"flags\":" << impl.versions[0]->flags;
+		os << ",\"flags\":" << impl.versions[0].flags;
 		os << "}";
 		e++;
 	}
@@ -148,7 +148,7 @@ void Module::generate_doc(std::ostream& os, std::string translation_file) {
 		auto& impl = m.second;
 		if (e > 0) os << ",";
 		os << "\"" << m.first << "\":{\"type\":";
-		os << impl.versions[0]->type->json();
+		os << impl.versions[0].type->json();
 
 		if (translation_map.find(m.first) != translation_map.end()) {
 			Json json = translation_map[m.first];

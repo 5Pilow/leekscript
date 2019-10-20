@@ -55,7 +55,7 @@ void Test::test_objects() {
 	code("let a = {b: 12} a.b %= 10").equals("2");
 	code("let o = {} o.new_val = 12 o").equals("{new_val: 12}");
 	code("let o = {a: 'a'} o.b = 'b' o").equals("{a: 'a', b: 'b'}");
-	code("Object.readonly.v = 5").exception(ls::vm::Exception::CANT_MODIFY_READONLY_OBJECT);
+	DISABLED_code("Object.readonly.v = 5").exception(ls::vm::Exception::CANT_MODIFY_READONLY_OBJECT);
 	code("let o = [{}, ''][0] o.values").equals("<function>");
 	code("let pq = [{p: 22, v: 55}] pq[0].p").equals("22");
 	code("let pq = [{p: 22, v: 55}] let o = pq[0] o.v").equals("55");

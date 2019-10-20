@@ -1517,7 +1517,7 @@ Token* SyntaxicAnalyzer::eat_get(TokenType type) {
 	if (i < file->tokens.size() - 1) {
 		t = &file->tokens[++i];
 	} else {
-		t = new Token(TokenType::FINISHED, file, 0, 0, 0, "");
+		t = &file->finished_token;
 	}
 	nt = i < file->tokens.size() - 1 ? &file->tokens[i + 1] : nullptr;
 

@@ -59,84 +59,84 @@ Call VariableValue::get_callable(SemanticAnalyzer* analyzer, int argument_count)
 		auto fun = ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 			return c.insn_call(args[1], {args[0]});
 		});
-		return { new CallableVersion { name, type, fun, {}, {R, T} } };
+		return { { name, type, fun, {}, {R, T} } };
 	}
 	if (name == "Number") {
 		return {
-			new CallableVersion { "Number", Type::fun(env.integer, {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
+			{ "Number", Type::fun(env.integer, {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
 				return c.new_integer(0);
 			}) },
-			new CallableVersion { "Number", Type::fun(env.real, {env.real}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
+			{ "Number", Type::fun(env.real, {env.real}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 				return c.to_real(args[0]);
 			}) },
-			new CallableVersion { "Number", Type::fun(env.tmp_mpz_ptr, {env.mpz_ptr}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
+			{ "Number", Type::fun(env.tmp_mpz_ptr, {env.mpz_ptr}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 				return args[0];
 			}) }
 		};
 	}
 	if (name == "Boolean") {
 		auto type = Type::fun(env.boolean, {});
-		return { new CallableVersion { "Boolean", type, ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
+		return { { "Boolean", type, ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
 			return c.new_bool(false);
 		}) } };
 	}
 	if (name == "String") {
 		return {
-			new CallableVersion { "String.new", Type::fun(env.tmp_string, {}) },
-			new CallableVersion { "String", Type::fun(env.tmp_string, {env.string}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
+			{ "String.new", Type::fun(env.tmp_string, {}) },
+			{ "String", Type::fun(env.tmp_string, {env.string}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 				return args[0];
 			}) }
 		};
 	}
 	if (name == "Array") {
-		return { new CallableVersion { "Array", Type::fun(Type::array(env.any), {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
+		return { { "Array", Type::fun(Type::array(env.any), {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
 			return c.new_array(env.void_, {});
 		}) } };
 	}
 	if (name == "Object") {
-		return { new CallableVersion { "Object", Type::fun(env.tmp_object, {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
+		return { { "Object", Type::fun(env.tmp_object, {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
 			return c.new_object();
 		}) } };
 	}
 	if (name == "Set") {
-		return { new CallableVersion { "Set.new", Type::fun(Type::tmp_set(env.any), {}) } };
+		return { { "Set.new", Type::fun(Type::tmp_set(env.any), {}) } };
 	}
 	if (type->is_class()) {
 		auto type = Type::fun(env.any, {env.clazz()});
-		return { new Callable {
-			{ new CallableVersion { name, type, ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
+		return { {
+			{ name, type, ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
 				return c.new_object_class(args[0]);
-			}) } }
+			}) }
 		}, (Value*) this };
 	}
 	if (var) {
-		if (var->call.callable) return var->call;
+		if (var->call.callables.size()) return var->call;
 		if (var->value) {
-			Call call { new Callable() };
+			Call call;
 			auto c = var->value->get_callable(analyzer, argument_count);
-			for (const auto& v : c.callable->versions) {
-				auto nv = new CallableVersion { *v };
-				nv->value = this;
-				call.add_version(nv);
+			for (const auto& callable : c.callables) {
+				auto callable2 = new Callable();
+				for (const auto& v : callable->versions) {
+					auto nv = v;
+					nv.value = this;
+					callable2->add_version(nv);
+				}
+				call.add_callable(callable2);
 			}
 			return call;
 		}
 	} else {
-		Call call { new Callable() };
+		Call call;
 		for (const auto& variable : analyzer->globals) {
 			if (variable.second->type->is_class()) {
 				const auto& cl = variable.second->clazz;
 				auto m = cl->methods.find(name);
 				if (m != cl->methods.end()) {
-					for (auto& i : m->second.versions) {
-						call.add_version(i);
-					}
+					call.add_callable(&m->second);
 				}
 			}
 		}
-		if (call.callable->versions.size()) {
-			return call;
-		}
+		return call;
 	}
 	return {};
 }
@@ -182,10 +182,10 @@ void VariableValue::analyze(SemanticAnalyzer* analyzer) {
 				const auto& cl = variable.second->clazz;
 				for (const auto& m : cl->methods) {
 					if (m.first == name) {
-						type = m.second.versions.at(0)->type;
+						type = m.second.versions.at(0).type;
 						found = true;
 						for (const auto& i : m.second.versions) {
-							versions.insert({ i->type->arguments(), variable.first + "." + name });
+							versions.insert({ i.type->arguments(), variable.first + "." + name });
 						}
 						class_method = true;
 						break;
@@ -267,9 +267,11 @@ const Type* VariableValue::version_type(std::vector<const Type*> version) const 
 		return var->value->version_type(version);
 	}
 	if (var) {
-		for (const auto& v : var->call.callable->versions) {
-			if (v->type->arguments() == version) {
-				return v->type;
+		for (const auto& callable : var->call.callables) {
+			for (const auto& v : callable->versions) {
+				if (v.type->arguments() == version) {
+					return v.type;
+				}
 			}
 		}
 	}
