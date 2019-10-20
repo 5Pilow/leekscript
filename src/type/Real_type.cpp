@@ -35,12 +35,12 @@ int Real_type::distance(const Type* type) const {
 llvm::Type* Real_type::llvm(Compiler& c) const {
 	return llvm::Type::getDoubleTy(c.getContext());
 }
+#endif
 Json Real_type::json() const {
 	return {
 		{ "name", "real" }
 	};
 }
-#endif
 std::string Real_type::class_name() const {
 	return "Number";
 }
