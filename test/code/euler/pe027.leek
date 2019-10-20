@@ -5,29 +5,29 @@ function numPrimes(a, b) {
 	return n
 }
 
-print(numPrimes(-79, 1601))
+// print(numPrimes(-79, 1601))
 
 var max = 0;
 var maxA = 0, maxB = 0;
 
 for (var a = -999; a < 1000; ++a) {
     for (var b = -999; b < 1000; ++b) {
-        
+
         if (b.isPrime()) { // b doit etre premier !
-        
+
             var num = numPrimes(a, b);
             if (num > max) {
-                max = num;
-                maxA = a;
-                maxB = b;
+                max = num
+                maxA = a
+                maxB = b
             }
         }
     }
 }
-
+/*
 print("Nombre de premiers : " + max)
 print("a : " + maxA)
 print("b : " + maxB)
 print("ab : " + maxA * maxB)
-
+*/
 return maxA * maxB

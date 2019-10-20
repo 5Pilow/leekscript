@@ -12,7 +12,7 @@ for var i = 2; i < S; ++i {
 	}
 }
 numbers.size()
-/*
+
 var sum = 0l
 for i, p in numbers {
 	if p sum += i

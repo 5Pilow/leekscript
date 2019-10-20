@@ -769,6 +769,8 @@ void Test::test_numbers() {
 	section("Number.pow");
 	code("2.pow(10)").equals("1024");
 	code("Number.pow([10, ''][0], 5)").equals("100000");
+	code("3000.pow(3)").equals("2147483648");
+	code("3000l.pow(3)").equals("27000000000");
 
 	section("Object-like calls");
 	code("(-12).abs()").equals("12");

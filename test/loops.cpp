@@ -199,6 +199,7 @@ void Test::test_loops() {
 	DISABLED_code("var fs = [] fs.push(s -> {var sum = 0 for v in s {sum += v} sum}) fs[0](<1, 2>)").equals("3"); // TODO issue #243
 	DISABLED_code("var fs = [] fs.push(s -> {[for v in s {v}]}) fs[0](<2,1>)").equals("[1, 2]"); // TODO issue #243
 	code("var s = 0l for i in [0..1000] { s += i ** 2 } s").equals("333833500");
+	code("var S = 'salut' var N = [] for var s in S.split('') { N += String.code(s) } N").equals("[115, 97, 108, 117, 116]");
 
 	section("Foreach - double");
 	code("var r = [] for x in [1, 2, 3] { for y in [4, 5, 6] { r += x * y }} r").equals("[4, 5, 6, 8, 10, 12, 12, 15, 18]");

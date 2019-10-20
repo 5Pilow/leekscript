@@ -56,17 +56,17 @@ void Test::test_files() {
 	file("test/code/euler/pe005.leek").equals("232792560");
 	file("test/code/euler/pe006.leek").equals("25164150");
 	file("test/code/euler/pe007.leek").equals("104743");
-	DISABLED_file("test/code/euler/pe008.leek").ops_limit(1000000).equals("23514624000");
+	file("test/code/euler/pe008.leek").equals("23514624000");
 	file("test/code/euler/pe009.leek").equals("31875000");
-	DISABLED_file("test/code/euler/pe010.leek").equals("142913828922");
+	file("test/code/euler/pe010.leek").equals("142913828922");
 	file("test/code/euler/pe011.leek").equals("70600674");
-	DISABLED_file("test/code/euler/pe012.leek").equals("76576500");
+	file("test/code/euler/pe012.leek").equals("76576500");
 	file("test/code/euler/pe013.leek").equals("5537376230");
 	DISABLED_file("test/code/euler/pe014.leek").equals("837799");
 	DISABLED_file("test/code/euler/pe015.leek").equals("137846528820");
 	file("test/code/euler/pe016.leek").equals("1366");
 	file("test/code/euler/pe017.leek").equals("21124");
-	DISABLED_file("test/code/euler/pe018.leek").equals("1074");
+	file("test/code/euler/pe018.leek").equals("1074");
 	file("test/code/euler/pe019.leek").equals("171");
 	file("test/code/euler/pe020.leek").equals("648");
 	file("test/code/euler/pe021.leek").equals("31626");
@@ -75,8 +75,8 @@ void Test::test_files() {
 	file("test/code/euler/pe024.leek").equals("2783915460");
 	file("test/code/euler/pe025.leek").equals("4782");
 	// TODO needs mpf numbers
-	DISABLED_file("test/code/euler/pe026.leek").equals("");
-	DISABLED_file("test/code/euler/pe027.leek").equals("");
+	// file("test/code/euler/pe026.leek").equals("");
+	file("test/code/euler/pe027.leek").equals("-59231");
 	file("test/code/euler/pe028.leek").equals("669171001");
 	file("test/code/euler/pe062.leek").equals("127035954683");
 	file("test/code/euler/pe063.leek").equals("49");

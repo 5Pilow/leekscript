@@ -20,8 +20,7 @@ let S =
 "05886116467109405077541002256983155200055935729725" +
 "71636269561882670428252483600823257530420752963450"
 
-// TODO : declare [] only, will work with advanced assignments
-var N = [0].clear()
+var N = []
 for var s in S.split('') {
 	N += String.code(s) - String.code('0')
 }

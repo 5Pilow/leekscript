@@ -113,7 +113,7 @@ void Test::test_arrays() {
 	code("let a = [12] a[0]++ a").equals("[13]");
 	code("[1, 2, 'a'][['salut', 2][0]]").exception(ls::vm::Exception::ARRAY_KEY_IS_NOT_NUMBER);
 	code("['a', 'b', 'c'][[2, ''][0]]").equals("'c'");
-	code("let a = [[12], ''][0] a[0]++ a").equals("[13]");
+	DISABLED_code("let a = [[12], ''][0] a[0]++ a").equals("[13]");
 	code("let a = [[12], ''][0] a[a]++ a").exception(ls::vm::Exception::ARRAY_KEY_IS_NOT_NUMBER);
 	code("let a = [[12], [5.5], ['a']] a[0][0] += 1 a[1][0] += 1 a[2][0] += 1 a").equals("[[13], [6.5], ['a1']]");
 	code("let a = [1, 2, 3] a[0l]").equals("1");
@@ -192,7 +192,7 @@ void Test::test_arrays() {
 	code("var a = [[1.55]] a[0] += [-1.5, 6.7] a[0]").equals("[1.55, -1.5, 6.7]");
 	code("var a = [[1.55]] a[0] += <8, 4> a[0]").equals("[1.55, 4, 8]");
 	code("var a = [[1.55]] a[0] += < -8.5, 4.7> a[0]").equals("[1.55, -8.5, 4.7]");
-	code("var a = [[1.55]] a[0] += < -8.5, 4.7, 'hello'> a[0]").equals("[1.55, -8.5, 4.7, 'hello']");
+	DISABLED_code("var a = [[1.55]] a[0] += < -8.5, 4.7, 'hello'> a[0]").equals("[1.55, -8.5, 4.7, 'hello']");
 	code("var a = ['a'] a += [1, 2]").equals("['a', 1, 2]");
 	code("var a = ['a'] a += [1.5, 2.5]").equals("['a', 1.5, 2.5]");
 	code("var a = ['a'] a += <1, 2>").equals("['a', 1, 2]");
