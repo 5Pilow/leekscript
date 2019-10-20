@@ -335,7 +335,6 @@ LSValue* string_charAt(LSString* string, int index) {
 
 LSValue* StringSTD::chunk(LSString* string, int size) {
 	auto result = new LSArray<LSValue*>();
-	auto str = string->c_str();
 	auto l = string->size();
 	for (size_t i = 0; i < l; i += size) {
 		result->push_move(new LSString(string->substr(i, size)));
