@@ -91,7 +91,7 @@ std::vector<std::string> Program::autocomplete(SemanticAnalyzer& analyzer, size_
 #if COMPILER
 void Program::compile_leekscript(Compiler& c, bool format, bool debug, bool bitcode, bool pseudo_code, bool optimized_ir) {
 
-	if (not result.analyzed) {
+	if (result.errors.size()) {
 		return;
 	}
 
