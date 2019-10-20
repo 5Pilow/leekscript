@@ -24,21 +24,14 @@ void If::print(std::ostream& os, int indent, PrintOptions options) const {
 	// 	elze->sections[0]->instructions[0]->print(os, indent, options);
 	// 	os << ")";
 	// } else {
-		os << "if (";
-		condition->print(os, indent + 1, options);
-		os << ") ";
-		then->print(os, indent, options);
-		if (elze != nullptr and (options.sections or elze->instructions.size())) {
-			os << " else ";
-			elze->print(os, indent, options);
-		}
-	// }
-	// if (options.debug) {
-	// 	os << " " << type;
-	// 	for (const auto& phi : phis) {
-	// 		os << std::endl << tabs(indent) << phi->variable << " = phi(" << phi->variable1 << " " << phi->variable1->type << ", " << phi->variable2 << " " << phi->variable2->type << ") " << phi->variable->type;
-	// 	}
-	// }
+	os << "if (";
+	condition->print(os, indent + 1, options);
+	os << ") ";
+	then->print(os, indent, options);
+	if (elze != nullptr and (options.sections or elze->instructions.size())) {
+		os << " else ";
+		elze->print(os, indent, options);
+	}
 }
 
 Location If::location() const {
@@ -53,11 +46,6 @@ void If::pre_analyze(SemanticAnalyzer* analyzer) {
 		elze->branch = elze.get();
 		elze->pre_analyze(analyzer);
 	}
-	// if (elze) {
-	// 	phis = Phi::build_phis(analyzer, then.get(), elze.get());
-	// } else {
-	// 	phis = Phi::build_phis(analyzer, analyzer->current_block(), then.get());
-	// }
 }
 
 void If::analyze(SemanticAnalyzer* analyzer) {
@@ -92,22 +80,10 @@ void If::analyze(SemanticAnalyzer* analyzer) {
 	may_return = then->may_return or (elze != nullptr and elze->may_return);
 	return_type = then->return_type;
 	if (elze != nullptr) return_type = return_type->operator + (elze->return_type);
-
-	// for (const auto& phi : phis) {
-	// 	phi->variable->type = phi->variable1->type->operator + (phi->variable2->type);
-	// }
-	// std::cout << "If type = " << type << std::endl;
 }
 
 #if COMPILER
 Compiler::value If::compile(Compiler& c) const {
-
-	// for (const auto& phi : phis) {
-	// 	if (phi->variable1->block->branch != then->branch) {
-	// 		// std::cout << "Variable export last value for phi " << phi->variable1 << std::endl;
-	// 		phi->value1 = c.insn_convert(c.insn_load(phi->variable1->val), phi->variable->type);
-	// 	}
-	// }
 
 	Compiler::value then_v { c.env };
 	Compiler::value else_v { c.env };
@@ -146,24 +122,6 @@ Compiler::value If::compile(Compiler& c) const {
 		}}();
 		return r;
 	}
-
-	// for (const auto& phi : phis) {
-	// 	// std::cout << "phi " << phi->variable1 << " " << phi->value1.v << " " << phi->variable2 << " " << phi->value2.v << std::endl;
-	// 	if (phi->variable1->root == phi->variable2->root and phi->variable1->type == phi->variable2->type) {
-	// 		phi->variable->val = phi->variable1->val;
-	// 	} else {
-	// 		auto phi_node = c.insn_phi(phi->variable->type, c.insn_convert(phi->value1, phi->variable->type), phi->block1, c.insn_convert(phi->value2, phi->variable->type), phi->block2);
-	// 		phi->variable->val = c.create_entry(phi->variable->name, phi->variable->type);
-	// 		c.insn_store(phi->variable->val, phi_node);
-	// 	}
-	// 	if (phi->variable->phi and phi->variable->phi->variable2 == phi->variable) {
-	// 		// std::cout << vv->var->phi->variable1 << " " << vv->var->phi->variable2 << std::endl;
-	// 		// std::cout << vv->var->phi->value1.t << std::endl;
-	// 		// std::cout << "phi delete unused var " << phi->variable->phi->variable1 << std::endl;
-	// 		c.insn_delete_temporary(phi->variable->phi->value1);
-	// 		// c.insn_delete_variable(phi->variable->phi->variable1->val);
-	// 	}
-	// }
 }
 #endif
 
