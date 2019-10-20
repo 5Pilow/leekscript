@@ -26,28 +26,29 @@ private:
 	VM vm;
 	#endif
 
-	std::vector<const Type*> placeholder_types;
-    std::map<std::set<const Type*>, const Type*> compound_types;
-	std::map<const Type*, const Type*> tmp_compound_types;
-	std::map<std::pair<const Type*, std::vector<const Type*>>, const Function_type*> function_types;
-	std::map<std::pair<const Type*, std::vector<const Type*>>, const Type*> function_object_types;
-	std::map<std::pair<const Type*, std::vector<const Type*>>, const Type*> closure_types;
-	std::unordered_map<const Type*, const Type*> array_types;
+	std::vector<std::unique_ptr<const Type>> placeholder_types;
+	std::map<std::set<const Type*>, std::unique_ptr<const Type>> compound_types;
+	std::map<const Type*, std::unique_ptr<const Type>> tmp_compound_types;
+	std::map<std::pair<const Type*, std::vector<const Type*>>, std::unique_ptr<const Function_type>> function_types;
+	std::map<std::pair<const Type*, std::vector<const Type*>>, std::unique_ptr<const Type>> function_object_types;
+	std::map<std::pair<const Type*, std::vector<const Type*>>, std::unique_ptr<const Type>> closure_types;
+	std::unordered_map<const Type*, std::unique_ptr<const Type>> array_types;
 	std::unordered_map<const Type*, const Type*> const_array_types;
 	std::unordered_map<const Type*, const Type*> tmp_array_types;
-	std::unordered_map<const Type*, const Type*> set_types;
+	std::unordered_map<const Type*, std::unique_ptr<const Type>> set_types;
 	std::unordered_map<const Type*, const Type*> const_set_types;
 	std::unordered_map<const Type*, const Type*> tmp_set_types;
-	std::map<std::pair<const Type*, const Type*>, const Type*> map_types;
+	std::map<std::pair<const Type*, const Type*>, std::unique_ptr<const Type>> map_types;
 	std::map<std::pair<const Type*, const Type*>, const Type*> const_map_types;
 	std::map<std::pair<const Type*, const Type*>, const Type*> tmp_map_types;
 	std::unordered_map<const Type*, const Type*> pointer_types;
-	std::unordered_map<const Type*, const Type*> temporary_types;
+	std::unordered_map<const Type*, std::unique_ptr<const Type>> base_pointer_types;
+	std::unordered_map<const Type*, std::unique_ptr<const Type>> temporary_types;
 	std::unordered_map<const Type*, const Type*> not_temporary_types;
-	std::unordered_map<const Type*, const Type*> const_types;
+	std::unordered_map<const Type*, std::unique_ptr<const Type>> const_types;
 	std::unordered_map<const Type*, const Type*> not_const_types;
-	std::unordered_map<std::string, const Type*> class_types;
-	std::unordered_map<std::string, const Type*> structure_types;
+	std::unordered_map<std::string, std::unique_ptr<const Type>> class_types;
+	std::unordered_map<std::string, std::unique_ptr<const Type>> structure_types;
 
 public:
 	bool legacy = false;

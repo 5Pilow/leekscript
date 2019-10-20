@@ -34,7 +34,7 @@ public:
 		LSValue* default_value = nullptr;
 		#endif
 		field(std::string name, const Type* type) : name(name), type(type) {}
-		field(std::string name, const Type* type, void* addr, bool) : name(name), type(type), addr(addr) {}
+		field(std::string name, const Type* type, void* addr, void*) : name(name), type(type), addr(addr) {}
 		#if COMPILER
 		field(std::string name, const Type* type, std::function<Compiler::value(Compiler&, Compiler::value)> fun, LSValue* default_value) : name(name), type(type), fun(fun), default_value(default_value) {}
 		field(std::string name, const Type* type, std::function<Compiler::value(Compiler&)> static_fun) : name(name), type(type), static_fun(static_fun) {}

@@ -50,7 +50,7 @@ void Module::static_field(std::string name, const Type* type, std::function<Comp
 }
 #endif
 void Module::static_field(std::string name, const Type* type, void* addr) {
-	clazz->addStaticField({name, type, addr, true});
+	clazz->addStaticField({name, type, addr, nullptr});
 }
 void Module::static_field_fun(std::string name, const Type* type, void* fun) {
 	#if COMPILER

@@ -87,6 +87,7 @@ void Environment::analyze(Program& program, bool format, bool debug, bool sectio
 	SyntaxicAnalyzer syn { *this, resolver };
 	SemanticAnalyzer sem { *this };
 	program.analyze(syn, sem, format, debug, sections);
+	delete resolver;
 }
 
 std::vector<std::string> Environment::autocomplete(Program& program, size_t position) {
@@ -120,7 +121,7 @@ const Type* Environment::generate_new_placeholder_type() {
 	u8_toutf8(buff, 5, &character, 1);
 	auto type = new Placeholder_type(*this, std::string { buff });
 	Type::placeholder_counter++;
-	Environment::placeholder_types.push_back(type);
+	Environment::placeholder_types.push_back(std::unique_ptr<Placeholder_type> { type });
 	return type;
 }
 void Environment::clear_placeholder_types() {
@@ -132,9 +133,9 @@ const Type* Environment::template_(std::string name) {
 
 const Type* Environment::clazz(const std::string name) {
 	auto i = class_types.find(name);
-	if (i != class_types.end()) return i->second;
+	if (i != class_types.end()) return i->second.get();
 	auto type = new Class_type(*this, name);
-	class_types.insert({ name, type });
+	class_types.insert({ name, std::unique_ptr<const Type> { type }});
 	return type;
 }
 const Type* Environment::const_class(const std::string name) {
