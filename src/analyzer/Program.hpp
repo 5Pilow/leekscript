@@ -25,6 +25,7 @@ public:
 	Environment& env;
 	std::string code; // The program code
 	std::unique_ptr<Function> main;
+	std::unique_ptr<Token> main_token;
 	const Type* type;
 	std::vector<Function*> functions;
 	std::string file_name;

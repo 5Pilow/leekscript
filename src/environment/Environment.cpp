@@ -79,6 +79,8 @@ Environment::Environment(bool legacy) :
     tmp_object(object->add_temporary()),
 	array(Type::array(void_)),
 	set(Type::set(void_)),
+	change_value_mutator(new ChangeValueMutator()),
+	convert_mutator(new ConvertMutator()),
 	std(*this, legacy)
 {}
 
@@ -124,11 +126,15 @@ const Type* Environment::generate_new_placeholder_type() {
 	Environment::placeholder_types.push_back(std::unique_ptr<Placeholder_type> { type });
 	return type;
 }
+
 void Environment::clear_placeholder_types() {
 	placeholder_types.clear();
 }
+
 const Type* Environment::template_(std::string name) {
-	return new Template_type(*this, name);
+	auto type = new Template_type(*this, name);
+	template_types.push_back(std::unique_ptr<Type> { type });
+	return type;
 }
 
 const Type* Environment::clazz(const std::string name) {
@@ -138,6 +144,7 @@ const Type* Environment::clazz(const std::string name) {
 	class_types.insert({ name, std::unique_ptr<const Type> { type }});
 	return type;
 }
+
 const Type* Environment::const_class(const std::string name) {
 	return clazz(name)->add_constant();
 }

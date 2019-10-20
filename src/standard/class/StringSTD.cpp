@@ -90,6 +90,7 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 	constructor_({
 		{env.tmp_string, {}, ADDR((void*) &LSString::constructor_1)},
 		{env.tmp_string, {env.i8_ptr}, ADDR((void*) &LSString::constructor_2)},
+		{env.tmp_string, {env.string}, ADDR((void*) &LSString::constructor_1)},
 	});
 
 	/*

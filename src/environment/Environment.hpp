@@ -49,6 +49,11 @@ private:
 	std::unordered_map<const Type*, const Type*> not_const_types;
 	std::unordered_map<std::string, std::unique_ptr<const Type>> class_types;
 	std::unordered_map<std::string, std::unique_ptr<const Type>> structure_types;
+	std::map<std::pair<const Type*, const Type*>, std::unique_ptr<const Type>> meta_add_types;
+	std::map<std::pair<const Type*, const Type*>, std::unique_ptr<const Type>> meta_mul_types;
+	std::unordered_map<const Type*, std::unique_ptr<const Type>> meta_temporary_types;
+	std::unordered_map<const Type*, std::unique_ptr<const Type>> meta_not_temporary_types;
+	std::vector<std::unique_ptr<const Type>> template_types;
 
 public:
 	bool legacy = false;
@@ -90,6 +95,9 @@ public:
 	const Type* const tmp_object;
 	const Type* const array;
 	const Type* const set;
+
+	const TypeMutator* const change_value_mutator;
+	const TypeMutator* const convert_mutator;
 
 	#if COMPILER
 	std::unique_ptr<LSClass> value_class;

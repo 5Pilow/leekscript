@@ -491,20 +491,44 @@ const Type* Type::tmp_compound(std::initializer_list<const Type*> types) {
 }
 
 const Type* Type::meta_add(const Type* t1, const Type* t2) {
-	return new Meta_add_type(t1, t2);
+	auto& env = t1->env;
+	auto i = env.meta_add_types.find({t1, t2});
+	if (i != env.meta_add_types.end()) return i->second.get();
+	auto type = new Meta_add_type(t1, t2);
+	env.meta_add_types.insert({{t1, t2}, std::unique_ptr<Type> { type } });
+	return type;
 }
 const Type* Type::meta_mul(const Type* t1, const Type* t2) {
-	return new Meta_mul_type(t1, t2);
+	auto& env = t1->env;
+	auto i = env.meta_mul_types.find({t1, t2});
+	if (i != env.meta_mul_types.end()) return i->second.get();
+	auto type = new Meta_mul_type(t1, t2);
+	env.meta_mul_types.insert({{t1, t2}, std::unique_ptr<Type> { type } });
+	return type;
 }
+
 const Type* Type::meta_base_of(const Type* type, const Type* base) {
 	return new Meta_baseof_type(type, base);
 }
-const Type* Type::meta_temporary(const Type* type) {
-	return new Meta_temporary_type(type);
+
+const Type* Type::meta_temporary(const Type* base) {
+	auto& env = base->env;
+	auto i = env.meta_temporary_types.find(base);
+	if (i != env.meta_temporary_types.end()) return i->second.get();
+	auto type = new Meta_temporary_type(base);
+	env.meta_temporary_types.insert({type, std::unique_ptr<Type> { type }});
+	return type;
 }
-const Type* Type::meta_not_temporary(const Type* type) {
-	return new Meta_not_temporary_type(type);
+
+const Type* Type::meta_not_temporary(const Type* base) {
+	auto& env = base->env;
+	auto i = env.meta_not_temporary_types.find(base);
+	if (i != env.meta_not_temporary_types.end()) return i->second.get();
+	auto type = new Meta_not_temporary_type(base);
+	env.meta_not_temporary_types.insert({type, std::unique_ptr<Type> { type }});
+	return type;
 }
+
 const Type* Type::meta_not_void(const Type* type) {
 	return new Meta_not_void_type(type);
 }

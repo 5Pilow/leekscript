@@ -53,8 +53,8 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 		return;
 	}
 
-	auto token = new Token(TokenType::FUNCTION, main_file, 0, 0, 0, "function");
-	main = std::make_unique<Function>(env, std::move(token));
+	main_token.reset(new Token { TokenType::FUNCTION, main_file, 0, 0, 0, "function" });
+	main = std::make_unique<Function>(env, main_token.get());
 	main->body = block;
 	main->is_main_function = true;
 	main->name = "main";

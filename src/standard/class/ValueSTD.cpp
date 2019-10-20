@@ -37,7 +37,7 @@ ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
 	auto sT = env.template_("T");
 	template_(sV, sT).
 	operator_("=", {
-		{sV, sT, sT, ADDR(op_store), 0, { new ChangeValueMutator() }, true}
+		{sV, sT, sT, ADDR(op_store), 0, { env.change_value_mutator }, true}
 	});
 
 	operator_("is", {
