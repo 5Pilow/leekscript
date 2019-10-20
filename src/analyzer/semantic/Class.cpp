@@ -90,9 +90,7 @@ void Class::addField(std::string name, const Type* type, std::function<Compiler:
 }
 #endif
 void Class::addField(std::string name, const Type* type, void* fun) {
-	#if COMPILER
 	fields.insert({name, {name, type, fun, nullptr}});
-	#endif
 }
 
 void Class::addStaticField(field f) {

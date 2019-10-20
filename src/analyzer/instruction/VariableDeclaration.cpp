@@ -105,6 +105,12 @@ void VariableDeclaration::analyze(SemanticAnalyzer* analyzer, const Type*) {
 	}
 }
 
+std::vector<std::string> VariableDeclaration::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+	if (expressions.size()) {
+		return expressions.front()->autocomplete(analyzer, position);
+	}
+}
+
 #if COMPILER
 Compiler::value VariableDeclaration::compile(Compiler& c) const {
 	for (unsigned i = 0; i < variables.size(); ++i) {

@@ -23,6 +23,7 @@ class Block;
 class FunctionVersion;
 class Class;
 class Environment;
+class Section;
 
 enum class VarScope {
 	INTERNAL, LOCAL, PARAMETER, CAPTURE

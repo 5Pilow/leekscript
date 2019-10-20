@@ -49,6 +49,7 @@ public:
 	void analyze_global_functions(SemanticAnalyzer* analyzer);
 	void pre_analyze(SemanticAnalyzer* analyzer, const std::vector<const Type*>& args);
 	void analyze(SemanticAnalyzer* analyzer, const std::vector<const Type*>& args);
+	std::vector<std::string> autocomplete(SemanticAnalyzer& analyzer, size_t position);
 
 	#if COMPILER
 	void create_function(Compiler& c);

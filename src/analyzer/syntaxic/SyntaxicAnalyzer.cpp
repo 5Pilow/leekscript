@@ -589,6 +589,7 @@ Value* SyntaxicAnalyzer::eatSimpleExpression(Block* block, bool pipe_opened, boo
 				auto par = eat_get(TokenType::OPEN_PARENTHESIS);
 
 				auto fc = new FunctionCall(env, par);
+				fc->opening_parenthesis = par;
 				fc->function = std::unique_ptr<Value>(e);
 
 				if (t->type != TokenType::CLOSING_PARENTHESIS) {
@@ -608,15 +609,18 @@ Value* SyntaxicAnalyzer::eatSimpleExpression(Block* block, bool pipe_opened, boo
 			case TokenType::DOT: {
 
 				ObjectAccess* oa;
-				eat(TokenType::DOT);
+				auto dot = eat_get(TokenType::DOT);
 
 				if (t->type == TokenType::NEW || t->type == TokenType::CLASS) {
 					oa = new ObjectAccess(env, eat_get());
 				} else if (t->type == TokenType::RETURN) {
 					oa = new ObjectAccess(env, eat_get());
-				} else {
+				} else if (t->type == TokenType::IDENT) {
 					oa = new ObjectAccess(env, eatIdent());
+				} else {
+					oa = new ObjectAccess(env, nullptr);
 				}
+				oa->dot = dot;
 				oa->object = std::unique_ptr<Value>(e);
 				e = oa;
 				break;

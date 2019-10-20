@@ -21,7 +21,7 @@ std::string Error::message() const {
 }
 
 Json Error::json() const {
-	return {focus.start.line, focus.start.column, focus.end.line, focus.end.column, build_message(type, parameters)};
+	return { focus.start.line, focus.start.column, focus.end.line, focus.end.column, type_to_string(type), parameters };
 }
 
 std::string Error::build_message(Type type, std::vector<std::string> parameters) {

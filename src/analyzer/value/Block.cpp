@@ -202,6 +202,19 @@ void Block::analyze(SemanticAnalyzer* analyzer) {
 	// }
 }
 
+std::vector<std::string> Block::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+	for (const auto& instruction : instructions) {
+		auto location = instruction->location();
+		std::cout << "instruction " << location.start.raw << " to " << location.end.raw << std::endl;
+		if (location.start.raw <= position and position <= location.end.raw) {
+			std::cout << "instruction found" << std::endl;
+			return instruction->autocomplete(analyzer, position);
+		}
+	}
+	return {};
+}
+
+
 #if COMPILER
 Compiler::value Block::compile(Compiler& c) const {
 

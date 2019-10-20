@@ -89,6 +89,11 @@ void Environment::analyze(Program& program, bool format, bool debug, bool sectio
 	program.analyze(syn, sem, format, debug, sections);
 }
 
+std::vector<std::string> Environment::autocomplete(Program& program, size_t position) {
+	SemanticAnalyzer sem { *this };
+	return program.autocomplete(sem, position);
+}
+
 #if COMPILER
 
 void Environment::compile(Program& program, bool format, bool debug, bool ops, bool assembly, bool pseudo_code, bool optimized_ir, bool execute_ir, bool execute_bitcode) {

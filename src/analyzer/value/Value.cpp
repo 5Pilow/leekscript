@@ -60,6 +60,10 @@ bool Value::is_zero() const {
 	return false;
 }
 
+std::vector<std::string> Value::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+	return {};
+}
+
 #if COMPILER
 Compiler::value Value::compile_version(Compiler& c, std::vector<const Type*>) const {
 	return compile(c);

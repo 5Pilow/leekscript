@@ -134,7 +134,7 @@ void FunctionVersion::analyze(SemanticAnalyzer* analyzer, const std::vector<cons
 	// Captures
 	for (auto& capture : captures_inside) {
 		capture->type = capture->parent->type;
-		std::cout << "analyze capture " << capture << " " << capture->type << std::endl;
+		// std::cout << "analyze capture " << capture << " " << capture->type << std::endl;
 	}
 
 	// Arguments
@@ -259,6 +259,11 @@ Variable* FunctionVersion::capture(SemanticAnalyzer* analyzer, Variable* var) {
 	}
 }
 
+std::vector<std::string> FunctionVersion::autocomplete(SemanticAnalyzer& analyzer, size_t position) {
+	return body->autocomplete(analyzer, position);
+}
+
+
 #if COMPILER
 
 bool FunctionVersion::is_compiled() const {
@@ -359,7 +364,7 @@ Compiler::value FunctionVersion::compile(Compiler& c, bool compile_body) {
 			// capture->create_entry(c);
 			// capture->store_value(c, c.insn_get_capture(capture->index, c.env.any));
 			capture->entry = c.insn_get_capture_l(capture->index, c.env.any);
-			std::cout << "create capture " << capture << " " << (void*) capture << " from get_capture_l " << (void*) capture->entry.v << std::endl;
+			// std::cout << "create capture " << capture << " " << (void*) capture << " from get_capture_l " << (void*) capture->entry.v << std::endl;
 		}
 
 		c.leave_section(false);
@@ -384,7 +389,7 @@ Compiler::value FunctionVersion::compile(Compiler& c, bool compile_body) {
 		if (!parent->is_main_function) {
 			for (const auto& capture : parent->captures) {
 				Compiler::value jit_cap { c.env };
-				std::cout << "Compile capture " << capture << " " << (int) capture->scope << std::endl;
+				// std::cout << "Compile capture " << capture << " " << (int) capture->scope << std::endl;
 				if (capture->parent->scope == VarScope::LOCAL) {
 					auto f = dynamic_cast<Function*>(capture->value);
 					if (f) {

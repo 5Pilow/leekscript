@@ -64,6 +64,7 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 	auto parse_end = std::chrono::high_resolution_clock::now();
 	auto parse_time = std::chrono::duration_cast<std::chrono::nanoseconds>(parse_end - parse_start).count();
 	result.parse_time = (((double) parse_time / 1000) / 1000);
+	result.analyzed = true;
 
 	type = main->type->return_type();
 
@@ -77,7 +78,14 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 		result.errors = sem.errors;
 		return;
 	}
-	result.analyzed = true;
+}
+
+std::vector<std::string> Program::autocomplete(SemanticAnalyzer& analyzer, size_t position) {
+	if (not result.analyzed) {
+		std::cout << "Program not analyzed yet!" << std::endl;
+		return {};
+	}
+	return main->autocomplete(analyzer, position);
 }
 
 #if COMPILER

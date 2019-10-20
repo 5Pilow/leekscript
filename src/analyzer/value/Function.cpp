@@ -152,7 +152,7 @@ void Function::analyze(SemanticAnalyzer* analyzer) {
 	// Captures
 	for (auto& capture : captures) {
 		capture->type = capture->parent->type->is_polymorphic() ? capture->parent->type : analyzer->env.any;
-		std::cout << "Function analyze capture " << capture << " " << capture->type << std::endl;
+		// std::cout << "Function analyze capture " << capture << " " << capture->type << std::endl;
 	}
 
 	create_default_version(analyzer);
@@ -279,6 +279,10 @@ Call Function::get_callable(SemanticAnalyzer*, int argument_count) const {
 	return call;
 }
 
+std::vector<std::string> Function::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+	return default_version->autocomplete(analyzer, position);
+}
+
 #if COMPILER
 Compiler::value Function::compile(Compiler& c) const {
 	// std::cout << "Function::compile() " << this << " version " << version << " " << has_version << std::endl;
@@ -323,13 +327,13 @@ void Function::compile_captures(Compiler& c) const {
 	// std::cout << "Function::compile_captures" << std::endl;
 	for (const auto& capture : captures) {
 		if (capture->parent->entry.v) {
-			std::cout << "Convert capture " << capture << " " << capture->type << " " << (void*) capture << " " << (int)capture->scope << " parent " << capture->parent << " " << capture->parent->val.v << " " << capture->parent->type << " " << (void*) capture->parent << std::endl;
+			// std::cout << "Convert capture " << capture << " " << capture->type << " " << (void*) capture << " " << (int)capture->scope << " parent " << capture->parent << " " << capture->parent->val.v << " " << capture->parent->type << " " << (void*) capture->parent << std::endl;
 			if (capture->parent->type->is_polymorphic()) {
-				std::cout << "Capture " << capture << " take parent " << capture->parent << std::endl;
+				// std::cout << "Capture " << capture << " take parent " << capture->parent << std::endl;
 				capture->entry = capture->parent->entry;
 				// c.insn_inc_refs(c.insn_load(capture->val));
 			} else {
-				std::cout << "Capture " << capture << " convert to any " << std::endl;
+				// std::cout << "Capture " << capture << " convert to any " << std::endl;
 				capture->entry = c.create_entry(capture->name, c.env.any);
 				auto value = c.insn_convert(c.insn_load(capture->parent->entry), c.env.any);
 				c.insn_inc_refs(value);

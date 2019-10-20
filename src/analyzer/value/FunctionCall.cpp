@@ -55,7 +55,7 @@ void FunctionCall::pre_analyze(SemanticAnalyzer* analyzer) {
 	bool var_updated = false;
 	if (auto object_access = dynamic_cast<const ObjectAccess*>(function.get())) {
 		if (auto vv = dynamic_cast<VariableValue*>(object_access->object.get())) {
-			if (vv->var->scope != VarScope::CAPTURE and vv->var->scope != VarScope::INTERNAL) {
+			if (vv->var and vv->var->scope != VarScope::CAPTURE and vv->var->scope != VarScope::INTERNAL) {
 				// std::cout << "FC update_var " << vv->var;
 				vv->var = analyzer->update_var(vv->var);
 				// std::cout << " to " << vv->var << std::endl;
@@ -288,6 +288,23 @@ const Type* FunctionCall::version_type(std::vector<const Type*> version) const {
 	// std::cout << "FunctionCall " << this << " ::version_type(" << version << ") " << std::endl;
 	auto function_type = function->version_type(function->version);
 	return function_type->return_type()->function()->version_type(version);
+}
+
+std::vector<std::string> FunctionCall::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+
+	std::cout << "FC complete " << position << " closing= " << closing_parenthesis->location.end.raw << std::endl;
+
+	if (position == closing_parenthesis->location.end.raw) {
+		std::vector<std::string> completions;
+		auto std_class = analyzer.globals[type->class_name()]->clazz;
+		for (const auto& method : std_class->methods) {
+			completions.push_back(method.first);
+		}
+		return completions;
+	} else if (position < opening_parenthesis->location.start.raw) {
+		return function->autocomplete(analyzer, position);
+	}
+	return {};
 }
 
 #if COMPILER

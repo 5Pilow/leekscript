@@ -116,6 +116,11 @@ public:
 	 */
 	void analyze(Program& program, bool format = false, bool debug = false, bool sections = false);
 
+	/**
+	 * Autocomplete a `Program` at a position
+	 */
+	std::vector<std::string> autocomplete(Program& program, size_t position);
+
 	#if COMPILER
 	/**
 	 * Compile a `Program`.

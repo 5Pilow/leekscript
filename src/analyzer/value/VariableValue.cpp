@@ -23,12 +23,16 @@ VariableValue::VariableValue(Environment& env, Token* token) : LeftValue(env), t
 }
 
 bool VariableValue::isLeftValue() const {
-	return scope != VarScope::INTERNAL and (not var or not var->val.v); // Internal variables are not left-value
+	return scope != VarScope::INTERNAL
+	#if COMPILER
+	and (not var or not var->val.v) // Internal variables are not left-value
+	#endif
+	;
 }
 
 void VariableValue::print(std::ostream& os, int, PrintOptions options) const {
 	if (var != nullptr and options.debug) {
-		os << var;
+		// os << var;
 	} else {
 		os << token->content;
 	}

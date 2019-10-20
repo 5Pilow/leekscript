@@ -18,6 +18,8 @@ namespace ls {
 
 class SemanticAnalyzer;
 class Environment;
+class Section;
+class Block;
 
 class Value {
 public:
@@ -62,6 +64,7 @@ public:
 	virtual const Type* version_type(std::vector<const Type*>) const;
 	virtual Call get_callable(SemanticAnalyzer*, int argument_count) const;
 	virtual void analyze(SemanticAnalyzer*);
+	virtual std::vector<std::string> autocomplete(SemanticAnalyzer& analyzer, size_t position) const;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const = 0;

@@ -43,6 +43,7 @@ public:
 	virtual ~Program();
 
 	void analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format, bool debug, bool sections);
+	std::vector<std::string> autocomplete(SemanticAnalyzer& analyzer, size_t position);
 
 	/*
 	 * Compile the program with a VM and a context (json)

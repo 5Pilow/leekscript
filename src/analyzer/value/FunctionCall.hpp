@@ -17,6 +17,7 @@ public:
 	Token* token;
 	std::unique_ptr<Value> function;
 	std::vector<std::unique_ptr<Value>> arguments;
+	Token* opening_parenthesis;
 	Token* closing_parenthesis;
 	bool is_native = false;
 	const Type* return_type;
@@ -39,10 +40,11 @@ public:
 
 	virtual void pre_analyze(SemanticAnalyzer*) override;
 	virtual Call get_callable(SemanticAnalyzer*, int argument_count) const override;
-	virtual void analyze(SemanticAnalyzer*) override;
 	const Type* will_take(SemanticAnalyzer*, const std::vector<const Type*>& args, int level) override;
 	void set_version(SemanticAnalyzer*, const std::vector<const Type*>& args, int level) override;
 	virtual const Type* version_type(std::vector<const Type*>) const override;
+	virtual void analyze(SemanticAnalyzer*) override;
+	virtual std::vector<std::string> autocomplete(SemanticAnalyzer& analyzer, size_t position) const override;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;

@@ -16,6 +16,8 @@ namespace ls {
 class Value;
 class SemanticAnalyzer;
 class Environment;
+class Section;
+class Block;
 
 class Instruction {
 public:
@@ -43,6 +45,7 @@ public:
 
 	virtual void analyze(SemanticAnalyzer* analyzer);
 	virtual void analyze(SemanticAnalyzer* analyzer, const Type* type) = 0;
+	virtual std::vector<std::string> autocomplete(SemanticAnalyzer& analyzer, size_t position) const;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const = 0;

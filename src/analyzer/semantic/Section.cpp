@@ -12,7 +12,11 @@ namespace ls {
 const std::vector<std::string> Section::COLORS = { BLUE_BOLD, C_RED, C_YELLOW, GREEN_BOLD, C_PURPLE, C_CYAN, "\033[1;38;5;207m", "\033[1;38;5;208m", "\033[1;38;5;34m", C_PINK };
 size_t Section::current_id = 0;
 
-Section::Section(Environment& env, std::string name, Block* block) : env(env), name(name), block(block), condition(env) {
+Section::Section(Environment& env, std::string name, Block* block) : env(env), name(name), block(block)
+#if COMPILER
+, condition(env)
+#endif
+{
 	id = current_id++;
 	color = COLORS[id % COLORS.size()];
 }

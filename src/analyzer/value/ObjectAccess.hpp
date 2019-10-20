@@ -14,6 +14,7 @@ class ObjectAccess : public LeftValue {
 public:
 
 	std::unique_ptr<Value> object;
+	Token* dot;
 	Token* field;
 	std::string object_class_name;
 	std::string class_name;
@@ -44,6 +45,7 @@ public:
 	virtual const Type* version_type(std::vector<const Type*>) const override;
 	virtual void pre_analyze(SemanticAnalyzer*) override;
 	virtual void analyze(SemanticAnalyzer*) override;
+	virtual std::vector<std::string> autocomplete(SemanticAnalyzer& analyzer, size_t position) const override;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;

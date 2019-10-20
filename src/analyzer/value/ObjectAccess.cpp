@@ -35,7 +35,7 @@ bool ObjectAccess::isLeftValue() const {
 
 void ObjectAccess::print(std::ostream& os, int indent, PrintOptions options) const {
 	object->print(os, indent, options);
-	os << "." << field->content;
+	os << "." << (field ? field->content : "");
 	if (options.debug) {
 		os << " " << type;
 		os << " " << version;
@@ -43,7 +43,7 @@ void ObjectAccess::print(std::ostream& os, int indent, PrintOptions options) con
 }
 
 Location ObjectAccess::location() const {
-	return {field->location.file, object->location().start, field->location.end};
+	return {object->location().file, object->location().start, field ? field->location.end : dot->location.end};
 }
 
 void ObjectAccess::set_version(SemanticAnalyzer* analyzer, const std::vector<const Type*>& args, int level) {
@@ -273,6 +273,31 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 		}
 	}
 }
+
+std::vector<std::string> ObjectAccess::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+	std::cout << "ObjectAccess complete " << position << std::endl;
+	if (position >= dot->location.end.raw) {
+
+		std::vector<std::string> completions;
+
+		auto std_class = analyzer.globals[object->type->class_name()]->clazz;
+		for (const auto& method : std_class->methods) {
+			completions.push_back(method.first);
+		}
+
+		auto vv = dynamic_cast<VariableValue*>(object.get());
+		if (object->type->is_class() and vv) {
+			auto std_class = analyzer.globals[vv->name]->clazz;
+			for (const auto& method : std_class->methods) {
+				completions.push_back(method.first);
+			}
+		}
+
+		return completions;
+	}
+	return {};
+}
+
 
 #if COMPILER
 Compiler::value ObjectAccess::compile(Compiler& c) const {

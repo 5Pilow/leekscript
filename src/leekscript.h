@@ -1,9 +1,14 @@
 #ifndef LEEKSCRIPT_H__
 #define LEEKSCRIPT_H__
 
+#include "constants.h"
+
 #if COMPILER
 #include "vm/VM.hpp"
+#include "vm/value/LSObject.hpp"
+#include "vm/value/LSArray.hpp"
 #endif
+#include "environment/Environment.hpp"
 #include "standard/Module.hpp"
 #include "analyzer/Program.hpp"
 #include "type/Integer_type.hpp"

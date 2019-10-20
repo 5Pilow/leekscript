@@ -6,6 +6,7 @@
 #include "../value/Block.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
 #include "../semantic/Mutation.hpp"
+class Section;
 
 namespace ls {
 

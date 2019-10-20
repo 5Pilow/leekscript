@@ -13,6 +13,10 @@ void Instruction::analyze(SemanticAnalyzer* analyzer) {
 	analyze(analyzer, analyzer->env.any);
 }
 
+std::vector<std::string> Instruction::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+	return {};
+}
+
 #if COMPILER
 Compiler::value Instruction::compile_end(Compiler& c) const {
 	return { c.env };
