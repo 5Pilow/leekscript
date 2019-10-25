@@ -30,7 +30,7 @@ void While::print(std::ostream& os, int indent, PrintOptions options) const {
 }
 
 Location While::location() const {
-	return token->location;
+	return { token->location.file, token->location.start, body->location().end };
 }
 
 void While::pre_analyze(SemanticAnalyzer* analyzer) {
