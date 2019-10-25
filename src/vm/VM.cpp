@@ -162,8 +162,11 @@ void* VM::resolve_symbol(std::string name) {
 			const auto& clazz = std.classes.at(module)->clazz;
 			if (method.substr(0, 8) == "operator") {
 				const auto& op = method.substr(8);
-				const auto& implems = clazz->operators.at(op);
-				return implems.versions.at(version).addr;
+				if (clazz->operators.find(op) != clazz->operators.end()) {
+					const auto& implems = clazz->operators.at(op);
+					return implems.versions.at(version).addr;
+				}
+				std::cout << C_YELLOW << "Operator '" << name << "' not found!" << END_COLOR << std::endl;
 			} else {
 				if (clazz->methods.find(method) != clazz->methods.end()) {
 					const auto& implems = clazz->methods.at(method);
@@ -177,6 +180,7 @@ void* VM::resolve_symbol(std::string name) {
 				} else if (clazz->fields.find(method) != clazz->fields.end()) {
 					return clazz->fields.at(method).native_fun;
 				}
+				std::cout << C_YELLOW << "Method '" << name << "' not found!" << END_COLOR << std::endl;
 			}
 		}
 	} else {
