@@ -50,7 +50,7 @@ void Foreach::print(std::ostream& os, int indent, PrintOptions options) const {
 }
 
 Location Foreach::location() const {
-	return {nullptr, {0, 0, 0}, {0, 0, 0}};
+	return { token->location.file, token->location.start, body->location().end };
 }
 
 void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
@@ -301,6 +301,7 @@ Compiler::value Foreach::compile(Compiler& c) const {
 
 std::unique_ptr<Instruction> Foreach::clone(Block* parent) const {
 	auto f = std::make_unique<Foreach>(type->env);
+	f->token = token;
 	f->key = key;
 	f->value = value;
 	f->container = container->clone(f->wrapper_block.get());

@@ -1305,6 +1305,7 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 
 		// for key , value in container { body }
 		auto f = new Foreach(env);
+		f->token = for_token;
 
 		auto wrapper_section = f->wrapper_block->sections[0];
 		wrapper_section->name = "wrapper";

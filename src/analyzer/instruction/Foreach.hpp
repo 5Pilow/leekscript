@@ -42,6 +42,7 @@ enum class ForeachMode {
 
 class Foreach : public Instruction {
 public:
+	Token* token;
 	std::unique_ptr<Block> wrapper_block;
 	Token* key = nullptr;
 	Token* value = nullptr;
