@@ -5,6 +5,8 @@
 #include <vector>
 #include <queue>
 
+namespace ls {
+
 class Util {
 public:
 
@@ -13,6 +15,11 @@ public:
 	static bool is_file_name(std::string data);
 	static std::string replace_all(std::string& haystack, const std::string& needle, const std::string& replacement);
 	static std::string file_short_name(std::string path);
+
+	static std::string toupper(const std::string& string);
+	static std::string tolower(const std::string& string);
 };
+
+}
 
 #endif

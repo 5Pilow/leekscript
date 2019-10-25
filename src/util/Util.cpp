@@ -8,9 +8,16 @@
 #include <iterator>
 #include <algorithm>
 #include <queue>
+#include "../colors.h"
+
+namespace ls {
 
 std::string Util::read_file(std::string file) {
 	std::ifstream ifs(file.data());
+	if (!ifs.good()) {
+		std::cout << "[" << C_YELLOW << "warning" << END_COLOR << "] File '" << BOLD << file << END_STYLE << "' does not exist." << std::endl;
+		return "";
+	}
 	std::string content = std::string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
 	ifs.close();
 	return content;
@@ -56,4 +63,22 @@ std::string Util::file_short_name(std::string path) {
 			return c == '/';
 		}).base(), path.end()
 	};
+}
+
+std::string Util::toupper(const std::string& string) {
+	std::string result = string;
+	std::for_each(result.begin(), result.end(), [](char& in) {
+		in = ::toupper(in);
+	});
+	return result;
+}
+
+std::string Util::tolower(const std::string& string) {
+	std::string result = string;
+	std::for_each(result.begin(), result.end(), [](char& in) {
+		in = ::tolower(in);
+	});
+	return result;
+}
+
 }

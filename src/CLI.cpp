@@ -120,7 +120,7 @@ int CLI::analyze_snippet(std::string code, CLI_options options) {
 }
 
 int CLI::analyze_file(std::string file, CLI_options options) {
-	auto code = read_file(file);
+	auto code = ls::Util::read_file(file);
 	ls::Environment env;
 	ls::Program program { env, code, "snippet" };
 	env.analyze(program, options.format, options.debug);
@@ -153,7 +153,7 @@ int CLI::execute_snippet(std::string code, CLI_options options) {
 
 int CLI::execute_file(std::string file, CLI_options options) {
 	#if COMPILER
-	auto code = read_file(file);
+	auto code = ls::Util::read_file(file);
 	auto file_name = Util::file_short_name(file);
 	ls::Environment env { options.legacy };
 	OutputStringStream oss;
@@ -236,17 +236,6 @@ void CLI::print_errors(ls::Result& result, std::ostream& os, bool json) {
 		os << result.exception.to_string(json ? false : true);
 	}
 	#endif
-}
-
-std::string CLI::read_file(std::string file) {
-	std::ifstream ifs(file.data());
-	if (!ifs.good()) {
-		std::cout << "[" << C_YELLOW << "warning" << END_COLOR << "] File '" << BOLD << file << END_STYLE << "' does not exist." << std::endl;
-		return "";
-	}
-	std::string code { (std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()) };
-	ifs.close();
-	return code;
 }
 
 }

@@ -8,6 +8,7 @@
 #include "vm/value/LSObject.hpp"
 #include "vm/value/LSArray.hpp"
 #endif
+#include "util/Util.hpp"
 #include "environment/Environment.hpp"
 #include "standard/Module.hpp"
 #include "analyzer/Program.hpp"
