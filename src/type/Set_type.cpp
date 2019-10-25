@@ -7,9 +7,6 @@
 
 namespace ls {
 
-std::unordered_map<const Type*, const Type*> Set_type::nodes;
-std::unordered_map<const Type*, const Type*> Set_type::iterators;
-
 Set_type::Set_type(const Type* element) : Pointer_type(Type::structure("set<" + element->getName() + ">", {
 	element->env.integer, // ?
 	element->env.integer, // ?
@@ -73,26 +70,18 @@ Type* Set_type::clone() const {
 }
 
 const Type* Set_type::get_iterator(const Type* element) {
-	auto i = iterators.find(element);
-	if (i != iterators.end()) return i->second;
-	auto type = Type::structure("set_iterator<" + element->getName() + ">", {
+	return Type::structure("set_iterator<" + element->getName() + ">", {
 		get_node_type(element),
 		element->env.integer
 	});
-	iterators.insert({ element, type });
-	return type;
 }
 
 const Type* Set_type::get_node_type(const Type* element) {
-	auto i = nodes.find(element);
-	if (i != nodes.end()) return i->second;
 	auto& env = element->env;
-	auto type = Type::structure("set_node<" + element->getName() + ">", {
+	return Type::structure("set_node<" + element->getName() + ">", {
 		env.long_, env.long_, env.long_, env.long_,
 		element
 	})->pointer();
-	nodes.insert({ element, type });
-	return type;
 }
 
 }

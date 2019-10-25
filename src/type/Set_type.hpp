@@ -26,8 +26,6 @@ public:
 	virtual std::ostream& print(std::ostream&) const override;
 	virtual Type* clone() const override;
 
-	static std::unordered_map<const Type*, const Type*> nodes;
-	static std::unordered_map<const Type*, const Type*> iterators;
 	static const Type* get_node_type(const Type* element);
 	static const Type* get_iterator(const Type* element);
 };
