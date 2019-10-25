@@ -124,6 +124,7 @@ public:
 
 	Environment();
     Environment(bool legacy);
+	virtual ~Environment();
 
 	/**
 	 * Analyze a `Program`.

@@ -85,6 +85,27 @@ Environment::Environment(bool legacy) :
 	std(*this, legacy)
 {}
 
+Environment::~Environment() {
+	std::cout << "Delete environment" << std::endl;
+	delete void_;
+	delete boolean;
+	delete number;
+	delete i8;
+	delete integer;
+	delete long_;
+	delete mpz;
+	delete never;
+	delete any;
+	delete null;
+	delete string;
+	delete real;
+	delete interval;
+	delete object;
+	delete change_value_mutator;
+	delete convert_mutator;
+	delete convert_mutator_array_size;
+}
+
 void Environment::analyze(Program& program, bool format, bool debug, bool sections) {
 	auto resolver = new Resolver();
 	SyntaxicAnalyzer syn { *this, resolver };
