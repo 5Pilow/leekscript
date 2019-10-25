@@ -1054,7 +1054,7 @@ Value* SyntaxicAnalyzer::eatIf(Block* block) {
 
 	auto iff = new If(env);
 
-	eat(TokenType::IF);
+	iff->token = eat_get(TokenType::IF);
 
 	iff->condition = std::unique_ptr<Value>(eatExpression(block));
 

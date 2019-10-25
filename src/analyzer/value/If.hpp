@@ -11,6 +11,7 @@ class Phi;
 class If : public Value {
 public:
 
+	Token* token;
 	std::unique_ptr<Value> condition;
 	std::unique_ptr<Block> then;
 	std::unique_ptr<Block> elze;

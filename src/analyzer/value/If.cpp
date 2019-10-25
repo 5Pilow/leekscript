@@ -35,7 +35,7 @@ void If::print(std::ostream& os, int indent, PrintOptions options) const {
 }
 
 Location If::location() const {
-	return condition->location(); // TODO better
+	return { token->location.file, token->location.start, elze ? elze->location().end : then->location().end };
 }
 
 void If::pre_analyze(SemanticAnalyzer* analyzer) {
@@ -127,6 +127,7 @@ Compiler::value If::compile(Compiler& c) const {
 
 std::unique_ptr<Value> If::clone(Block* parent) const {
 	auto iff = std::make_unique<If>(type->env);
+	iff->token = token;
 	iff->ternary = ternary;
 	iff->condition = condition->clone(parent);
 	iff->then = unique_static_cast<Block>(then->clone(parent));
