@@ -24,13 +24,15 @@ StandardLibrary::StandardLibrary(Environment& env, bool legacy) : env(env), lega
 	add_class(std::make_unique<StringSTD>(env));
 	add_class(std::make_unique<ArraySTD>(env));
 	add_class(std::make_unique<MapSTD>(env));
-	add_class(std::make_unique<SetSTD>(env));
-	add_class(std::make_unique<ObjectSTD>(env));
 	add_class(std::make_unique<FunctionSTD>(env));
 	add_class(std::make_unique<ClassSTD>(env));
 	add_class(std::make_unique<SystemSTD>(env));
-	add_class(std::make_unique<IntervalSTD>(env));
 	add_class(std::make_unique<JsonSTD>(env));
+	if (not legacy) {
+		add_class(std::make_unique<SetSTD>(env));
+		add_class(std::make_unique<ObjectSTD>(env));
+		add_class(std::make_unique<IntervalSTD>(env));
+	}
 }
 
 void StandardLibrary::add_class(std::unique_ptr<Module> m) {
