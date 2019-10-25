@@ -173,7 +173,7 @@ const Type* Type::add_constant() const {
 	} else {
 		type->folded = type;
 	}
-	env.const_types.insert({ this, std::unique_ptr<Type> { type } });
+	env.const_types.emplace(this, type);
 	env.not_const_types.insert({ type, this });
 	return type;
 }
@@ -381,7 +381,7 @@ const Type* Type::map(const Type* key, const Type* element) {
 	auto i = env.map_types.find({key, element});
 	if (i != env.map_types.end()) return i->second.get();
 	auto type = new Map_type(key, element);
-	env.map_types.insert({{key, element}, std::unique_ptr<Type> { type } });
+	env.map_types.emplace(std::make_pair(key, element), type);
 	return type;
 }
 const Type* Type::const_map(const Type* key, const Type* element) {
@@ -389,7 +389,7 @@ const Type* Type::const_map(const Type* key, const Type* element) {
 	auto i = env.const_map_types.find({key, element});
 	if (i != env.const_map_types.end()) return i->second;
 	auto type = map(key, element)->add_constant();
-	env.const_map_types.insert({{key, element}, type });
+	env.const_map_types.emplace(std::make_pair(key, element), type);
 	return type;
 }
 const Type* Type::tmp_map(const Type* key, const Type* element) {
@@ -401,23 +401,24 @@ const Type* Type::tmp_map(const Type* key, const Type* element) {
 	return type;
 }
 const Type* Type::fun(const Type* return_type, std::vector<const Type*> arguments, const Value* function) {
+	auto& env = return_type->env;
 	if (function == nullptr) {
 		std::pair<const Type*, std::vector<const Type*>> key { return_type, arguments };
-		auto& env = return_type->env;
 		auto i = env.function_types.find(key);
 		if (i != env.function_types.end()) return i->second.get();
 		auto type = new Function_type { return_type, arguments };
-		env.function_types.insert({ key, std::unique_ptr<Function_type>(type) });
+		env.function_types.emplace(key, type);
 		return type->add_constant();
 	} else {
 		auto t = new Function_type(return_type, arguments, function);
+		env.raw_function_types.emplace_back(t);
 		return t->add_constant();
 	}
 }
 const Type* Type::fun_object(const Type* return_type, std::vector<const Type*> arguments, const Value* function) {
+	auto& env = return_type->env;
 	if (function == nullptr) {
 		std::pair<const Type*, std::vector<const Type*>> key { return_type, arguments };
-		auto& env = return_type->env;
 		auto i = env.function_object_types.find(key);
 		if (i != env.function_object_types.end()) return i->second.get();
 		auto type = new Function_object_type(return_type, arguments);
@@ -425,6 +426,7 @@ const Type* Type::fun_object(const Type* return_type, std::vector<const Type*> a
 		return type->add_constant();
 	} else {
 		auto t = new Function_object_type(return_type, arguments, false, function);
+		env.raw_function_types.emplace_back(std::unique_ptr<Type>(t));
 		return t->add_constant();
 	}
 }
@@ -447,7 +449,7 @@ const Type* Type::structure(const std::string name, std::initializer_list<const 
 	auto i = env.structure_types.find(name);
 	if (i != env.structure_types.end()) return i->second.get();
 	auto type = new Struct_type(name, types);
-	env.structure_types.insert({ name, std::unique_ptr<Struct_type> { type } });
+	env.structure_types.emplace(name, type);
 	return type;
 }
 const Type* Type::compound(std::initializer_list<const Type*> types) {
@@ -495,7 +497,7 @@ const Type* Type::meta_add(const Type* t1, const Type* t2) {
 	auto i = env.meta_add_types.find({t1, t2});
 	if (i != env.meta_add_types.end()) return i->second.get();
 	auto type = new Meta_add_type(t1, t2);
-	env.meta_add_types.insert({{t1, t2}, std::unique_ptr<Type> { type } });
+	env.meta_add_types.emplace(std::make_pair(t1, t2), type);
 	return type;
 }
 const Type* Type::meta_mul(const Type* t1, const Type* t2) {
@@ -503,12 +505,17 @@ const Type* Type::meta_mul(const Type* t1, const Type* t2) {
 	auto i = env.meta_mul_types.find({t1, t2});
 	if (i != env.meta_mul_types.end()) return i->second.get();
 	auto type = new Meta_mul_type(t1, t2);
-	env.meta_mul_types.insert({{t1, t2}, std::unique_ptr<Type> { type } });
+	env.meta_mul_types.emplace(std::make_pair(t1, t2), type);
 	return type;
 }
 
 const Type* Type::meta_base_of(const Type* type, const Type* base) {
-	return new Meta_baseof_type(type, base);
+	auto& env = type->env;
+	auto i = env.meta_base_of_types.find({type, base});
+	if (i != env.meta_base_of_types.end()) return i->second.get();
+	auto r = new Meta_baseof_type(type, base);
+	env.meta_base_of_types.emplace(std::make_pair(type, base), r);
+	return r;
 }
 
 const Type* Type::meta_temporary(const Type* base) {
@@ -529,8 +536,13 @@ const Type* Type::meta_not_temporary(const Type* base) {
 	return type;
 }
 
-const Type* Type::meta_not_void(const Type* type) {
-	return new Meta_not_void_type(type);
+const Type* Type::meta_not_void(const Type* base) {
+	auto& env = base->env;
+	auto i = env.meta_not_void_types.find(base);
+	if (i != env.meta_not_void_types.end()) return i->second.get();
+	auto type = new Meta_not_void_type(base);
+	env.meta_not_void_types.insert({type, std::unique_ptr<Type> { type }});
+	return type;
 }
 
 std::ostream& operator << (std::ostream& os, const Type* type) {
