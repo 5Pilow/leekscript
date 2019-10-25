@@ -36,7 +36,8 @@ OBJ_ANALYZER_WEB := $(patsubst %.cpp,build/analyzer-web/%.o,$(SRC_ANALYZER)) bui
 COMPILER := g++
 OPTIM := -O0 -Wall
 DEBUG := -g3
-FLAGS := -std=c++17
+DEBUG_WEB := -s SAFE_HEAP=1 -s ASSERTIONS=1 -DWASM=1 -s WASM=1 # --source-map-base http://localhost:8080/ # -s DEMANGLE_SUPPORT=1
+FLAGS := -std=c++17 -Wall
 FLAGS_COMPILER := -Wno-pmf-conversions
 FLAGS_TEST := -fopenmp
 SANITIZE_FLAGS := -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -fsanitize=float-divide-by-zero # -fsanitize=float-cast-overflow
@@ -75,7 +76,10 @@ build/analyzer/%.o: %.cpp
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
 
 build/analyzer-web/%.o: %.cpp
-	$(COMPILER) -c $< $(FLAGS) -O3 $(DEBUG) -DWASM=1 -s WASM=1 -o $@
+	$(COMPILER) -c $< $(FLAGS) $(DEBUG_WEB) -o $@
+
+build/lib-analyzer-web/%.o: %.cpp
+	$(COMPILER) -c $< $(FLAGS) $(DEBUG_WEB) -o $@
 
 build/shared/%.o: %.cpp
 	$(COMPILER) -c $(OPTIM) $(FLAGS) -fPIC -o $@ $<
@@ -129,6 +133,26 @@ build/libleekscript.so: $(BUILD_DIR) $(OBJ_LIB)
 	@echo "Library build finished!"
 	@echo "-----------------------"
 lib: build/libleekscript.so
+
+# Build the shared library version of the leekscript analyzer
+# (libleekscriptanalyzer.so in build/)
+build/libleekscriptanalyzer.so: $(BUILD_DIR) $(OBJ_LIB_ANALYZER)
+	$(COMPILER) $(FLAGS) -shared -o build/libleekscriptanalyzer.so $(OBJ_LIB_ANALYZER) $(LIBS)
+	@echo "-----------------------"
+	@echo "Library build finished!"
+	@echo "-----------------------"
+lib-analyzer: FLAGS += -DCOMPILER=0
+lib-analyzer: build/libleekscriptanalyzer.so
+
+# Build web lib
+lib-analyzer-web: FLAGS += -DCOMPILER=0
+lib-analyzer-web: COMPILER=emcc
+lib-analyzer-web: build/lib-leekscript-web
+build/lib-leekscript-web: $(BUILD_DIR) $(OBJ_LIB_ANALYZER_WEB)
+	$(COMPILER) $(FLAGS) -O3 $(OBJ_LIB_ANALYZER_WEB) -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' $(DEBUG_WEB) -o build/analyzer.so
+	@echo "------------------------------"
+	@echo "Build (lib-analyzer-web) finished!"
+	@echo "------------------------------"
 
 # Install the shared library by copying the libleekscript.so file
 # into /usr/lib/ folder.
