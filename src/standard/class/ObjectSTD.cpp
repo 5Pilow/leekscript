@@ -25,7 +25,7 @@ ObjectSTD::ObjectSTD(Environment& env) : Module(env, "Object") {
 	readonly->native = true;
 	#endif
 
-	static_field("readonly", env.object, ADDR((void*) &readonly));
+	static_field("readonly", env.object, ADDR((void*) &readonly), PRIVATE);
 
 	/*
 	 * Constructor
