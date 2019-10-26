@@ -14,6 +14,8 @@ struct Position {
 	size_t raw;
 	Position(size_t line, size_t column, size_t raw) :
 		line(line), column(column), raw(raw) {}
+
+	Position after() const;
 	Json json() const;
 };
 
@@ -24,6 +26,7 @@ struct Location {
 	Location(File* file, Position start, Position end) : file(file), start(start), end(end) {}
 
 	bool contains(size_t position) const;
+	Location after() const;
 	Json json() const;
 };
 
