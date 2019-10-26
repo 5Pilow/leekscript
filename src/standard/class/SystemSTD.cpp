@@ -49,6 +49,16 @@ SystemSTD::SystemSTD(Environment& env) : Module(env, "System") {
 		{env.void_, {env.i8->pointer(), env.tmp_mpz_ptr}, ADDR((void*) internal_print_mpz_tmp)},
 		{env.void_, {env.i8->pointer(), env.const_any}, ADDR((void*) internal_print)},
 	}, PRIVATE);
+
+	/**
+	 * Legacy-only
+	 */
+	static_field("TYPE_NULL", env.integer, ADDR([&](ls::Compiler& c) { return c.new_integer(0); }), LEGACY_ONLY);
+	static_field("TYPE_NUMBER", env.integer, ADDR([&](ls::Compiler& c) { return c.new_integer(1); }), LEGACY_ONLY);
+	static_field("TYPE_BOOLEAN", env.integer, ADDR([&](ls::Compiler& c) { return c.new_integer(2); }), LEGACY_ONLY);
+	static_field("TYPE_STRING", env.integer, ADDR([&](ls::Compiler& c) { return c.new_integer(3); }), LEGACY_ONLY);
+	static_field("TYPE_ARRAY", env.integer, ADDR([&](ls::Compiler& c) { return c.new_integer(4); }), LEGACY_ONLY);
+	static_field("TYPE_FUNCTION", env.integer, ADDR([&](ls::Compiler& c) { return c.new_integer(5); }), LEGACY_ONLY);
 }
 
 #if COMPILER
