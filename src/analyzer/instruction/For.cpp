@@ -39,7 +39,7 @@ void For::print(std::ostream& os, int indent, PrintOptions options) const {
 }
 
 Location For::location() const {
-	return {nullptr, {0, 0, 0}, {0, 0, 0}};
+	return { token->location.file, token->location.start, body->location().end };
 }
 
 void For::pre_analyze(SemanticAnalyzer* analyzer) {
