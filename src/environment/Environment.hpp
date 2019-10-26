@@ -139,7 +139,7 @@ public:
 	/**
 	 * Hover a `Program` at a position
 	 */
-	Json hover(Program& program, size_t position);
+	Hover hover(Program& program, size_t position);
 
 	#if COMPILER
 	/**

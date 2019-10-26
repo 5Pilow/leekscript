@@ -35,7 +35,7 @@ public:
 
 	virtual void analyze(SemanticAnalyzer*) override;
 	virtual bool is_zero() const override;
-	virtual Json hover(SemanticAnalyzer& analyzer, size_t position) const override;
+	virtual Hover hover(SemanticAnalyzer& analyzer, size_t position) const override;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;

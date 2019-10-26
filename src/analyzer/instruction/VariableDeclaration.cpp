@@ -112,11 +112,18 @@ std::vector<Completion> VariableDeclaration::autocomplete(SemanticAnalyzer& anal
 	return {};
 }
 
-Json VariableDeclaration::hover(SemanticAnalyzer& analyzer, size_t position) const {
-	if (expressions.size()) {
-		return expressions.front()->hover(analyzer, position);
+Hover VariableDeclaration::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	for (const auto& variable : variables) {
+		if (variable->location.contains(position)) {
+			return { vars.at(variable->content)->type, variable->location };
+		}
 	}
-	return {};
+	for (const auto& expression : expressions) {
+		if (expression->location().contains(position)) {
+			return expression->hover(analyzer, position);
+		}
+	}
+	return { type, location() };
 }
 
 #if COMPILER

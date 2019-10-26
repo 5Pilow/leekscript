@@ -20,12 +20,6 @@ Location Nulll::location() const {
 	return token->location;
 }
 
-Json Nulll::hover(SemanticAnalyzer& analyzer, size_t position) const {
-	return {
-		{ "type", type->json() }
-	};
-}
-
 #if COMPILER
 Compiler::value Nulll::compile(Compiler& c) const {
 	return c.new_null();

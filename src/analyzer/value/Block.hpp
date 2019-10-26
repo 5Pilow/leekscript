@@ -47,7 +47,7 @@ public:
 	void create_assignments(SemanticAnalyzer* analyzer);
 	virtual void analyze(SemanticAnalyzer* analyzer) override;
 	virtual std::vector<Completion> autocomplete(SemanticAnalyzer& analyzer, size_t position) const override;
-	virtual Json hover(SemanticAnalyzer& analyzer, size_t position) const override;
+	virtual Hover hover(SemanticAnalyzer& analyzer, size_t position) const override;
 
 	#if COMPILER
 	Compiler::value compile(Compiler&) const override;

@@ -129,10 +129,13 @@ bool Number::is_zero() const {
 	}
 }
 
-Json Number::hover(SemanticAnalyzer& analyzer, size_t position) const {
-	return {
-		{ "type", type->json() }
-	};
+Hover Number::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	auto& env = analyzer.env;
+	std::string alias;
+	if (type == env.integer) alias = std::to_string(int_value);
+	else if (type == env.long_) alias = std::to_string(long_value);
+	else alias = clean_value;
+	return { type, location(), alias };
 }
 
 #if COMPILER

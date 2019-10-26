@@ -65,15 +65,13 @@ bool Set::will_store(SemanticAnalyzer* analyzer, const Type* type) {
 	return false;
 }
 
-Json Set::hover(SemanticAnalyzer& analyzer, size_t position) const {
+Hover Set::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	for (const auto& expression : expressions) {
 		if (expression->location().contains(position)) {
 			return expression->hover(analyzer, position);
 		}
 	}
-	return {
-		{ "type", type->json() }
-	};
+	return { type, location() };
 }
 
 #if COMPILER

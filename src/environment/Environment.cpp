@@ -119,7 +119,7 @@ std::vector<Completion> Environment::autocomplete(Program& program, size_t posit
 	return program.autocomplete(sem, position);
 }
 
-Json Environment::hover(Program& program, size_t position) {
+Hover Environment::hover(Program& program, size_t position) {
 	SemanticAnalyzer sem { *this };
 	return program.hover(sem, position);
 }

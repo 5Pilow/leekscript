@@ -88,10 +88,10 @@ std::vector<Completion> Program::autocomplete(SemanticAnalyzer& analyzer, size_t
 	return main->autocomplete(analyzer, position);
 }
 
-Json Program::hover(SemanticAnalyzer& analyzer, size_t position) {
+Hover Program::hover(SemanticAnalyzer& analyzer, size_t position) {
 	if (not result.analyzed) {
 		std::cout << "Program not analyzed yet!" << std::endl;
-		return {};
+		return { analyzer.env.void_, { nullptr, {0,0,0}, {0,0,0} } };
 	}
 	return main->hover(analyzer, position);
 }

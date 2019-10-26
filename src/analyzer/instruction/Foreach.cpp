@@ -210,6 +210,19 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	}
 }
 
+Hover Foreach::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	if (key and key->location.contains(position)) {
+		return { key_type, key->location };
+	}
+	if (value->location.contains(position)) {
+		return { value_type, value->location };
+	}
+	if (container->location().contains(position)) {
+		return container->hover(analyzer, position);
+	}
+	return body->hover(analyzer, position);
+}
+
 #if COMPILER
 Compiler::value Foreach::compile(Compiler& c) const {
 

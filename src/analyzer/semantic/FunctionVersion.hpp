@@ -9,6 +9,7 @@
 #include "../../util/json.hpp"
 #include "../PrintOptions.hpp"
 #include "Completion.hpp"
+#include "Hover.hpp"
 #if COMPILER
 #include "../../compiler/Compiler.hpp"
 #endif
@@ -52,7 +53,7 @@ public:
 	void pre_analyze(SemanticAnalyzer* analyzer, const std::vector<const Type*>& args);
 	void analyze(SemanticAnalyzer* analyzer, const std::vector<const Type*>& args);
 	std::vector<Completion> autocomplete(SemanticAnalyzer& analyzer, size_t position);
-	Json hover(SemanticAnalyzer& analyzer, size_t position);
+	Hover hover(SemanticAnalyzer& analyzer, size_t position);
 
 	#if COMPILER
 	void create_function(Compiler& c);

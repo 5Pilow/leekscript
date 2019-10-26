@@ -12,6 +12,7 @@
 #include "../semantic/Assignment.hpp"
 #include "../PrintOptions.hpp"
 #include "../semantic/Completion.hpp"
+#include "../semantic/Hover.hpp"
 #if COMPILER
 #include "../../compiler/Compiler.hpp"
 #endif
@@ -67,7 +68,7 @@ public:
 	virtual Call get_callable(SemanticAnalyzer*, int argument_count) const;
 	virtual void analyze(SemanticAnalyzer*);
 	virtual std::vector<Completion> autocomplete(SemanticAnalyzer& analyzer, size_t position) const;
-	virtual Json hover(SemanticAnalyzer& analyzer, size_t position) const;
+	virtual Hover hover(SemanticAnalyzer& analyzer, size_t position) const;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const = 0;

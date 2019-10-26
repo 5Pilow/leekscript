@@ -263,7 +263,7 @@ std::vector<Completion> FunctionVersion::autocomplete(SemanticAnalyzer& analyzer
 	return body->autocomplete(analyzer, position);
 }
 
-Json FunctionVersion::hover(SemanticAnalyzer& analyzer, size_t position) {
+Hover FunctionVersion::hover(SemanticAnalyzer& analyzer, size_t position) {
 	return body->hover(analyzer, position);
 }
 

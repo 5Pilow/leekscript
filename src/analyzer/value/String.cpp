@@ -27,12 +27,6 @@ bool String::will_store(SemanticAnalyzer* analyzer, const Type* type) {
 	return false;
 }
 
-Json String::hover(SemanticAnalyzer& analyzer, size_t position) const {
-	return {
-		{ "type", type->json() }
-	};
-}
-
 #if COMPILER
 Compiler::value String::compile(Compiler& c) const {
 	auto s = c.new_const_string(token->content);

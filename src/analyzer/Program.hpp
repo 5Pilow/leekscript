@@ -45,7 +45,7 @@ public:
 
 	void analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format, bool debug, bool sections);
 	std::vector<Completion> autocomplete(SemanticAnalyzer& analyzer, size_t position);
-	Json hover(SemanticAnalyzer& analyzer, size_t position);
+	Hover hover(SemanticAnalyzer& analyzer, size_t position);
 
 	/*
 	 * Compile the program with a VM and a context (json)

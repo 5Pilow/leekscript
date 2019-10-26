@@ -17,8 +17,8 @@ std::vector<Completion> Instruction::autocomplete(SemanticAnalyzer& analyzer, si
 	return {};
 }
 
-Json Instruction::hover(SemanticAnalyzer& analyzer, size_t position) const {
-	return Json::object();
+Hover Instruction::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	return { type, location() };
 }
 
 #if COMPILER

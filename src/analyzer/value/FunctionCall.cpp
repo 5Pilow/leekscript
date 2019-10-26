@@ -305,15 +305,16 @@ std::vector<Completion> FunctionCall::autocomplete(SemanticAnalyzer& analyzer, s
 	return {};
 }
 
-Json FunctionCall::hover(SemanticAnalyzer& analyzer, size_t position) const {
+Hover FunctionCall::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	if (position < opening_parenthesis->location.start.raw) {
 		return function->hover(analyzer, position);
-	} else {
-		return {
-			{ "type", type->json() }
-		};
 	}
-	return {};
+	for (const auto& argument : arguments) {
+		if (argument->location().contains(position)) {
+			return argument->hover(analyzer, position);
+		}
+	}
+	return { type, location() };
 }
 
 #if COMPILER

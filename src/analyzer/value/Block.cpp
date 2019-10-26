@@ -213,15 +213,13 @@ std::vector<Completion> Block::autocomplete(SemanticAnalyzer& analyzer, size_t p
 	return {};
 }
 
-Json Block::hover(SemanticAnalyzer& analyzer, size_t position) const {
+Hover Block::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	for (const auto& instruction : instructions) {
-		auto location = instruction->location();
-		// std::cout << "instruction " << location.start.raw << " to " << location.end.raw << std::endl;
-		if (location.start.raw <= position and position <= location.end.raw) {
+		if (instruction->location().contains(position)) {
 			return instruction->hover(analyzer, position);
 		}
 	}
-	return Json::object();
+	return { type, location() };
 }
 
 #if COMPILER

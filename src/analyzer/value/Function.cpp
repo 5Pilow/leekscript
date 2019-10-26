@@ -285,7 +285,7 @@ std::vector<Completion> Function::autocomplete(SemanticAnalyzer& analyzer, size_
 	return default_version->autocomplete(analyzer, position);
 }
 
-Json Function::hover(SemanticAnalyzer& analyzer, size_t position) const {
+Hover Function::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	return default_version->hover(analyzer, position);
 }
 

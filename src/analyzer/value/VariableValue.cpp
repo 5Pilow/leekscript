@@ -278,10 +278,19 @@ const Type* VariableValue::version_type(std::vector<const Type*> version) const 
 	return type;
 }
 
-Json VariableValue::hover(SemanticAnalyzer& analyzer, size_t position) const {
-	return {
-		{ "type", type->json() }
-	};
+Hover VariableValue::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	// if (static_field) {
+	// 	for (const auto& variable : analyzer.globals) {
+	// 		if (variable.second->type->is_class()) {
+	// 			const auto& cl = variable.second->clazz;
+	// 			auto i = cl->static_fields.find(name);
+	// 			if (i != cl->static_fields.end()) {
+	// 				return { type, location(), i->second.
+	// 			}
+	// 		}
+	// 	}
+	// }
+	return { type, location() };
 }
 
 #if COMPILER

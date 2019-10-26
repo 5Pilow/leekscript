@@ -17,7 +17,7 @@ public:
 	virtual void pre_analyze(SemanticAnalyzer*) override;
 	virtual void analyze(SemanticAnalyzer*) override;
 	virtual bool will_store(SemanticAnalyzer* analyzer, const Type* type) override;
-	virtual Json hover(SemanticAnalyzer& analyzer, size_t position) const override;
+	virtual Hover hover(SemanticAnalyzer& analyzer, size_t position) const override;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;

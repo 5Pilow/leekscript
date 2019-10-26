@@ -218,6 +218,10 @@ void For::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	analyzer->leave_block();
 }
 
+Hover For::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	return body->hover(analyzer, position);
+}
+
 #if COMPILER
 Compiler::value For::compile(Compiler& c) const {
 

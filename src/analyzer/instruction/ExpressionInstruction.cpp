@@ -48,7 +48,7 @@ std::vector<Completion> ExpressionInstruction::autocomplete(SemanticAnalyzer& an
 	return value->autocomplete(analyzer, position);
 }
 
-Json ExpressionInstruction::hover(SemanticAnalyzer& analyzer, size_t position) const {
+Hover ExpressionInstruction::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	return value->hover(analyzer, position);
 }
 

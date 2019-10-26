@@ -40,15 +40,13 @@ void Object::analyze(SemanticAnalyzer* analyzer) {
 	}
 }
 
-Json Object::hover(SemanticAnalyzer& analyzer, size_t position) const {
+Hover Object::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	for (const auto& value : values) {
 		if (value->location().contains(position)) {
 			return value->hover(analyzer, position);
 		}
 	}
-	return {
-		{ "type", type->json() }
-	};
+	return { type, location() };
 }
 
 #if COMPILER

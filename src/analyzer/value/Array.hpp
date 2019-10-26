@@ -26,7 +26,7 @@ public:
 	virtual bool will_store(SemanticAnalyzer* analyzer, const Type* type) override;
 	virtual bool elements_will_store(SemanticAnalyzer* analyzer, const Type* type, int level) override;
 
-	virtual Json hover(SemanticAnalyzer& analyzer, size_t position) const override;
+	virtual Hover hover(SemanticAnalyzer& analyzer, size_t position) const override;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;

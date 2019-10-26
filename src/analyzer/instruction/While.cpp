@@ -103,6 +103,16 @@ void While::analyze(SemanticAnalyzer* analyzer, const Type*) {
 	}
 }
 
+Hover While::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	if (condition->location().contains(position)) {
+		return condition->hover(analyzer, position);
+	}
+	if (body->location().contains(position)) {
+		return body->hover(analyzer, position);
+	}
+	return { type, location() };
+}
+
 #if COMPILER
 Compiler::value While::compile(Compiler& c) const {
 	c.mark_offset(token->location.start.line);

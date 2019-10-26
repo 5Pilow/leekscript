@@ -320,15 +320,12 @@ std::vector<Completion> ObjectAccess::autocomplete(SemanticAnalyzer& analyzer, s
 	return {};
 }
 
-Json ObjectAccess::hover(SemanticAnalyzer& analyzer, size_t position) const {
+Hover ObjectAccess::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	if (position < dot->location.end.raw) {
 		return object->hover(analyzer, position);
 	} else {
-		return {
-			{ "type", type->json() }
-		};
+		return { type, location() };
 	}
-	return {};
 }
 
 #if COMPILER

@@ -31,13 +31,11 @@ void AbsoluteValue::analyze(SemanticAnalyzer* analyzer) {
 	constant = expression->constant;
 }
 
-Json AbsoluteValue::hover(SemanticAnalyzer& analyzer, size_t position) const {
+Hover AbsoluteValue::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	if (position > open_pipe->location.end.raw and position < close_pipe->location.start.raw) {
 		return expression->hover(analyzer, position);
 	}
-	return {
-		{ "type", type->json() }
-	};
+	return { type, location() };
 }
 
 #if COMPILER

@@ -8,6 +8,7 @@
 #include "../../type/Type.hpp"
 #include "../PrintOptions.hpp"
 #include "../semantic/Completion.hpp"
+#include "../semantic/Hover.hpp"
 #if COMPILER
 #include "../../compiler/Compiler.hpp"
 #endif
@@ -46,8 +47,8 @@ public:
 
 	virtual void analyze(SemanticAnalyzer* analyzer);
 	virtual void analyze(SemanticAnalyzer* analyzer, const Type* type) = 0;
-	virtual std::vector<Completion> autocomplete(SemanticAnalyzer& analyzer, size_t position) const;
-	virtual Json hover(SemanticAnalyzer& analyzer, size_t position) const;
+	virtual Completion autocomplete(SemanticAnalyzer& analyzer, size_t position) const;
+	virtual Hover hover(SemanticAnalyzer& analyzer, size_t position) const;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const = 0;

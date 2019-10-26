@@ -82,6 +82,19 @@ void If::analyze(SemanticAnalyzer* analyzer) {
 	if (elze != nullptr) return_type = return_type->operator + (elze->return_type);
 }
 
+Hover If::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	if (condition->location().contains(position)) {
+		return condition->hover(analyzer, position);
+	}
+	if (then->location().contains(position)) {
+		return then->hover(analyzer, position);
+	}
+	if (elze && elze->location().contains(position)) {
+		return elze->hover(analyzer, position);
+	}
+	return { type, location() };
+}
+
 #if COMPILER
 Compiler::value If::compile(Compiler& c) const {
 
