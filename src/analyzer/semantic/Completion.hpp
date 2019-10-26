@@ -1,20 +1,30 @@
 #ifndef COMPLETION_HPP
 #define COMPLETION_HPP
 
+#include "../lexical/Location.hpp"
+
 namespace ls {
 
 class Type;
 
 enum class CompletionType {
 	METHOD,
-	FIELD
+	FIELD,
+	VARIABLE
 };
 
-class Completion {
+class CompletionItem {
 public:
 	std::string name;
 	CompletionType type;
 	const Type* lstype;
+	Location location;
+};
+
+class Completion {
+public:
+	const Type* type;
+	std::vector<CompletionItem> items;
 };
 
 }

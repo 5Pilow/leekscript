@@ -281,12 +281,13 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 	}
 }
 
-std::vector<Completion> ObjectAccess::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+Completion ObjectAccess::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
 	// std::cout << "ObjectAccess complete " << position << std::endl;
 	if (position >= dot->location.end.raw) {
 
-		std::vector<Completion> completions;
-
+		Completion completion {  object->type };
+		Location field_location = field ? field->location : dot->location.after();
+		auto letters = field ? field->content : "";
 		// std::cout << "Object type = " << object->type->class_name() << std::endl;
 
 		// Number.<xxx>
@@ -294,11 +295,16 @@ std::vector<Completion> ObjectAccess::autocomplete(SemanticAnalyzer& analyzer, s
 		if (object->type->is_class() and vv) {
 			auto std_class = analyzer.globals[vv->name]->clazz;
 			for (const auto& method : std_class->methods) {
-				if (method.second.versions.front().flags & Module::PRIVATE) continue;
-				completions.push_back({ method.first, CompletionType::METHOD, method.second.versions.front().type });
+				if (method.first.find(letters) == std::string::npos) continue;
+				for (const auto& version : method.second.versions) {
+					if (version.flags & Module::PRIVATE) continue;
+					completion.items.push_back({ method.first, CompletionType::METHOD, version.type, field_location });
+				}
 			}
 			for (const auto& field : std_class->static_fields) {
-				completions.push_back({ field.first, CompletionType::FIELD, field.second.type });
+				if (field.first.find(letters) == std::string::npos) continue;
+				if (field.second.flags & Module::PRIVATE) continue;
+				completion.items.push_back({ field.first, CompletionType::FIELD, field.second.type, field_location });
 			}
 		}
 
@@ -306,16 +312,19 @@ std::vector<Completion> ObjectAccess::autocomplete(SemanticAnalyzer& analyzer, s
 		Class* current_class = analyzer.globals[object->type->class_name()]->clazz;
 		while (current_class) {
 			for (const auto& field : current_class->fields) {
-				completions.push_back({ field.first, CompletionType::FIELD, field.second.type });
+				if (field.first.find(letters) == std::string::npos) continue;
+				completion.items.push_back({ field.first, CompletionType::FIELD, field.second.type, field_location });
 			}
 			for (const auto& method : current_class->methods) {
 				if (method.second.versions.front().flags & Module::PRIVATE) continue;
-				completions.push_back({ method.first, CompletionType::METHOD, method.second.versions.front().type });
+				if (method.first.find(letters) == std::string::npos) continue;
+				for (const auto& version : method.second.versions) {
+					completion.items.push_back({ method.first, CompletionType::METHOD, version.type, field_location });
+				}
 			}
 			current_class = current_class->parent;
 		}
-
-		return completions;
+		return completion;
 	}
 	return {};
 }

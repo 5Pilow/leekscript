@@ -134,7 +134,7 @@ public:
 	/**
 	 * Autocomplete a `Program` at a position
 	 */
-	std::vector<Completion> autocomplete(Program& program, size_t position);
+	Completion autocomplete(Program& program, size_t position);
 
 	/**
 	 * Hover a `Program` at a position

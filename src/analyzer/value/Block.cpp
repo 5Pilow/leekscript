@@ -205,15 +205,41 @@ void Block::analyze(SemanticAnalyzer* analyzer) {
 	// }
 }
 
-std::vector<Completion> Block::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+Completion Block::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+	analyzer.enter_block((Block*) this);
+
+	// Inside an instruction ?
 	for (const auto& instruction : instructions) {
-		auto location = instruction->location();
-		// std::cout << "instruction " << location.start.raw << " to " << location.end.raw << std::endl;
-		if (location.start.raw <= position and position <= location.end.raw) {
-			return instruction->autocomplete(analyzer, position);
+		if (instruction->location().contains(position)) {
+			auto completion = instruction->autocomplete(analyzer, position);
+			analyzer.leave_block();
+			return completion;
 		}
 	}
-	return {};
+
+	// Return variables accessible from the block
+	Completion completion;
+	Position pos { 0, 0, 0 };
+	Location location { nullptr, pos, pos };
+	for (const auto& variable : variables) {
+		completion.items.push_back({ variable.first, CompletionType::VARIABLE, variable.second->type, location });
+	}
+	for (const auto& global : analyzer.globals) {
+		if (global.second->clazz) {
+			for (const auto& method : global.second->clazz->methods) {
+				for (const auto& version : method.second.versions) {
+					if (version.flags & Module::PRIVATE) continue;
+					completion.items.push_back({ method.first, CompletionType::METHOD, version.type, location });
+				}
+			}
+			for (const auto& field : global.second->clazz->static_fields) {
+				if (field.second.flags & Module::PRIVATE) continue;
+				completion.items.push_back({ field.first, CompletionType::FIELD, field.second.type, location });
+			}
+		}
+	}
+	analyzer.leave_block();
+	return completion;
 }
 
 Hover Block::hover(SemanticAnalyzer& analyzer, size_t position) const {

@@ -36,7 +36,7 @@ void VariableDeclaration::print(std::ostream& os, int indent, PrintOptions optio
 
 Location VariableDeclaration::location() const {
 	auto end = variables.size() > expressions.size() ? variables.back()->location.end : expressions.back()->location().end;
-	return {keyword->location.file, keyword->location.start, end};
+	return { keyword->location.file, keyword->location.start, end };
 }
 
 void VariableDeclaration::set_end_section(Section* end_section) {
@@ -105,7 +105,7 @@ void VariableDeclaration::analyze(SemanticAnalyzer* analyzer, const Type*) {
 	}
 }
 
-std::vector<Completion> VariableDeclaration::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+Completion VariableDeclaration::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
 	if (expressions.size()) {
 		return expressions.front()->autocomplete(analyzer, position);
 	}

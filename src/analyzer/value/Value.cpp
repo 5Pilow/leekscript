@@ -60,7 +60,7 @@ bool Value::is_zero() const {
 	return false;
 }
 
-std::vector<Completion> Value::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+Completion Value::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
 	return {};
 }
 

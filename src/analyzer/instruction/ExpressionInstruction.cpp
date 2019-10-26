@@ -44,7 +44,7 @@ void ExpressionInstruction::analyze(SemanticAnalyzer* analyzer, const Type* req_
 	throws = value->throws;
 }
 
-std::vector<Completion> ExpressionInstruction::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+Completion ExpressionInstruction::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
 	return value->autocomplete(analyzer, position);
 }
 

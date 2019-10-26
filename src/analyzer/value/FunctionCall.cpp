@@ -288,21 +288,37 @@ const Type* FunctionCall::version_type(std::vector<const Type*> version) const {
 	return function_type->return_type()->function()->version_type(version);
 }
 
-std::vector<Completion> FunctionCall::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+Completion FunctionCall::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
 
-	std::cout << "FC complete " << position << " closing= " << closing_parenthesis->location.end.raw << std::endl;
+	std::cout << "FC complete " << position << "opening=" << opening_parenthesis->location.end.raw << " closing= " << closing_parenthesis->location.end.raw << std::endl;
 
-	if (position == closing_parenthesis->location.end.raw) {
-		std::vector<Completion> completions;
-		auto std_class = analyzer.globals[type->class_name()]->clazz;
-		for (const auto& method : std_class->methods) {
-			completions.push_back({ method.first, CompletionType::METHOD, method.second.versions.front().type });
-		}
-		return completions;
-	} else if (position < opening_parenthesis->location.start.raw) {
+	if (position < opening_parenthesis->location.start.raw) {
 		return function->autocomplete(analyzer, position);
 	}
-	return {};
+	if (position >= opening_parenthesis->location.end.raw and position <= closing_parenthesis->location.start.raw) {
+		Completion completion { analyzer.env.void_ };
+		Position pos = opening_parenthesis->location.end;
+		Location location { nullptr, pos, pos };
+		for (const auto& variable : analyzer.current_block()->variables) {
+			completion.items.push_back({ variable.first, CompletionType::VARIABLE, variable.second->type, location });
+		}
+		for (const auto& global : analyzer.globals) {
+			if (global.second->clazz) {
+				for (const auto& method : global.second->clazz->methods) {
+					for (const auto& version : method.second.versions) {
+						if (version.flags & Module::PRIVATE) continue;
+						completion.items.push_back({ method.first, CompletionType::METHOD, version.type, location });
+					}
+				}
+				for (const auto& field : global.second->clazz->static_fields) {
+					if (field.second.flags & Module::PRIVATE) continue;
+					completion.items.push_back({ field.first, CompletionType::FIELD, field.second.type, location });
+				}
+			}
+		}
+		return completion;
+	}
+	return { analyzer.env.void_ };
 }
 
 Hover FunctionCall::hover(SemanticAnalyzer& analyzer, size_t position) const {

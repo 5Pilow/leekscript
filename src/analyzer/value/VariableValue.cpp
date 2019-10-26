@@ -194,6 +194,7 @@ void VariableValue::analyze(SemanticAnalyzer* analyzer) {
 				for (const auto& c : cl->static_fields) {
 					if (c.first == name) {
 						type = c.second.type;
+						static_field = true;
 						#if COMPILER
 						static_access_function = c.second.static_fun;
 						#endif
@@ -276,6 +277,35 @@ const Type* VariableValue::version_type(std::vector<const Type*> version) const 
 		}
 	}
 	return type;
+}
+
+Completion VariableValue::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+	Completion completion {analyzer.env.void_ };
+	const auto& letters = token->content;
+
+	for (const auto& variable : analyzer.blocks.back().back()->variables) {
+		if (variable.first.find(letters) == std::string::npos) continue;
+		completion.items.push_back({ variable.first, CompletionType::VARIABLE, variable.second->type, location() });
+	}
+
+	for (const auto& global : analyzer.globals) {
+		if (global.second->clazz) {
+			for (const auto& method : global.second->clazz->methods) {
+				if (method.first.find(letters) == std::string::npos) continue;
+				for (const auto& version : method.second.versions) {
+					if (version.flags & Module::PRIVATE) continue;
+					completion.items.push_back({ method.first, CompletionType::METHOD, version.type, location() });
+				}
+			}
+			for (const auto& field : global.second->clazz->static_fields) {
+				if (field.first.find(letters) == std::string::npos) continue;
+				if (field.second.flags & Module::PRIVATE) continue;
+				completion.items.push_back({ field.first, CompletionType::FIELD, field.second.type, location() });
+			}
+		}
+	}
+
+	return completion;
 }
 
 Hover VariableValue::hover(SemanticAnalyzer& analyzer, size_t position) const {

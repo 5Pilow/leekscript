@@ -281,7 +281,7 @@ Call Function::get_callable(SemanticAnalyzer*, int argument_count) const {
 	return call;
 }
 
-std::vector<Completion> Function::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+Completion Function::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
 	return default_version->autocomplete(analyzer, position);
 }
 

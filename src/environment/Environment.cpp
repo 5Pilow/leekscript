@@ -114,7 +114,7 @@ void Environment::analyze(Program& program, bool format, bool debug, bool sectio
 	delete resolver;
 }
 
-std::vector<Completion> Environment::autocomplete(Program& program, size_t position) {
+Completion Environment::autocomplete(Program& program, size_t position) {
 	SemanticAnalyzer sem { *this };
 	return program.autocomplete(sem, position);
 }

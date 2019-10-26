@@ -25,6 +25,7 @@ public:
 	bool class_method = false;
 	bool update_variable = false;
 	const Type* previous_type = nullptr;
+	bool static_field = false;
 	#if COMPILER
 	std::function<Compiler::value(Compiler&)> static_access_function = nullptr;
 	LSFunction* ls_function = nullptr;
@@ -46,6 +47,7 @@ public:
 	virtual bool elements_will_store(SemanticAnalyzer* analyzer, const Type* type, int level) override;
 	virtual void change_value(SemanticAnalyzer*, Value* value) override;
 	virtual const Type* version_type(std::vector<const Type*>) const override;
+	virtual Completion autocomplete(SemanticAnalyzer& analyzer, size_t position) const override;
 	virtual Hover hover(SemanticAnalyzer& analyzer, size_t position) const;
 
 	#if COMPILER

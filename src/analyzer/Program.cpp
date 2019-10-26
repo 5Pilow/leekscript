@@ -80,7 +80,7 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 	}
 }
 
-std::vector<Completion> Program::autocomplete(SemanticAnalyzer& analyzer, size_t position) {
+Completion Program::autocomplete(SemanticAnalyzer& analyzer, size_t position) {
 	if (not result.analyzed) {
 		std::cout << "Program not analyzed yet!" << std::endl;
 		return {};

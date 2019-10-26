@@ -259,8 +259,11 @@ Variable* FunctionVersion::capture(SemanticAnalyzer* analyzer, Variable* var) {
 	}
 }
 
-std::vector<Completion> FunctionVersion::autocomplete(SemanticAnalyzer& analyzer, size_t position) {
-	return body->autocomplete(analyzer, position);
+Completion FunctionVersion::autocomplete(SemanticAnalyzer& analyzer, size_t position) {
+	analyzer.enter_function((FunctionVersion*) this);
+	auto completion = body->autocomplete(analyzer, position);
+	analyzer.leave_function();
+	return completion;
 }
 
 Hover FunctionVersion::hover(SemanticAnalyzer& analyzer, size_t position) {

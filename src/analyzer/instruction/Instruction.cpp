@@ -13,7 +13,7 @@ void Instruction::analyze(SemanticAnalyzer* analyzer) {
 	analyze(analyzer, analyzer->env.any);
 }
 
-std::vector<Completion> Instruction::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
+Completion Instruction::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
 	return {};
 }
 
