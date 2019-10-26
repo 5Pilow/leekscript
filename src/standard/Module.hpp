@@ -45,6 +45,7 @@ public:
 	static int EMPTY_VARIABLE;
 	static int NO_RETURN;
 	static int PRIVATE;
+	static int LEGACY_ONLY;
 
 	static bool STORE_ARRAY_SIZE;
 
@@ -58,14 +59,14 @@ public:
 	Module(Environment& env, std::string name, Class* parent = nullptr);
 	virtual ~Module() {}
 
-	void operator_(std::string name, std::initializer_list<CallableVersion>, std::vector<const Type*> templates = {});
+	void operator_(std::string name, std::initializer_list<CallableVersion>, int flags = 0, std::vector<const Type*> templates = {});
 
 	template<class... Args>
 	Template template_(Args... templates) {
 		return { this, templates... };
 	}
 
-	void constructor_(std::initializer_list<CallableVersion> methods);
+	void constructor_(std::initializer_list<CallableVersion> methods, int flags = 0);
 
 	void method(std::string name, std::initializer_list<CallableVersion> methods, int flags = 0, std::vector<const Type*> templates = {});
 
@@ -76,10 +77,10 @@ public:
 	void field(std::string name, const Type* type, void* fun);
 
 	#if COMPILER
-	void static_field(std::string name, const Type* type, std::function<Compiler::value(Compiler&)> fun);
+	void static_field(std::string name, const Type* type, std::function<Compiler::value(Compiler&)> fun, int flags = 0);
 	#endif
-	void static_field(std::string name, const Type* type, void* addr);
-	void static_field_fun(std::string name, const Type* type, void* fun);
+	void static_field(std::string name, const Type* type, void* addr, int flags = 0);
+	void static_field_fun(std::string name, const Type* type, void* fun, int flags = 0);
 
 	void generate_doc(std::ostream& os, std::string translation);
 };

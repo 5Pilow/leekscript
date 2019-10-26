@@ -9,7 +9,7 @@
 
 namespace ls {
 
-Class::field::field(std::string name, const Type* type, void* fun) : name(name), type(type)
+Class::field::field(std::string name, const Type* type, void* fun, int flags) : name(name), type(type), flags(flags)
 #if COMPILER
 , native_fun(fun)
 #endif
@@ -59,12 +59,17 @@ const Call& Class::getOperator(SemanticAnalyzer* analyzer, std::string& name) {
 	return operators_callables.insert({ name, call }).first->second;
 }
 
-void Class::addMethod(std::string name, std::initializer_list<CallableVersion> impl, std::vector<const Type*> templates, int flags, bool legacy) {
+void Class::addMethod(std::string name, std::initializer_list<CallableVersion> impl, std::vector<const Type*> templates, int flags) {
 	Callable callable;
 	for (const auto& v : impl) {
-		if ((v.flags & Module::LEGACY) and not legacy) continue;
+		if (env.legacy) {
+			if (!(flags & Module::LEGACY) and !(v.flags & Module::LEGACY)) continue;
+		} else {
+			if ((flags & (Module::LEGACY_ONLY - Module::LEGACY)) or (v.flags & (Module::LEGACY_ONLY - Module::LEGACY))) continue;
+		}
 		callable.add_version(v);
 	}
+	if (callable.versions.size() == 0) return;
 	methods.insert({name, callable});
 	int i = 0;
 	for (auto& m : methods.at(name).versions) {
@@ -84,21 +89,29 @@ void Class::addMethod(std::string name, std::initializer_list<CallableVersion> i
 
 #if COMPILER
 void Class::addField(std::string name, const Type* type, std::function<Compiler::value(Compiler&, Compiler::value)> fun) {
+	if (env.legacy) return;
 	fields.insert({name, {name, type, fun, nullptr}});
 }
 #endif
 void Class::addField(std::string name, const Type* type, void* fun) {
+	if (env.legacy) return;
 	fields.insert({name, {name, type, fun}});
 }
 
 void Class::addStaticField(field f) {
+	if (env.legacy and !(f.flags & Module::LEGACY)) return;
+	if (not env.legacy and (f.flags & (Module::LEGACY_ONLY - Module::LEGACY))) return;
 	static_fields.insert({f.name, f});
 }
 
-void Class::addOperator(std::string name, std::initializer_list<CallableVersion> impl, std::vector<const Type*> templates, bool legacy) {
+void Class::addOperator(std::string name, std::initializer_list<CallableVersion> impl, std::vector<const Type*> templates, int flags) {
 	Callable callable;
 	for (const auto& v : impl) {
-		if ((v.flags & Module::LEGACY) and not legacy) continue;
+		if (env.legacy) {
+			if (!(flags & Module::LEGACY) and !(v.flags & Module::LEGACY)) continue;
+		} else {
+			if ((flags & (Module::LEGACY_ONLY - Module::LEGACY)) or (v.flags & (Module::LEGACY_ONLY - Module::LEGACY))) continue;
+		}
 		callable.add_version(v);
 	}
 	if (not callable.versions.size()) return;

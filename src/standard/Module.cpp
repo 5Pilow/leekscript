@@ -20,6 +20,7 @@ int Module::DEFAULT = 4;
 int Module::NO_RETURN = 8;
 int Module::EMPTY_VARIABLE = 16;
 int Module::PRIVATE = 32;
+int Module::LEGACY_ONLY = LEGACY + 64;
 
 bool Module::STORE_ARRAY_SIZE = true;
 
@@ -32,7 +33,7 @@ Module::Module(Environment& env, std::string name, Class* parent) : env(env), na
 	}
 }
 
-void Module::operator_(std::string name, std::initializer_list<CallableVersion> impl, std::vector<const Type*> templates) {
+void Module::operator_(std::string name, std::initializer_list<CallableVersion> impl, int flags, std::vector<const Type*> templates) {
 	clazz->addOperator(name, impl, templates, env.legacy);
 }
 void Module::field(std::string name, const Type* type) {
@@ -47,23 +48,23 @@ void Module::field(std::string name, const Type* type, void* fun) {
 	clazz->addField(name, type, fun);
 }
 #if COMPILER
-void Module::static_field(std::string name, const Type* type, std::function<Compiler::value(Compiler&)> fun) {
-	clazz->addStaticField({name, type, fun});
+void Module::static_field(std::string name, const Type* type, std::function<Compiler::value(Compiler&)> fun, int flags) {
+	clazz->addStaticField({name, type, fun, flags});
 }
 #endif
-void Module::static_field(std::string name, const Type* type, void* addr) {
-	clazz->addStaticField({name, type, addr});
+void Module::static_field(std::string name, const Type* type, void* addr, int flags) {
+	clazz->addStaticField({name, type, addr, flags});
 }
-void Module::static_field_fun(std::string name, const Type* type, void* fun) {
+void Module::static_field_fun(std::string name, const Type* type, void* fun, int flags) {
 	#if COMPILER
 	clazz->addStaticField({name, type, fun});
 	#endif
 }
-void Module::constructor_(std::initializer_list<CallableVersion> methods) {
-	clazz->addMethod("new", methods);
+void Module::constructor_(std::initializer_list<CallableVersion> methods, int flags) {
+	clazz->addMethod("new", methods, {}, flags);
 }
 void Module::method(std::string name, std::initializer_list<CallableVersion> methods, int flags, std::vector<const Type*> templates) {
-	clazz->addMethod(name, methods, templates, flags, env.legacy);
+	clazz->addMethod(name, methods, templates, flags);
 }
 void Template::operator_(std::string name, std::initializer_list<CallableVersion> impl) {
 	module->clazz->addOperator(name, impl, templates, module->env.legacy);
