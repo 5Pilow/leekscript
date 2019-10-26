@@ -14,6 +14,8 @@ class Variable;
 class Block : public Value {
 public:
 
+	Token* opening_brace = nullptr;
+	Token* closing_brace = nullptr;
 	std::vector<std::unique_ptr<Instruction>> instructions;
 	std::vector<Section*> sections;
 	bool is_function_block = false;

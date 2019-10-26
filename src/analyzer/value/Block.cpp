@@ -52,11 +52,14 @@ void Block::print(std::ostream& os, int indent, PrintOptions options) const {
 }
 
 Location Block::location() const {
-	assert(sections.size());
-	assert(sections.at(0)->instructions.size());
-	auto start = sections.at(0)->instructions.at(0)->location().start;
-	auto end = sections.at(0)->instructions.back()->location().end;
-	return {sections.at(0)->instructions.at(0)->location().file, start, end};
+	if (opening_brace) {
+		return { opening_brace->location.file, opening_brace->location.start, closing_brace->location.end };
+	} else {
+		assert(instructions.size());
+		auto start = instructions.front()->location().start;
+		auto end = instructions.back()->location().end;
+		return { instructions.front()->location().file, start, end };
+	}
 }
 
 void Block::add_instruction(Instruction* instruction) {
@@ -334,6 +337,8 @@ void Block::compile_end(Compiler& c) const {
 
 std::unique_ptr<Value> Block::clone(Block* parent) const {
 	auto b = std::make_unique<Block>(type->env, is_function_block);
+	b->opening_brace = opening_brace;
+	b->closing_brace = closing_brace;
 	for (const auto& instruction : instructions) {
 		b->add_instruction(instruction->clone(b.get()));
 	}

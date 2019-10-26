@@ -136,7 +136,7 @@ Block* SyntaxicAnalyzer::eatBlock(Block* parent, bool is_function_block, bool si
 	bool brace = false;
 	if (t->type == TokenType::OPEN_BRACE) {
 		brace = true;
-		eat();
+		block->opening_brace = eat_get();
 	}
 
 	if (single_instruction) {
@@ -145,7 +145,7 @@ Block* SyntaxicAnalyzer::eatBlock(Block* parent, bool is_function_block, bool si
 	} else {
 		while (true) {
 			if (t->type == TokenType::CLOSING_BRACE) {
-				eat();
+				block->closing_brace = eat_get();
 				break;
 			} else if (t->type == TokenType::FINISHED || t->type == TokenType::ELSE || t->type == TokenType::END || t->type == TokenType::IN) {
 				if (brace) {
