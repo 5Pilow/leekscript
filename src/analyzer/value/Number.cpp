@@ -102,6 +102,8 @@ void Number::analyze(SemanticAnalyzer* analyzer) {
 				type = env.tmp_mpz_ptr;
 			}
 		}
+		if (long_number) type = env.long_;
+		if (mp_number) type = env.tmp_mpz_ptr;
 		#endif
 	}
 	if (pointer) {
