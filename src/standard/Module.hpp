@@ -33,8 +33,8 @@ public:
 	template<class... Args>
 	Template(Module* module, Args... templates) : module(module), templates({templates...}) {}
 
-	void operator_(std::string name, std::initializer_list<CallableVersion>);
-	void method(std::string name, std::initializer_list<CallableVersion> methods);
+	void operator_(std::string name, std::initializer_list<CallableVersion>, int flags = 0);
+	void method(std::string name, std::initializer_list<CallableVersion> methods, int flags = 0);
 };
 
 class Module {

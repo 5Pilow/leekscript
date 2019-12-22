@@ -34,7 +34,7 @@ Module::Module(Environment& env, std::string name, Class* parent) : env(env), na
 }
 
 void Module::operator_(std::string name, std::initializer_list<CallableVersion> impl, int flags, std::vector<const Type*> templates) {
-	clazz->addOperator(name, impl, templates, env.legacy);
+	clazz->addOperator(name, impl, templates, flags);
 }
 void Module::field(std::string name, const Type* type) {
 	clazz->addField(name, type, nullptr);
@@ -66,11 +66,11 @@ void Module::constructor_(std::initializer_list<CallableVersion> methods, int fl
 void Module::method(std::string name, std::initializer_list<CallableVersion> methods, int flags, std::vector<const Type*> templates) {
 	clazz->addMethod(name, methods, templates, flags);
 }
-void Template::operator_(std::string name, std::initializer_list<CallableVersion> impl) {
-	module->clazz->addOperator(name, impl, templates, module->env.legacy);
+void Template::operator_(std::string name, std::initializer_list<CallableVersion> impl, int flags) {
+	module->clazz->addOperator(name, impl, templates, flags);
 }
-void Template::method(std::string name, std::initializer_list<CallableVersion> methods) {
-	module->method(name, methods, 0, templates);
+void Template::method(std::string name, std::initializer_list<CallableVersion> methods, int flags) {
+	module->method(name, methods, flags, templates);
 }
 
 void Module::generate_doc(std::ostream& os, std::string translation_file) {
