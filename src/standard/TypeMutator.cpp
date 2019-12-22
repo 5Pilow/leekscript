@@ -93,6 +93,7 @@ int ConvertMutator::compile(Compiler& c, CallableVersion* callable, std::vector<
 #endif
 
 void ChangeValueMutator::apply(SemanticAnalyzer* analyzer, std::vector<Value*> values, const Type* return_type) const {
+	auto& env = analyzer->env;
 	// std::cout << "Change value mutator " << values[0]->type << " => " << return_type << std::endl;
 	if (auto vv = dynamic_cast<VariableValue*>(values[0])) {
 		// std::cout << "Change mutator " << vv->var->parent << " " << vv->var->parent->type << " => " << vv->var << " " << vv->var->type << " " << return_type << std::endl;
@@ -104,7 +105,15 @@ void ChangeValueMutator::apply(SemanticAnalyzer* analyzer, std::vector<Value*> v
 		if (aa->key) {
 			if (auto vv = dynamic_cast<VariableValue*>(aa->array.get())) {
 				if (vv->type->is_array()) {
-					vv->type = Type::array(return_type->not_temporary());
+					auto element = vv->type->element()->operator + (return_type->not_temporary());
+					if (env.legacy) {
+						// Legacy mode: the array transforms from array<X> to map<integer, X>
+						auto key_type = aa->key->type;
+						vv->type = Type::map(key_type->not_temporary(), element);
+					} else {
+						// V2 mode: the array juste change is element type
+						vv->type = Type::array(element);
+					}
 				} else if (vv->type->is_map()) {
 					// std::cout << vv->type << " " << aa->key->type << " " << return_type << std::endl;
 					auto key = vv->type->key()->operator + (aa->key->type->not_temporary());

@@ -99,21 +99,25 @@ void ArrayAccess::analyze(SemanticAnalyzer* analyzer) {
 		type = type->add_temporary();
 
 	} else if (array->type->is_array() or array->type->is_string() or array->type->is_interval()) {
-		if (not key->type->can_be_numeric()) {
-			std::string a = array->to_string();
-			std::string k = key->to_string();
-			std::string kt = key->type->to_string();
-			analyzer->add_error({Error::Type::ARRAY_ACCESS_KEY_MUST_BE_NUMBER, location(), key->location(), {k, a, kt}});
+		if (not env.legacy) { // In legacy mode, any type can be used as the key, to transform the array into a map
+			if (not key->type->can_be_numeric()) {
+				std::string a = array->to_string();
+				std::string k = key->to_string();
+				std::string kt = key->type->to_string();
+				analyzer->add_error({Error::Type::ARRAY_ACCESS_KEY_MUST_BE_NUMBER, location(), key->location(), {k, a, kt}});
+			}
 		}
 		if (array->type->is_string()) {
 			type = env.string;
 		}
 	} else if (array->type->is_map()) {
-		if (!key->type->castable(map_key_type)) {
-			std::string a = array->to_string();
-			std::string k = key->to_string();
-			std::string kt = key->type->to_string();
-			analyzer->add_error({Error::Type::INVALID_MAP_KEY, location(), key->location(), {k, a, kt}});
+		if (not env.legacy) { // In legacy mode, any type can be used as the key
+			if (!key->type->castable(map_key_type)) {
+				std::string a = array->to_string();
+				std::string k = key->to_string();
+				std::string kt = key->type->to_string();
+				analyzer->add_error({Error::Type::INVALID_MAP_KEY, location(), key->location(), {k, a, kt}});
+			}
 		}
 	}
 	// TODO should be temporary
