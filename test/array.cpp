@@ -644,14 +644,6 @@ void Test::test_arrays() {
 	code("[true, 'hello', [1, 2, 3]].removeElement('hello')").equals("true");
 	code("[true, 'hello', [1, 2, 3]].removeElement('yolo')").equals("false");
 
-	section("inArray");
-	code("inArray([1, 2, 3, 4], 3)").equals("true");
-	code("inArray([1, 2, 3, 4], 5)").equals("false");
-	code("inArray([1.5, 2.2, 3.7, 4.6], 2.2)").equals("true");
-	code("inArray([1.5, 2.2, 3.7, 4.6], 2.1)").equals("false");
-	code("inArray(['a', 'b', 'c', 'd'], 'd')").equals("true");
-	code("inArray(['a', 'b', 'c', 'd'], 'e')").equals("false");
-
 	section("Postfix expressions");
 	code("let a = [10, ''] a[0]++").equals("10");
 	code("let a = [10, ''] a[0]++ a[0]").equals("11");
@@ -673,11 +665,19 @@ void Test::test_arrays() {
 	code("let a = [['a', 'b', 'c'], 'hello'] [a[0].reverse(), a[1].reverse()]").equals("[['c', 'b', 'a'], 'olleh']");
 	code("let h = [1, 'text', [1,2,3], x -> x + 1] h[2].push('test') h[0] = [h[3](h[0]), h[3](h[1])] h").equals("[[2, 'text1'], 'text', [1, 2, 3, 'test'], <function>]");
 
-	section("Array v1 pushAll");
+	section("Array [legacy] pushAll");
 	code_v1("var a = [] pushAll(a, ['a', 'b', 'c']) a").equals("['a', 'b', 'c']");
 
-	section("Array v1 count");
+	section("Array [legacy] count");
 	code_v1("var a = ['a', 'b', 'c'] count(a)").equals("3");
+
+	section("Array [legacy] inArray");
+	code_v1("inArray([1, 2, 3, 4], 3)").equals("true");
+	code_v1("inArray([1, 2, 3, 4], 5)").equals("false");
+	code_v1("inArray([1.5, 2.2, 3.7, 4.6], 2.2)").equals("true");
+	code_v1("inArray([1.5, 2.2, 3.7, 4.6], 2.1)").equals("false");
+	code_v1("inArray(['a', 'b', 'c', 'd'], 'd')").equals("true");
+	code_v1("inArray(['a', 'b', 'c', 'd'], 'e')").equals("false");
 
 	/*
 	[1, 2, 3] ~~= (x -> x * 5 + 2)
