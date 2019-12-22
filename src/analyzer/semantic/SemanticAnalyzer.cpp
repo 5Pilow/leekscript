@@ -289,6 +289,7 @@ Variable* SemanticAnalyzer::convert_var_to_any(Variable* var) {
 }
 
 Variable* SemanticAnalyzer::update_var(Variable* variable, bool add_mutation) {
+	if (not variable) return nullptr;
 	if (variable->loop_variable) return variable;
 	// std::cout << "update_var " << variable << " " << (int) variable->scope << std::endl;
 	Variable* new_variable;
