@@ -86,7 +86,6 @@ Environment::Environment(bool legacy) :
 {}
 
 Environment::~Environment() {
-	std::cout << "Delete environment" << std::endl;
 	delete void_;
 	delete boolean;
 	delete number;
