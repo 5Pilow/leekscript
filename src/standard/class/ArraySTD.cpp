@@ -265,15 +265,6 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::array(Type::meta_mul(pT, Type::meta_not_temporary(pE))), {Type::array(pT), pE}, ADDR(push), 0, { env.convert_mutator }},
 	});
 
-	// void (LSArray<int>::*push_int)(int&&) = &LSArray<int>::push_back;
-	method("vpush", {
-		{env.void_, {Type::array(env.boolean), env.boolean}, ADDR((void*) &LSArray<char>::ls_push)},
-		{env.void_, {Type::array(env.integer), env.integer}, ADDR((void*) &LSArray<int>::ls_push)},
-		{env.void_, {Type::array(env.long_), env.long_}, ADDR((void*) &LSArray<long>::ls_push)},
-		{env.void_, {Type::array(env.real), env.real}, ADDR((void*) &LSArray<double>::ls_push)},
-		{env.void_, {Type::array(env.any), env.any}, ADDR((void*) &LSArray<LSValue*>::push_inc)},
-	});
-
 	auto paX = env.template_("X");
 	auto paY = env.template_("Y");
 	template_(paX, paY).
@@ -378,6 +369,13 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	});
 
 	/** Internal **/
+	method("vpush", {
+		{env.void_, {Type::array(env.boolean), env.boolean}, ADDR((void*) &LSArray<char>::ls_push)},
+		{env.void_, {Type::array(env.integer), env.integer}, ADDR((void*) &LSArray<int>::ls_push)},
+		{env.void_, {Type::array(env.long_), env.long_}, ADDR((void*) &LSArray<long>::ls_push)},
+		{env.void_, {Type::array(env.real), env.real}, ADDR((void*) &LSArray<double>::ls_push)},
+		{env.void_, {Type::array(env.any), env.any}, ADDR((void*) &LSArray<LSValue*>::push_inc)},
+	}, PRIVATE | LEGACY);
 	method("convert_key", {
 		{env.integer, {env.const_any}, ADDR((void*) &convert_key)}
 	}, PRIVATE);
