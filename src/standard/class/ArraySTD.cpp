@@ -28,7 +28,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::tmp_array(env.long_), {env.integer}, ADDR((void*) LSArray<long>::constructor)},
 		{Type::tmp_array(env.real), {env.integer}, ADDR((void*) LSArray<double>::constructor)},
 		{Type::tmp_array(env.any), {env.integer}, ADDR((void*) LSArray<LSValue*>::constructor)},
-	});
+	}, LEGACY);
 
 	/*
 	 * Operators
@@ -261,15 +261,15 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	auto pE = env.template_("E");
 	template_(pT, pE).
 	method("push", {
-		{Type::array(env.any), {env.array, env.const_any}, ADDR((void*) &LSArray<LSValue*>::ls_push), 0, { env.convert_mutator }},
-		{Type::array(Type::meta_mul(pT, Type::meta_not_temporary(pE))), {Type::array(pT), pE}, ADDR(push), 0, { env.convert_mutator }},
+		{Type::array(env.any), {env.array, env.const_any}, ADDR((void*) &LSArray<LSValue*>::ls_push), LEGACY, { env.convert_mutator }},
+		{Type::array(Type::meta_mul(pT, Type::meta_not_temporary(pE))), {Type::array(pT), pE}, ADDR(push), LEGACY, { env.convert_mutator }},
 	});
 
 	auto paX = env.template_("X");
 	auto paY = env.template_("Y");
 	template_(paX, paY).
 	method("pushAll", {
-		{Type::array(Type::meta_add(paX, paY)), {Type::array(paX), Type::array(paY)}, ADDR(push_all), 0, { env.convert_mutator }}
+		{Type::array(Type::meta_add(paX, paY)), {Type::array(paX), Type::array(paY)}, ADDR(push_all), LEGACY, { env.convert_mutator }}
 	});
 
 	method("join", {
@@ -358,15 +358,16 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::tmp_array(env.integer), {Type::const_array(env.integer), env.const_integer, env.const_integer}, ADDR((void*) &sub)},
 	});
 
-	/** V1 **/
+	/** Legacy-only **/
 	method("count", {
 		{env.integer, {env.any}, ADDR((void*) &LSArray<LSValue*>::ls_size)}
-	});
+	}, LEGACY_ONLY);
+
 	method("inArray", {
 		{env.boolean, {env.array, env.any}, ADDR((void*) &LSArray<LSValue*>::ls_contains)},
 		{env.boolean, {Type::array(env.real), env.real}, ADDR((void*) &LSArray<double>::ls_contains)},
 		{env.boolean, {Type::array(env.integer), env.integer}, ADDR((void*) &LSArray<int>::ls_contains)}
-	});
+	}, LEGACY_ONLY);
 
 	/** Internal **/
 	method("vpush", {
@@ -376,22 +377,27 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.void_, {Type::array(env.real), env.real}, ADDR((void*) &LSArray<double>::ls_push)},
 		{env.void_, {Type::array(env.any), env.any}, ADDR((void*) &LSArray<LSValue*>::push_inc)},
 	}, PRIVATE | LEGACY);
+
 	method("convert_key", {
 		{env.integer, {env.const_any}, ADDR((void*) &convert_key)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("in", {
 		{env.boolean, {Type::const_array(env.any), env.const_any}, ADDR((void*) &LSArray<LSValue*>::in)},
 		{env.boolean, {Type::const_array(env.real), env.const_any}, ADDR((void*) &LSArray<double>::in)},
 		{env.boolean, {Type::const_array(env.integer), env.integer}, ADDR((void*) &LSArray<int>::in_i)},
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("isize", {
 		{env.integer, {Type::array(env.any)}, ADDR((void*) &LSArray<LSValue*>::int_size)},
 		{env.integer, {Type::array(env.real)}, ADDR((void*) &LSArray<double>::int_size)},
 		{env.integer, {Type::array(env.integer)}, ADDR((void*) &LSArray<int>::int_size)},
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("to_bool", {
 		{env.boolean, {env.array}, ADDR((void*) &LSArray<int>::to_bool)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	auto sort_fun_int = ADDR(&LSArray<int>::ls_sort_fun<LSFunction*>);
 	auto sort_fun_long = ADDR(&LSArray<long>::ls_sort_fun<LSFunction*>);
 	auto sort_fun_real = ADDR(&LSArray<double>::ls_sort_fun<LSFunction*>);
@@ -401,31 +407,37 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.array, {env.array, (const Type*) Type::fun_object(env.void_, {})}, (void*) sort_fun_real},
 		{env.array, {env.array, (const Type*) Type::fun_object(env.void_, {})}, (void*) sort_fun_long},
 		{env.array, {env.array, (const Type*) Type::fun_object(env.void_, {})}, (void*) sort_fun_int},
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
 
 	method("fill_fun", {
 		{env.array, {env.array, env.any, env.integer}, ADDR((void*) &LSArray<LSValue*>::ls_fill)},
 		{env.array, {env.array, env.real, env.integer}, ADDR((void*) &LSArray<double>::ls_fill)},
 		{env.array, {env.array, env.integer, env.integer}, ADDR((void*) &LSArray<int>::ls_fill)},
 		{env.array, {env.array, env.boolean, env.integer}, ADDR((void*) &LSArray<char>::ls_fill)},
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("remove_element_fun", {
 		{env.boolean, {env.array, env.any}, ADDR((void*) &LSArray<LSValue*>::ls_remove_element)},
 		{env.boolean, {env.array, env.any}, ADDR((void*) &LSArray<double>::ls_remove_element)},
 		{env.boolean, {env.array, env.any}, ADDR((void*) &LSArray<int>::ls_remove_element)},
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("int_to_any", {
 		{Type::array(env.any), {Type::array(env.integer)}, ADDR((void*) &LSArray<int>::to_any_array)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("real_to_any", {
 		{Type::array(env.any), {Type::array(env.real)}, ADDR((void*) &LSArray<double>::to_any_array)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("int_to_real", {
 		{Type::array(env.any), {Type::array(env.real)}, ADDR((void*) &LSArray<int>::to_real_array)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("int_to_long", {
 		{Type::array(env.any), {Type::array(env.long_)}, ADDR((void*) &LSArray<int>::to_long_array)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("push_all_fun", {
 		{Type::array(env.any), {Type::array(env.any), Type::array(env.any)}, ADDR((void*) &LSArray<LSValue*>::ls_push_all_ptr)},
 		{Type::array(env.any), {Type::array(env.any), Type::array(env.real)}, ADDR((void*) &LSArray<LSValue*>::ls_push_all_flo)},
@@ -433,20 +445,21 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::array(env.real), {Type::array(env.real), Type::array(env.real)}, ADDR((void*) &LSArray<double>::ls_push_all_flo)},
 		{Type::array(env.real), {Type::array(env.real), Type::array(env.integer)}, ADDR((void*) &LSArray<double>::ls_push_all_int)},
 		{Type::array(env.integer), {Type::array(env.integer), Type::array(env.integer)}, ADDR((void*) &LSArray<int>::ls_push_all_int)},
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("repeat_fun", {
 		{Type::tmp_array(env.any), {Type::const_array(env.any), env.integer}, ADDR((void*) &LSArray<LSValue*>::repeat)},
 		{Type::tmp_array(env.real), {Type::const_array(env.real), env.integer}, ADDR((void*) &LSArray<double>::repeat)},
 		{Type::tmp_array(env.long_), {Type::const_array(env.long_), env.integer}, ADDR((void*) &LSArray<long>::repeat)},
 		{Type::tmp_array(env.integer), {Type::const_array(env.integer), env.integer}, ADDR((void*) &LSArray<int>::repeat)},
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
 
 	method("reverse_fun", {
 		{Type::tmp_array(env.void_), {Type::const_array(env.void_)}, ADDR((void*) &LSArray<LSValue*>::ls_reverse)},
 		{Type::tmp_array(env.real), {Type::const_array(env.real)}, ADDR((void*) &LSArray<double>::ls_reverse)},
 		{Type::tmp_array(env.long_), {Type::const_array(env.long_)}, ADDR((void*) &LSArray<long>::ls_reverse)},
 		{Type::tmp_array(env.integer), {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_reverse)},
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
 }
 
 #if COMPILER

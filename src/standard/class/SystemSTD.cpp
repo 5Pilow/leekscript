@@ -34,11 +34,11 @@ SystemSTD::SystemSTD(Environment& env) : Module(env, "System") {
 	method("throw", {
 		{env.void_, {env.integer, env.i8_ptr, env.i8_ptr, env.long_}, ADDR((void*) throw1)},
 		{env.void_, {env.long_, env.long_, env.i8_ptr, env.i8_ptr}, ADDR((void*) throw2)},
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
 
 	method("debug", {
 		{env.void_, {env.any}, ADDR(print)}
-	});
+	}, LEGACY_ONLY);
 
 	method("internal_print", {
 		{env.void_, {env.i8->pointer(), env.const_boolean}, ADDR((void*) internal_print_bool)},
@@ -48,7 +48,7 @@ SystemSTD::SystemSTD(Environment& env) : Module(env, "System") {
 		{env.void_, {env.i8->pointer(), env.mpz_ptr}, ADDR((void*) internal_print_mpz)},
 		{env.void_, {env.i8->pointer(), env.tmp_mpz_ptr}, ADDR((void*) internal_print_mpz_tmp)},
 		{env.void_, {env.i8->pointer(), env.const_any}, ADDR((void*) internal_print)},
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
 
 	/**
 	 * Legacy-only

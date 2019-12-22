@@ -38,151 +38,194 @@ ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
 	template_(sV, sT).
 	operator_("=", {
 		{sV, sT, sT, ADDR(op_store), 0, { env.change_value_mutator }, true}
-	});
+	}, LEGACY);
 
 	operator_("is", {
 		{env.const_any, env.const_class(), env.boolean, ADDR(op_instanceof)}
 	});
+
 	operator_("==", {
-		{env.const_any, env.const_any, env.boolean, ADDR((void*) eq)},
-		{env.const_any, env.const_any, env.boolean, ADDR(op_equals)}
-	});
+		{env.const_any, env.const_any, env.boolean, ADDR((void*) eq), LEGACY},
+		{env.const_any, env.const_any, env.boolean, ADDR(op_equals), LEGACY}
+	}, LEGACY);
+
 	operator_("===", {
-		{env.const_any, env.const_any, env.boolean, ADDR((void*) triple_eq), LEGACY},
-		{env.const_any, env.const_any, env.boolean, ADDR(op_triple_equals), LEGACY}
-	});
+		{env.const_any, env.const_any, env.boolean, ADDR((void*) triple_eq)},
+		{env.const_any, env.const_any, env.boolean, ADDR(op_triple_equals)}
+	}, LEGACY_ONLY);
+
 	operator_("!=", {
 		{env.const_any, env.const_any, env.boolean, ADDR(op_not_equals)}
-	});
+	}, LEGACY);
+
 	operator_("<", {
 		{env.const_any, env.const_any, env.boolean, ADDR((void*) lt)},
 		{env.const_any, env.const_any, env.boolean, ADDR(op_lt)},
-	});
+	}, LEGACY);
+
 	operator_("<=", {
 		{env.const_any, env.const_any, env.boolean, ADDR((void*) le)},
 		{env.const_any, env.const_any, env.boolean, ADDR(op_le)}
-	});
+	}, LEGACY);
+
 	operator_(">", {
 		{env.const_any, env.const_any, env.boolean, ADDR((void*) gt)},
 		{env.const_any, env.const_any, env.boolean, ADDR(op_gt)}
-	});
+	}, LEGACY);
+
 	operator_(">=", {
 		{env.const_any, env.const_any, env.boolean, ADDR((void*) ge)},
 		{env.const_any, env.const_any, env.boolean, ADDR(op_ge)}
-	});
+	}, LEGACY);
+
 	operator_("and", {
 		{env.const_any, env.const_any, env.boolean, ADDR(op_and)}
-	});
+	}, LEGACY);
+
 	operator_("&&", {
 		{env.const_any, env.const_any, env.boolean, ADDR(op_and)}
-	});
+	}, LEGACY);
+
 	operator_("or", {
 		{env.const_any, env.const_any, env.boolean, ADDR(op_or)}
-	});
+	}, LEGACY);
+
 	operator_("||", {
 		{env.const_any, env.const_any, env.boolean, ADDR(op_or)}
-	});
+	}, LEGACY);
+
 	operator_("xor", {
 		{env.const_any, env.const_any, env.boolean, ADDR(op_xor)}
-	});
+	}, LEGACY);
+
 	operator_("+", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_add), THROWS},
 		{env.const_any, env.const_any, env.any, ADDR(op_add), THROWS},
-	});
+	}, LEGACY);
+
 	operator_("+=", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_add_eq), THROWS, { env.convert_mutator }, true}
-	});
+	}, LEGACY);
+
 	operator_("-", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_sub), THROWS},
 		{env.const_any, env.const_any, env.any, ADDR(op_sub), THROWS},
-	});
+	}, LEGACY);
+
 	operator_("-=", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_sub_eq), THROWS, {}, true}
-	});
+	}, LEGACY);
+
 	operator_("*", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_mul), THROWS},
 		{env.const_any, env.const_any, env.any, ADDR(op_mul), THROWS}
-	});
+	}, LEGACY);
+
 	operator_("*=", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_mul_eq), THROWS, {}, true}
-	});
+	}, LEGACY);
+
 	operator_("**", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_pow), THROWS},
-	});
+	}, LEGACY);
+
 	operator_("**=", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_pow_eq), THROWS, {}, true}
-	});
+	}, LEGACY);
+
 	operator_("/", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_div), THROWS},
-	});
+	}, LEGACY);
+
 	operator_("/=", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_div_eq), THROWS, {}, true}
-	});
+	}, LEGACY);
+
 	operator_("\\", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_int_div), THROWS}
 	});
+
 	operator_("\\=", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_int_div_eq), THROWS, {}, true}
 	});
+
 	operator_("%", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_mod), THROWS}
-	});
+	}, LEGACY);
+
 	operator_("%=", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_mod_eq), THROWS, {}, true}
-	});
+	}, LEGACY);
+
 	operator_("%%", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_double_mod)},
-	});
+	}, LEGACY);
+
 	operator_("%%=", {
 		{env.const_any, env.const_any, env.any, ADDR((void*) ls_double_mod_eq), THROWS, {}, true}
-	});
+	}, LEGACY);
+
 	operator_("&", {
 		{env.const_any, env.const_any, env.integer, ADDR((void*) ls_bit_and), THROWS}
-	});
+	}, LEGACY);
+
 	operator_("&=", {
 		{env.any, env.const_any, env.integer, ADDR((void*) ls_bit_and_eq), THROWS, {}, true}
-	});
+	}, LEGACY);
+
 	operator_("|", {
 		{env.const_any, env.const_any, env.integer, ADDR((void*) ls_bit_or), THROWS}
-	});
+	}, LEGACY);
+
 	operator_("|=", {
 		{env.any, env.const_any, env.integer, ADDR((void*) ls_bit_or_eq), THROWS, {}, true}
-	});
+	}, LEGACY);
+
 	operator_("^", {
 		{env.const_any, env.const_any, env.integer, ADDR((void*) ls_bit_xor), THROWS}
-	});
+	}, LEGACY);
+
 	operator_("^=", {
 		{env.any, env.const_any, env.integer, ADDR((void*) ls_bit_xor_eq), THROWS, {}, true}
-	});
+	}, LEGACY);
+
 	operator_("<<", {
 		{env.const_any, env.const_any, env.integer, ADDR(bit_shift_left), THROWS}
-	});
+	}, LEGACY);
+
 	operator_("<<=", {
 		{env.const_any, env.const_any, env.integer, ADDR((void*) ls_bit_shift_left_eq), 0, {}, true},
 		{env.integer, env.const_integer, env.integer, ADDR(bit_shift_left_eq), 0, {}, true},
-	});
+	}, LEGACY);
+
 	operator_(">>", {
 		{env.const_integer, env.const_integer, env.integer, ADDR(bit_shift_right), THROWS}
-	});
+	}, LEGACY);
+
 	operator_(">>=", {
 		{env.const_any, env.const_any, env.integer, ADDR((void*) ls_bit_shift_right_eq), 0, {}, true},
 		{env.const_integer, env.const_integer, env.integer, ADDR(bit_shift_right_eq), 0, {}, true},
-	});
+	}, LEGACY);
+
 	operator_(">>>", {
 		{env.const_integer, env.const_integer, env.integer, ADDR(bit_shift_uright), THROWS}
-	});
+	}, LEGACY);
+
 	operator_(">>>=", {
 		{env.const_any, env.const_any, env.integer, ADDR((void*) ls_bit_shift_uright_eq), 0, {}, true},
 		{env.const_integer, env.const_integer, env.integer, ADDR(bit_shift_uright_eq), 0, {}, true}
-	});
+	}, LEGACY);
+
 	operator_("in", {
 		{env.const_any, env.const_any, env.boolean, ADDR((void*) in)},
 		{env.const_any, env.const_any, env.boolean, ADDR(op_in)},
 	});
+
 	operator_("<=>", {
 		{env.any, env.any, env.any, ADDR((void*) &op_swap_ptr), 0, {}, true, true},
 		{env.integer, env.integer, env.integer, ADDR(op_swap_val), 0, {}, true, true},
 	});
+
 	auto T = env.template_("T");
 	auto R = env.template_("R");
 	template_(T, R).
@@ -219,128 +262,166 @@ ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
 	 */
 	method("typeID", {
 		{env.integer, {env.const_any}, ADDR(typeID)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("move", {
 		{env.any, {env.const_any}, ADDR((void*) &LSValue::move)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("move_inc", {
 		{env.any, {env.const_any}, ADDR((void*) &LSValue::move_inc)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("ptr", {
 		{env.tmp_any, {env.const_any}, ADDR((void*) &LSValue::move)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("absolute", {
 		{env.integer, {env.const_any}, ADDR((void*) absolute), THROWS}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("clone", {
 		{env.any, {env.const_any}, ADDR((void*) clone)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("delete", {
 		{env.void_, {env.const_any}, ADDR((void*) &LSValue::free)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("delete_tmp", {
 		{env.void_, {env.const_any}, ADDR((void*) &LSValue::delete_temporary)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("dec_refs", {
 		{env.void_, {env.const_any}, ADDR((void*) &LSValue::delete_ref)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("delete_ref", {
 		{env.void_, {env.const_any}, ADDR((void*) &LSValue::delete_ref2)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("not", {
 		{env.boolean, {env.const_any}, ADDR((void*) ls_not)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("minus", {
 		{env.any, {env.const_any}, ADDR((void*) ls_minus)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("dec", {
 		{env.any, {env.const_any}, ADDR((void*) ls_dec)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("pre_dec", {
 		{env.any, {env.const_any}, ADDR((void*) ls_pre_dec)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("decl", {
 		{env.any, {env.const_any}, ADDR((void*) ls_decl)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("pre_decl", {
 		{env.any, {env.const_any}, ADDR((void*) ls_pre_decl)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("inc", {
 		{env.any, {env.const_any}, ADDR((void*) ls_inc)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("pre_inc", {
 		{env.any, {env.const_any}, ADDR((void*) ls_pre_inc)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("incl", {
 		{env.any, {env.const_any}, ADDR((void*) ls_incl)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("pre_incl", {
 		{env.any, {env.const_any}, ADDR((void*) ls_pre_incl)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("pre_tilde", {
 		{env.any, {env.const_any}, ADDR((void*) ls_pre_tilde)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("attr", {
 		{env.any, {env.i8_ptr, env.any, env.i8_ptr}, ADDR((void*) attr)},
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("attrL", {
 		{env.any, {env.any, env.i8_ptr}, ADDR((void*) attrL)},
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("int", {
 		{env.integer, {env.const_any}, ADDR((void*) integer)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("real", {
 		{env.real, {env.const_any}, ADDR((void*) real)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("real_delete", {
 		{env.real, {env.const_any}, ADDR((void*) real_delete)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("long", {
 		{env.long_, {env.const_any}, ADDR((void*) long_)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("range", {
 		{env.any, {env.const_any, env.integer, env.integer}, ADDR((void*) range)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("at", {
 		{env.any, {env.const_any, env.const_any}, ADDR((void*) at)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("at_i_i", {
 		{env.integer, {env.const_any, env.integer}, ADDR((void*) at_i_i)}
 	}, PRIVATE | LEGACY);
 
 	method("atl", {
 		{env.any, {env.const_any, env.const_any}, ADDR((void*) atl)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("in_i", {
 		{env.boolean, {env.const_any, env.integer}, ADDR((void*) in_i)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("in", {
 		{env.boolean, {env.const_any, env.const_any}, ADDR((void*) in)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("is_null", {
 		{env.boolean, {env.const_any}, ADDR((void*) is_null)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("to_bool", {
 		{env.boolean, {env.const_any}, ADDR((void*) to_bool)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("type", {
 		{env.integer, {env.const_any}, ADDR((void*) type)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("delete_previous", {
 		{env.void_, {env.any}, ADDR((void*) delete_previous)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("get_int", {
 		{env.integer, {env.any}, ADDR((void*) get_int)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("get_class", {
 		{env.clazz(), {env.any}, ADDR((void*) get_class)}
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
+
 	method("export_ctx_var", {
 		{env.void_, {env.i8_ptr, env.any}, ADDR((void*) export_context_variable)},
 		{env.void_, {env.i8_ptr, env.integer}, ADDR((void*) export_context_variable_int)},
 		{env.void_, {env.i8_ptr, env.long_}, ADDR((void*) export_context_variable_long)},
 		{env.void_, {env.i8_ptr, env.real}, ADDR((void*) export_context_variable_real)},
-	}, PRIVATE);
+	}, PRIVATE | LEGACY);
 }
 
 #if COMPILER

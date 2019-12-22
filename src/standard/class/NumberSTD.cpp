@@ -48,7 +48,7 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{env.any, {env.real}, ADDR((void*) &LSNumber::get)},
 		{env.any, {env.i8->pointer(), env.tmp_mpz}, ADDR((void*) &LSMpz::get_from_tmp)},
 		{env.any, {env.i8->pointer(), env.mpz}, ADDR((void*) &LSMpz::get_from_mpz)},
-	});
+	}, LEGACY);
 
 	/*
 	 * Operators
@@ -288,15 +288,17 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{env.real, {env.integer, env.integer}, (void*) std::hypot<int, int>},
 		{env.real, {env.real, env.real}, ADDR(((void*) std::hypot<double, double>))},
 	});
+
 	method("log", {
 		{env.real, {env.any}, ADDR((void*) log_ptr)},
 		{env.real, {env.real}, ADDR(log_real)},
-	});
+	}, LEGACY);
+
 	method("log10", {
 		{env.real, {env.any}, ADDR((void*) log10_ptr)},
 		{env.real, {env.long_}, ADDR(log10_real)},
 		{env.real, {env.real}, ADDR(log10_real)},
-	});
+	}, LEGACY);
 
 	// template<T1 : number, T2 : number>
 	// T1 × T2 max(T1 x, T2 y)

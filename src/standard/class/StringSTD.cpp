@@ -91,7 +91,7 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 		{env.tmp_string, {}, ADDR((void*) &LSString::constructor_1)},
 		{env.tmp_string, {env.i8_ptr}, ADDR((void*) &LSString::constructor_2)},
 		{env.tmp_string, {env.string}, ADDR((void*) &LSString::constructor_1)},
-	});
+	}, LEGACY);
 
 	/*
 	 * Operators
@@ -125,99 +125,127 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 	method("copy", {
 		{env.string, {env.const_string}, ADDR(ValueSTD::copy)}
 	});
+
 	method("charAt", {
 		{env.string, {env.const_string, env.const_integer}, ADDR((void*) string_charAt)},
-	});
+	}, LEGACY);
+
 	method("chunk", {
 		{Type::array(env.string), {env.const_string, env.const_integer}, ADDR((void*) chunk)}
 	});
+
 	method("contains", {
 		{env.boolean, {env.string, env.const_string}, ADDR((void*) string_contains)},
-	});
+	}, LEGACY);
+
 	method("count", {
 		{env.integer, {env.const_string, env.const_string}, ADDR((void*) count)}
-	});
+	}, LEGACY);
+
 	method("endsWith", {
 		{env.boolean, {env.string, env.string}, ADDR((void*) string_endsWith)},
-	});
+	}, LEGACY);
+
 	auto fold_fun_type = Type::fun(env.any, {env.any, env.string});
 	auto fold_clo_type = Type::closure(env.any, {env.any, env.string});
 	method("fold", {
 		{env.any, {env.string, fold_fun_type, env.any}, ADDR(fold_fun)},
 		{env.any, {env.string, fold_clo_type, env.any}, ADDR(fold_fun)},
 	});
+
 	method("frequencies", {
 		{Type::map(env.integer, env.integer), {env.const_string}, ADDR((void*) frequencies)}
 	});
+
 	method("indexOf", {
 		{env.integer, {env.string, env.string}, ADDR((void*) string_indexOf)},
-	});
+	}, LEGACY);
+
 	method("isPermutation", {
 		{env.boolean, {env.string, env.const_any}, ADDR((void*) &LSString::is_permutation)},
 	});
+
 	method("isPalindrome", {
 		{env.boolean, {env.string}, ADDR((void*) &LSString::is_palindrome)},
 	});
+
 	method("left", {
 		{env.tmp_string, {env.string, env.integer}, ADDR((void*) string_left)},
 		{env.tmp_string, {env.tmp_string, env.integer}, ADDR((void*) string_left_tmp)},
 	});
+
 	method("length", {
 		{env.integer, {env.string}, ADDR((void*) string_length)},
 	});
+
 	method("lines", {
 		{Type::tmp_array(env.string), {env.string}, ADDR((void*) &LSString::ls_lines)},
 	});
+
 	method("size", {
 		{env.any, {env.string}, ADDR((void*) &LSString::ls_size_ptr)},
 		{env.integer, {env.string}, ADDR((void*) &LSString::ls_size)},
 	});
+
 	method("replace", {
 		{env.tmp_string, {env.string, env.string, env.string}, ADDR((void*) replace)},
-		{env.tmp_string, {env.string, env.string, env.string}, ADDR((void*) v1_replace), LEGACY},
+		{env.tmp_string, {env.string, env.string, env.string}, ADDR((void*) v1_replace), LEGACY_ONLY},
 	});
+
 	method("reverse", {
 		{env.tmp_string, {env.string}, ADDR((void*) &LSString::ls_tilde)},
 	});
+
 	method("right", {
 		{env.tmp_string, {env.string, env.integer}, ADDR((void*) string_right)},
 		{env.tmp_string, {env.tmp_string, env.integer}, ADDR((void*) string_right_tmp)},
 	});
+
 	method("substring", {
 		{env.tmp_string, {env.string, env.const_integer}, ADDR((void*) string_substring_1)},
 		{env.tmp_string, {env.string, env.const_integer, env.const_integer}, ADDR((void*) string_substring_2)},
-	});
+	}, LEGACY);
+
 	method("toArray", {
-		{Type::tmp_array(env.any), {env.string}, ADDR((void*) string_toArray)},
+		{Type::tmp_array(env.string), {env.string}, ADDR((void*) string_toArray)},
 	});
+
 	method("toLower", {
 		{env.tmp_string, {env.string}, ADDR((void*) string_toLower)},
-	});
+	}, LEGACY);
+
 	method("toUpper", {
 		{env.tmp_string, {env.string}, ADDR((void*) string_toUpper)},
-	});
+	}, LEGACY);
+
 	method("split", {
 		{Type::tmp_array(env.string), {env.string, env.string}, ADDR((void*) string_split)},
 		{Type::tmp_array(env.string), {env.const_any, env.const_any}, ADDR((void*) string_split)},
-	});
+	}, LEGACY);
+
 	method("startsWith", {
 		{env.boolean, {env.string, env.string}, ADDR((void*) string_startsWith)},
-	});
+	}, LEGACY);
+
 	method("code", {
 		{env.integer, {env.const_string}, ADDR((void*) string_begin_code)},
 		{env.integer, {env.const_string, env.const_integer}, ADDR((void*) string_code)},
 	});
+
 	method("number", {
 		{env.long_, {env.const_string}, ADDR((void*) string_number)},
 		{env.long_, {env.const_any}, ADDR((void*) string_number)},
-	});
+	}, LEGACY);
+
 	auto map_fun = ADDR(&LSString::ls_map<LSFunction*>);
 	method("map", {
 		{env.tmp_string, {env.string, Type::fun_object(env.string, {env.string})}, (void*) map_fun},
 	});
+
 	method("sort", {
 		{env.tmp_string, {env.string}, ADDR((void*) &LSString::sort)},
 	});
+
 	method("wordCount", {
 		{env.any, {env.string}, ADDR((void*) &LSString::word_count_ptr)},
 		{env.integer, {env.string}, ADDR((void*) &LSString::word_count)},
