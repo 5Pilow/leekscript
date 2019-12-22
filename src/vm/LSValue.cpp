@@ -247,6 +247,10 @@ LSValue* LSValue::at(const LSValue* v) const {
 	assert(false); // LCOV_EXCL_LINE
 }
 
+int LSValue::at_i_i(const int key) const {
+	throw vm::ExceptionObj(vm::Exception::NO_SUCH_OPERATOR);
+}
+
 LSValue** LSValue::atL(const LSValue* v) {
 	delete_temporary(v);
 	throw vm::ExceptionObj(vm::Exception::NO_SUCH_OPERATOR);

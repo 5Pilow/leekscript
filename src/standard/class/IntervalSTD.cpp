@@ -60,8 +60,8 @@ IntervalSTD::IntervalSTD(Environment& env) : Module(env, "Interval") {
 	});
 
 	/** Interval **/
-	method("atv", {
-		{env.boolean, {env.interval, env.integer}, ADDR((void*) &LSInterval::atv)}
+	method("at_i_i", {
+		{env.integer, {env.interval, env.integer}, ADDR((void*) &LSInterval::at_i_i)}
 	}, PRIVATE);
 }
 

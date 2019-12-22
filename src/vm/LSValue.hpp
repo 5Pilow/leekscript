@@ -120,6 +120,7 @@ public:
 	virtual bool in_i(const int) const;
 
 	virtual LSValue* at(const LSValue* key) const;
+	virtual int at_i_i(const int key) const;
 	virtual LSValue** atL(const LSValue* key);
 
 	virtual LSValue* attr(VM* vm, const std::string& key) const;

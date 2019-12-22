@@ -103,7 +103,7 @@ bool LSInterval::in_i(const int value) const {
 	return res;
 }
 
-int LSInterval::atv(const int key) const {
+int LSInterval::at_i_i(const int key) const {
 	int size = b - a + 1;
 	if (key < 0 or key >= size) {
 		throw vm::ExceptionObj(vm::Exception::ARRAY_OUT_OF_BOUNDS);

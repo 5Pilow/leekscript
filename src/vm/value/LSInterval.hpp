@@ -35,8 +35,8 @@ public:
 	virtual bool in(const LSValue* const) const override;
 	virtual bool in_i(const int) const override;
 
-	int atv(const int key) const;
 	virtual LSValue* at(const LSValue* key) const override;
+	int at_i_i(const int key) const override;
 	LSValue* range(int start, int end) const override;
 	virtual int abso() const override;
 

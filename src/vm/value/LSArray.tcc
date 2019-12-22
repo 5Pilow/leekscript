@@ -1566,6 +1566,20 @@ LSValue* LSArray<T>::at(const LSValue* key) const {
 }
 
 template <class T>
+int LSArray<T>::at_i_i(const int) const {
+	assert(false); // Not compatible
+}
+
+template <>
+inline int LSArray<int>::at_i_i(const int key) const {
+	try {
+		return ((std::vector<int>*) this)->at(key);
+	} catch (std::exception const & e) {
+		throw vm::ExceptionObj(vm::Exception::ARRAY_OUT_OF_BOUNDS);
+	}
+}
+
+template <class T>
 LSValue** LSArray<T>::atL(const LSValue* key) {
 	if (key->type != NUMBER) {
 		throw vm::ExceptionObj(vm::Exception::ARRAY_KEY_IS_NOT_NUMBER);

@@ -201,7 +201,7 @@ Compiler::value ArrayAccess::compile(Compiler& c) const {
 		if (array->type->is_interval()) {
 
 			auto k = key->compile(c);
-			auto r = c.insn_invoke(env.integer, {compiled_array, k}, "Interval.atv");
+			auto r = c.insn_invoke(env.integer, {compiled_array, k}, "Interval.at_i_i");
 			key->compile_end(c);
 			return r;
 
@@ -268,11 +268,19 @@ Compiler::value ArrayAccess::compile(Compiler& c) const {
 			}
 		} else {
 			// Unknown type, call generic at() operator
-			auto k = c.insn_to_any(key->compile(c));
-			key->compile_end(c);
-			auto e = c.insn_invoke(env.any, {compiled_array, k}, "Value.at");
-			c.insn_delete_temporary(k);
-			return e;
+			if (type->is_integer() and key->type->is_integer()) {
+				auto k = key->compile(c);
+				key->compile_end(c);
+				auto e = c.insn_invoke(env.integer, {compiled_array, k}, "Value.at_i_i");
+				c.insn_delete_temporary(k);
+				return e;
+			} else {
+				auto k = c.insn_to_any(key->compile(c));
+				key->compile_end(c);
+				auto e = c.insn_invoke(env.any, {compiled_array, k}, "Value.at");
+				c.insn_delete_temporary(k);
+				return e;
+			}
 		}
 	} else {
 		auto start = key->compile(c);

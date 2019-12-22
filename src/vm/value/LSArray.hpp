@@ -103,6 +103,7 @@ public:
 	virtual bool in_i(const int) const override;
 
 	LSValue* at(const LSValue* value) const override;
+	int at_i_i(const int key) const override;
 	LSValue** atL(const LSValue* value) override;
 
 	LSValue* range(int start, int end) const override;

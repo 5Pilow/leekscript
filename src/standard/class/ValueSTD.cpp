@@ -304,6 +304,10 @@ ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
 	method("at", {
 		{env.any, {env.const_any, env.const_any}, ADDR((void*) at)}
 	}, PRIVATE);
+	method("at_i_i", {
+		{env.integer, {env.const_any, env.integer}, ADDR((void*) at_i_i)}
+	}, PRIVATE | LEGACY);
+
 	method("atl", {
 		{env.any, {env.const_any, env.const_any}, ADDR((void*) atl)}
 	}, PRIVATE);
@@ -882,6 +886,9 @@ LSValue* ValueSTD::range(LSValue* a, int start, int end) {
 }
 LSValue* ValueSTD::at(LSValue* array, LSValue* key) {
 	return array->at(key);
+}
+int ValueSTD::at_i_i(LSValue* value, const int key) {
+	return value->at_i_i(key);
 }
 LSValue** ValueSTD::atl(LSValue* array, LSValue* key) {
 	return array->atL(key);
