@@ -170,6 +170,7 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 
 	bool found = false;
 	if (object->type->is_class() and vv != nullptr and analyzer->globals.find(vv->name) != analyzer->globals.end()) {
+
 		auto std_class = analyzer->globals[vv->name]->clazz;
 		auto i = std_class->methods.find(field->content);
 		if (i != std_class->methods.end()) {
@@ -187,6 +188,7 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 			found = true;
 		}
 	}
+
 	if (!found and object->type->is_class() and vv != nullptr and analyzer->globals.find(vv->name) != analyzer->globals.end()) {
 
 		auto std_class = analyzer->globals[vv->name]->clazz;
@@ -212,70 +214,53 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 		}
 	}
 
-	auto value_class = analyzer->globals["Value"]->clazz;
-
 	// Attribute? Fields and methods ([1, 2, 3].length, 12.abs)
 	if (!found and object_class != nullptr) {
 		// Attribute : (x -> x).return
-		auto i = object_class->fields.find(field->content);
-		if (i != object_class->fields.end()) {
-			const auto& f = i->second;
-			type = f.type;
-			#if COMPILER
-			if (f.fun != nullptr) {
-				access_function = f.fun;
-			}
-			#endif
-			if (f.native_fun != nullptr) {
-				native_access_function = object_class->name + "." + f.name;
-			}
-		} else {
-			// Attribute in Value?
-			auto i = value_class->fields.find(field->content);
-			if (i != value_class->fields.end()) {
-				auto f = i->second;
+
+		auto current_class = object_class;
+		while (current_class) {
+			auto i = current_class->fields.find(field->content);
+			if (i != current_class->fields.end()) {
+				const auto& f = i->second;
 				type = f.type;
-				class_field = true;
 				#if COMPILER
 				if (f.fun != nullptr) {
 					access_function = f.fun;
 				}
 				#endif
 				if (f.native_fun != nullptr) {
-					native_access_function = "Value." + f.name;
+					native_access_function = current_class->name + "." + f.name;
 				}
-			} else {
-				// Method : 12.abs
-				auto i = object_class->methods.find(field->content);
-				if (i != object_class->methods.end()) {
-					for (const auto& m : i->second.versions) {
-						if (!m.addr) continue;
-						versions.insert({m.type->arguments(), object_class->name + "." + field->content});
-					}
-					type = i->second.versions[0].type->pointer();
-					default_version_fun = object_class->name + "." + field->content;
-					class_method = true;
+				found = true;
+				break;
+			}
+
+			// Method : 12.abs
+			auto j = current_class->methods.find(field->content);
+			if (j != current_class->methods.end()) {
+				for (const auto& m : j->second.versions) {
+					if (!m.addr) continue;
+					versions.insert({m.type->arguments(), current_class->name + "." + field->content});
+				}
+				type = j->second.versions[0].type->pointer();
+				default_version_fun = current_class->name + "." + field->content;
+				class_method = true;
+				found = true;
+				break;
+			}
+
+			current_class = current_class->parent;
+		}
+
+		if (not found) {
+			if (object_class->name != "Object") {
+				if (object->type->is_class() and vv != nullptr) {
+					analyzer->add_error({Error::Type::NO_SUCH_ATTRIBUTE, location(), field->location, {field->content, vv->name}});
 				} else {
-					auto i = value_class->methods.find(field->content);
-					if (i != value_class->methods.end()) {
-						for (const auto& m : i->second.versions) {
-							if (!m.addr) continue;
-							versions.insert({ m.type->arguments(), "Value." + field->content });
-						}
-						type = i->second.versions[0].type;
-						default_version_fun = "Value." + field->content;
-						class_field = true;
-					} else {
-						if (object_class->name != "Object") {
-							if (object->type->is_class() and vv != nullptr) {
-								analyzer->add_error({Error::Type::NO_SUCH_ATTRIBUTE, location(), field->location, {field->content, vv->name}});
-							} else {
-								analyzer->add_error({Error::Type::NO_SUCH_ATTRIBUTE, location(), field->location, {field->content, object_class->name}});
-							}
-							return;
-						}
-					}
+					analyzer->add_error({Error::Type::NO_SUCH_ATTRIBUTE, location(), field->location, {field->content, object_class->name}});
 				}
+				return;
 			}
 		}
 	}
