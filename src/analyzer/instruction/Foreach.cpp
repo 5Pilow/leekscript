@@ -270,6 +270,8 @@ Compiler::value Foreach::compile(Compiler& c) const {
 	auto finished = c.iterator_end(container_v, it);
 	c.leave_section_condition(c.insn_not_bool(finished));
 
+	c.enter_loop(nullptr, nullptr);
+
 	// loop label:
 	body->sections.front()->pre_compile(c);
 	c.builder.SetInsertPoint(body->sections.front()->basic_block);
@@ -299,6 +301,8 @@ Compiler::value Foreach::compile(Compiler& c) const {
 		}
 	}
 	body->compile_end(c);
+
+	c.leave_loop();
 
 	// it++
 	c.enter_section(increment_section);
