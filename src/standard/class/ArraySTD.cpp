@@ -292,7 +292,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::array(T), {Type::array(env.void_), T, env.const_integer}, ADDR(fill), 0, { env.convert_mutator }},
 		{Type::tmp_array(T), {Type::tmp_array(env.void_), T}, ADDR(fill), 0, { env.convert_mutator_array_size }},
 		{Type::tmp_array(T), {Type::tmp_array(env.void_), T, env.const_integer}, ADDR(fill), 0, { env.convert_mutator }},
-	});
+	}, LEGACY);
 
 	method("insert", {
 		{Type::array(env.any), {env.array, env.any, env.integer}, ADDR((void*) &LSArray<LSValue*>::ls_insert)},

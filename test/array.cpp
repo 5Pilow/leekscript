@@ -585,10 +585,6 @@ void Test::test_arrays() {
 	code("var a = ['a', 'b', 'c'] a.fill(true) a").equals("[true, true, true]");
 	code("var a = ['a', 'b', 'c'] a.fill(1, 3) a").equals("[1, 1, 1]");
 
-	section("fill() v1");
-	code_v1("var a = ['a', 'b'] fill(a, 'hello') a").equals("['hello', 'hello']");
-	code_v1("var a = [] fill(a, 'hello', 5) a").equals("['hello', 'hello', 'hello', 'hello', 'hello']");
-
 	section("Array.insert()");
 	code("var a = ['a', 'b', 'c'] Array.insert(a, 'hello', 1)").equals("['a', 'hello', 'b', 'c']");
 	code("var a = ['a', 'b', 'c'] Array.insert(a, 'hello', 6)").equals("['a', 'b', 'c', null, null, null, 'hello']");
@@ -670,6 +666,10 @@ void Test::test_arrays() {
 
 	section("Array [legacy] count");
 	code_v1("var a = ['a', 'b', 'c'] count(a)").equals("3");
+
+	section("Array [legacy] fill");
+	code_v1("var a = ['a', 'b'] fill(a, 'hello') a").equals("['hello', 'hello']");
+	code_v1("var a = [] fill(a, 'hello', 5) a").equals("['hello', 'hello', 'hello', 'hello', 'hello']");
 
 	section("Array [legacy] inArray");
 	code_v1("inArray([1, 2, 3, 4], 3)").equals("true");
