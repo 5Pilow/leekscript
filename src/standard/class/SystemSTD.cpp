@@ -59,6 +59,14 @@ SystemSTD::SystemSTD(Environment& env) : Module(env, "System") {
 	static_field("TYPE_STRING", env.integer, ADDR([&](ls::Compiler& c) { return c.new_integer(3); }), LEGACY_ONLY);
 	static_field("TYPE_ARRAY", env.integer, ADDR([&](ls::Compiler& c) { return c.new_integer(4); }), LEGACY_ONLY);
 	static_field("TYPE_FUNCTION", env.integer, ADDR([&](ls::Compiler& c) { return c.new_integer(5); }), LEGACY_ONLY);
+
+	method("getOperations", {
+		{env.integer, {}, ADDR(nullptr)}
+	}, LEGACY_ONLY);
+
+	method("getInstructionCount", {
+		{env.integer, {}, ADDR(nullptr)}
+	}, LEGACY_ONLY);
 }
 
 #if COMPILER
