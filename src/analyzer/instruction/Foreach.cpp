@@ -115,6 +115,8 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 			}
 		}
 	}
+
+	analyzer->leave_block(); // wrapper block
 }
 
 void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {

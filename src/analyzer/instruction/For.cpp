@@ -103,7 +103,7 @@ void For::pre_analyze(SemanticAnalyzer* analyzer) {
 			}
 		}
 	}
-	analyzer->leave_block();
+	analyzer->leave_block(); // init
 }
 
 void For::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
