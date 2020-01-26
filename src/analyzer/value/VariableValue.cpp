@@ -32,7 +32,7 @@ bool VariableValue::isLeftValue() const {
 
 void VariableValue::print(std::ostream& os, int, PrintOptions options) const {
 	if (var != nullptr and options.debug) {
-		// os << var;
+		os << var;
 	} else {
 		os << token->content;
 	}
