@@ -2119,13 +2119,15 @@ void Compiler::leave_section_condition(Compiler::value condition) {
 }
 
 void Compiler::delete_variables_block(int deepness) {
-	// std::cout << "blocks " << blocks.size() << std::endl;
+	// std::cout << "delete block variables, deepness=" << deepness << " " << blocks.size() << std::endl;
 	for (int i = blocks.back().size() - 1; i >= (int) blocks.back().size() - deepness; --i) {
 		const auto& block = blocks.back()[i];
-		// std::cout << "delete_variables " << variables.size() << std::endl;
+		// std::cout << "delete_variables block " << block->sections.front() << " " << block->variables.size() << std::endl;
 		for (const auto& variable : block->variables) {
+			// std::cout << "delete variable " << variable.second << std::endl;
 			auto section = block->sections.back();
 			while (section) {
+				// std::cout << "section " << section << std::endl;
 				auto it = section->variables.find(variable.first);
 				if (it != section->variables.end()) {
 					const auto& var = it->second;
