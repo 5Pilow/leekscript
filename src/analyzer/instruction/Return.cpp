@@ -30,7 +30,7 @@ void Return::analyze(SemanticAnalyzer* analyzer, const Type*) {
 	auto& env = analyzer->env;
 	if (expression != nullptr) {
 		expression->analyze(analyzer);
-		return_type = expression->type;
+		return_type = expression->type->add_temporary();
 		if (return_type->is_mpz_ptr()) return_type = env.tmp_mpz;
 		throws = expression->throws;
 	}

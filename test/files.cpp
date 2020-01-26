@@ -42,6 +42,7 @@ void Test::test_files() {
 	file("test/code/fibonacci_long.leek").equals("1346269");
 	file("test/code/pow5.leek").equals("6938893903907228377647697925567626953125");
 	file("test/code/tarai.leek").equals("16");
+	file("test/code/return_in_function.leek").equals("2");
 
 	section("Issues (fixed)");
 	file("test/code/issue/207_basic.leek").equals("[1, 2, 3]");

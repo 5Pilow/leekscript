@@ -1,0 +1,6 @@
+function f() {
+	var cells = [12]
+	cells += [1]
+	return cells
+}
+f().size()
