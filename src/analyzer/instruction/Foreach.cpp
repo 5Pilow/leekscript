@@ -310,6 +310,7 @@ Compiler::value Foreach::compile(Compiler& c) const {
 	c.leave_section();
 
 	c.enter_section(end_section);
+	container->compile_end(c); // Close the container value
 
 	auto return_v = c.clone(output_v); // otherwise it is delete by the leave_block
 	c.leave_block(); // { for x in ['a' 'b'] { ... }<--- not this block }<--- this block
