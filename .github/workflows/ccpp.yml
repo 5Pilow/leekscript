@@ -25,6 +25,5 @@ jobs:
     - name: Info
       run: |
         gcc -v
-        gcc-8 -v
     - name: make test
       run: make test
