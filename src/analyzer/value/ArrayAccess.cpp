@@ -276,8 +276,8 @@ Compiler::value ArrayAccess::compile(Compiler& c) const {
 				return e;
 			} else {
 				auto k = c.insn_to_any(key->compile(c));
-				key->compile_end(c);
 				auto e = c.insn_invoke(env.any, {compiled_array, k}, "Value.at");
+				key->compile_end(c);
 				c.insn_delete_temporary(k);
 				return e;
 			}
