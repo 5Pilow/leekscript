@@ -20,5 +20,7 @@ jobs:
         sudo ln -s /usr/lib/llvm-8/include/llvm /usr/include
         sudo ln -s /usr/lib/llvm-8/include/llvm-c /usr/include
         sudo ln -s /usr/lib/llvm-8/bin/llvm-config /usr/bin
+    - name: Info
+      run: gcc -v
     - name: make test
       run: make test
