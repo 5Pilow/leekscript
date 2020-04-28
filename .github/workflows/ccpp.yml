@@ -20,8 +20,8 @@ jobs:
         sudo ln -s /usr/lib/llvm-8/include/llvm /usr/include
         sudo ln -s /usr/lib/llvm-8/include/llvm-c /usr/include
         sudo ln -s /usr/lib/llvm-8/bin/llvm-config /usr/bin
-        sudo ln -s /usr/bin/gcc-8 /usr/bin/gcc
-        sudo ln -s /usr/bin/g++-8 /usr/bin/g++
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 20
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 20
     - name: Info
       run: |
         gcc -v
