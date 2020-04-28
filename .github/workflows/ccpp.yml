@@ -9,9 +9,16 @@ on:
 jobs:
   build:
 
-    runs-on: pilow/leekscript-builder
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install
+      run: |
+        sudo apt -y update
+        sudo apt install -y --force-yes build-essential python wget libgmp-dev llvm-8-dev git libomp-dev
+        sudo ln -s /usr/lib/llvm-8/include/llvm /usr/include
+        sudo ln -s /usr/lib/llvm-8/include/llvm-c /usr/include
+        sudo ln -s /usr/lib/llvm-8/bin/llvm-config /usr/bin
     - name: make test
       run: make test
