@@ -62,6 +62,7 @@ Option                              | Description
 `-d` \| `--debug`           | Print debug information : types.
 `-e` \| `--example`         | Output a simple one-liner example code.
 `-f` \| `--format`          | Output the program nicely-formatted.
+`-s` \| `--sections`        | Display program sections.
 `-h` \| `--help`            | Display help.
 `-i` \| `--intermediate`    | Output the program's intermediate representation (LLVM's `.ll` file).
 `-j` \| `--json`	        | Get all the results in JSON format.
