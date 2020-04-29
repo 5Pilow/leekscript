@@ -229,8 +229,10 @@ uint32_t u8_nextchar(const char *s, int *i)
 
 void u8_inc(const char *s, size_t *i)
 {
-    (void)(isutf(s[++(*i)]) || isutf(s[++(*i)]) ||
-           isutf(s[++(*i)]) || ++(*i));
+	(s[*i] and isutf(s[++(*i)])) ||
+	(s[*i] and isutf(s[++(*i)])) ||
+	(s[*i] and isutf(s[++(*i)])) ||
+    ++(*i);
 }
 
 void u8_dec(const char *s, int *i)
