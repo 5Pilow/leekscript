@@ -318,28 +318,6 @@ Compiler::value Block::compile(Compiler& c) const {
 				if (is_function_block and c.vm->context) {
 					c.fun->parent->export_context(c);
 				}
-				// Load the value of variable needed for phi nodes after the block
-				if (not is_function_block) {
-					// for (const auto& variable : variables) {
-					// 	if (variable.second->parent) {
-					// 		if (variable.second->phi) {
-					// 			// std::cout << "Variable export last value for phi " << variable.second << " " << variable.second->type << std::endl;
-					// 			if (variable.second->phi->variable1 == variable.second and variable.second->phi->variable->block->enabled) {
-					// 				// std::cout << "Block export value1 " << variable.second << " convert to " <<  variable.second->phi->variable->type << std::endl;
-					// 				variable.second->phi->value1 = c.insn_convert(c.insn_load(variable.second->val), variable.second->phi->variable->type);
-					// 			}
-					// 			if (variable.second->phi->variable2 == variable.second and variable.second->phi->variable->block->enabled) {
-					// 				// std::cout << "Block export value2 " << variable.second << " convert to " <<  variable.second->phi->variable->type << std::endl;
-					// 				variable.second->phi->value2 = c.insn_convert(c.insn_load(variable.second->val), variable.second->phi->variable->type);
-					// 			}
-					// 		}
-					// 	}
-					// }
-				}
-				// for (const auto& assignment : assignments) {
-				// 	// std::cout << "Store variable " << assignment.first << " = " << assignment.second << std::endl;
-				// 	assignment.first->val = assignment.second->val;
-				// }
 				break;
 			}
 		}
