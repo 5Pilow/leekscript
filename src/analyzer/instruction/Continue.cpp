@@ -8,6 +8,7 @@ Continue::Continue(Environment& env) : Instruction(env) {
 	deepness = 1;
 	jumping = true;
 	jump_to_existing_section = true;
+	breaking = true;
 }
 
 void Continue::print(std::ostream& os, int, PrintOptions) const {

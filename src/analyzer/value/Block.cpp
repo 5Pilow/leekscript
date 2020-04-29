@@ -73,6 +73,7 @@ void Block::add_instruction(std::unique_ptr<Instruction> instruction) {
 	// std::cout << std::endl;
 	// std::cout << "jumping " << std::boolalpha << instruction->jumping << " end_section " << instruction->end_section << std::endl;
 	jumping |= instruction->jumping;
+	breaking |= instruction->breaking;
 	auto last = instructions.emplace_back(std::move(instruction)).get();
 	sections.back()->instructions.push_back(last);
 	if (last->jumping and not last->jump_to_existing_section and not last->throws) {
@@ -279,6 +280,12 @@ Compiler::value Block::compile(Compiler& c) const {
 
 			auto val = section->instructions[i]->compile(c);
 
+			if (instructions[i]->breaking) {
+				// no need to compile after a break
+				section->instructions[i]->compile_end(c);
+				break;
+			}
+
 			if (section->instructions[i]->returning) {
 				// no need to compile after a return
 				section->instructions[i]->compile_end(c);
@@ -347,7 +354,7 @@ Compiler::value Block::compile(Compiler& c) const {
 }
 
 void Block::compile_end(Compiler& c) const {
-	if (not returning) {
+	if (not returning and not breaking) {
 		c.delete_variables_block(1);
 	}
 	if (c.current_section() == sections.back()) {

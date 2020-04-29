@@ -32,6 +32,7 @@ public:
 	bool throws = false;
 	bool jumping = false; // Indicates the instruction contains a jump
 	bool jump_to_existing_section = false;
+	bool breaking = false; // Break or continue instruction
 	Section* end_section = nullptr;
 	Section* continue_section = nullptr;
 

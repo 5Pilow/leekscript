@@ -39,6 +39,7 @@ public:
 	bool is_void = false;
 	bool throws = false;
 	bool jumping = false; // Indicates that the value contains a jump
+	bool breaking = false;
 	Section* end_section = nullptr;
 
 	Value() = delete;
