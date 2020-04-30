@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <memory>
-#include "CallableVersion.hpp"
+#include "CallableVersionTemplate.hpp"
 
 namespace ls {
 
@@ -14,15 +14,15 @@ class Type;
 
 class Callable {
 public:
-	std::vector<CallableVersion> versions;
+	std::vector<CallableVersionTemplate> versions;
 
 	Callable() {}
-	Callable(std::initializer_list<CallableVersion> versions) : versions(versions) {}
+	Callable(std::initializer_list<CallableVersionTemplate> versions) : versions(versions) {}
 	// Callable(std::initializer_list<std::unique_ptr<const CallableVersion>> versions) : versions(versions) {}
 
 	const CallableVersion* resolve(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const;
 	bool is_compatible(int argument_count);
-	void add_version(CallableVersion version);
+	void add_version(CallableVersionTemplate version);
 };
 
 }

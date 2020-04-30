@@ -13,7 +13,7 @@
 
 namespace ls {
 
-Expression::Expression(Environment& env, Value* v) : Value(env), v1(v), operations(1) {}
+Expression::Expression(Environment& env, Value* v) : Value(env), v1(v), operations(1), callable_version(env) {}
 
 void Expression::append(std::shared_ptr<Operator> op, Value* exp) {
 	/*
@@ -198,20 +198,20 @@ void Expression::analyze(SemanticAnalyzer* analyzer) {
 		auto call = object_class->getOperator(analyzer, op->character);
 		// std::cout << "Callable : " << callable << std::endl;
 		callable_version = call.resolve(analyzer, {v1_type, v2_type});
-		if (callable_version) {
+		if (callable_version.template_) {
 			// std::cout << "Callable version : " << callable_version << std::endl;
-			throws |= callable_version->flags & Module::THROWS;
-			callable_version->apply_mutators(analyzer, {v1.get(), v2.get()});
+			throws |= callable_version.template_->flags & Module::THROWS;
+			callable_version.apply_mutators(analyzer, {v1.get(), v2.get()});
 			// For placeholder types, keep them no matter the operator
-			auto return_type = callable_version->type->return_type();
+			auto return_type = callable_version.type->return_type();
 			if (op->type == TokenType::PLUS or op->type == TokenType::MINUS or op->type == TokenType::TIMES or op->type == TokenType::MODULO) {
 				if (v1->type->placeholder) { return_type = v1_type; }
 				if (v2->type->placeholder) { return_type = v2_type; }
 			}
 			type = is_void ? env.void_ : return_type;
-			if ((v2_type->is_function() or v2_type->is_function_pointer() or v2_type->is_function_object()) and (callable_version->type->argument(1)->is_function() or callable_version->type->argument(1)->is_function_pointer())) {
-				v2->will_take(analyzer, callable_version->type->argument(1)->arguments(), 1);
-				v2->set_version(analyzer, callable_version->type->argument(1)->arguments(), 1);
+			if ((v2_type->is_function() or v2_type->is_function_pointer() or v2_type->is_function_object()) and (callable_version.type->argument(1)->is_function() or callable_version.type->argument(1)->is_function_pointer())) {
+				v2->will_take(analyzer, callable_version.type->argument(1)->arguments(), 1);
+				v2->set_version(analyzer, callable_version.type->argument(1)->arguments(), 1);
 			}
 			// std::cout << "Operator " << v1->to_string() << " (" << v1->type << ") " << op->character << " " << v2->to_string() << "(" << v2->type << ") found! " << return_type << std::endl;
 			return;
@@ -320,28 +320,28 @@ Compiler::value Expression::compile(Compiler& c) const {
 		return c.insn_load(r);
 	}
 
-	assert(callable_version);
+	assert(callable_version.template_);
 
 	std::vector<Compiler::value> args;
-	auto compiled_v2 = [&](){ if (callable_version->v2_addr) {
+	auto compiled_v2 = [&](){ if (callable_version.template_->v2_addr) {
 		return ((LeftValue*) v2.get())->compile_l(c);
 	} else {
 		auto v = v2->compile(c);
-		if (callable_version->symbol and v.t->is_primitive() and callable_version->type->argument(1)->is_any()) {
+		if (callable_version.template_->symbol and v.t->is_primitive() and callable_version.type->argument(1)->is_any()) {
 			v = c.insn_to_any(v);
 		}
 		return v;
 	}}();
 	c.add_temporary_expression_value(compiled_v2);
 
-	int flags = callable_version->compile_mutators(c, {v1.get(), v2.get()});
+	int flags = callable_version.compile_mutators(c, {v1.get(), v2.get()});
 	if (is_void) flags |= Module::NO_RETURN;
 
-	auto compiled_v1 = [&](){ if (callable_version->v1_addr) {
+	auto compiled_v1 = [&](){ if (callable_version.template_->v1_addr) {
 		return ((LeftValue*) v1.get())->compile_l(c);
 	} else {
 		auto v = v1->compile(c);
-		if (callable_version->symbol and v.t->is_primitive() and callable_version->type->argument(0)->is_any()) {
+		if (callable_version.template_->symbol and v.t->is_primitive() and callable_version.type->argument(0)->is_any()) {
 			v = c.insn_to_any(v);
 		}
 		return v;
@@ -352,7 +352,7 @@ Compiler::value Expression::compile(Compiler& c) const {
 
 	c.pop_temporary_expression_value();
 
-	auto r = callable_version->compile_call(c, args, flags);
+	auto r = callable_version.compile_call(c, args, flags);
 
 	v1->compile_end(c);
 	v2->compile_end(c);

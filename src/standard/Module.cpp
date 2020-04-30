@@ -33,7 +33,7 @@ Module::Module(Environment& env, std::string name, Class* parent) : env(env), na
 	}
 }
 
-void Module::operator_(std::string name, std::initializer_list<CallableVersion> impl, int flags, std::vector<const Type*> templates) {
+void Module::operator_(std::string name, std::initializer_list<CallableVersionTemplate> impl, int flags, std::vector<const Type*> templates) {
 	clazz->addOperator(name, impl, templates, flags);
 }
 void Module::field(std::string name, const Type* type) {
@@ -60,16 +60,16 @@ void Module::static_field_fun(std::string name, const Type* type, void* fun, int
 	clazz->addStaticField({name, type, fun});
 	#endif
 }
-void Module::constructor_(std::initializer_list<CallableVersion> methods, int flags) {
+void Module::constructor_(std::initializer_list<CallableVersionTemplate> methods, int flags) {
 	clazz->addMethod("new", methods, {}, flags);
 }
-void Module::method(std::string name, std::initializer_list<CallableVersion> methods, int flags, std::vector<const Type*> templates) {
+void Module::method(std::string name, std::initializer_list<CallableVersionTemplate> methods, int flags, std::vector<const Type*> templates) {
 	clazz->addMethod(name, methods, templates, flags);
 }
-void Template::operator_(std::string name, std::initializer_list<CallableVersion> impl, int flags) {
+void Template::operator_(std::string name, std::initializer_list<CallableVersionTemplate> impl, int flags) {
 	module->clazz->addOperator(name, impl, templates, flags);
 }
-void Template::method(std::string name, std::initializer_list<CallableVersion> methods, int flags) {
+void Template::method(std::string name, std::initializer_list<CallableVersionTemplate> methods, int flags) {
 	module->method(name, methods, flags, templates);
 }
 

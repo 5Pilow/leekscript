@@ -19,7 +19,7 @@
 
 namespace ls {
 
-FunctionCall::FunctionCall(Environment& env, Token* t) : Value(env), token(t) {
+FunctionCall::FunctionCall(Environment& env, Token* t) : Value(env), token(t), callable_version(env) {
 	std_func = nullptr;
 	this_ptr = nullptr;
 	constant = false;
@@ -133,35 +133,35 @@ void FunctionCall::analyze(SemanticAnalyzer* analyzer) {
 	call = function->get_callable(analyzer, arguments_types.size());
 	// std::cout << "Callable: " << call.callable << std::endl;
 	callable_version = call.resolve(analyzer, arguments_types);
-	if (callable_version) {
+	if (callable_version.template_) {
 		// std::cout << "Version: " << callable_version << std::endl;
-		type = callable_version->type->return_type();
-		throws |= callable_version->flags & Module::THROWS;
+		type = callable_version.type->return_type();
+		throws |= callable_version.template_->flags & Module::THROWS;
 		std::vector<Value*> raw_arguments;
 		for (const auto& a : arguments) raw_arguments.push_back(a.get());
 		call.apply_mutators(analyzer, callable_version, raw_arguments);
 
 		int offset = call.object ? 1 : 0;
 		for (size_t a = 0; a < arguments.size(); ++a) {
-			auto argument_type = callable_version->type->argument(a + offset);
+			auto argument_type = callable_version.type->argument(a + offset);
 			if (argument_type->is_function() or argument_type->is_function_object()) {
 				arguments.at(a)->will_take(analyzer, argument_type->arguments(), 1);
 				arguments.at(a)->set_version(analyzer, argument_type->arguments(), 1);
 			}
 		}
-		if (callable_version->value) {
+		if (callable_version.template_->value) {
 			function_type = function->will_take(analyzer, arguments_types, 1);
 			function->set_version(analyzer, arguments_types, 1);
 			type = function_type->return_type();
 			auto vv = dynamic_cast<VariableValue*>(function.get());
 			if (vv and vv->var) {
-				if (callable_version->user_fun == analyzer->current_function()) {
+				if (callable_version.template_->user_fun == analyzer->current_function()) {
 					analyzer->current_function()->recursive = true;
 					type = analyzer->current_function()->getReturnType(env);
 				}
 			}
 		}
-		if (callable_version->unknown) {
+		if (callable_version.template_->unknown) {
 			for (const auto& arg : arguments) {
 				if (arg->type->is_function()) {
 					arg->must_return_any(analyzer);
@@ -185,7 +185,7 @@ void FunctionCall::analyze(SemanticAnalyzer* analyzer) {
 	auto oa = dynamic_cast<ObjectAccess*>(function.get());
 	if (oa != nullptr) {
 		auto arguments_count = arguments_types.size() + (call.object ? 1 : 0);
-		if (not call.callables.size() or (not callable_version and call.callables.front()->versions[0].type->arguments().size() == arguments_count)) {
+		if (not call.callables.size() or (not callable_version.template_ and call.callables.front()->versions[0].type->arguments().size() == arguments_count)) {
 			auto field_name = oa->field->content;
 			auto object_type = oa->object->type;
 			std::vector<const Type*> arg_types;
@@ -262,7 +262,7 @@ const Type* FunctionCall::will_take(SemanticAnalyzer* analyzer, const std::vecto
 	// std::cout << "FC " << this << " will_take " << args << std::endl;
 	auto ret = function->will_take(analyzer, args, level + 1);
 
-	if (callable_version) {
+	if (callable_version.template_) {
 		// Perform a will_take to prepare eventual versions
 		std::vector<const Type*> arguments_types;
 		for (const auto& argument : arguments) {
@@ -271,8 +271,8 @@ const Type* FunctionCall::will_take(SemanticAnalyzer* analyzer, const std::vecto
 		// Retrieve the callable version
 		call = function->get_callable(analyzer, arguments_types.size());
 		callable_version = call.resolve(analyzer, arguments_types);
-		if (callable_version) {
-			type = callable_version->type->return_type();
+		if (callable_version.template_) {
+			type = callable_version.template_->type->return_type();
 		}
 	}
 	return ret;
@@ -339,12 +339,12 @@ Compiler::value FunctionCall::compile(Compiler& c) const {
 	c.mark_offset(location().start.line);
 
 	// std::cout << "FunctionCall::compile(" << function_type << ")" << std::endl;
-	assert(callable_version);
+	assert(callable_version.template_);
 
 	if (call.object) {
-		callable_version->compile_mutators(c, { call.object });
+		callable_version.compile_mutators(c, { call.object });
 	} else if (arguments.size()) {
-		callable_version->compile_mutators(c, { arguments[0].get() });
+		callable_version.compile_mutators(c, { arguments[0].get() });
 	}
 
 	std::vector<LSValueType> types;
@@ -356,18 +356,18 @@ Compiler::value FunctionCall::compile(Compiler& c) const {
 	}
 
 	int offset = call.object ? 1 : 0;
-	auto f = callable_version->type->function();
+	auto f = callable_version.type->function();
 
-	for (unsigned i = 0; i < callable_version->type->arguments().size(); ++i) {
+	for (unsigned i = 0; i < callable_version.type->arguments().size(); ++i) {
 		if (i < arguments.size()) {
-			types.push_back((LSValueType) callable_version->type->argument(i + offset)->id());
+			types.push_back((LSValueType) callable_version.type->argument(i + offset)->id());
 			auto arg = arguments.at(i)->compile(c);
 			if (arg.t->is_function_pointer()) {
-				args.push_back(c.insn_convert(arg, callable_version->type->argument(i + offset)));
+				args.push_back(c.insn_convert(arg, callable_version.type->argument(i + offset)));
 			} else if (arguments.at(i)->type->is_primitive()) {
-				args.push_back(c.insn_convert(arg, callable_version->type->argument(i + offset)));
-			} else if (arguments.at(i)->type->is_polymorphic() and callable_version->type->argument(i + offset)->is_primitive()) {
-				args.push_back(c.insn_convert(arg, callable_version->type->argument(i + offset), true));
+				args.push_back(c.insn_convert(arg, callable_version.type->argument(i + offset)));
+			} else if (arguments.at(i)->type->is_polymorphic() and callable_version.type->argument(i + offset)->is_primitive()) {
+				args.push_back(c.insn_convert(arg, callable_version.type->argument(i + offset), true));
 			} else {
 				args.push_back(arg);
 			}
@@ -382,7 +382,7 @@ Compiler::value FunctionCall::compile(Compiler& c) const {
 	auto r = call.compile_call(c, callable_version, args, flags);
 	// std::cout << "FC compiled type " << r.t << std::endl;
 	c.inc_ops(1);
-	for (unsigned i = 0; i < callable_version->type->arguments().size(); ++i) {
+	for (unsigned i = 0; i < callable_version.type->arguments().size(); ++i) {
 		if (i < arguments.size()) {
 			arguments.at(i)->compile_end(c);
 		}

@@ -6,6 +6,7 @@
 #include "Value.hpp"
 #include "../lexical/Token.hpp"
 #include "Function.hpp"
+#include "../semantic/CallableVersion.hpp"
 
 namespace ls {
 
@@ -31,7 +32,7 @@ public:
 	std::vector<const Type*> arg_types;
 	std::string function_name;
 	Call call;
-	const CallableVersion* callable_version;
+	CallableVersion callable_version;
 
 	FunctionCall(Environment& env, Token* t);
 

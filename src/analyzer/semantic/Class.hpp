@@ -16,6 +16,7 @@ namespace ls {
 
 class Callable;
 class CallableVersion;
+class CallableVersionTemplate;
 class Type;
 class Environment;
 
@@ -56,13 +57,13 @@ public:
 	Class(Environment& env, std::string name);
 	~Class();
 
-	void addMethod(std::string, std::initializer_list<CallableVersion>, std::vector<const Type*> templates = {}, int flags = 0);
+	void addMethod(std::string, std::initializer_list<CallableVersionTemplate>, std::vector<const Type*> templates = {}, int flags = 0);
 	#if COMPILER
 	void addField(std::string, const Type*, std::function<Compiler::value(Compiler&, Compiler::value)> fun);
 	#endif
 	void addField(std::string, const Type*, void* fun);
 	void addStaticField(field f);
-	void addOperator(std::string name, std::initializer_list<CallableVersion>, std::vector<const Type*> templates = {}, int flags = 0);
+	void addOperator(std::string name, std::initializer_list<CallableVersionTemplate>, std::vector<const Type*> templates = {}, int flags = 0);
 	const Call& getOperator(SemanticAnalyzer* analyzer, std::string& name);
 	#if COMPILER
 	LSFunction* getDefaultMethod(const std::string& name);

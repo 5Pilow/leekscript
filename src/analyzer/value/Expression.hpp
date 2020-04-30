@@ -4,6 +4,7 @@
 #include <vector>
 #include "../../analyzer/lexical/Operator.hpp"
 #include "../../analyzer/value/Value.hpp"
+#include "../semantic/CallableVersion.hpp"
 
 namespace ls {
 
@@ -17,7 +18,7 @@ public:
 	std::unique_ptr<Value> v2;
 	std::shared_ptr<Operator> op;
 	int operations;
-	const CallableVersion* callable_version = nullptr;
+	CallableVersion callable_version;
 
 	Expression(Environment& env, Value* = nullptr);
 

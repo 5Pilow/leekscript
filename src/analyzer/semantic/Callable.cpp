@@ -6,24 +6,12 @@
 
 namespace ls {
 
-void Callable::add_version(CallableVersion v) {
+void Callable::add_version(CallableVersionTemplate v) {
 	versions.push_back(v);
 }
 
 const CallableVersion* Callable::resolve(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const {
-	// std::cout << "Callable::resolve(" << arguments << ")" << std::endl;
-	const CallableVersion* best = nullptr;
-	int best_score = std::numeric_limits<int>::max();
-	for (auto& version : versions) {
-		if ((version.flags & Module::DEFAULT) != 0) continue;
-		auto result = version.get_score(analyzer, arguments);
-		// std::cout << "version " << version << " score " << result.first << std::endl;
-		if ((best == nullptr or result.first <= best_score) and result.first != std::numeric_limits<int>::max()) {
-			best_score = result.first;
-			best = result.second;
-		}
-	}
-	return best;
+	return nullptr;
 }
 
 bool Callable::is_compatible(int argument_count) {

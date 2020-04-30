@@ -59,7 +59,7 @@ const Call& Class::getOperator(SemanticAnalyzer* analyzer, std::string& name) {
 	return operators_callables.insert({ name, call }).first->second;
 }
 
-void Class::addMethod(std::string name, std::initializer_list<CallableVersion> impl, std::vector<const Type*> templates, int flags) {
+void Class::addMethod(std::string name, std::initializer_list<CallableVersionTemplate> impl, std::vector<const Type*> templates, int flags) {
 	Callable callable;
 	for (const auto& v : impl) {
 		if (env.legacy) {
@@ -104,7 +104,7 @@ void Class::addStaticField(field f) {
 	static_fields.insert({f.name, f});
 }
 
-void Class::addOperator(std::string name, std::initializer_list<CallableVersion> impl, std::vector<const Type*> templates, int flags) {
+void Class::addOperator(std::string name, std::initializer_list<CallableVersionTemplate> impl, std::vector<const Type*> templates, int flags) {
 	Callable callable;
 	for (const auto& v : impl) {
 		if (env.legacy) {

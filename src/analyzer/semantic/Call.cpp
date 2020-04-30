@@ -10,27 +10,27 @@
 namespace ls {
 
 // Call::Call(std::vector<CallableVersion> versions) : callable(new Callable { versions }) {}
-Call::Call(std::initializer_list<CallableVersion> versions) : callables({ new Callable { versions } }) {}
+Call::Call(std::initializer_list<CallableVersionTemplate> versions) : callables({ new Callable { versions } }) {}
 
-Call::Call(std::initializer_list<CallableVersion> versions, Value* object) : callables({ new Callable { versions } }), object(object) {}
+Call::Call(std::initializer_list<CallableVersionTemplate> versions, Value* object) : callables({ new Callable { versions } }), object(object) {}
 
 void Call::add_callable(Callable* callable) {
 	callables.push_back(callable);
 }
 
-const CallableVersion* Call::resolve(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const {
+CallableVersion Call::resolve(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const {
 	// std::cout << "Call::resolve(" << arguments << ") object = " << (object ? object->type : Type::void_) << std::endl;
 	if (object) {
 		arguments.insert(arguments.begin(), object->type);
 	}
-	const CallableVersion* best = nullptr;
+	CallableVersion best { analyzer->env };
 	int best_score = std::numeric_limits<int>::max();
 	for (const auto& callable : callables) {
 		for (auto& version : callable->versions) {
 			if ((version.flags & Module::DEFAULT) != 0) continue;
 			auto result = version.get_score(analyzer, arguments);
 			// std::cout << "version " << version << " score " << result.first << std::endl;
-			if ((best == nullptr or result.first <= best_score) and result.first != std::numeric_limits<int>::max()) {
+			if ((best.template_ == nullptr or result.first <= best_score) and result.first != std::numeric_limits<int>::max()) {
 				best_score = result.first;
 				best = result.second;
 			}
@@ -39,11 +39,11 @@ const CallableVersion* Call::resolve(SemanticAnalyzer* analyzer, std::vector<con
 	return best;
 }
 
-void Call::apply_mutators(SemanticAnalyzer* analyzer, const CallableVersion* version, std::vector<Value*> values) const {
+void Call::apply_mutators(SemanticAnalyzer* analyzer, CallableVersion& version, std::vector<Value*> values) const {
 	// std::cout << "Call::apply_mutators " << values.size() << std::endl;
-	if (version->mutators.size()) {
+	if (version.template_->mutators.size()) {
 		if (object) values.insert(values.begin(), object);
-		version->apply_mutators(analyzer, values);
+		version.apply_mutators(analyzer, values);
 	}
 }
 
@@ -61,10 +61,10 @@ Compiler::value Call::pre_compile_call(Compiler& c) const {
 	}
 }
 
-Compiler::value Call::compile_call(Compiler& c, const CallableVersion* version, std::vector<Compiler::value> args, int flags) const {
+Compiler::value Call::compile_call(Compiler& c, const CallableVersion& version, std::vector<Compiler::value> args, int flags) const {
 	// std::cout << "Call::compile_call(" << args << ")" << std::endl;
 	// Do the call
-	auto r = version->compile_call(c, args, flags);
+	auto r = version.compile_call(c, args, flags);
 	if (object) {
 		object->compile_end(c);
 	}

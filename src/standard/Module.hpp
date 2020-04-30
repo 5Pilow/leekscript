@@ -15,6 +15,7 @@ namespace ls {
 
 class LSValue;
 class CallableVersion;
+class CallableVersionTemplate;
 class Module;
 class VM;
 class Type;
@@ -33,8 +34,8 @@ public:
 	template<class... Args>
 	Template(Module* module, Args... templates) : module(module), templates({templates...}) {}
 
-	void operator_(std::string name, std::initializer_list<CallableVersion>, int flags = 0);
-	void method(std::string name, std::initializer_list<CallableVersion> methods, int flags = 0);
+	void operator_(std::string name, std::initializer_list<CallableVersionTemplate>, int flags = 0);
+	void method(std::string name, std::initializer_list<CallableVersionTemplate> methods, int flags = 0);
 };
 
 class Module {
@@ -59,16 +60,16 @@ public:
 	Module(Environment& env, std::string name, Class* parent = nullptr);
 	virtual ~Module() {}
 
-	void operator_(std::string name, std::initializer_list<CallableVersion>, int flags = 0, std::vector<const Type*> templates = {});
+	void operator_(std::string name, std::initializer_list<CallableVersionTemplate>, int flags = 0, std::vector<const Type*> templates = {});
 
 	template<class... Args>
 	Template template_(Args... templates) {
 		return { this, templates... };
 	}
 
-	void constructor_(std::initializer_list<CallableVersion> methods, int flags = 0);
+	void constructor_(std::initializer_list<CallableVersionTemplate> methods, int flags = 0);
 
-	void method(std::string name, std::initializer_list<CallableVersion> methods, int flags = 0, std::vector<const Type*> templates = {});
+	void method(std::string name, std::initializer_list<CallableVersionTemplate> methods, int flags = 0, std::vector<const Type*> templates = {});
 
 	void field(std::string name, const Type* type);
 	#if COMPILER
