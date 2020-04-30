@@ -104,24 +104,18 @@ Call VariableValue::get_callable(SemanticAnalyzer* analyzer, int argument_count)
 	if (type->is_class()) {
 		auto type = Type::fun(env.any, {env.clazz()});
 		return { {
-			{ name, type, ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
+			{ name, type, ADDR([&](Compiler& c, std::vector<Compiler::value> args, int) {
 				return c.new_object_class(args[0]);
 			}) }
-		}, (Value*) this };
+		}, nullptr, (Value*) this };
 	}
 	if (var) {
 		if (var->call.callables.size()) return var->call;
 		if (var->value) {
-			Call call;
+			Call call { this };
 			auto c = var->value->get_callable(analyzer, argument_count);
 			for (const auto& callable : c.callables) {
-				auto callable2 = new Callable();
-				for (const auto& v : callable->versions) {
-					auto nv = v;
-					nv.value = this;
-					callable2->add_version(nv);
-				}
-				call.add_callable(callable2);
+				call.add_callable(callable);
 			}
 			return call;
 		}

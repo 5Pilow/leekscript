@@ -104,19 +104,19 @@ Call ObjectAccess::get_callable(SemanticAnalyzer* analyzer, int argument_count) 
 		object_class = analyzer->globals[object_class_name]->clazz;
 	}
 
-	if (not field) return { (Callable*) nullptr };
+	if (not field) return {};
 
 	// <object>.<method>
 	if (object_class) {
 		auto i = object_class->methods.find(field->content);
 		if (i != object_class->methods.end()) {
-			return { &i->second, object.get() };
+			return { &i->second, nullptr, object.get() };
 		}
 	}
 	// <object : Value>.<method>
 	auto i = value_class->methods.find(field->content);
 	if (i != value_class->methods.end() and i->second.is_compatible(argument_count + 1)) {
-		return { &i->second, object.get() };
+		return { &i->second, nullptr, object.get() };
 	}
 	// <class>.<field>
 	if (object->type->is_class() and vv != nullptr) {
@@ -136,9 +136,9 @@ Call ObjectAccess::get_callable(SemanticAnalyzer* analyzer, int argument_count) 
 		std::ostringstream oss;
 		oss << object.get() << "." << field->content;
 		auto type = Type::fun_object(env.any, { env.any, env.any });
-		return { { { oss.str(), type, this, {}, {}, true, true } }, object.get() };
+		return { { { oss.str(), type, true, {}, {}, true } }, this, object.get() };
 	}
-	return { (Callable*) nullptr };
+	return {};
 }
 
 void ObjectAccess::pre_analyze(SemanticAnalyzer* analyzer) {

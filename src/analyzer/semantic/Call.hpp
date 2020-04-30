@@ -20,14 +20,16 @@ class Value;
 class Call {
 public:
 	std::vector<Callable*> callables;
+	const Value* value = nullptr;
 	Value* object = nullptr;
 
 	Call() {}
+	Call(const Value* value) : value(value) {}
 	Call(Callable* callable) : callables({ callable }) {}
-	Call(Callable* callable, Value* object) : callables({ callable }), object(object) {}
+	Call(Callable* callable, const Value* value, Value* object = nullptr) : callables({ callable }), value(value), object(object) {}
 	Call(std::vector<CallableVersionTemplate> versions);
 	Call(std::initializer_list<CallableVersionTemplate> versions);
-	Call(std::initializer_list<CallableVersionTemplate> versions, Value* object);
+	Call(std::initializer_list<CallableVersionTemplate> versions, const Value* value, Value* object = nullptr);
 	void add_callable(Callable* callable);
 
 	CallableVersion resolve(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const;

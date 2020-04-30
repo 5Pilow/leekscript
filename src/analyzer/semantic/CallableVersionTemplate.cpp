@@ -17,24 +17,28 @@
 
 namespace ls {
 
-CallableVersionTemplate::CallableVersionTemplate(std::string name, const Type* type, std::vector<const TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool unknown, bool v1_addr, bool v2_addr, int flags)
-	: name(name), type(type), object(object), symbol(true), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags)
+CallableVersionTemplate::CallableVersionTemplate(std::string name, const Type* type, std::vector<const TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool v1_addr, bool v2_addr, int flags)
+	: name(name), type(type), object(object), symbol(true), mutators(mutators), templates(templates), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags)
 	{
 		assert(name.find(".") != std::string::npos);
 	}
 #if COMPILER
-CallableVersionTemplate::CallableVersionTemplate(std::string name, const Type* type, std::function<Compiler::value(Compiler&, std::vector<Compiler::value>, int)> func, std::vector<const TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool unknown, bool v1_addr, bool v2_addr, int flags)
-	: name(name), type(type), object(object), func(func), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags)
-	{}
+CallableVersionTemplate::CallableVersionTemplate(std::string name, const Type* type, std::function<Compiler::value(Compiler&, std::vector<Compiler::value>, int)> func, std::vector<const TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool v1_addr, bool v2_addr, int flags)
+	: name(name), type(type), object(object), func(func), mutators(mutators), templates(templates), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags)
+	{
+		// std::cout << "callable version compiler fun" << std::endl;
+	}
 #endif
-CallableVersionTemplate::CallableVersionTemplate(std::string name, const Type* type, void* addr, std::vector<const TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool unknown, bool v1_addr, bool v2_addr, int flags)
-	: name(name), type(type), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags), addr(addr)
+CallableVersionTemplate::CallableVersionTemplate(std::string name, const Type* type, void* addr, std::vector<const TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool v1_addr, bool v2_addr, int flags)
+	: name(name), type(type), object(object), mutators(mutators), templates(templates), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags), addr(addr)
 	{}
-CallableVersionTemplate::CallableVersionTemplate(std::string name, const Type* type, const Value* value, std::vector<const TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool unknown, bool v1_addr, bool v2_addr, int flags)
-	: name(name), type(type), object(object), value(value), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags)
+
+CallableVersionTemplate::CallableVersionTemplate(std::string name, const Type* type, bool unknown, std::vector<const TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool v1_addr, bool v2_addr, int flags)
+	: name(name), type(type), object(object), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags), addr(addr)
 	{}
-CallableVersionTemplate::CallableVersionTemplate(std::string name, const Type* type, FunctionVersion* f, std::vector<const TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool unknown, bool v1_addr, bool v2_addr, int flags)
-	: name(name), type(type), object(object), user_fun(f), mutators(mutators), templates(templates), unknown(unknown), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags)
+
+CallableVersionTemplate::CallableVersionTemplate(std::string name, const Type* type, FunctionVersion* f, std::vector<const TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool v1_addr, bool v2_addr, int flags)
+	: name(name), type(type), object(object), user_fun(f), mutators(mutators), templates(templates), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags)
 	{}
 
 CallableVersionTemplate::CallableVersionTemplate(const Type* return_type, std::initializer_list<const Type*> arguments, void* addr, int flags, std::vector<const TypeMutator*> mutators)
@@ -166,7 +170,6 @@ std::pair<int, CallableVersion> CallableVersionTemplate::get_score(SemanticAnaly
 	return { d, new_version };
 }
 
-
 void solve(SemanticAnalyzer* analyzer, const Type* t1, const Type* t2) {
 	// std::cout << "Solve " << t1 << " ||| " << t2 << std::endl;
 	if (t1->is_template()) {
@@ -243,8 +246,6 @@ namespace std {
 		} else if (v.func) {
 			os << " (compiler func)";
 		#endif
-		} else {
-			os << " (value)";
 		}
 		if (v.unknown) os << " (unknown)";
 		if (v.flags) os << " " << v.flags;

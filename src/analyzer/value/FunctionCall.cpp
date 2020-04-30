@@ -9,6 +9,7 @@
 #include "../error/Error.hpp"
 #include "ObjectAccess.hpp"
 #include "VariableValue.hpp"
+#include "../semantic/Call.hpp"
 #include "../semantic/Callable.hpp"
 #include "../semantic/FunctionVersion.hpp"
 #include "../semantic/Variable.hpp"
@@ -99,7 +100,7 @@ Call FunctionCall::get_callable(SemanticAnalyzer*, int argument_count) const {
 		arguments_types.push_back(argument->type);
 	}
 	auto type = function->version_type(arguments_types);
-	return { { "<fc>", type->return_type(), this, {}, {} } };
+	return { { { "<fc>", type->return_type(), false } }, this };
 }
 
 void FunctionCall::analyze(SemanticAnalyzer* analyzer) {
@@ -131,7 +132,7 @@ void FunctionCall::analyze(SemanticAnalyzer* analyzer) {
 
 	// Retrieve the callable version
 	call = function->get_callable(analyzer, arguments_types.size());
-	// std::cout << "Callable: " << call.callable << std::endl;
+	// std::cout << "Function call: " << call << std::endl;
 	callable_version = call.resolve(analyzer, arguments_types);
 	if (callable_version.template_) {
 		// std::cout << "Version: " << callable_version << std::endl;
@@ -149,7 +150,7 @@ void FunctionCall::analyze(SemanticAnalyzer* analyzer) {
 				arguments.at(a)->set_version(analyzer, argument_type->arguments(), 1);
 			}
 		}
-		if (callable_version.template_->value) {
+		if (call.value) {
 			function_type = function->will_take(analyzer, arguments_types, 1);
 			function->set_version(analyzer, arguments_types, 1);
 			type = function_type->return_type();

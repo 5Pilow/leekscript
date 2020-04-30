@@ -41,8 +41,10 @@ int CallableVersion::compile_mutators(Compiler& c, std::vector<Value*> values) c
 	return flags;
 }
 
-Compiler::value CallableVersion::compile_call(Compiler& c, std::vector<Compiler::value> args, int flags) const {
-	// std::cout << "CallableVersion::compile_call(" << args << ")" << std::endl;
+Compiler::value CallableVersion::compile_call(Compiler& c, std::vector<Compiler::value> args, const Value* value, int flags) const {
+	// std::cout << "CallableVersion::compile_call(" << args;
+	// if (value) std::cout << ", value=\"" << value << "\"";
+	// std::cout << ")" << std::endl;
 	// Do the call
 	auto full_flags = template_->flags | flags;
 	if (extra_arg.v) {
@@ -67,13 +69,13 @@ Compiler::value CallableVersion::compile_call(Compiler& c, std::vector<Compiler:
 		}
 	} else if (template_->func) {
 		return template_->func(c, args, full_flags);
-	} else if (template_->value) {
+	} else if (value) {
 		auto fun = [&]() { if (template_->object) {
-			auto oa = dynamic_cast<const ObjectAccess*>(template_->value);
+			auto oa = dynamic_cast<const ObjectAccess*>(value);
 			auto k = c.new_const_string(oa->field->content);
 			return c.insn_invoke(type->pointer(), {c.get_vm(), args[0], k}, "Value.attr");
 		} else {
-			return template_->value->compile(c);
+			return value->compile(c);
 		}}();
 		if (template_->unknown) {
 			args.insert(args.begin(), fun);
@@ -91,7 +93,7 @@ Compiler::value CallableVersion::compile_call(Compiler& c, std::vector<Compiler:
 			}
 		}}();
 		if (!template_->object) {
-			template_->value->compile_end(c);
+			value->compile_end(c);
 		}
 		return r;
 	} else {
@@ -116,8 +118,6 @@ namespace std {
 		} else if (v.template_->func) {
 			os << " (compiler func)";
 		#endif
-		} else {
-			os << " (value)";
 		}
 		if (v.template_->unknown) os << " (unknown)";
 		if (v.template_->flags) os << " " << v.template_->flags;

@@ -12,7 +12,7 @@ namespace ls {
 // Call::Call(std::vector<CallableVersion> versions) : callable(new Callable { versions }) {}
 Call::Call(std::initializer_list<CallableVersionTemplate> versions) : callables({ new Callable { versions } }) {}
 
-Call::Call(std::initializer_list<CallableVersionTemplate> versions, Value* object) : callables({ new Callable { versions } }), object(object) {}
+Call::Call(std::initializer_list<CallableVersionTemplate> versions, const Value* value, Value* object) : callables({ new Callable { versions } }), value(value), object(object) {}
 
 void Call::add_callable(Callable* callable) {
 	callables.push_back(callable);
@@ -64,7 +64,7 @@ Compiler::value Call::pre_compile_call(Compiler& c) const {
 Compiler::value Call::compile_call(Compiler& c, const CallableVersion& version, std::vector<Compiler::value> args, int flags) const {
 	// std::cout << "Call::compile_call(" << args << ")" << std::endl;
 	// Do the call
-	auto r = version.compile_call(c, args, flags);
+	auto r = version.compile_call(c, args, value, flags);
 	if (object) {
 		object->compile_end(c);
 	}
@@ -76,9 +76,14 @@ Compiler::value Call::compile_call(Compiler& c, const CallableVersion& version, 
 
 namespace std {
 	std::ostream& operator << (std::ostream& os, const ls::Call& v) {
+		os << "Call: [" << std::endl;
 		for (const auto& callable : v.callables) {
-			os << callable;
+			os << callable << std::endl;
 		}
+		os << "] ";
+		if (v.value) os << "value=\"" << v.value << "\" ";
+		if (v.object) os << "object=\"" << v.object << "\" ";
+		os << std::endl;
 		return os;
 	}
 	std::ostream& operator << (std::ostream& os, const ls::Call* v) {

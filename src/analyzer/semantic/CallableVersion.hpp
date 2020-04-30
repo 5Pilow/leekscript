@@ -34,7 +34,7 @@ public:
 
 	#if COMPILER
 	int compile_mutators(Compiler& c, std::vector<Value*> arguments) const;
-	Compiler::value compile_call(Compiler& c, std::vector<Compiler::value> args, int flags) const;
+	Compiler::value compile_call(Compiler& c, std::vector<Compiler::value> args, const Value* value, int flags) const;
 	#endif
 };
 

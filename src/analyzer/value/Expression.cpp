@@ -352,7 +352,7 @@ Compiler::value Expression::compile(Compiler& c) const {
 
 	c.pop_temporary_expression_value();
 
-	auto r = callable_version.compile_call(c, args, flags);
+	auto r = callable_version.compile_call(c, args, nullptr, flags);
 
 	v1->compile_end(c);
 	v2->compile_end(c);
