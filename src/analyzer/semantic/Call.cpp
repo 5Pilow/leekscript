@@ -73,3 +73,16 @@ Compiler::value Call::compile_call(Compiler& c, const CallableVersion& version, 
 #endif
 
 }
+
+namespace std {
+	std::ostream& operator << (std::ostream& os, const ls::Call& v) {
+		for (const auto& callable : v.callables) {
+			os << callable;
+		}
+		return os;
+	}
+	std::ostream& operator << (std::ostream& os, const ls::Call* v) {
+		os << *v;
+		return os;
+	}
+}

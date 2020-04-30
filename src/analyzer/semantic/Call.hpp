@@ -40,4 +40,9 @@ public:
 
 }
 
+namespace std {
+	std::ostream& operator << (std::ostream&, const ls::Call&);
+	std::ostream& operator << (std::ostream&, const ls::Call*);
+}
+
 #endif

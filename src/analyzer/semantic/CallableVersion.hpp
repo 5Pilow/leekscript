@@ -18,7 +18,7 @@ class Value;
 class CallableVersion {
 public:
 	const CallableVersionTemplate* template_ = nullptr;
-	const Type* type;
+	const Type* type = nullptr;
 	#if COMPILER
 	Compiler::value extra_arg;
 	#endif
