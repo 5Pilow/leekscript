@@ -15,13 +15,7 @@ ObjectAccess::ObjectAccess(Environment& env, Token* token) : LeftValue(env), fie
 	throws = true; // TODO doesn't always throw
 }
 
-ObjectAccess::~ObjectAccess() {
-	#if COMPILER
-	if (ls_function != nullptr) {
-		delete ls_function;
-	}
-	#endif
-}
+ObjectAccess::~ObjectAccess() {}
 
 bool ObjectAccess::isLeftValue() const {
 	if (native_access_function.size()) {

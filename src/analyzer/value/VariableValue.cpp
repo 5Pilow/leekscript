@@ -15,11 +15,6 @@ VariableValue::VariableValue(Environment& env, Token* token) : LeftValue(env), t
 	this->name = token->content;
 	this->var = nullptr;
 	constant = false;
-	#if COMPILER
-	if (ls_function != nullptr) {
-		delete ls_function;
-	}
-	#endif
 }
 
 bool VariableValue::isLeftValue() const {

@@ -28,7 +28,6 @@ public:
 	bool static_field = false;
 	#if COMPILER
 	std::function<Compiler::value(Compiler&)> static_access_function = nullptr;
-	LSFunction* ls_function = nullptr;
 	#endif
 
 	VariableValue(Environment& env, Token* token);
