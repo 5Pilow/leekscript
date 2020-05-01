@@ -59,6 +59,7 @@ int Test::all() {
 		&Test::test_system,
 		&Test::test_json,
 		&Test::test_files,
+		&Test::test_files_euler,
 		&Test::test_toplevel,
 		&Test::test_doc,
 	};

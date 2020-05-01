@@ -84,6 +84,7 @@ public:
 	void test_loops();
 	void test_classes();
 	void test_files();
+	void test_files_euler();
 	void test_doc();
 	void test_intervals();
 	void test_json();
