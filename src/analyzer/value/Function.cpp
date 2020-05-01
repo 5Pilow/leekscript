@@ -144,6 +144,7 @@ r2(12)
 r2('hello')
  */
 void Function::analyze(SemanticAnalyzer* analyzer) {
+	std::cout << "Function " << name << " ::analyze()" << std::endl;
 
 	if (!function_added) {
 		analyzer->add_function(this);
@@ -174,7 +175,7 @@ void Function::analyse_default_method(SemanticAnalyzer* analyzer) {
 }
 
 void Function::create_version(SemanticAnalyzer* analyzer, const std::vector<const Type*>& args) {
-	// std::cout << "Function::create_version(" << args << ")" << std::endl;
+	std::cout << "Function::create_version(" << args << ")" << std::endl;
 	auto version = new FunctionVersion(analyzer->env, unique_static_cast<Block>(default_version->body->clone(nullptr)));
 	version->parent = this;
 	versions.insert({args, version});
@@ -270,6 +271,7 @@ void Function::must_return_any(SemanticAnalyzer* analyzer) {
 }
 
 Call Function::get_callable(SemanticAnalyzer*, int argument_count) const {
+	std::cout << "get_callable" << std::endl;
 	Call call;
 	auto callable = new Callable();
 	int flags = default_version->body->throws ? Module::THROWS : 0;

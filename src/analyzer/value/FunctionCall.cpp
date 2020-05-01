@@ -132,10 +132,10 @@ void FunctionCall::analyze(SemanticAnalyzer* analyzer) {
 
 	// Retrieve the callable version
 	call = function->get_callable(analyzer, arguments_types.size());
-	// std::cout << "Function call: " << call << std::endl;
+	std::cout << "Function call: " << call << std::endl;
 	callable_version = call.resolve(analyzer, arguments_types);
 	if (callable_version) {
-		// std::cout << "Version: " << callable_version << std::endl;
+		std::cout << "Version: " << callable_version << std::endl;
 		type = callable_version.type->return_type();
 		throws |= callable_version.template_()->flags & Module::THROWS;
 		std::vector<Value*> raw_arguments;
@@ -291,7 +291,7 @@ const Type* FunctionCall::version_type(std::vector<const Type*> version) const {
 
 Completion FunctionCall::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
 
-	std::cout << "FC complete " << position << "opening=" << opening_parenthesis->location.end.raw << " closing= " << closing_parenthesis->location.end.raw << std::endl;
+	// std::cout << "FC complete " << position << "opening=" << opening_parenthesis->location.end.raw << " closing= " << closing_parenthesis->location.end.raw << std::endl;
 
 	if (position < opening_parenthesis->location.start.raw) {
 		return function->autocomplete(analyzer, position);
@@ -339,8 +339,9 @@ Compiler::value FunctionCall::compile(Compiler& c) const {
 
 	c.mark_offset(location().start.line);
 
-	// std::cout << "FunctionCall::compile(" << function_type << ")" << std::endl;
+	std::cout << "FunctionCall::compile(" << function_type << ")" << std::endl;
 	assert(callable_version);
+	std::cout << "callable_version = " << (void*) callable_version.template_() << std::endl;
 
 	if (call.object) {
 		callable_version.compile_mutators(c, { call.object });
