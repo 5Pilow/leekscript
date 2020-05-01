@@ -101,6 +101,9 @@ void Function::create_default_version(SemanticAnalyzer* analyzer) {
 	type = Type::fun(env.any, args, this);
 
 	default_version->type = Type::fun(default_version->getReturnType(env), args, this);
+
+	int flags = default_version->body->throws ? Module::THROWS : 0;
+	callable->add_version({ "<default>", default_version->type, default_version, {}, {}, false, false, false, flags });
 }
 
 void Function::pre_analyze(SemanticAnalyzer* analyzer) {
@@ -179,6 +182,9 @@ void Function::create_version(SemanticAnalyzer* analyzer, const std::vector<cons
 	auto version = new FunctionVersion(analyzer->env, unique_static_cast<Block>(default_version->body->clone(nullptr)));
 	version->parent = this;
 	versions.insert({args, version});
+
+	int flags = version->body->throws ? Module::THROWS : 0;
+	callable->add_version({ "<version>", version->type, version, {}, {}, false, false, false, flags });
 
 	version->pre_analyze(analyzer, args);
 	version->analyze(analyzer, args);
@@ -273,16 +279,11 @@ void Function::must_return_any(SemanticAnalyzer* analyzer) {
 Call Function::get_callable(SemanticAnalyzer*, int argument_count) const {
 	// std::cout << "get_callable" << std::endl;
 	// std::cout << callable.get() << std::endl;
-	Call call;
-	auto callable = new Callable();
-	int flags = default_version->body->throws ? Module::THROWS : 0;
-	callable->add_version({ "<default>", default_version->type, default_version, {}, {}, false, false, false, flags });
-	for (const auto& version : versions) {
-		int flags = version.second->body->throws ? Module::THROWS : 0;
-		callable->add_version({ "<version>", version.second->type, version.second, {}, {}, false, false, false, flags });
+	for (auto& version : callable->versions) {
+		version.type = version.user_fun->type;
+		version.flags = version.user_fun->body->throws ? Module::THROWS : 0;
 	}
-	call.add_callable(callable);
-	return call;
+	return { callable.get() };
 }
 
 Completion Function::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
