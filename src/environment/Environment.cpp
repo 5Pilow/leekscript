@@ -43,6 +43,7 @@ Environment::Environment(bool legacy) :
 	#if COMPILER
 	compiler(*this, &vm),
 	vm(*this, std),
+	mpz_type(llvm::StructType::create({ llvm::Type::getInt128Ty(compiler.getContext()) }, "mpz")),
 	#endif
 	legacy(legacy),
     void_(new Void_type { *this }),

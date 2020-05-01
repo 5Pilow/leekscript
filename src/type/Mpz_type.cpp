@@ -8,15 +8,12 @@
 #include "Bool_type.hpp"
 #include "Integer_type.hpp"
 #include "Long_type.hpp"
+#include "../environment/Environment.hpp"
 #if COMPILER
 #include "../compiler/Compiler.hpp"
 #endif
 
 namespace ls {
-
-#if COMPILER
-llvm::Type* Mpz_type::mpz_type = nullptr;
-#endif
 
 bool Mpz_type::operator == (const Type* type) const {
 	return dynamic_cast<const Mpz_type*>(type) != nullptr;
@@ -34,7 +31,7 @@ int Mpz_type::distance(const Type* type) const {
 }
 #if COMPILER
 llvm::Type* Mpz_type::llvm(Compiler& c) const {
-	return get_mpz_type(c);
+	return c.env.mpz_type;
 }
 #endif
 std::string Mpz_type::class_name() const {
@@ -52,14 +49,5 @@ std::ostream& Mpz_type::print(std::ostream& os) const {
 Type* Mpz_type::clone() const {
 	return new Mpz_type { env };
 }
-
-#if COMPILER
-llvm::Type* Mpz_type::get_mpz_type(Compiler& c) {
-	if (mpz_type == nullptr) {
-		mpz_type = llvm::StructType::create({ llvm::Type::getInt128Ty(c.getContext()) }, "mpz");
-	}
-	return mpz_type;
-}
-#endif
 
 }

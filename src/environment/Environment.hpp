@@ -118,6 +118,7 @@ public:
 	std::unique_ptr<LSClass> object_class;
 	std::unique_ptr<LSClass> function_class;
 	std::unique_ptr<LSClass> class_class;
+	llvm::Type* mpz_type;
 	#endif
 
 	StandardLibrary std;

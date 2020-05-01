@@ -18,11 +18,6 @@ public:
 	virtual std::string class_name() const override;
 	virtual std::ostream& print(std::ostream& os) const override;
 	virtual Type* clone() const override;
-
-	#if COMPILER
-	static llvm::Type* mpz_type;
-	static llvm::Type* get_mpz_type(Compiler& c);
-	#endif
 };
 
 }
