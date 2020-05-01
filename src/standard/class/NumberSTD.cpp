@@ -110,6 +110,8 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 	operator_("**", {
 		{pX, pY, Type::meta_mul(pX, pY), ADDR(pow_real_real)},
 		{env.mpz_ptr, env.mpz_ptr, env.tmp_mpz_ptr, ADDR(pow_mpz_mpz), THROWS},
+		{env.tmp_mpz_ptr, env.tmp_mpz_ptr, env.tmp_mpz_ptr, ADDR(pow_mpz_mpz), THROWS},
+		{env.tmp_mpz_ptr, env.integer, env.tmp_mpz_ptr, ADDR(pow_mpz_int), THROWS},
 		{env.mpz_ptr, env.integer, env.tmp_mpz_ptr, ADDR(pow_mpz_int), THROWS},
 	});
 

@@ -94,7 +94,7 @@ void Test::test_types() {
 
 	section("Distance");
 	test("number <=> any", env.number->distance(env.any), 1);
-	test("mpz* <=> any", env.mpz_ptr->distance(env.any), 2);
+	test("mpz* <=> any", env.mpz_ptr->distance(env.any), 10);
 	test("integer | real <=> real", ls::Type::compound({ env.integer, env.real })->distance(env.real), 0);
 	test("real <=> integer | real", env.real->distance(ls::Type::compound({ env.integer, env.real })), 0);
 	test("integer | real <=> integer | real", ls::Type::compound({ env.integer, env.real })->distance(ls::Type::compound({ env.integer, env.real })), 0);
