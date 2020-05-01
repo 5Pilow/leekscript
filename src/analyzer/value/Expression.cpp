@@ -198,9 +198,9 @@ void Expression::analyze(SemanticAnalyzer* analyzer) {
 		auto call = object_class->getOperator(analyzer, op->character);
 		// std::cout << "Callable : " << callable << std::endl;
 		callable_version = call.resolve(analyzer, {v1_type, v2_type});
-		if (callable_version.template_) {
+		if (callable_version) {
 			// std::cout << "Callable version : " << callable_version << std::endl;
-			throws |= callable_version.template_->flags & Module::THROWS;
+			throws |= callable_version.template_()->flags & Module::THROWS;
 			callable_version.apply_mutators(analyzer, {v1.get(), v2.get()});
 			// For placeholder types, keep them no matter the operator
 			auto return_type = callable_version.type->return_type();
@@ -320,14 +320,14 @@ Compiler::value Expression::compile(Compiler& c) const {
 		return c.insn_load(r);
 	}
 
-	assert(callable_version.template_);
+	assert(callable_version);
 
 	std::vector<Compiler::value> args;
-	auto compiled_v2 = [&](){ if (callable_version.template_->v2_addr) {
+	auto compiled_v2 = [&](){ if (callable_version.template_()->v2_addr) {
 		return ((LeftValue*) v2.get())->compile_l(c);
 	} else {
 		auto v = v2->compile(c);
-		if (callable_version.template_->symbol and v.t->is_primitive() and callable_version.type->argument(1)->is_any()) {
+		if (callable_version.template_()->symbol and v.t->is_primitive() and callable_version.type->argument(1)->is_any()) {
 			v = c.insn_to_any(v);
 		}
 		return v;
@@ -337,11 +337,11 @@ Compiler::value Expression::compile(Compiler& c) const {
 	int flags = callable_version.compile_mutators(c, {v1.get(), v2.get()});
 	if (is_void) flags |= Module::NO_RETURN;
 
-	auto compiled_v1 = [&](){ if (callable_version.template_->v1_addr) {
+	auto compiled_v1 = [&](){ if (callable_version.template_()->v1_addr) {
 		return ((LeftValue*) v1.get())->compile_l(c);
 	} else {
 		auto v = v1->compile(c);
-		if (callable_version.template_->symbol and v.t->is_primitive() and callable_version.type->argument(0)->is_any()) {
+		if (callable_version.template_()->symbol and v.t->is_primitive() and callable_version.type->argument(0)->is_any()) {
 			v = c.insn_to_any(v);
 		}
 		return v;

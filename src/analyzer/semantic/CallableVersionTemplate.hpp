@@ -56,7 +56,7 @@ public:
 	CallableVersionTemplate(const Type* v1_type, const Type* v2_type, const Type* return_type, std::function<Compiler::value(Compiler&, std::vector<Compiler::value>, int)> func, int flags = 0, std::vector<const TypeMutator*> mutators = {}, bool v1_addr = false, bool v2_addr = false);
 	#endif
 
-	std::pair<int, CallableVersion> get_score(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const;
+	std::pair<int, CallableVersion> get_score(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments, Callable* callable, size_t index) const;
 	void resolve_templates(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const;
 };
 

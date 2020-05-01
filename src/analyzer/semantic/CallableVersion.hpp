@@ -14,10 +14,12 @@ class CallableVersionTemplate;
 class SemanticAnalyzer;
 class Type;
 class Value;
+class Callable;
 
 class CallableVersion {
+	const Callable* callable = nullptr;
+	size_t index = 0;
 public:
-	const CallableVersionTemplate* template_ = nullptr;
 	const Type* type = nullptr;
 	#if COMPILER
 	Compiler::value extra_arg;
@@ -25,10 +27,13 @@ public:
 
 	#if COMPILER
 	CallableVersion(Environment&);
-	CallableVersion(Environment&, const CallableVersionTemplate*, const Type*);
+	CallableVersion(Environment&, const Callable*, size_t index, const Type*);
 	#else
 	CallableVersion();
 	#endif
+
+	const CallableVersionTemplate* template_() const;
+	operator bool() const;
 
 	void apply_mutators(SemanticAnalyzer* analyzer, std::vector<Value*> arguments) const;
 

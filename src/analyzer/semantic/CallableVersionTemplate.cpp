@@ -116,11 +116,11 @@ const Type* build(const Type* type) {
 	return type;
 }
 
-std::pair<int, CallableVersion> CallableVersionTemplate::get_score(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const {
+std::pair<int, CallableVersion> CallableVersionTemplate::get_score(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments, Callable* callable, size_t index) const {
 	// std::cout << "CallableVersion::get_score(" << arguments << ") " << type << std::endl;
 
 	// Template resolution
-	CallableVersion new_version { analyzer->env, this, type };
+	CallableVersion new_version { analyzer->env, callable, index, type };
 	if (templates.size()) {
 		resolve_templates(analyzer, arguments);
 		auto version_type = build(type);

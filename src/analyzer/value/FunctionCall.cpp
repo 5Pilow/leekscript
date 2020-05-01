@@ -134,10 +134,10 @@ void FunctionCall::analyze(SemanticAnalyzer* analyzer) {
 	call = function->get_callable(analyzer, arguments_types.size());
 	// std::cout << "Function call: " << call << std::endl;
 	callable_version = call.resolve(analyzer, arguments_types);
-	if (callable_version.template_) {
+	if (callable_version) {
 		// std::cout << "Version: " << callable_version << std::endl;
 		type = callable_version.type->return_type();
-		throws |= callable_version.template_->flags & Module::THROWS;
+		throws |= callable_version.template_()->flags & Module::THROWS;
 		std::vector<Value*> raw_arguments;
 		for (const auto& a : arguments) raw_arguments.push_back(a.get());
 		call.apply_mutators(analyzer, callable_version, raw_arguments);
@@ -156,13 +156,13 @@ void FunctionCall::analyze(SemanticAnalyzer* analyzer) {
 			type = function_type->return_type();
 			auto vv = dynamic_cast<VariableValue*>(function.get());
 			if (vv and vv->var) {
-				if (callable_version.template_->user_fun == analyzer->current_function()) {
+				if (callable_version.template_()->user_fun == analyzer->current_function()) {
 					analyzer->current_function()->recursive = true;
 					type = analyzer->current_function()->getReturnType(env);
 				}
 			}
 		}
-		if (callable_version.template_->unknown) {
+		if (callable_version.template_()->unknown) {
 			for (const auto& arg : arguments) {
 				if (arg->type->is_function()) {
 					arg->must_return_any(analyzer);
@@ -186,7 +186,7 @@ void FunctionCall::analyze(SemanticAnalyzer* analyzer) {
 	auto oa = dynamic_cast<ObjectAccess*>(function.get());
 	if (oa != nullptr) {
 		auto arguments_count = arguments_types.size() + (call.object ? 1 : 0);
-		if (not call.callables.size() or (not callable_version.template_ and call.callables.front()->versions[0].type->arguments().size() == arguments_count)) {
+		if (not call.callables.size() or (not callable_version and call.callables.front()->versions[0].type->arguments().size() == arguments_count)) {
 			auto field_name = oa->field->content;
 			auto object_type = oa->object->type;
 			std::vector<const Type*> arg_types;
@@ -263,7 +263,7 @@ const Type* FunctionCall::will_take(SemanticAnalyzer* analyzer, const std::vecto
 	// std::cout << "FC " << this << " will_take " << args << std::endl;
 	auto ret = function->will_take(analyzer, args, level + 1);
 
-	if (callable_version.template_) {
+	if (callable_version) {
 		// Perform a will_take to prepare eventual versions
 		std::vector<const Type*> arguments_types;
 		for (const auto& argument : arguments) {
@@ -272,8 +272,8 @@ const Type* FunctionCall::will_take(SemanticAnalyzer* analyzer, const std::vecto
 		// Retrieve the callable version
 		call = function->get_callable(analyzer, arguments_types.size());
 		callable_version = call.resolve(analyzer, arguments_types);
-		if (callable_version.template_) {
-			type = callable_version.template_->type->return_type();
+		if (callable_version) {
+			type = callable_version.template_()->type->return_type();
 		}
 	}
 	return ret;
@@ -340,7 +340,7 @@ Compiler::value FunctionCall::compile(Compiler& c) const {
 	c.mark_offset(location().start.line);
 
 	// std::cout << "FunctionCall::compile(" << function_type << ")" << std::endl;
-	assert(callable_version.template_);
+	assert(callable_version);
 
 	if (call.object) {
 		callable_version.compile_mutators(c, { call.object });

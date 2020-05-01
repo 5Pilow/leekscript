@@ -26,11 +26,12 @@ CallableVersion Call::resolve(SemanticAnalyzer* analyzer, std::vector<const Type
 	CallableVersion best { analyzer->env };
 	int best_score = std::numeric_limits<int>::max();
 	for (const auto& callable : callables) {
-		for (auto& version : callable->versions) {
+		for (auto v = 0; v < callable->versions.size(); ++v) {
+			auto& version = callable->versions[v];
 			if ((version.flags & Module::DEFAULT) != 0) continue;
-			auto result = version.get_score(analyzer, arguments);
+			auto result = version.get_score(analyzer, arguments, callable, v);
 			// std::cout << "version " << version << " score " << result.first << std::endl;
-			if ((best.template_ == nullptr or result.first <= best_score) and result.first != std::numeric_limits<int>::max()) {
+			if ((not best or result.first <= best_score) and result.first != std::numeric_limits<int>::max()) {
 				best_score = result.first;
 				best = result.second;
 			}
@@ -41,7 +42,7 @@ CallableVersion Call::resolve(SemanticAnalyzer* analyzer, std::vector<const Type
 
 void Call::apply_mutators(SemanticAnalyzer* analyzer, CallableVersion& version, std::vector<Value*> values) const {
 	// std::cout << "Call::apply_mutators " << values.size() << std::endl;
-	if (version.template_->mutators.size()) {
+	if (version.template_()->mutators.size()) {
 		if (object) values.insert(values.begin(), object);
 		version.apply_mutators(analyzer, values);
 	}
