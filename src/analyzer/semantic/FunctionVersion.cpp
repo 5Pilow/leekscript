@@ -74,7 +74,7 @@ void FunctionVersion::print(std::ostream& os, int indent, PrintOptions options) 
 		int i = 0;
 		for (const auto& argument : arguments) {
 			if (i++ > 0) os << ", ";
-			os << argument.second;
+			os << argument.second.get();
 		}
 		os << "]";
 		if (type->return_type() != body->type) {
@@ -113,7 +113,7 @@ void FunctionVersion::pre_analyze(SemanticAnalyzer* analyzer, const std::vector<
 		auto name = parent->arguments.at(i)->content;
 		auto arg = new Variable(name, VarScope::PARAMETER, type, i, nullptr, analyzer->current_function(), nullptr, nullptr, nullptr);
 		initial_arguments.insert({ name, arg });
-		arguments.insert({ name, arg });
+		arguments.emplace(name, arg);
 	}
 	body->branch = body.get();
 	body->pre_analyze(analyzer);

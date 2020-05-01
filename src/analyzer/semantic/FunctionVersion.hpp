@@ -32,7 +32,7 @@ public:
 	const Type* placeholder_type = nullptr;
 	bool recursive = false;
 	std::unordered_map<std::string, Variable*> initial_arguments;
-	std::unordered_map<std::string, Variable*> arguments;
+	std::unordered_map<std::string, std::unique_ptr<Variable>> arguments;
 	std::vector<Variable*> captures_inside;
 	bool pre_analyzed = false;
 	#if COMPILER
