@@ -32,16 +32,16 @@ int LSValue::obj_deleted = 0;
 
 LSValue::LSValue(LSValueType type, int refs, bool native) : type(type), refs(refs), native(native) {
 	if (not native) {
-		obj_count++;
 		#if DEBUG_LEAKS
+			obj_count++;
 			objs().insert({this, this});
 		#endif
 	}
 }
 
 LSValue::LSValue(const LSValue& o) : type(o.type), refs(0) {
-	obj_count++;
 	#if DEBUG_LEAKS
+		obj_count++;
 		objs().insert({this, this});
 	#endif
 }
@@ -77,8 +77,8 @@ LSValue* LSValue::get(double v) {
 
 LSValue::~LSValue() {
 	if (not native) {
-		obj_deleted++;
 		#if DEBUG_LEAKS
+			obj_deleted++;
 			objs().erase(this);
 		#endif
 	}

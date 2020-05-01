@@ -29,7 +29,7 @@ void Context::add_variable(char* name, void* v, const Type* type) {
 	if (i != vars.end()) {
 		// std::cout << "variable already exists " << i->second.value << std::endl;
 		if (i->second.type->is_polymorphic()) {
-			#if COMPILER
+			#if COMPILER && DEBUG_LEAKS
 			// The previous object was deleted in the program, but we don't count the destruction
 			LSValue::obj_deleted--;
 			#endif

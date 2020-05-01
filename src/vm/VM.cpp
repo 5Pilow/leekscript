@@ -121,8 +121,8 @@ void VM::execute(Program& program, bool format, bool debug, bool ops, bool assem
 
 	if (ls::LSValue::obj_deleted != ls::LSValue::obj_count) {
 		// LCOV_EXCL_START
-		std::cout << C_RED << "/!\\ " << LSValue::obj_deleted << " / " << LSValue::obj_count << " (" << (LSValue::obj_count - LSValue::obj_deleted) << " leaked)" << END_COLOR << std::endl;
 		#if DEBUG_LEAKS
+			std::cout << C_RED << "/!\\ " << LSValue::obj_deleted << " / " << LSValue::obj_count << " (" << (LSValue::obj_count - LSValue::obj_deleted) << " leaked)" << END_COLOR << std::endl;
 			int n = 20;
 			for (auto o : LSValue::objs()) {
 				std::cout << o.second << " (" << o.second->refs << " refs) " << (void*) o.second << std::endl;
