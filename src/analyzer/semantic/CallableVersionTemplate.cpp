@@ -162,7 +162,7 @@ std::pair<int, CallableVersion> CallableVersionTemplate::get_score(SemanticAnaly
 				assert(false);
 			}}();
 			auto di = type->distance(new_version.type->arguments().at(i));
-			// std::cout << type << " distance " << new_version->type->arguments().at(i) << " " << di << std::endl;
+			// std::cout << type << " distance to " << new_version.type->arguments().at(i) << " " << di << std::endl;
 			if (di < 0) return { std::numeric_limits<int>::max(), { analyzer->env } };
 			d += di;
 		}

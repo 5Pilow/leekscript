@@ -19,7 +19,7 @@ void Call::add_callable(Callable* callable) {
 }
 
 CallableVersion Call::resolve(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const {
-	// std::cout << "Call::resolve(" << arguments << ") object = " << (object ? object->type : Type::void_) << std::endl;
+	// std::cout << "Call::resolve(" << arguments << ") object = " << (object ? object->type : analyzer->env.void_) << std::endl;
 	if (object) {
 		arguments.insert(arguments.begin(), object->type);
 	}

@@ -196,10 +196,10 @@ void Expression::analyze(SemanticAnalyzer* analyzer) {
 		auto class_name = v1_type->is_void() ? "Value" : v1_type->class_name();
 		auto object_class = analyzer->globals[class_name]->clazz;
 		auto call = object_class->getOperator(analyzer, op->character);
-		// std::cout << "Callable : " << callable << std::endl;
+		// std::cout << "Expression Call: " << call << std::endl;
 		callable_version = call.resolve(analyzer, {v1_type, v2_type});
 		if (callable_version) {
-			// std::cout << "Callable version : " << callable_version << std::endl;
+			// std::cout << "Expression Callable_version: " << callable_version << std::endl;
 			throws |= callable_version.template_()->flags & Module::THROWS;
 			callable_version.apply_mutators(analyzer, {v1.get(), v2.get()});
 			// For placeholder types, keep them no matter the operator
