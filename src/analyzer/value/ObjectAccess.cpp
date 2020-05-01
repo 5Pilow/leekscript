@@ -43,18 +43,16 @@ Location ObjectAccess::location() const {
 void ObjectAccess::set_version(SemanticAnalyzer* analyzer, const std::vector<const Type*>& args, int level) {
 	// std::cout << "ObjectAccess::set_version(" << args << ", " << level << ")" << std::endl;
 	has_version = true;
-	if (call) {
-		for (const auto& callable : call->callables) {
-			for (const auto& m : callable->versions) {
-				auto v = m.type->arguments();
-				bool equals = v.size() == args.size() and std::equal(v.begin(), v.end(), args.begin(), [](const Type* a, const Type* b) {
-					return a->operator == (b);
-				});
-				if (equals) {
-					type = Type::fun(m.type->return_type(), v, (const Value*) this)->pointer();
-					version = v;
-					return;
-				}
+	for (const auto& callable : call.callables) {
+		for (const auto& m : callable->versions) {
+			auto v = m.type->arguments();
+			bool equals = v.size() == args.size() and std::equal(v.begin(), v.end(), args.begin(), [](const Type* a, const Type* b) {
+				return a->operator == (b);
+			});
+			if (equals) {
+				type = Type::fun(m.type->return_type(), v, (const Value*) this)->pointer();
+				version = v;
+				return;
 			}
 		}
 	}
@@ -63,16 +61,14 @@ void ObjectAccess::set_version(SemanticAnalyzer* analyzer, const std::vector<con
 
 const Type* ObjectAccess::version_type(std::vector<const Type*> args) const {
 	// std::cout << "ObjectAccess::version_tyoe(" << args << ")" << std::endl;
-	if (call) {
-		for (const auto& callable : call->callables) {
-			for (const auto& m : callable->versions) {
-				auto version = m.type->arguments();
-				bool equals = version.size() == args.size() and std::equal(version.begin(), version.end(), args.begin(), [](const Type* a, const Type* b) {
-					return a->operator == (b);
-				});
-				if (equals) {
-					return Type::fun(m.type->return_type(), args, (const Value*) this)->pointer();
-				}
+	for (const auto& callable : call.callables) {
+		for (const auto& m : callable->versions) {
+			auto version = m.type->arguments();
+			bool equals = version.size() == args.size() and std::equal(version.begin(), version.end(), args.begin(), [](const Type* a, const Type* b) {
+				return a->operator == (b);
+			});
+			if (equals) {
+				return Type::fun(m.type->return_type(), args, (const Value*) this)->pointer();
 			}
 		}
 	}
@@ -178,7 +174,7 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 			type = Type::fun(method.versions[0].type->return_type(), method.versions[0].type->arguments(), (ObjectAccess*) this)->pointer();
 			default_version_fun = std_class->name + "." + field->content;
 			class_method = true;
-			call = new Call { &method };
+			call = { &method };
 			found = true;
 		}
 	}
