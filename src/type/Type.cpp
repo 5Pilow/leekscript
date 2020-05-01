@@ -149,7 +149,7 @@ const Type* Type::add_temporary() const {
 	} else {
 		type->folded = type;
 	}
-	env.temporary_types.insert({ this, std::unique_ptr<const Type> { type } });
+	env.temporary_types.emplace(this, type);
 	env.not_temporary_types.insert({ type, this });
 	return type;
 }
@@ -198,7 +198,7 @@ const Type* Type::pointer() const {
 		return type;
 	} else {
 		auto type = new Pointer_type(this);
-		env.base_pointer_types.insert({ this, std::unique_ptr<Type> { type } });
+		env.base_pointer_types.emplace(this, type);
 		env.pointer_types.insert({ this, type });
 		return type;
 	}
@@ -330,7 +330,7 @@ const Type* Type::array(const Type* element) {
 	if (i != env.array_types.end()) return i->second.get();
 	auto type = new Array_type(element);
 	type->placeholder = element->placeholder;
-	env.array_types.insert({element, std::unique_ptr<Array_type> { type } });
+	env.array_types.emplace(element, type);
 	return type;
 }
 
@@ -357,7 +357,7 @@ const Type* Type::set(const Type* element) {
 	auto i = env.set_types.find(element);
 	if (i != env.set_types.end()) return i->second.get();
 	auto type = new Set_type(element);
-	env.set_types.insert({element, std::unique_ptr<Set_type> { type }});
+	env.set_types.emplace(element, type);
 	return type;
 }
 const Type* Type::const_set(const Type* element) {
@@ -422,11 +422,11 @@ const Type* Type::fun_object(const Type* return_type, std::vector<const Type*> a
 		auto i = env.function_object_types.find(key);
 		if (i != env.function_object_types.end()) return i->second.get();
 		auto type = new Function_object_type(return_type, arguments);
-		env.function_object_types.insert({ key, std::unique_ptr<const Type> { type } });
+		env.function_object_types.emplace(key, type);
 		return type->add_constant();
 	} else {
 		auto t = new Function_object_type(return_type, arguments, false, function);
-		env.raw_function_types.emplace_back(std::unique_ptr<Type>(t));
+		env.raw_function_types.emplace_back(t);
 		return t->add_constant();
 	}
 }
@@ -437,7 +437,7 @@ const Type* Type::closure(const Type* return_type, std::vector<const Type*> argu
 		auto i = env.closure_types.find(key);
 		if (i != env.closure_types.end()) return i->second.get();
 		auto type = new Function_object_type(return_type, arguments, true);
-		env.closure_types.insert({ key, std::unique_ptr<Function_object_type> { type } });
+		env.closure_types.emplace(key, type);
 		return type->add_constant();
 	} else {
 		auto t = new Function_object_type(return_type, arguments, true, function);
@@ -481,7 +481,7 @@ const Type* Type::compound(std::vector<const Type*> types) {
 		return i->second.get();
 	}
 	auto type = new Compound_type { base, folded };
-	env.compound_types.insert({ base, std::unique_ptr<const Compound_type> { type } });
+	env.compound_types.emplace(base, type);
 	if (temporary) {
 		// std::cout << "temporary" << std::endl;
 		return type->add_temporary();
@@ -523,7 +523,7 @@ const Type* Type::meta_temporary(const Type* base) {
 	auto i = env.meta_temporary_types.find(base);
 	if (i != env.meta_temporary_types.end()) return i->second.get();
 	auto type = new Meta_temporary_type(base);
-	env.meta_temporary_types.insert({type, std::unique_ptr<Type> { type }});
+	env.meta_temporary_types.emplace(type, type);
 	return type;
 }
 
@@ -532,7 +532,7 @@ const Type* Type::meta_not_temporary(const Type* base) {
 	auto i = env.meta_not_temporary_types.find(base);
 	if (i != env.meta_not_temporary_types.end()) return i->second.get();
 	auto type = new Meta_not_temporary_type(base);
-	env.meta_not_temporary_types.insert({type, std::unique_ptr<Type> { type }});
+	env.meta_not_temporary_types.emplace(type, type);
 	return type;
 }
 
@@ -541,7 +541,7 @@ const Type* Type::meta_not_void(const Type* base) {
 	auto i = env.meta_not_void_types.find(base);
 	if (i != env.meta_not_void_types.end()) return i->second.get();
 	auto type = new Meta_not_void_type(base);
-	env.meta_not_void_types.insert({type, std::unique_ptr<Type> { type }});
+	env.meta_not_void_types.emplace(type, type);
 	return type;
 }
 
