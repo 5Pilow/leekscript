@@ -31,6 +31,7 @@ Function::Function(Environment& env, Token* token) : Value(env), token(token) {
 	parent = nullptr;
 	constant = true;
 	function_added = false;
+	callable = std::make_unique<Callable>();
 }
 
 Function::~Function() {
