@@ -5,6 +5,7 @@
 
 #include "../value/Match.hpp"
 #include "../resolver/Resolver.hpp"
+#include "../lexical/LexicalAnalyzer.hpp"
 
 namespace ls {
 
@@ -29,6 +30,7 @@ class Continue;
 
 class SyntaxicAnalyzer {
 
+	LexicalAnalyzer lexical;
 	Resolver* resolver;
 	Token* t;
 	int last_character = 0;

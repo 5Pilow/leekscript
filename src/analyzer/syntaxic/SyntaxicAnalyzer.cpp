@@ -54,7 +54,7 @@ Block* SyntaxicAnalyzer::analyze(File* file) {
 	this->file = file;
 
 	// Call the lexical analyzer to parse tokens
-	file->tokens = LexicalAnalyzer().analyze(file);
+	file->tokens = lexical.analyze(file);
 
 	this->t = &file->tokens.at(0);
 	this->nt = file->tokens.size() > 1 ? &file->tokens.at(1) : nullptr;
