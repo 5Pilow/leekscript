@@ -10,6 +10,7 @@
 #include "../../type/Compound_type.hpp"
 #include "../../type/Function_type.hpp"
 #include "Variable.hpp"
+#include "../value/Phi.hpp"
 #if COMPILER
 #include "../../vm/VM.hpp"
 #include "../../compiler/Compiler.hpp"

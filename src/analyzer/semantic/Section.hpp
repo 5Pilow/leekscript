@@ -26,7 +26,7 @@ public:
 	Block* block = nullptr;
 	std::unordered_map<std::string, Variable*> variables; // Variable in the section by name
 	std::vector<std::unique_ptr<Variable>> variable_list; // All the variables own by the section
-	std::vector<Phi*> phis;
+	std::vector<std::unique_ptr<Phi>> phis;
 	bool is_end_of_block = false;
     #if COMPILER
 	llvm::BasicBlock* first_basic_block = nullptr;

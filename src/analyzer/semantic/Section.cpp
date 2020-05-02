@@ -113,7 +113,7 @@ void Section::pre_analyze(SemanticAnalyzer* analyzer) {
 		variable->phis.push_back(phi);
 		variable2->phis.push_back(phi);
 		// std::cout << "new phi = " << phi << " " << new_var << " " << variable << " " << phi->variable->injected << std::endl;
-		phis.push_back(phi);
+		phis.emplace_back(phi);
 		return true;
 	};
 	if (predecessors.size() == 2) {

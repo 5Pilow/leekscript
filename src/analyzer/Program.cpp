@@ -15,6 +15,7 @@
 #include "../analyzer/semantic/FunctionVersion.hpp"
 #include "../environment/Environment.hpp"
 #include "../analyzer/semantic/Variable.hpp"
+#include "../analyzer/value/Phi.hpp"
 #if COMPILER
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Function.h"

@@ -40,6 +40,7 @@
 #include "../resolver/Resolver.hpp"
 #include "../error/Error.hpp"
 #include "../semantic/FunctionVersion.hpp"
+#include "../value/Phi.hpp"
 
 namespace ls {
 
