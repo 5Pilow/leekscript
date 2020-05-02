@@ -431,40 +431,40 @@ Compiler::value MapSTD::fold_left(Compiler& c, std::vector<Compiler::value> args
 	auto function = args[1];
 	auto init_type = function.t->argument(0);
 	auto result = Variable::new_temporary("r", init_type);
-	result->create_entry(c);
-	c.insn_store(result->entry, c.insn_convert(c.insn_move(args[2]), init_type));
-	c.add_temporary_variable(result);
+	result.create_entry(c);
+	c.insn_store(result.entry, c.insn_convert(c.insn_move(args[2]), init_type));
+	// c.add_temporary_variable(&result);
 	auto v = Variable::new_temporary("v", args[0].t->element());
 	auto k = Variable::new_temporary("k", args[0].t->key());
 	// v->create_entry(c);
 	// k->create_entry(c);
 	// c.add_temporary_variable(v);
 	// c.add_temporary_variable(k);
-	c.insn_foreach(args[0], c.env.void_, v, k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
-		c.insn_store(result->entry, c.insn_call(function, {c.insn_load(result->entry), k, v}));
+	c.insn_foreach(args[0], c.env.void_, &v, &k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
+		c.insn_store(result.entry, c.insn_call(function, {c.insn_load(result.entry), k, v}));
 		return { c.env };
 	});
-	return c.insn_load(result->entry);
+	return c.insn_load(result.entry);
 }
 
 Compiler::value MapSTD::fold_right(Compiler& c, std::vector<Compiler::value> args, int) {
 	auto function = args[1];
 	auto init_type = function.t->argument(2);
 	auto result = Variable::new_temporary("r", init_type);
-	result->create_entry(c);
-	c.insn_store(result->entry, c.insn_convert(c.insn_move(args[2]), init_type));
-	c.add_temporary_variable(result);
+	result.create_entry(c);
+	c.insn_store(result.entry, c.insn_convert(c.insn_move(args[2]), init_type));
+	// c.add_temporary_variable(&result);
 	auto v = Variable::new_temporary("v", args[0].t->element());
 	auto k = Variable::new_temporary("k", args[0].t->key());
 	// v->create_entry(c);
 	// k->create_entry(c);
 	// c.add_temporary_variable(v);
 	// c.add_temporary_variable(k);
-	c.insn_foreach(args[0], c.env.void_, v, k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
-		c.insn_store(result->entry, c.insn_call(function, {k, v, c.insn_load(result->entry)}));
+	c.insn_foreach(args[0], c.env.void_, &v, &k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
+		c.insn_store(result.entry, c.insn_call(function, {k, v, c.insn_load(result.entry)}));
 		return { c.env };
 	}, true);
-	return c.insn_load(result->entry);
+	return c.insn_load(result.entry);
 }
 
 Compiler::value MapSTD::iter(Compiler& c, std::vector<Compiler::value> args, int) {
@@ -475,7 +475,7 @@ Compiler::value MapSTD::iter(Compiler& c, std::vector<Compiler::value> args, int
 	// k->create_entry(c);
 	// c.add_temporary_variable(v);
 	// c.add_temporary_variable(k);
-	c.insn_foreach(args[0], c.env.void_, v, k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
+	c.insn_foreach(args[0], c.env.void_, &v, &k, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
 		return c.insn_call(function, {k, v});
 	});
 	return { c.env };

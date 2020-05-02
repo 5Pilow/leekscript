@@ -77,7 +77,7 @@ public:
 	void delete_value(Compiler& c);
 	#endif
 
-	static Variable* new_temporary(std::string name, const Type* type);
+	static Variable new_temporary(std::string name, const Type* type);
 	static const Type* get_type_for_variable_from_expression(Environment& env, const Value* value);
 };
 
