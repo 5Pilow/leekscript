@@ -55,7 +55,7 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 
 	main_token.reset(new Token { TokenType::FUNCTION, main_file.get(), 0, 0, 0, "function" });
 	main = std::make_unique<Function>(env, main_token.get());
-	main->body = block;
+	main->body.reset(block);
 	main->is_main_function = true;
 	main->name = "main";
 
@@ -224,7 +224,7 @@ Variable* Program::get_operator(const std::string& name) {
 	auto f = new Function(env, token);
 	f->addArgument(new Token(TokenType::IDENT, main_file.get(), 0, 1, 0, "x"), nullptr);
 	f->addArgument(new Token(TokenType::IDENT, main_file.get(), 2, 1, 2, "y"), nullptr);
-	f->body = new Block(env, true);
+	f->body.reset(new Block(env, true));
 	auto ex = std::make_unique<Expression>(env);
 	ex->v1 = std::make_unique<VariableValue>(env, new Token(TokenType::IDENT, main_file.get(), 0, 1, 0, "x"));
 	ex->v2 = std::make_unique<VariableValue>(env, new Token(TokenType::IDENT, main_file.get(), 2, 1, 2, "y"));

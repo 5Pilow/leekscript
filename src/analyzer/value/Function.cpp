@@ -85,7 +85,7 @@ void Function::create_default_version(SemanticAnalyzer* analyzer) {
 	if (default_version) return;
 	auto& env = analyzer->env;
 
-	default_version = new FunctionVersion(analyzer->env, std::unique_ptr<Block>(body));
+	default_version = new FunctionVersion(analyzer->env, std::move(body));
 	default_version->parent = this;
 
 	std::vector<const Type*> args;

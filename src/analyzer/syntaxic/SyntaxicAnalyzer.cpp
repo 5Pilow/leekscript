@@ -395,7 +395,7 @@ Function* SyntaxicAnalyzer::eatFunction(Block* block, Token* token) {
 		braces = true;
 	}
 
-	f->body = eatBlock(nullptr, true);
+	f->body.reset(eatBlock(nullptr, true));
 
 	if (!braces) {
 		eat(TokenType::END);
@@ -801,8 +801,8 @@ Value* SyntaxicAnalyzer::eatValue(Block* block, bool comma_list) {
 			auto token = eat_get(TokenType::ARROW);
 			Function* l = new Function(env, token);
 			l->lambda = true;
-			l->body = new Block(env, true);
-			l->body->add_instruction(new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression(l->body))));
+			l->body = std::make_unique<Block>(env, true);
+			l->body->add_instruction(new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression(l->body.get()))));
 			return l;
 		}
 
@@ -935,8 +935,8 @@ Value* SyntaxicAnalyzer::eatLambdaContinue(Block* block, bool parenthesis, Ident
 	}
 	auto token = eat_get(TokenType::ARROW);
 	l->token = token;
-	l->body = new Block(env, true);
-	l->body->add_instruction(new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression(l->body, false, false, nullptr, comma_list))));
+	l->body = std::make_unique<Block>(env, true);
+	l->body->add_instruction(new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression(l->body.get(), false, false, nullptr, comma_list))));
 	if (parenthesis) {
 		eat(TokenType::CLOSING_PARENTHESIS);
 	}

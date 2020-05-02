@@ -23,7 +23,7 @@ public:
 	Token* token;
 	std::vector<Token*> arguments;
 	std::vector<std::unique_ptr<Value>> defaultValues;
-	Block* body;
+	std::unique_ptr<Block> body;
 
 	bool function_added;
 	Function* parent;
