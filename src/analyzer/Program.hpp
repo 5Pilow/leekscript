@@ -29,7 +29,7 @@ public:
 	const Type* type;
 	std::vector<Function*> functions;
 	std::string file_name;
-	std::unordered_map<std::string, Variable*> operators;
+	std::unordered_map<std::string, std::unique_ptr<Variable>> operators;
 	std::unique_ptr<File> main_file;
 	Context* context = nullptr;
 	Result result;

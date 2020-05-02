@@ -18,7 +18,7 @@ Block::Block(Environment& env, bool is_function_block, bool init_first_section) 
 #endif
 {
 	if (init_first_section) {
-		sections.emplace_back(new Section { env, "block", this });
+		sections.push_back(std::make_unique<Section>(env, "block", this));
 		end_section = sections.back().get();
 		sections.back()->is_end_of_block = true;
 	}

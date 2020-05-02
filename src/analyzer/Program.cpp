@@ -212,7 +212,7 @@ Variable* Program::get_operator(const std::string& name) {
 
 	auto op = operators.find(name);
 	if (op != operators.end()) {
-		return op->second;
+		return op->second.get();
 	}
 
 	std::vector<std::string> ops = {"+", "-", "*", "×", "/", "÷", "**", "%", "\\", "~", ">", "<", ">=", "<="};
@@ -234,7 +234,7 @@ Variable* Program::get_operator(const std::string& name) {
 	auto type = Type::fun(env.any, { env.any, env.any });
 
 	auto var = new Variable(name, VarScope::INTERNAL, type, 0, f, nullptr, nullptr, nullptr, nullptr);
-	operators.insert({name, var});
+	operators.emplace(name, var);
 	return var;
 }
 
