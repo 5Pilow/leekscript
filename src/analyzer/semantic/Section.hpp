@@ -24,7 +24,8 @@ public:
     std::vector<Section*> predecessors;
     std::vector<Section*> successors;
 	Block* block = nullptr;
-	std::unordered_map<std::string, Variable*> variables;
+	std::unordered_map<std::string, Variable*> variables; // Variable in the section by name
+	std::vector<std::unique_ptr<Variable>> variable_list; // All the variables own by the section
 	std::vector<Phi*> phis;
 	bool is_end_of_block = false;
     #if COMPILER

@@ -207,11 +207,12 @@ Variable* SemanticAnalyzer::add_var(Token* v, const Type* type, Value* value) {
 		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
 		return nullptr;
 	}
-	auto var = new Variable(v->content, VarScope::LOCAL, type, 0, value, current_function(), current_block(), current_section(), nullptr);
 
-	block->variables.insert({ v->content, var });
+	auto var = new Variable(v->content, VarScope::LOCAL, type, 0, value, current_function(), current_block(), current_section(), nullptr);
+	block->variables.emplace(v->content, var);
 	assert(current_section());
-	current_section()->variables.insert({ v->content, var });
+	current_section()->variables.emplace(v->content, var);
+	current_section()->variable_list.emplace_back(var);
 	// std::cout << "var " << v->content << " added in " << block->sections.back()->id << std::endl;
 
 	return var;
@@ -324,6 +325,7 @@ Variable* SemanticAnalyzer::update_var(Variable* variable, bool add_mutation) {
 		// current_function()->arguments[new_variable->name] = new_variable;
 	} else {
 		current_section()->variables[new_variable->name] = new_variable;
+		current_section()->variable_list.emplace_back(new_variable);
 	}
 	// Ajout d'une mutation
 	if (in_loop(1) && add_mutation) {
