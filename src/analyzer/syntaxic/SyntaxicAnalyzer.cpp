@@ -1314,7 +1314,7 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 		current_section->successors.push_back(wrapper_section);
 
 		loops.push_back(f);
-		f->condition_section = new Section(env, "condition");
+		f->condition_section = std::make_unique<Section>(env, "condition");
 		f->end_section = new Section(env, "end");
 
 		if (t->type == TokenType::LET or t->type == TokenType::VAR) eat();
@@ -1332,32 +1332,32 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 		f->container = std::unique_ptr<Value>(eatExpression(f->wrapper_block.get()));
 
 		if (f->container->jumping) {
-			f->container->set_end_section(f->condition_section);
+			f->container->set_end_section(f->condition_section.get());
 		} else {
 			f->condition_section->predecessors.push_back(wrapper_section);
-			wrapper_section->successors.push_back(f->condition_section);
+			wrapper_section->successors.push_back(f->condition_section.get());
 		}
 
 		if (parenthesis)
 			eat(TokenType::CLOSING_PARENTHESIS);
 
-		f->increment_section = new Section(env, "increment");
-		f->continue_section = f->increment_section;
+		f->increment_section = std::make_unique<Section>(env, "increment");
+		f->continue_section = f->increment_section.get();
 
 		// body
 		if (t->type == TokenType::OPEN_BRACE) {
-			f->body = std::unique_ptr<Block>(eatBlock(block, false, false, f->condition_section, f->increment_section));
+			f->body = std::unique_ptr<Block>(eatBlock(block, false, false, f->condition_section.get(), f->increment_section.get()));
 		} else {
 			eat(TokenType::DO);
-			f->body = std::unique_ptr<Block>(eatBlock(block, false, false, f->condition_section, f->increment_section));
+			f->body = std::unique_ptr<Block>(eatBlock(block, false, false, f->condition_section.get(), f->increment_section.get()));
 			eat(TokenType::END);
 		}
 
 		f->condition_section->successors.push_back(f->end_section);
-		f->end_section->predecessors.push_back(f->condition_section);
+		f->end_section->predecessors.push_back(f->condition_section.get());
 
-		f->increment_section->successors.push_back(f->condition_section);
-		f->condition_section->predecessors.push_back(f->increment_section);
+		f->increment_section->successors.push_back(f->condition_section.get());
+		f->condition_section->predecessors.push_back(f->increment_section.get());
 
 		loops.pop_back();
 		return f;

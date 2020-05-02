@@ -154,7 +154,7 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 		mode = ForeachMode::ADDRESS;
 	}
 
-	analyzer->enter_section(condition_section);
+	analyzer->enter_section(condition_section.get());
 	condition_section->analyze(analyzer);
 	analyzer->leave_section();
 
@@ -195,7 +195,7 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 			mode = ForeachMode::ADDRESS;
 		}
 
-		analyzer->enter_section(condition_section);
+		analyzer->enter_section(condition_section.get());
 		condition_section->analyze(analyzer);
 		analyzer->leave_section();
 
@@ -264,7 +264,7 @@ Compiler::value Foreach::compile(Compiler& c) const {
 	}
 
 	// cond label:
-	c.enter_section(condition_section);
+	c.enter_section(condition_section.get());
 
 	// Condition to continue
 	auto finished = c.iterator_end(container_v, it);
@@ -305,7 +305,7 @@ Compiler::value Foreach::compile(Compiler& c) const {
 	c.leave_loop();
 
 	// it++
-	c.enter_section(increment_section);
+	c.enter_section(increment_section.get());
 	c.iterator_increment(container_v.t, it);
 	c.leave_section();
 
@@ -334,31 +334,31 @@ std::unique_ptr<Instruction> Foreach::clone(Block* parent) const {
 	wrapper_section->predecessors.push_back(current_section);
 	current_section->successors.push_back(wrapper_section);
 
-	f->condition_section = new Section(type->env, "condition");
+	f->condition_section = std::make_unique<Section>(type->env, "condition");
 	f->end_section = new Section(type->env, "end");
 
 	if (f->container->jumping) {
-		f->container->set_end_section(f->condition_section);
+		f->container->set_end_section(f->condition_section.get());
 	} else {
 		f->condition_section->predecessors.push_back(wrapper_section);
-		wrapper_section->successors.push_back(f->condition_section);
+		wrapper_section->successors.push_back(f->condition_section.get());
 	}
 
-	f->increment_section = new Section(type->env, "increment");
-	f->continue_section = f->increment_section;
+	f->increment_section = std::make_unique<Section>(type->env, "increment");
+	f->continue_section = f->increment_section.get();
 
 	f->body = unique_static_cast<Block>(body->clone(nullptr));
 
-	f->body->sections.front()->add_predecessor(f->condition_section);
+	f->body->sections.front()->add_predecessor(f->condition_section.get());
 	f->condition_section->add_successor(f->body->sections.front().get());
 
-	f->body->set_end_section(f->increment_section);
+	f->body->set_end_section(f->increment_section.get());
 
 	f->condition_section->successors.push_back(f->end_section);
-	f->end_section->predecessors.push_back(f->condition_section);
+	f->end_section->predecessors.push_back(f->condition_section.get());
 
-	f->increment_section->successors.push_back(f->condition_section);
-	f->condition_section->predecessors.push_back(f->increment_section);
+	f->increment_section->successors.push_back(f->condition_section.get());
+	f->condition_section->predecessors.push_back(f->increment_section.get());
 
 	return f;
 }
