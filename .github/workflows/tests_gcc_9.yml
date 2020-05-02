@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Tests GCC 9
 
 on:
   push:
