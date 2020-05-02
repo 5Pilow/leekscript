@@ -28,8 +28,8 @@ public:
 	bool function_added;
 	Function* parent;
 	bool is_main_function = false;
-	FunctionVersion* default_version = nullptr;
-	std::map<std::vector<const Type*>, FunctionVersion*> versions;
+	std::unique_ptr<FunctionVersion> default_version;
+	std::map<std::vector<const Type*>, std::unique_ptr<FunctionVersion>> versions;
 	bool generate_default_version = false;
 	FunctionVersion* current_version = nullptr;
 	bool analyzed = false;
@@ -40,7 +40,6 @@ public:
 	std::unique_ptr<Callable> callable;
 
 	Function(Environment& env, Token* token);
-	virtual ~Function();
 
 	void addArgument(Token* token, Value* defaultValue);
 

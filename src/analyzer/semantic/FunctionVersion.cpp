@@ -173,7 +173,7 @@ void FunctionVersion::analyze(SemanticAnalyzer* analyzer, const std::vector<cons
 	// std::cout << "return type = " << return_type << std::endl;
 
 	// Default version of the function, the return type must be any
-	if (not return_type->is_void() and not parent->is_main_function and this == parent->default_version and parent->generate_default_version) {
+	if (not return_type->is_void() and not parent->is_main_function and this == parent->default_version.get() and parent->generate_default_version) {
 		return_type = env.any;
 	}
 	if (return_type->is_function()) {
@@ -219,7 +219,7 @@ Variable* FunctionVersion::capture(SemanticAnalyzer* analyzer, Variable* var) {
 	// std::cout << "var->function->parent " << (void*)var->function->parent << " parent->parent " << (void*)parent->parent << std::endl;
 	if (var->function->parent == parent->parent) {
 		// std::cout << "Capture from parent" << std::endl;
-		auto parent_version = parent->parent->current_version ? parent->parent->current_version : parent->parent->default_version;
+		auto parent_version = parent->parent->current_version ? parent->parent->current_version : parent->parent->default_version.get();
 		analyzer->enter_function(parent_version);
 		analyzer->enter_block(parent_version->body.get());
 		analyzer->enter_section(parent_version->body->sections.front().get());
@@ -244,7 +244,7 @@ Variable* FunctionVersion::capture(SemanticAnalyzer* analyzer, Variable* var) {
 		// std::cout << "var->function->parent " << var->function->parent << std::endl << "parent->parent " << parent->parent << std::endl << std::endl;
 		// std::cout << "Capture by parent" << std::endl;
 		// std::cout << "parents versions " << parent->parent->versions.size() << std::endl;
-		auto parent_version = parent->parent->current_version ? parent->parent->current_version : parent->parent->default_version;
+		auto parent_version = parent->parent->current_version ? parent->parent->current_version : parent->parent->default_version.get();
 		analyzer->enter_function(parent_version);
 		analyzer->enter_block(parent_version->body.get());
 		analyzer->enter_section(parent_version->body->sections.front().get());

@@ -34,16 +34,6 @@ Function::Function(Environment& env, Token* token) : Value(env), token(token) {
 	callable = std::make_unique<Callable>();
 }
 
-Function::~Function() {
-	if (default_version != nullptr) {
-		delete default_version;
-		default_version = nullptr;
-	}
-	for (const auto& version : versions) {
-		delete version.second;
-	}
-}
-
 void Function::addArgument(Token* name, Value* defaultValue) {
 	arguments.push_back(name);
 	defaultValues.emplace_back(defaultValue);
@@ -85,7 +75,7 @@ void Function::create_default_version(SemanticAnalyzer* analyzer) {
 	if (default_version) return;
 	auto& env = analyzer->env;
 
-	default_version = new FunctionVersion(analyzer->env, std::move(body));
+	default_version = std::make_unique<FunctionVersion>(analyzer->env, std::move(body));
 	default_version->parent = this;
 
 	std::vector<const Type*> args;
@@ -103,7 +93,7 @@ void Function::create_default_version(SemanticAnalyzer* analyzer) {
 	default_version->type = Type::fun(default_version->getReturnType(env), args, this);
 
 	int flags = default_version->body->throws ? Module::THROWS : 0;
-	callable->add_version({ "<default>", default_version->type, default_version, {}, {}, false, false, false, flags });
+	callable->add_version({ "<default>", default_version->type, default_version.get(), {}, {}, false, false, false, flags });
 }
 
 void Function::pre_analyze(SemanticAnalyzer* analyzer) {
@@ -116,7 +106,7 @@ void Function::pre_analyze(SemanticAnalyzer* analyzer) {
 
 	create_default_version(analyzer);
 
-	current_version = default_version;
+	current_version = default_version.get();
 	default_version->pre_analyze(analyzer, default_version->type->arguments());
 }
 
@@ -181,7 +171,7 @@ void Function::create_version(SemanticAnalyzer* analyzer, const std::vector<cons
 	// std::cout << "Function::create_version(" << args << ")" << std::endl;
 	auto version = new FunctionVersion(analyzer->env, unique_static_cast<Block>(default_version->body->clone(nullptr)));
 	version->parent = this;
-	versions.insert({args, version});
+	versions.emplace(args, version);
 
 	int flags = version->body->throws ? Module::THROWS : 0;
 	callable->add_version({ "<version>", version->type, version, {}, {}, false, false, false, flags });
@@ -210,7 +200,7 @@ const Type* Function::will_take(SemanticAnalyzer* analyzer, const std::vector<co
 		}
 		return v->second->type;
 	} else {
-		auto v = current_version ? current_version : default_version;
+		auto v = current_version ? current_version : default_version.get();
 		if (auto ei = dynamic_cast<ExpressionInstruction*>(v->body->sections[0]->instructions[0])) {
 			if (auto f = dynamic_cast<Function*>(ei->value.get())) {
 
@@ -245,7 +235,7 @@ void Function::set_version(SemanticAnalyzer* analyzer, const std::vector<const T
 		}
 		has_version = true;
 	} else {
-		auto v = current_version ? current_version : default_version;
+		auto v = current_version ? current_version : default_version.get();
 		if (auto ei = dynamic_cast<ExpressionInstruction*>(v->body->sections[0]->instructions[0])) {
 			if (auto f = dynamic_cast<Function*>(ei->value.get())) {
 				f->set_version(analyzer, args, level - 1);
@@ -322,7 +312,7 @@ Compiler::value Function::compile_version(Compiler& c, std::vector<const Type*> 
 		std::cout << "/!\\ Version " << args << " not found!" << std::endl;
 		assert(false);
 	}
-	auto version = versions.at(full_args);
+	auto version = versions.at(full_args).get();
 	// Compile version if needed
 	return version->compile(c);
 }
@@ -366,7 +356,7 @@ std::unique_ptr<Value> Function::clone(Block* parent) const {
 	auto f = std::make_unique<Function>(type->env, token);
 	f->lambda = lambda;
 	f->name = name;
-	f->default_version = new FunctionVersion(type->env, unique_static_cast<Block>(default_version->body->clone(nullptr)));
+	f->default_version.reset(new FunctionVersion(type->env, unique_static_cast<Block>(default_version->body->clone(nullptr))));
 	f->default_version->parent = f.get();
 	f->default_version->type = default_version->type;
 	for (const auto& a : arguments) {
@@ -385,7 +375,7 @@ std::unique_ptr<Value> Function::clone(Block* parent) const {
 		v2->parent = f.get();
 		v2->type = v.second->type;
 		v2->recursive = v.second->recursive;
-		f->versions.insert({v.first, v2});
+		f->versions.emplace(v.first, v2);
 	}
 	return f;
 }

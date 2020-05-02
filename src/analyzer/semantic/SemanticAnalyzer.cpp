@@ -28,7 +28,7 @@ void SemanticAnalyzer::analyze(Program* program) {
 	this->program = program;
 
 	program->main->create_default_version(this);
-	enter_function(program->main->default_version);
+	enter_function(program->main->default_version.get());
 	enter_block(program->main->default_version->body.get());
 
 	enter_section(program->main->default_version->body->sections.front().get());
