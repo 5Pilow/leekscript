@@ -101,7 +101,7 @@ $(BUILD_DIR):
 
 # Build test target
 build/leekscript-test: $(BUILD_DIR) $(OBJ) $(OBJ_TEST)
-	$(COMPILER) $(FLAGS) -o build/leekscript-test $(OBJ) $(OBJ_TEST) $(LIBS)
+	$(COMPILER) $(FLAGS) $(FLAGS_TEST) -o build/leekscript-test $(OBJ) $(OBJ_TEST) $(LIBS)
 	@echo "--------------------------"
 	@echo "Build (test) finished!"
 	@echo "--------------------------"
@@ -164,13 +164,12 @@ install: lib
 
 # Build with coverage flags enabled
 build/leekscript-coverage: $(BUILD_DIR) $(OBJ_COVERAGE) $(OBJ_TEST)
-	$(COMPILER) $(FLAGS) -fprofile-arcs -ftest-coverage -o build/leekscript-coverage $(OBJ_COVERAGE) $(OBJ_TEST) $(LIBS)
+	$(COMPILER) $(FLAGS) $(FLAGS_TEST) -fprofile-arcs -ftest-coverage -o build/leekscript-coverage $(OBJ_COVERAGE) $(OBJ_TEST) $(LIBS)
 	@echo "--------------------------"
 	@echo "Build (coverage) finished!"
 	@echo "--------------------------"
 
 # Run tests
-test: FLAGS += $(FLAGS_TEST)
 test: build/leekscript-test
 	@build/leekscript-test
 
@@ -225,7 +224,6 @@ travis-pr:
 
 # Coverage results with lcov.
 # `apt install lcov`
-coverage: FLAGS += $(FLAGS_TEST)
 coverage: build/leekscript-coverage
 	mkdir -p build/html
 	lcov --quiet --no-external --rc lcov_branch_coverage=1 --capture --initial --directory build/coverage/src --base-directory src --output-file build/html/app.info
@@ -233,7 +231,6 @@ coverage: build/leekscript-coverage
 	lcov --quiet --no-external --rc lcov_branch_coverage=1 --capture --directory build/coverage/src --base-directory src --output-file build/html/app.info
 	cd build/html; genhtml --ignore-errors source --legend --precision 2 --branch-coverage app.info
 
-coverage-travis: FLAGS += $(FLAGS_TEST)
 coverage-travis: build/leekscript-coverage
 
 demangle-coverage:
