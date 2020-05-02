@@ -222,7 +222,7 @@ Variable* FunctionVersion::capture(SemanticAnalyzer* analyzer, Variable* var) {
 		auto parent_version = parent->parent->current_version ? parent->parent->current_version : parent->parent->default_version;
 		analyzer->enter_function(parent_version);
 		analyzer->enter_block(parent_version->body.get());
-		analyzer->enter_section(parent_version->body->sections.front());
+		analyzer->enter_section(parent_version->body->sections.front().get());
 		auto converted_var = analyzer->update_var(var);
 		converted_var->injected = true;
 		analyzer->leave_section();
@@ -247,7 +247,7 @@ Variable* FunctionVersion::capture(SemanticAnalyzer* analyzer, Variable* var) {
 		auto parent_version = parent->parent->current_version ? parent->parent->current_version : parent->parent->default_version;
 		analyzer->enter_function(parent_version);
 		analyzer->enter_block(parent_version->body.get());
-		analyzer->enter_section(parent_version->body->sections.front());
+		analyzer->enter_section(parent_version->body->sections.front().get());
 		auto capture_in_parent = parent_version->capture(analyzer, var);
 		analyzer->leave_section();
 		analyzer->leave_block();
@@ -326,7 +326,7 @@ Compiler::value FunctionVersion::compile(Compiler& c, bool compile_body) {
 
 		c.enter_function((llvm::Function*) fun.v, parent->captures.size() > 0, this);
 
-		c.enter_section(body->sections.front(), false);
+		c.enter_section(body->sections.front().get(), false);
 		// c.builder.SetInsertPoint(block);
 
 		// Declare context vars

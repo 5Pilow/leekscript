@@ -63,12 +63,12 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 
 	analyzer->enter_loop((Instruction*) this);
 
-	analyzer->enter_section(wrapper_block->sections.front());
+	analyzer->enter_section(wrapper_block->sections.front().get());
 	container->pre_analyze(analyzer);
 
 	if (not value_var) {
 		analyzer->enter_block(body.get());
-		analyzer->enter_section(body->sections.front());
+		analyzer->enter_section(body->sections.front().get());
 		if (key != nullptr) {
 			key_var = analyzer->add_var(key, env.void_, nullptr);
 			key_var->injected = key_var->loop_variable = true;
@@ -93,7 +93,7 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 		mutations.clear(); // Va être re-rempli par la seconde analyse
 
 		wrapper_block->sections.front()->variables.clear();
-		analyzer->enter_section(wrapper_block->sections.front());
+		analyzer->enter_section(wrapper_block->sections.front().get());
 		container->pre_analyze(analyzer);
 
 		condition_section->pre_analyze(analyzer);
@@ -128,7 +128,7 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 		body->is_void = true;
 	}
 	analyzer->enter_block(wrapper_block.get());
-	analyzer->enter_section(wrapper_block->sections.front());
+	analyzer->enter_section(wrapper_block->sections.front().get());
 
 	container->analyze(analyzer);
 	throws = container->throws;
@@ -177,7 +177,7 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 		analyzer->enter_block(wrapper_block.get());
 
 		// Re-analyze container
-		analyzer->enter_section(wrapper_block->sections.front());
+		analyzer->enter_section(wrapper_block->sections.front().get());
 		container->analyze(analyzer);
 		analyzer->leave_section();
 
@@ -229,7 +229,7 @@ Hover Foreach::hover(SemanticAnalyzer& analyzer, size_t position) const {
 Compiler::value Foreach::compile(Compiler& c) const {
 
 	c.enter_block(wrapper_block.get());
-	c.enter_section(wrapper_block->sections.front());
+	c.enter_section(wrapper_block->sections.front().get());
 
 	auto container_v = container->compile(c);
 	if (mode == ForeachMode::COPY) {
@@ -326,10 +326,10 @@ std::unique_ptr<Instruction> Foreach::clone(Block* parent) const {
 	f->value = value;
 	f->container = container->clone(f->wrapper_block.get());
 
-	auto wrapper_section = f->wrapper_block->sections[0];
+	auto wrapper_section = f->wrapper_block->sections[0].get();
 	wrapper_section->name = "wrapper";
 
-	auto current_section = parent->sections.back();
+	auto current_section = parent->sections.back().get();
 
 	wrapper_section->predecessors.push_back(current_section);
 	current_section->successors.push_back(wrapper_section);
@@ -350,7 +350,7 @@ std::unique_ptr<Instruction> Foreach::clone(Block* parent) const {
 	f->body = unique_static_cast<Block>(body->clone(nullptr));
 
 	f->body->sections.front()->add_predecessor(f->condition_section);
-	f->condition_section->add_successor(f->body->sections.front());
+	f->condition_section->add_successor(f->body->sections.front().get());
 
 	f->body->set_end_section(f->increment_section);
 

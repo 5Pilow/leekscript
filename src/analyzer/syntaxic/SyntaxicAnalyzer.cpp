@@ -180,10 +180,10 @@ Block* SyntaxicAnalyzer::blockInit(Block* parent, Section* before, bool is_funct
 
 	auto block = new Block(env, is_function_block);
 
-	auto real_before = before ? before : (parent ? parent->sections.back() : nullptr);
+	auto real_before = before ? before : (parent ? parent->sections.back().get() : nullptr);
 
 	if (real_before) {
-		auto start_section = block->sections.front();
+		auto start_section = block->sections.front().get();
 		real_before->add_successor(start_section);
 		start_section->add_predecessor(real_before);
 	}
@@ -196,7 +196,7 @@ void SyntaxicAnalyzer::blockEnd(Block* block, Section* after) {
 		if (block->sections.back()->successors.size() == 0 and not block->returning) {
 			// std::cout << block->sections.back()->name << " add successor " << after->name << std::endl;
 			block->sections.back()->add_successor(after);
-			after->add_predecessor(block->sections.back());
+			after->add_predecessor(block->sections.back().get());
 		}
 	} else {
 		// auto end_section = new Section(env, "end_block");
@@ -1199,13 +1199,13 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 		or (t1 == ident and (t2 == comma or t2 == colon) and (t3 == var or t3 == let) and t4 == ident and t5 == in)
 		or ((t1 == var or t1 == let) and t2 == ident and (t3 == comma or t3 == colon) and (t4 == var or t4 == let) and t5 == ident and t6 == in);
 
-	auto current_section = block->sections.back();
+	auto current_section = block->sections.back().get();
 
 	if (!is_foreach) {
 
 		auto init_block = new Block(env);
 
-		auto init_section = init_block->sections[0];
+		auto init_section = init_block->sections[0].get();
 		init_section->name = "init";
 
 		init_section->predecessors.push_back(current_section);
@@ -1242,13 +1242,13 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 			f->condition->add_instruction(std::unique_ptr<Instruction>(instruction));
 
 			f->condition->sections.front()->predecessors.push_back(init_section);
-			init_section->successors.push_back(f->condition->sections.front());
+			init_section->successors.push_back(f->condition->sections.front().get());
 		}
 
 		// increment
 		auto increment_block = new Block(env);
 		increment_block->sections.front()->name = "increment";
-		f->continue_section = increment_block->sections.front();
+		f->continue_section = increment_block->sections.front().get();
 		while (true) {
 			if (t->type == TokenType::FINISHED || t->type == TokenType::SEMICOLON || t->type == TokenType::DO || t->type == TokenType::OPEN_BRACE || t->type == TokenType::CLOSING_PARENTHESIS) {
 				break;
@@ -1265,24 +1265,24 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 			eat(TokenType::CLOSING_PARENTHESIS);
 
 		// body
-		auto condition_section = f->condition ? f->condition->sections.front() : init_section;
+		auto condition_section = f->condition ? f->condition->sections.front().get() : init_section;
 		if (t->type == TokenType::OPEN_BRACE) {
-			f->body = std::unique_ptr<Block>(eatBlock(block, false, false, condition_section, f->increment->sections.front()));
+			f->body = std::unique_ptr<Block>(eatBlock(block, false, false, condition_section, f->increment->sections.front().get()));
 		} else if (t->type == TokenType::DO) {
 			eat(TokenType::DO);
-			f->body = std::unique_ptr<Block>(eatBlock(block, false, false, condition_section, f->increment->sections.front()));
+			f->body = std::unique_ptr<Block>(eatBlock(block, false, false, condition_section, f->increment->sections.front().get()));
 			eat(TokenType::END);
 		} else {
 			auto body = blockInit(block, condition_section, false);
 			body->add_instruction(eatInstruction(body));
-			blockEnd(body, f->increment->sections.front());
+			blockEnd(body, f->increment->sections.front().get());
 			f->body = std::unique_ptr<Block>(body);
 		}
 		f->body->sections.front()->name = "body";
 
 		if (f->condition) {
 			f->condition->sections.front()->successors.push_back(f->end_section);
-			f->end_section->predecessors.push_back(f->condition->sections.front());
+			f->end_section->predecessors.push_back(f->condition->sections.front().get());
 		} else {
 			// f->body->sections.front()->predecessors.push_back(init_section);
 			// init_section->successors.push_back(f->body->sections.front());
@@ -1290,11 +1290,11 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 
 		if (not f->increment->returning) {
 			if (f->condition) {
-				f->increment->sections.back()->successors.push_back(f->condition->sections.front());
-				f->condition->sections.front()->predecessors.push_back(f->increment->sections.back());
+				f->increment->sections.back()->successors.push_back(f->condition->sections.front().get());
+				f->condition->sections.front()->predecessors.push_back(f->increment->sections.back().get());
 			} else {
-				f->increment->sections.back()->successors.push_back(f->body->sections.front());
-				f->body->sections.front()->predecessors.push_back(f->increment->sections.back());
+				f->increment->sections.back()->successors.push_back(f->body->sections.front().get());
+				f->body->sections.front()->predecessors.push_back(f->increment->sections.back().get());
 			}
 		}
 
@@ -1307,7 +1307,7 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 		auto f = new Foreach(env);
 		f->token = for_token;
 
-		auto wrapper_section = f->wrapper_block->sections[0];
+		auto wrapper_section = f->wrapper_block->sections[0].get();
 		wrapper_section->name = "wrapper";
 
 		wrapper_section->predecessors.push_back(current_section);
@@ -1368,7 +1368,7 @@ Instruction* SyntaxicAnalyzer::eatWhile(Block* block) {
 
 	auto while_token = eat_get(TokenType::WHILE);
 
-	auto current_section = block->sections.back();
+	auto current_section = block->sections.back().get();
 
 	auto w = new While(env);
 	loops.push_back(w);
@@ -1389,10 +1389,10 @@ Instruction* SyntaxicAnalyzer::eatWhile(Block* block) {
 	auto condition_instruction = new ExpressionInstruction(env, std::unique_ptr<Value>(condition_expression));
 	w->condition = std::make_unique<Block>(env);
 	w->condition->add_instruction(std::unique_ptr<Instruction>(condition_instruction));
-	w->continue_section = w->condition->sections.front();
+	w->continue_section = w->condition->sections.front().get();
 	w->condition->sections.front()->name = "condition";
 
-	current_section->add_successor(w->condition->sections.front());
+	current_section->add_successor(w->condition->sections.front().get());
 	w->condition->sections.front()->add_predecessor(current_section);
 
 	if (parenthesis) {
@@ -1404,12 +1404,12 @@ Instruction* SyntaxicAnalyzer::eatWhile(Block* block) {
 		eat(TokenType::DO);
 	}
 
-	w->body = std::unique_ptr<Block>(eatBlock(block, false, false, w->condition->sections.front(), w->condition->sections.front()));
+	w->body = std::unique_ptr<Block>(eatBlock(block, false, false, w->condition->sections.front().get(), w->condition->sections.front().get()));
 
 	// w->condition_section->add_predecessor(w->body->sections.back());
 
 	w->condition->sections.front()->add_successor(w->end_section);
-	w->end_section->add_predecessor(w->condition->sections.front());
+	w->end_section->add_predecessor(w->condition->sections.front().get());
 
 	if (!braces) {
 		eat(TokenType::END);
@@ -1444,7 +1444,7 @@ Break* SyntaxicAnalyzer::eatBreak(Block* block) {
 
 		b->end_section = loop->end_section;
 		block->sections.back()->add_successor(loop->end_section);
-		loop->end_section->add_predecessor(block->sections.back());
+		loop->end_section->add_predecessor(block->sections.back().get());
 	}
 	return b;
 }
@@ -1469,7 +1469,7 @@ Continue* SyntaxicAnalyzer::eatContinue(Block* block) {
 		auto condition = loop->continue_section;
 		c->end_section = condition;
 		block->sections.back()->add_successor(condition);
-		condition->add_predecessor(block->sections.back());
+		condition->add_predecessor(block->sections.back().get());
 	}
 	return c;
 }

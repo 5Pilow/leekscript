@@ -18,8 +18,8 @@ Block::Block(Environment& env, bool is_function_block, bool init_first_section) 
 #endif
 {
 	if (init_first_section) {
-		sections.push_back(new Section { env, "block", this });
-		end_section = sections.back();
+		sections.emplace_back(new Section { env, "block", this });
+		end_section = sections.back().get();
 		sections.back()->is_end_of_block = true;
 	}
 	jumping = true;
@@ -79,12 +79,12 @@ void Block::add_instruction(std::unique_ptr<Instruction> instruction) {
 	if (last->jumping and not last->jump_to_existing_section and not last->throws) {
 		// std::cout << "add end section " << last->end_section << std::endl;
 		if (last->end_section and not last->end_section->is_end_of_block) {
-			sections.push_back(last->end_section);
+			sections.emplace_back(last->end_section);
 			last->end_section->block = this;
 		} else {
 			auto end_section = new Section(last->type->env, "end_block", this);
 			last->set_end_section(end_section);
-			sections.push_back(end_section);
+			sections.emplace_back(end_section);
 		}
 		// end_section = sections.back();
 		// end_section->is_end_of_block = true;
@@ -96,13 +96,13 @@ void Block::add_instruction(std::unique_ptr<Instruction> instruction) {
 
 void Block::set_end_section(Section* end_section) {
 	sections.back()->add_successor(end_section);
-	end_section->add_predecessor(sections.back());
+	end_section->add_predecessor(sections.back().get());
 }
 
 void Block::analyze_global_functions(SemanticAnalyzer* analyzer) {
 	analyzer->enter_block(this);
 	for (const auto& section : sections) {
-		analyzer->enter_section(section);
+		analyzer->enter_section(section.get());
 		for (const auto& instruction : section->instructions) {
 			if (auto vd = dynamic_cast<const VariableDeclaration*>(instruction)) {
 				vd->analyze_global_functions(analyzer);
@@ -156,7 +156,7 @@ void Block::analyze(SemanticAnalyzer* analyzer) {
 		const auto& section = sections[s];
 		auto last_section = (s == sections.size() - 1) or (s == sections.size() - 2 and sections.back()->instructions.size() == 0);
 		// std::cout << "instruction " << s << " " << last_section << std::endl;
-		analyzer->enter_section(section);
+		analyzer->enter_section(section.get());
 		section->analyze(analyzer);
 		for (unsigned i = 0; i < section->instructions.size(); ++i) {
 			const auto& instruction = section->instructions.at(i);
@@ -175,7 +175,7 @@ void Block::analyze(SemanticAnalyzer* analyzer) {
 				break; // no need to analyze after a return
 			}
 		}
-		if (s < sections.size() - 1 and analyzer->sections.back().size() and analyzer->current_section() == section) {
+		if (s < sections.size() - 1 and analyzer->sections.back().size() and analyzer->current_section() == section.get()) {
 			analyzer->leave_section();
 		}
 	}
@@ -262,7 +262,7 @@ Compiler::value Block::compile(Compiler& c) const {
 	bool has_returned = false;
 
 	for (unsigned s = 0; s < sections.size(); ++s) {
-		const auto& section = sections[s];
+		const auto& section = sections[s].get();
 		auto last_section = s == sections.size() - 1;
 		auto pre_last_section = s == sections.size() - 2;
 		c.enter_section(section);
@@ -335,7 +335,7 @@ void Block::compile_end(Compiler& c) const {
 	if (not returning and not breaking) {
 		c.delete_variables_block(1);
 	}
-	if (c.current_section() == sections.back()) {
+	if (c.current_section() == sections.back().get()) {
 		c.leave_section(not returning);
 	}
 	c.leave_block(false);
@@ -354,8 +354,8 @@ std::unique_ptr<Value> Block::clone(Block* parent) const {
 		b->add_instruction(instruction->clone(b.get()));
 	}
 	if (parent and parent->sections.size()) {
-		b->sections.front()->add_predecessor(parent->sections.back());
-		parent->sections.back()->add_successor(b->sections.front());
+		b->sections.front()->add_predecessor(parent->sections.back().get());
+		parent->sections.back()->add_successor(b->sections.front().get());
 	}
 	return b;
 }

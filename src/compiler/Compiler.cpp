@@ -2125,7 +2125,7 @@ void Compiler::delete_variables_block(int deepness) {
 		// std::cout << "delete_variables block " << block->sections.front() << " " << block->variables.size() << std::endl;
 		for (const auto& variable : block->variables) {
 			// std::cout << "delete variable " << variable.second << std::endl;
-			auto section = block->sections.back();
+			auto section = block->sections.back().get();
 			while (section) {
 				// std::cout << "section " << section << std::endl;
 				auto it = section->variables.find(variable.first);

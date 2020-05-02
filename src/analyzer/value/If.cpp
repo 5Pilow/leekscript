@@ -131,7 +131,7 @@ Compiler::value If::compile(Compiler& c) const {
 		auto r = [&]() -> Compiler::value { if (type->is_void()) {
 			return { c.env };
 		} else {
-			return c.insn_phi(type, then_v, then->sections.back(), else_v, elze->sections.back());
+			return c.insn_phi(type, then_v, then->sections.back().get(), else_v, elze->sections.back().get());
 		}}();
 		return r;
 	}
@@ -150,11 +150,11 @@ std::unique_ptr<Value> If::clone(Block* parent) const {
 		iff->end_section = new Section(type->env, "end_if");
 		if (not iff->then->returning) {
 			iff->then->sections.back()->add_successor(iff->end_section);
-			iff->end_section->add_predecessor(iff->then->sections.back());
+			iff->end_section->add_predecessor(iff->then->sections.back().get());
 		}
 		if (iff->elze and not iff->elze->returning) {
 			iff->elze->sections.back()->add_successor(iff->end_section);
-			iff->end_section->add_predecessor(iff->elze->sections.back());
+			iff->end_section->add_predecessor(iff->elze->sections.back().get());
 		}
 	}
 	return iff;

@@ -17,7 +17,7 @@ public:
 	Token* opening_brace = nullptr;
 	Token* closing_brace = nullptr;
 	std::vector<std::unique_ptr<Instruction>> instructions;
-	std::vector<Section*> sections;
+	std::vector<std::unique_ptr<Section>> sections;
 	bool is_function_block = false;
 	bool temporary_mpz = false;
 	bool mpz_pointer = false;

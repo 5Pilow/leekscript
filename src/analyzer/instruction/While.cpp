@@ -127,7 +127,7 @@ Compiler::value While::compile(Compiler& c) const {
 	c.insn_delete_temporary(cond);
 	condition->compile_end(c);
 
-	c.enter_loop(end_section, condition->sections.front());
+	c.enter_loop(end_section, condition->sections.front().get());
 	auto body_v = body->compile(c);
 	if (body_v.v) {
 		c.insn_delete_temporary(body_v);
@@ -143,20 +143,20 @@ std::unique_ptr<Instruction> While::clone(Block* parent) const {
 	auto w = std::make_unique<While>(type->env);
 	w->token = token;
 
-	auto current_section = parent->sections.back();
+	auto current_section = parent->sections.back().get();
 
 	w->end_section = new Section(type->env, "end");
 
 	w->condition = unique_static_cast<Block>(condition->clone(parent));
 	w->condition->sections.front()->name = "condition";
-	w->continue_section = w->condition->sections.front();
+	w->continue_section = w->condition->sections.front().get();
 
 	w->body = unique_static_cast<Block>(body->clone(w->condition.get()));
 	w->body->sections.front()->name = "body";
-	w->body->set_end_section(w->condition->sections.front());
+	w->body->set_end_section(w->condition->sections.front().get());
 
 	w->condition->sections.front()->add_successor(w->end_section);
-	w->end_section->add_predecessor(w->condition->sections.front());
+	w->end_section->add_predecessor(w->condition->sections.front().get());
 
 	return w;
 }

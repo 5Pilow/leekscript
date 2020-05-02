@@ -31,7 +31,7 @@ void SemanticAnalyzer::analyze(Program* program) {
 	enter_function(program->main->default_version);
 	enter_block(program->main->default_version->body.get());
 
-	enter_section(program->main->default_version->body->sections.front());
+	enter_section(program->main->default_version->body->sections.front().get());
 
 	// Add context variables
 	if (program->context) {
