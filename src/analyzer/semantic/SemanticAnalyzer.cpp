@@ -249,10 +249,10 @@ Variable* SemanticAnalyzer::add_global_var(Token* v, const Type* type, Value* va
 			return nullptr;
 		}
 	}
-	return blocks.begin()->front()->sections.front()->variables.insert(std::pair<std::string, Variable*>(
-		v->content,
-		new Variable(v->content, VarScope::LOCAL, type, 0, value, current_function(), current_block(), current_section(), nullptr, {}, true)
-	)).first->second;
+	auto& section = blocks.begin()->front()->sections.front();
+	auto& var = section->variable_list.emplace_back(new Variable(v->content, VarScope::LOCAL, type, 0, value, current_function(), current_block(), current_section(), nullptr, {}, true));
+	section->variables.emplace(v->content, var.get());
+	return var.get();
 }
 
 void SemanticAnalyzer::add_function(Function* l) {
