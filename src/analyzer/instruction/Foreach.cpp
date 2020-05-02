@@ -57,7 +57,6 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 	auto& env = analyzer->env;
 
 	mutations.clear();
-	conversions.clear();
 
 	analyzer->enter_block(wrapper_block.get());
 
@@ -85,8 +84,6 @@ void Foreach::pre_analyze(SemanticAnalyzer* analyzer) {
 	body->pre_analyze(analyzer);
 
 	analyzer->leave_loop();
-
-	// std::cout << "conversions: " << conversions.size() << std::endl;
 
 	if (mutations.size()) {
 

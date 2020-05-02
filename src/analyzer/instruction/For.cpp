@@ -13,9 +13,6 @@ For::For(Environment& env) : Instruction(env) {
 }
 
 void For::print(std::ostream& os, int indent, PrintOptions options) const {
-	// for (const auto& conversion : conversions) {
-	// 	os << conversion.first << " " << conversion.first->type << " = (" << conversion.second->type << ") " << conversion.first->parent << " [" << conversion.second << " " << conversion.second->type << "] ";
-	// }
 	os << "for ";
 	if (options.sections) {
 		os << std::endl;
@@ -45,7 +42,6 @@ Location For::location() const {
 void For::pre_analyze(SemanticAnalyzer* analyzer) {
 
 	mutations.clear();
-	conversions.clear();
 	if (condition) {
 		condition->sections.front()->variables.clear();
 	}

@@ -16,7 +16,6 @@ public:
 	Token* token;
 	std::unique_ptr<Block> condition;
 	std::unique_ptr<Block> body;
-	std::vector<std::tuple<Variable*, Variable*, const Section*>> conversions;
 	std::vector<Mutation> mutations;
 
 	While(Environment& env);

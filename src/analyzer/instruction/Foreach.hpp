@@ -49,7 +49,6 @@ public:
 	std::unique_ptr<Value> container;
 	std::unique_ptr<Block> body;
 	std::vector<Mutation> mutations;
-	std::vector<std::tuple<Variable*, Variable*, const Section*>> conversions;
 	std::unique_ptr<Section> condition_section;
 	std::unique_ptr<Section> increment_section;
 
