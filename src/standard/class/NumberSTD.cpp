@@ -45,6 +45,10 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 	 * Constructors
 	 */
 	constructor_({
+		{env.integer, {}, ADDR(new_)},
+		{env.integer, {env.integer}, ADDR(new_integer)},
+		{env.real, {env.real}, ADDR(new_real)},
+		{env.tmp_mpz_ptr, {env.mpz_ptr}, ADDR(new_mpz)},
 		{env.any, {env.real}, ADDR((void*) &LSNumber::get)},
 		{env.any, {env.i8->pointer(), env.tmp_mpz}, ADDR((void*) &LSMpz::get_from_tmp)},
 		{env.any, {env.i8->pointer(), env.mpz}, ADDR((void*) &LSMpz::get_from_mpz)},
@@ -566,6 +570,22 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 }
 
 #if COMPILER
+
+Compiler::value NumberSTD::new_(Compiler& c, std::vector<Compiler::value>, int) {
+	return c.new_integer(0);
+}
+
+Compiler::value NumberSTD::new_integer(Compiler& c, std::vector<Compiler::value> args, int) {
+	return args[0];
+}
+
+Compiler::value NumberSTD::new_real(Compiler& c, std::vector<Compiler::value> args, int) {
+	return args[0];
+}
+
+Compiler::value NumberSTD::new_mpz(Compiler& c, std::vector<Compiler::value> args, int) {
+	return args[0];
+}
 
 Compiler::value NumberSTD::eq_mpz_mpz(Compiler& c, std::vector<Compiler::value> args, int) {
 	auto r = c.insn_eq(c.insn_call(c.env.integer, args, "Number.mpz_cmp"), c.new_integer(0));

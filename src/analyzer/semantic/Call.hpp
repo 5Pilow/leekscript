@@ -28,8 +28,6 @@ public:
 	Call(Callable* callable) : callables({ callable }) {}
 	Call(Callable* callable, const Value* value, Value* object = nullptr) : callables({ callable }), value(value), object(object) {}
 	Call(std::vector<CallableVersionTemplate> versions);
-	Call(std::initializer_list<CallableVersionTemplate> versions);
-	Call(std::initializer_list<CallableVersionTemplate> versions, const Value* value, Value* object = nullptr);
 	void add_callable(Callable* callable);
 
 	CallableVersion resolve(SemanticAnalyzer* analyzer, std::vector<const Type*> arguments) const;

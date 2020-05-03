@@ -90,7 +90,7 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 	constructor_({
 		{env.tmp_string, {}, ADDR((void*) &LSString::constructor_1)},
 		{env.tmp_string, {env.i8_ptr}, ADDR((void*) &LSString::constructor_2)},
-		{env.tmp_string, {env.string}, ADDR((void*) &LSString::constructor_1)},
+		{env.tmp_string, {env.string}, ADDR(new_string)},
 	}, LEGACY);
 
 	/*
@@ -285,6 +285,11 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 StringSTD::~StringSTD() {}
 
 #if COMPILER
+
+Compiler::value StringSTD::new_string(Compiler& c, std::vector<Compiler::value> args, int) {
+	return args[0];
+}
+
 /*
  * Operators
  */

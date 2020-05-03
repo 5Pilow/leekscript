@@ -11,6 +11,8 @@ public:
 
 	#if COMPILER
 
+	static Compiler::value new_(Compiler& c, std::vector<Compiler::value>, int);
+
 	static LSString* add(int boolean, LSString* string);
 	static LSString* add_tmp(int boolean, LSString* string);
 	static Compiler::value add_bool(Compiler& c, std::vector<Compiler::value> args, int);

@@ -29,6 +29,7 @@
 #include "../type/Function_object_type.hpp"
 #include "../analyzer/semantic/Variable.hpp"
 #include "../analyzer/instruction/Foreach.hpp"
+#include "../analyzer/value/Phi.hpp"
 
 namespace ls {
 
@@ -216,16 +217,18 @@ Compiler::value Compiler::new_set() {
 Compiler::value Compiler::new_array(const Type* element_type, std::vector<Compiler::value> elements) {
 	auto folded_type = element_type->fold();
 	auto array_type = Type::tmp_array(element_type);
-	auto array = [&]() { if (folded_type->is_bool()) {
-		return insn_call(array_type, {new_integer(elements.size())}, "Array.new.0");
-	} else if (folded_type->is_integer()) {
+	auto array = [&]() { if (folded_type->is_never()) {
+		return insn_call(array_type, {new_integer(elements.size())}, "Array.new.5");
+	} else if (folded_type->is_bool()) {
 		return insn_call(array_type, {new_integer(elements.size())}, "Array.new.1");
-	} else if (folded_type->is_long()) {
+	} else if (folded_type->is_integer()) {
 		return insn_call(array_type, {new_integer(elements.size())}, "Array.new.2");
-	} else if (folded_type->is_real()) {
+	} else if (folded_type->is_long()) {
 		return insn_call(array_type, {new_integer(elements.size())}, "Array.new.3");
-	} else {
+	} else if (folded_type->is_real()) {
 		return insn_call(array_type, {new_integer(elements.size())}, "Array.new.4");
+	} else {
+		return insn_call(array_type, {new_integer(elements.size())}, "Array.new.5");
 	}}();
 	for (const auto& element : elements) {
 		auto v = insn_move(insn_convert(element, folded_type));
@@ -1000,9 +1003,9 @@ Compiler::value Compiler::insn_to_any(Compiler::value v) {
 		return v; // already any
 	}
 	if (v.t->is_long()) {
-		return insn_call(env.tmp_any, {to_real(v)}, "Number.new");
+		return insn_call(env.tmp_any, {to_real(v)}, "Number.new.4");
 	} else if (v.t->is_real()) {
-		return insn_call(env.tmp_any, {v}, "Number.new");
+		return insn_call(env.tmp_any, {v}, "Number.new.4");
 	} else if (v.t->is_bool()) {
 		if (auto* ci = llvm::dyn_cast<llvm::ConstantInt>(v.v)) {
 			if (ci->equalsInt(0)) return get_symbol("false", env.tmp_any);
@@ -1011,14 +1014,14 @@ Compiler::value Compiler::insn_to_any(Compiler::value v) {
 		return { builder.CreateSelect(v.v, get_symbol("true", env.tmp_any).v, get_symbol("false", env.tmp_any).v), env.tmp_any };
 	} else if (v.t->is_mpz_ptr()) {
 		if (v.t->temporary) {
-			return insn_call(env.tmp_any, {get_vm(), insn_load(v)}, "Number.new.1");
+			return insn_call(env.tmp_any, {get_vm(), insn_load(v)}, "Number.new.5");
 		} else {
-			return insn_call(env.tmp_any, {get_vm(), insn_load(v)}, "Number.new.2");
+			return insn_call(env.tmp_any, {get_vm(), insn_load(v)}, "Number.new.6");
 		}
 	} else if (v.t->is_function_pointer()) {
 		return new_function(v);
 	} else {
-		return insn_call(env.tmp_any, {to_real(v)}, "Number.new");
+		return insn_call(env.tmp_any, {to_real(v)}, "Number.new.4");
 	}
 }
 
@@ -1687,7 +1690,8 @@ Compiler::value Compiler::insn_foreach(Compiler::value container, const Type* ou
 		}
 	}();
 
-	enter_block(new Block(env)); // { for x in [1, 2] {} }<-- this block
+	Block wrapper { env };
+	enter_block(&wrapper); // { for x in [1, 2] {} }<-- this block
 
 	// Potential output [for ...]
 	Compiler::value output_v { env };

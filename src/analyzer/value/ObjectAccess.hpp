@@ -9,6 +9,7 @@
 namespace ls {
 
 class Method;
+class Callable;
 
 class ObjectAccess : public LeftValue {
 public:
@@ -25,6 +26,7 @@ public:
 	std::string native_access_function = "";
 	std::string native_static_access_function = "";
 	const Type* field_type;
+	std::unique_ptr<Callable> callable;
 	#if COMPILER
 	std::function<Compiler::value(Compiler&)> static_access_function = nullptr;
 	std::function<Compiler::value(Compiler&, Compiler::value)> access_function = nullptr;

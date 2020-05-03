@@ -23,6 +23,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	 * Constructor
 	 */
 	constructor_({
+		{Type::tmp_array(env.never), {}, ADDR(new_)},
 		{Type::tmp_array(env.boolean), { env.integer }, ADDR((void*) LSArray<char>::constructor)},
 		{Type::tmp_array(env.integer), {env.integer}, ADDR((void*) LSArray<int>::constructor)},
 		{Type::tmp_array(env.long_), {env.integer}, ADDR((void*) LSArray<long>::constructor)},
@@ -463,6 +464,10 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 }
 
 #if COMPILER
+
+Compiler::value ArraySTD::new_(Compiler& c, std::vector<Compiler::value> args, int) {
+	return c.new_array(c.env.never, {});
+}
 
 Compiler::value ArraySTD::in(Compiler& c, std::vector<Compiler::value> args, int) {
 	const auto& type = args[0].t->element()->fold();

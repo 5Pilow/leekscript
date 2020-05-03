@@ -33,6 +33,7 @@ public:
 	std::string function_name;
 	Call call;
 	CallableVersion callable_version;
+	std::unique_ptr<Callable> callable;
 
 	FunctionCall(Environment& env, Token* t);
 

@@ -9,11 +9,6 @@
 
 namespace ls {
 
-// Call::Call(std::vector<CallableVersion> versions) : callable(new Callable { versions }) {}
-Call::Call(std::initializer_list<CallableVersionTemplate> versions) : callables({ new Callable { versions } }) {}
-
-Call::Call(std::initializer_list<CallableVersionTemplate> versions, const Value* value, Value* object) : callables({ new Callable { versions } }), value(value), object(object) {}
-
 void Call::add_callable(Callable* callable) {
 	callables.push_back(callable);
 }

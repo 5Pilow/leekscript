@@ -11,6 +11,8 @@ public:
 
 	#if COMPILER
 
+	static Compiler::value new_(Compiler& c, std::vector<Compiler::value> args, int);
+
 	static Compiler::value in_any(Compiler& c, std::vector<Compiler::value> args, int);
 	static Compiler::value set_add_eq(Compiler& c, std::vector<Compiler::value> args, int);
 

@@ -28,9 +28,10 @@ SetSTD::SetSTD(Environment& env) : Module(env, "Set") {
 	 * Constructor
 	 */
 	constructor_({
-		{Type::tmp_set(env.any), {}, ADDR((void*) &LSSet<LSValue*>::constructor)},
-		{Type::tmp_set(env.real), {}, ADDR((void*) &LSSet<double>::constructor)},
-		{Type::tmp_set(env.integer), {}, ADDR((void*) &LSSet<int>::constructor)},
+		{Type::tmp_set(env.any), {}, ADDR((void*) &LSSet<LSValue*>::constructor), PRIVATE},
+		{Type::tmp_set(env.real), {}, ADDR((void*) &LSSet<double>::constructor), PRIVATE},
+		{Type::tmp_set(env.integer), {}, ADDR((void*) &LSSet<int>::constructor), PRIVATE},
+		{Type::tmp_set(env.any), {}, ADDR(new_)},
 	});
 
 	/*
@@ -106,6 +107,10 @@ SetSTD::SetSTD(Environment& env) : Module(env, "Set") {
 }
 
 #if COMPILER
+
+Compiler::value SetSTD::new_(Compiler& c, std::vector<Compiler::value> args, int) {
+	return c.new_set();
+}
 
 Compiler::value SetSTD::in_any(Compiler& c, std::vector<Compiler::value> args, int) {
 	return c.insn_call(c.env.any, {args[0], c.insn_to_any(args[1])}, "Value.operatorin");

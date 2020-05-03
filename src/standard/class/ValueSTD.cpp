@@ -429,7 +429,7 @@ ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
  * Static attributes
  */
 Compiler::value ValueSTD::unknown(Compiler& c) {
-	return c.insn_call(c.env.any, {c.new_real(floor(1 + ((double) rand() / RAND_MAX) * 100))}, "Number.new");
+	return c.insn_call(c.env.any, {c.new_real(floor(1 + ((double) rand() / RAND_MAX) * 100))}, "Number.new.4");
 }
 
 /*

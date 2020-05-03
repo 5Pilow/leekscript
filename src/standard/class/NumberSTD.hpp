@@ -20,6 +20,12 @@ public:
 	NumberSTD(Environment& env);
 
 	#if COMPILER
+
+	static Compiler::value new_(Compiler& c, std::vector<Compiler::value>, int);
+	static Compiler::value new_integer(Compiler& c, std::vector<Compiler::value>, int);
+	static Compiler::value new_real(Compiler& c, std::vector<Compiler::value>, int);
+	static Compiler::value new_mpz(Compiler& c, std::vector<Compiler::value>, int);
+
 	/*
 	 * Operators
 	 */

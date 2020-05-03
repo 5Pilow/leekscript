@@ -13,6 +13,8 @@ namespace ls {
 ObjectAccess::ObjectAccess(Environment& env, Token* token) : LeftValue(env), field(token) {
 	attr_addr = nullptr;
 	throws = true; // TODO doesn't always throw
+	callable = std::make_unique<Callable>();
+	callable->add_version({ "<oa>", env.void_, true, {}, {}, true });
 }
 
 ObjectAccess::~ObjectAccess() {}
@@ -125,8 +127,9 @@ Call ObjectAccess::get_callable(SemanticAnalyzer* analyzer, int argument_count) 
 	if (not object->type->is_class()) {
 		std::ostringstream oss;
 		oss << object.get() << "." << field->content;
-		auto type = Type::fun_object(env.any, { env.any, env.any });
-		return { { { oss.str(), type, true, {}, {}, true } }, this, object.get() };
+		callable->versions.front().type = Type::fun_object(env.any, { env.any, env.any });
+		callable->versions.front().name = oss.str();
+		return { callable.get(), this, object.get() };
 	}
 	return {};
 }

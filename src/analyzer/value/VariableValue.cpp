@@ -48,61 +48,28 @@ Location VariableValue::location() const {
 Call VariableValue::get_callable(SemanticAnalyzer* analyzer, int argument_count) const {
 	auto& env = analyzer->env;
 	if (name == "~") {
-		auto T = env.template_("T");
-		auto R = env.template_("R");
-		auto type = Type::fun(R, {T, Type::fun(R, {T})});
-		auto fun = ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
-			return c.insn_call(args[1], {args[0]});
-		});
-		return { { name, type, fun, {}, {R, T} } };
+		return { &analyzer->globals["Value"]->clazz->operators["~"] };
 	}
 	if (name == "Number") {
-		return {
-			{ "Number", Type::fun(env.integer, {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
-				return c.new_integer(0);
-			}) },
-			{ "Number", Type::fun(env.real, {env.real}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
-				return c.to_real(args[0]);
-			}) },
-			{ "Number", Type::fun(env.tmp_mpz_ptr, {env.mpz_ptr}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
-				return args[0];
-			}) }
-		};
+		return { &analyzer->globals["Number"]->clazz->methods["new"] };
 	}
 	if (name == "Boolean") {
-		auto type = Type::fun(env.boolean, {});
-		return { { "Boolean", type, ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
-			return c.new_bool(false);
-		}) } };
+		return { &analyzer->globals["Boolean"]->clazz->methods["new"] };
 	}
 	if (name == "String") {
-		return {
-			{ "String.new", Type::fun(env.tmp_string, {}) },
-			{ "String", Type::fun(env.tmp_string, {env.string}), ADDR([&](Compiler& c, std::vector<Compiler::value> args, bool) {
-				return args[0];
-			}) }
-		};
+		return { &analyzer->globals["String"]->clazz->methods["new"] };
 	}
 	if (name == "Array") {
-		return { { "Array", Type::fun(Type::array(env.any), {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
-			return c.new_array(env.void_, {});
-		}) } };
+		return { &analyzer->globals["Array"]->clazz->methods["new"] };
 	}
 	if (name == "Object") {
-		return { { "Object", Type::fun(env.tmp_object, {}), ADDR([&](Compiler& c, std::vector<Compiler::value>, bool) {
-			return c.new_object();
-		}) } };
+		return { &analyzer->globals["Object"]->clazz->methods["new"] };
 	}
 	if (name == "Set") {
-		return { { "Set.new", Type::fun(Type::tmp_set(env.any), {}) } };
+		return { &analyzer->globals["Set"]->clazz->methods["new"] };
 	}
 	if (type->is_class()) {
-		auto type = Type::fun(env.any, {env.clazz()});
-		return { {
-			{ name, type, ADDR([&](Compiler& c, std::vector<Compiler::value> args, int) {
-				return c.new_object_class(args[0]);
-			}) }
-		}, nullptr, (Value*) this };
+		return { &analyzer->globals["Class"]->clazz->methods["construct"], nullptr, (Value*) this };
 	}
 	if (var) {
 		if (var->call.callables.size()) return var->call;

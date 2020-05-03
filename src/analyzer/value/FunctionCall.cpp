@@ -24,6 +24,8 @@ FunctionCall::FunctionCall(Environment& env, Token* t) : Value(env), token(t), c
 	std_func = nullptr;
 	this_ptr = nullptr;
 	constant = false;
+	callable = std::make_unique<Callable>();
+	callable->add_version({ "<fc>", env.void_, false });
 }
 
 void FunctionCall::print(std::ostream& os, int indent, PrintOptions options) const {
@@ -100,7 +102,8 @@ Call FunctionCall::get_callable(SemanticAnalyzer*, int argument_count) const {
 		arguments_types.push_back(argument->type);
 	}
 	auto type = function->version_type(arguments_types);
-	return { { { "<fc>", type->return_type(), false } }, this };
+	callable->versions.front().type = type->return_type();
+	return { callable.get(), this };
 }
 
 void FunctionCall::analyze(SemanticAnalyzer* analyzer) {

@@ -16,6 +16,16 @@ BooleanSTD::BooleanSTD(Environment& env) : Module(env, "Boolean") {
 	lsclass = env.boolean_class.get();
 	#endif
 
+	/*
+	 * Constructors
+	 */
+	constructor_({
+		{env.boolean, {}, ADDR(new_)},
+	}, LEGACY);
+
+	/**
+	 * Operators
+	 */
 	operator_("+", {
 		{env.const_boolean, env.const_string, env.tmp_string, ADDR((void*) add)},
 		{env.const_boolean, env.tmp_string, env.tmp_string, ADDR((void*) add_tmp)},
@@ -48,6 +58,10 @@ BooleanSTD::BooleanSTD(Environment& env) : Module(env, "Boolean") {
 }
 
 #if COMPILER
+
+Compiler::value BooleanSTD::new_(Compiler& c, std::vector<Compiler::value>, int) {
+	return c.new_bool(false);
+}
 
 LSString* BooleanSTD::add(int boolean, LSString* string) {
 	return new LSString((boolean ? "true" : "false") + *string);

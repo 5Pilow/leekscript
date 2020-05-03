@@ -11,6 +11,8 @@ public:
 
 	#if COMPILER
 
+	static Compiler::value new_(Compiler& c, std::vector<Compiler::value> args, int);
+
 	static Compiler::value in(Compiler& c, std::vector<Compiler::value> args, int);
 	static Compiler::value op_add(Compiler&, std::vector<Compiler::value>, int);
 	static Compiler::value array_add_eq(Compiler& c, std::vector<Compiler::value> args, int);

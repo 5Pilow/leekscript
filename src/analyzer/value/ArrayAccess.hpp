@@ -19,6 +19,7 @@ public:
 	Token* close_bracket;
 	const Type* map_key_type;
 	bool should_delete_array = false;
+	std::unique_ptr<Callable> callable;
 	#if COMPILER
 	Compiler::value compiled_array;
 	#endif

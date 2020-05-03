@@ -15,6 +15,8 @@ public:
 
 	#if COMPILER
 
+	static Compiler::value new_string(Compiler& c, std::vector<Compiler::value> args, int);
+
 	static Compiler::value lt(Compiler& c, std::vector<Compiler::value> args, int);
 	static Compiler::value div(Compiler& c, std::vector<Compiler::value> args, int);
 

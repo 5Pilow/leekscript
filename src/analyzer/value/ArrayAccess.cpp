@@ -15,6 +15,8 @@ ArrayAccess::ArrayAccess(Environment& env) : LeftValue(env)
 	type = env.any;
 	map_key_type = env.void_;
 	throws = true;
+	callable = std::make_unique<Callable>();
+	callable->add_version({ "<aa>", env.void_, false });
 }
 
 bool ArrayAccess::isLeftValue() const {
@@ -46,11 +48,17 @@ Call ArrayAccess::get_callable(SemanticAnalyzer* analyzer, int argument_count) c
 	const auto& env = analyzer->env;
 	// std::cout << "Array access get callable " << type << std::endl;
 	if (type->is_function()) {
-		return { { { "<aa>", type } }, this };
+		callable->versions.front().type = type;
+		callable->versions.front().unknown = false;
+		callable->versions.front().object = false;
 	} else {
 		// The array is not homogeneous, so the function inside an array always returns any
-		return { { { "<aa>", Type::fun(env.any, { env.any }), true, {}, {}, false } }, this };
+		callable->versions.front().type = Type::fun(env.any, { env.any });
+		callable->versions.front().unknown = true;
+		callable->versions.front().object = false;
+		// return { { { "<aa>", , true, {}, {}, false } }, this };
 	}
+	return { callable.get(), this };
 }
 
 void ArrayAccess::pre_analyze(SemanticAnalyzer* analyzer) {
