@@ -88,6 +88,7 @@ Block* SyntaxicAnalyzer::eatMain(File* file) {
 								for (auto& instruction : included_block->instructions) {
 									block->add_instruction(std::move(instruction).get());
 								}
+								delete ins; // The include instruction will not be used
 								continue;
 							}
 						}
