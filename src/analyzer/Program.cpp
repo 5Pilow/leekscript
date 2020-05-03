@@ -47,7 +47,7 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 	auto parse_start = std::chrono::high_resolution_clock::now();
 
 	main_file = std::make_unique<File>(file_name, code, FileContext());
-	auto block = syn.analyze(main_file.get());
+	std::unique_ptr<Block> block { syn.analyze(main_file.get()) };
 
 	if (main_file->errors.size() > 0) {
 		result.errors = main_file->errors;
@@ -56,7 +56,7 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 
 	main_token = std::make_unique<Token>(TokenType::FUNCTION, main_file.get(), 0, 0, 0, "function");
 	main = std::make_unique<Function>(env, main_token.get());
-	main->body.reset(block);
+	main->body = std::move(block);
 	main->is_main_function = true;
 	main->name = "main";
 
