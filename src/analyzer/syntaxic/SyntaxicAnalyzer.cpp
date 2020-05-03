@@ -1527,7 +1527,7 @@ Token* SyntaxicAnalyzer::eat_get(TokenType type) {
 	if (type != TokenType::DONT_CARE && eaten->type != type) {
 		file->errors.push_back(Error(Error::Type::UNEXPECTED_TOKEN, eaten, {eaten->content}));
 		// std::cout << "unexpected token : " << to_string((int) type) << " != " << to_string((int) eaten->type) << " (" << eaten->content << ") char " << eaten->location.start.column << std::endl;
-		return new Token(TokenType::FINISHED, file, 0, 0, 0, "");
+		return &file->finished_token;
 	}
 	return eaten;
 }
