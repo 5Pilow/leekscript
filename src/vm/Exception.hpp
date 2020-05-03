@@ -39,11 +39,15 @@ struct exception_frame {
 	}
 };
 
-struct ExceptionObj {
+struct ExceptionObj : public std::exception {
 	Exception type;
 	std::vector<exception_frame> frames;
-	ExceptionObj() : type(NO_EXCEPTION) {}
-	ExceptionObj(Exception type) : type(type) {}
+	ExceptionObj() : ExceptionObj(NO_EXCEPTION) {}
+	ExceptionObj(Exception type) : type(type) {
+	}
+
+	~ExceptionObj();
+
 	std::string to_string(bool colors = true) const;
 
 	static std::string exception_message(vm::Exception expected);

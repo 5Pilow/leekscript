@@ -4,6 +4,9 @@
 namespace ls {
 namespace vm {
 
+ExceptionObj::~ExceptionObj() {
+}
+
 std::string ExceptionObj::to_string(bool colors) const {
 	auto pad = [](std::string s, int l) {
 		l -= s.size();
