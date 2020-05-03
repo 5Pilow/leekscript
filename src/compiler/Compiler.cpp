@@ -1989,7 +1989,7 @@ Compiler::value Compiler::insn_call(const Type* return_type, std::vector<Compile
 		llvm_args.push_back(args[i].v);
 	}
 	llvm::Function* lambda;
-	auto name2 = std::count(name.begin(), name.end(), '.') == 2 ? name : name + ".0";
+	auto name2 = (std::count(name.begin(), name.end(), '.') == 2 or name.find("__cxa") != std::string::npos) ? name : name + ".0";
 	auto p = mappings.find({ name2, return_type });
 	if (p == mappings.end()) {
 		std::vector<llvm::Type*> llvm_types;

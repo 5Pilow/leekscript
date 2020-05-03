@@ -500,7 +500,10 @@ llvm::BasicBlock* FunctionVersion::get_landing_pad(Compiler& c) {
 		Compiler::value exception_line = {c.builder.CreateLoad(exception_line_slot), c.env.long_};
 		auto file = c.new_const_string(parent->token->location.file->path);
 		auto function_name = c.new_const_string(parent->name);
-		c.insn_call(c.env.void_, {exception, file, function_name, exception_line}, "System.throw.1");
+		auto adjusted = c.insn_call(c.env.long_, {exception}, "__cxa_begin_catch");
+		c.insn_call(c.env.void_, {adjusted, file, function_name, exception_line}, "System.throw.1");
+		c.insn_call(c.env.void_, {exception}, "__cxa_rethrow");
+		c.insn_call(c.env.void_, {}, "__cxa_end_catch");
 		c.fun->compile_return(c, { c.env });
 		c.builder.restoreIP(savedIPc);
 

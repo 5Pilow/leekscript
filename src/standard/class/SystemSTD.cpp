@@ -164,16 +164,20 @@ void SystemSTD::internal_print_real(VM* vm, double v) {
 
 void SystemSTD::throw1(int type, char* file, char* function, size_t line) {
 	// std::cout << "SystemSTD::throw " << type << " " << function << " " << line << std::endl;
-	auto ex = vm::ExceptionObj((vm::Exception) type);
+	vm::ExceptionObj ex { (vm::Exception) type };
 	ex.frames.push_back({file, function, line});
 	throw ex;
 }
 
-void fake_ex_destru_fun(void*) {}
+/**
+ * Doc
+ *  - https://refspecs.linuxfoundation.org/abi-eh-1.22.html#base-throw
+ *  - https://llvm.org/docs/ExceptionHandling.html
+ *  - https://monoinfinito.wordpress.com/series/exception-handling-in-c/
+ */
 void SystemSTD::throw2(void** ex, char* file, char* function, size_t line) {
-	auto exception = (vm::ExceptionObj*) (ex + 4);
+	auto exception = (vm::ExceptionObj*) (ex);
 	exception->frames.push_back({file, function, line});
-	__cxa_throw(exception, (void*) &typeid(vm::ExceptionObj), &fake_ex_destru_fun);
 }
 
 #endif
