@@ -325,9 +325,6 @@ std::unique_ptr<Instruction> For::clone(Block* parent) const {
 	}
 	f->increment = std::unique_ptr<Block>(increment_block);
 
-	// body
-	auto condition_section = f->condition ? f->condition->sections.front().get() : init_section;
-
 	f->body = unique_static_cast<Block>(body->clone(f->condition.get()));
 	f->body->set_end_section(f->increment->sections.front().get());
 

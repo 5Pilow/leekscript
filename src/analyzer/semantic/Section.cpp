@@ -224,9 +224,8 @@ void Section::compile_end(Compiler& c) const {
 	auto manage_phis = [&](const Section* section) {
 		// std::cout << "Manage phis of section " << section->id << std::endl;
 		for (const auto& phi : section->phis) {
-			const auto& variable = phi->variable;
 			if (not phi->active) continue;
-			// std::cout << "Variable export last value for phi " << variable << " " << variable->type << " from section " << color << id << END_COLOR << std::endl;
+			// std::cout << "Variable export last value for phi " << phi->variable << " " << phi->variable->type << " from section " << color << id << END_COLOR << std::endl;
 			if (phi->section1 == this) {
 				const auto& var1 = phi->variable1;
 				// std::cout << "Block export value1 " << var1 << " " << var1->type << " " << var1->val.t << " convert to " << phi->variable->type << std::endl;
