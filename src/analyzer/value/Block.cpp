@@ -113,18 +113,11 @@ void Block::analyze_global_functions(SemanticAnalyzer* analyzer) {
 	analyzer->leave_block();
 }
 
-void Block::setup_branch(SemanticAnalyzer* analyzer) {
-	if (!branch) {
-		branch = analyzer->current_function()->body.get() == this ? this : analyzer->current_block()->branch;
-	}
-}
-
 void Block::pre_analyze(SemanticAnalyzer* analyzer) {
 	for (auto it = variables.begin(); it != variables.end(); ) {
 		if (not it->second->injected) it = variables.erase(it);
 		else ++it;
     }
-	setup_branch(analyzer);
 	analyzer->enter_block(this);
 	for (const auto& section : sections) {
 		section->pre_analyze(analyzer);

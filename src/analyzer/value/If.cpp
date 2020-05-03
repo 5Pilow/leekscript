@@ -40,10 +40,8 @@ Location If::location() const {
 
 void If::pre_analyze(SemanticAnalyzer* analyzer) {
 	condition->pre_analyze(analyzer);
-	then->branch = then.get();
 	then->pre_analyze(analyzer);
 	if (elze != nullptr) {
-		elze->branch = elze.get();
 		elze->pre_analyze(analyzer);
 	}
 }

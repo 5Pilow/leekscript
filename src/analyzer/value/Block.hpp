@@ -23,7 +23,6 @@ public:
 	bool mpz_pointer = false;
 	bool was_reference = false;
 	std::unordered_map<std::string, Variable*> variables;
-	Block* branch = nullptr;
 	std::vector<std::pair<Variable*, Variable*>> assignments;
 	std::vector<Variable*> temporary_variables;
 	std::vector<Variable*> mutations;
@@ -43,7 +42,6 @@ public:
 	virtual void set_end_section(Section* end_section) override;
 
 	void analyze_global_functions(SemanticAnalyzer* analyzer);
-	void setup_branch(SemanticAnalyzer* analyzer);
 	virtual void pre_analyze(SemanticAnalyzer* analyzer) override;
 	bool reachable();
 	void create_assignments(SemanticAnalyzer* analyzer);

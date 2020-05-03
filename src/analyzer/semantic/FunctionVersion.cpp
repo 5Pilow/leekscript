@@ -116,7 +116,6 @@ void FunctionVersion::pre_analyze(SemanticAnalyzer* analyzer, const std::vector<
 		initial_arguments.emplace(name, arg.get());
 		arguments.emplace(name, std::move(arg));
 	}
-	body->branch = body.get();
 	body->pre_analyze(analyzer);
 
 	analyzer->leave_function();

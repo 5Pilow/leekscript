@@ -48,7 +48,6 @@ void For::pre_analyze(SemanticAnalyzer* analyzer) {
 	increment->sections.back()->variables.clear();
 	body->sections.back()->variables.clear();
 
-	init->setup_branch(analyzer);
 	analyzer->enter_block(init.get());
 
 	init->variables.clear();
