@@ -46,7 +46,7 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 
 	auto parse_start = std::chrono::high_resolution_clock::now();
 
-	main_file = std::make_unique<File>(file_name, code, new FileContext());
+	main_file = std::make_unique<File>(file_name, code, FileContext());
 	auto block = syn.analyze(main_file.get());
 
 	if (main_file->errors.size() > 0) {

@@ -8,7 +8,7 @@ namespace ls {
 
 class Resolver {
 public:
-	File* resolve(std::string path, FileContext* context) const;
+	File* resolve(std::string path, FileContext context) const;
 };
 
 }
