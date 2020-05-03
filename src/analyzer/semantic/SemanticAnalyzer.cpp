@@ -325,8 +325,9 @@ Variable* SemanticAnalyzer::update_var(Variable* variable, bool add_mutation) {
 		// current_function()->arguments[new_variable->name] = new_variable;
 	} else {
 		current_section()->variables[new_variable->name] = new_variable;
-		current_section()->variable_list.emplace_back(new_variable);
 	}
+	current_section()->variable_list.emplace_back(new_variable);
+
 	// Ajout d'une mutation
 	if (in_loop(1) && add_mutation) {
 		auto loop = current_loop();
