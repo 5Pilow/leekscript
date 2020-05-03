@@ -28,4 +28,4 @@ jobs:
     - name: Tests with Valgrind
       run: |
         make build/leekscript-test
-        valgrind --leak-check=full --undef-value-errors=no build/leekscript-test
+        valgrind --leak-check=full --show-leak-kinds=definite --undef-value-errors=no build/leekscript-test
