@@ -37,7 +37,7 @@ COMPILER := g++
 OPTIM := -O0 -Wall
 DEBUG := -g3# -DDEBUG_LEAKS
 DEBUG_WEB := -O3 -g4 -s SAFE_HEAP=1 -s ASSERTIONS=1 -DWASM=1 -s WASM=1 # --source-map-base http://localhost:8080/ # -s DEMANGLE_SUPPORT=1
-FLAGS := -std=c++17 -lstdc++fs -Wall
+FLAGS := -std=c++17 -lstdc++fs -Wall -fopenmp
 FLAGS_COMPILER := -Wno-pmf-conversions
 FLAGS_TEST := -fopenmp
 SANITIZE_FLAGS := -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -fsanitize=float-divide-by-zero # -fsanitize=float-cast-overflow
