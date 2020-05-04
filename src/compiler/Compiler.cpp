@@ -156,8 +156,8 @@ Compiler::value Compiler::new_long(long l) {
 
 Compiler::value Compiler::new_mpz() {
 	auto r = create_entry("m", env.tmp_mpz);
-	increment_mpz_created();
 	insn_call(env.void_, {r}, "Number.mpz_init");
+	increment_mpz_created();
 	return r;
 }
 
@@ -1241,8 +1241,9 @@ Compiler::value Compiler::insn_clone_mpz(Compiler::value mpz) {
 	if (mpz.t->temporary) {
 		return mpz;
 	}
-	auto r = new_mpz();
+	auto r = create_entry("m", env.tmp_mpz);
 	insn_call(env.void_, {r, mpz}, "Number.mpz_init_set");
+	increment_mpz_created();
 	return r;
 }
 
