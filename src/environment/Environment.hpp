@@ -55,6 +55,7 @@ private:
 	std::map<std::pair<const Type*, const Type*>, std::unique_ptr<const Type>> meta_mul_types;
 	std::map<std::pair<const Type*, const Type*>, std::unique_ptr<const Type>> meta_base_of_types;
 	std::unordered_map<const Type*, std::unique_ptr<const Type>> meta_temporary_types;
+	std::unordered_map<const Type*, std::unique_ptr<const Type>> meta_element_types;
 	std::unordered_map<const Type*, std::unique_ptr<const Type>> meta_not_temporary_types;
 	std::unordered_map<const Type*, std::unique_ptr<const Type>> meta_not_void_types;
 	std::vector<std::unique_ptr<const Type>> template_types;
