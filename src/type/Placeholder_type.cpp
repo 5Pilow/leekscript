@@ -11,7 +11,7 @@ void Placeholder_type::implement(const Type* implementation) const {
 }
 const Type* Placeholder_type::element() const {
 	if (_element) return _element;
-	((Placeholder_type*) this)->_element = new Meta_element_type(this);
+	((Placeholder_type*) this)->_element = Type::meta_element(this);
 	return _element;
 }
 bool Placeholder_type::operator == (const Type* type) const {

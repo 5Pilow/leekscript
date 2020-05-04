@@ -518,6 +518,15 @@ const Type* Type::meta_base_of(const Type* type, const Type* base) {
 	return r;
 }
 
+const Type* Type::meta_element(const Type* base) {
+	auto& env = base->env;
+	auto i = env.meta_element_types.find(base);
+	if (i != env.meta_element_types.end()) return i->second.get();
+	auto type = new Meta_element_type(base);
+	env.meta_element_types.emplace(base, type);
+	return type;
+}
+
 const Type* Type::meta_temporary(const Type* base) {
 	auto& env = base->env;
 	auto i = env.meta_temporary_types.find(base);
