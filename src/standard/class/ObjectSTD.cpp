@@ -9,20 +9,17 @@
 
 namespace ls {
 
-#if COMPILER
-LSObject* ObjectSTD::readonly = new LSObject();
-LSNumber* ObjectSTD::readonly_value = LSNumber::get(12);
-#endif
-
 ObjectSTD::ObjectSTD(Environment& env) : Module(env, "Object") {
 
 	#if COMPILER
 	env.object_class = std::make_unique<LSClass>(clazz.get());
 	lsclass = env.object_class.get();
 
-	readonly->addField("v", readonly_value);
-	readonly->readonly = true;
+	readonly = std::make_unique<LSObject>();
+	readonly_value = std::unique_ptr<LSNumber>(LSNumber::get(12));
+	readonly->addField("v", readonly_value.get());
 	readonly->native = true;
+	readonly->readonly = true;
 	#endif
 
 	static_field("readonly", env.object, ADDR((void*) &readonly), PRIVATE);
@@ -65,6 +62,12 @@ ObjectSTD::ObjectSTD(Environment& env) : Module(env, "Object") {
 	method("add_field", {
 		{env.void_, {env.object, env.i8_ptr, env.any}, ADDR((void*) &LSObject::addField)}
 	}, PRIVATE);
+}
+
+ObjectSTD::~ObjectSTD() {
+	#if COMPILER
+	readonly->values.clear();
+	#endif
 }
 
 #if COMPILER

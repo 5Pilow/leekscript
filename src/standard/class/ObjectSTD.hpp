@@ -6,15 +6,17 @@
 namespace ls {
 
 class LSObject;
+class LSNumber;
 
 class ObjectSTD : public Module {
 public:
 	ObjectSTD(Environment& env);
+	~ObjectSTD();
 
 	#if COMPILER
 
-	static LSObject* readonly;
-	static LSNumber* readonly_value;
+	std::unique_ptr<LSObject> readonly;
+	std::unique_ptr<LSNumber> readonly_value;
 
 	static Compiler::value in_any(Compiler& c, std::vector<Compiler::value> args, int);
 	static LSValue* object_new(LSClass* clazz);

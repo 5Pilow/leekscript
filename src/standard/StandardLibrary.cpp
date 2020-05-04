@@ -13,6 +13,10 @@
 #include "class/ClassSTD.hpp"
 #include "class/IntervalSTD.hpp"
 #include "class/JsonSTD.hpp"
+#if COMPILER
+#include "../vm/value/LSNumber.hpp"
+#include "../vm/value/LSObject.hpp"
+#endif
 
 namespace ls {
 
