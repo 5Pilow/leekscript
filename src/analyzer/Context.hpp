@@ -14,6 +14,7 @@ public:
 	void* value;
 	const Type* type;
 	Variable* variable;
+	std::unique_ptr<Token> token;
 };
 
 class Context {

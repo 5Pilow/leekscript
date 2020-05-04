@@ -37,7 +37,7 @@ void Context::add_variable(char* name, void* v, const Type* type) {
 		vars[name] = { v, type };
 	} else {
 		// std::cout << "variable doesn't exist" << std::endl;
-		vars.insert({ name, { v, type } });
+		vars.insert({ name, ContextVar { v, type, nullptr, nullptr } });
 	}
 }
 
