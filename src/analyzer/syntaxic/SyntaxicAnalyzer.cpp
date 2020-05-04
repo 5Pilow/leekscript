@@ -86,9 +86,16 @@ Block* SyntaxicAnalyzer::eatMain(File* file) {
 								auto included_file = resolver->resolve(str->token->content, file->context);
 								auto included_block = SyntaxicAnalyzer(env, resolver).analyze(included_file);
 								for (auto& instruction : included_block->instructions) {
-									block->add_instruction(std::move(instruction).get());
+									block->add_instruction(instruction.get());
+									instruction.release();
 								}
 								delete ins; // The include instruction will not be used
+								file->included_files.emplace_back(included_file);
+								included_block->sections.front().reset();
+								for (auto& s : included_block->sections) {
+									s.release();
+								}
+								delete included_block;
 								continue;
 							}
 						}
