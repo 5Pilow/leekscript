@@ -431,9 +431,9 @@ const Type* Type::fun_object(const Type* return_type, std::vector<const Type*> a
 	}
 }
 const Type* Type::closure(const Type* return_type, std::vector<const Type*> arguments, const Value* function) {
+	auto& env = return_type->env;
 	if (function == nullptr) {
 		std::pair<const Type*, std::vector<const Type*>> key { return_type, arguments };
-		auto& env = return_type->env;
 		auto i = env.closure_types.find(key);
 		if (i != env.closure_types.end()) return i->second.get();
 		auto type = new Function_object_type(return_type, arguments, true);
@@ -441,6 +441,7 @@ const Type* Type::closure(const Type* return_type, std::vector<const Type*> argu
 		return type->add_constant();
 	} else {
 		auto t = new Function_object_type(return_type, arguments, true, function);
+		env.raw_function_types.emplace_back(t);
 		return t->add_constant();
 	}
 }
