@@ -31,7 +31,7 @@ void FunctionVersion::print(std::ostream& os, int indent, PrintOptions options) 
 	for (unsigned i = 0; i < parent->arguments.size(); ++i) {
 		if (i > 0) os << ", ";
 		if (options.debug and initial_arguments.find(parent->arguments.at(i)->content) != initial_arguments.end()) {
-			os << initial_arguments.at(parent->arguments.at(i)->content);
+			os << initial_arguments.at(parent->arguments.at(i)->content).get();
 		} else {
 			os << parent->arguments.at(i)->content;
 		}
@@ -75,7 +75,7 @@ void FunctionVersion::print(std::ostream& os, int indent, PrintOptions options) 
 		int i = 0;
 		for (const auto& argument : arguments) {
 			if (i++ > 0) os << ", ";
-			os << argument.second.get();
+			os << argument.second;
 		}
 		os << "]";
 		if (type->return_type() != body->type) {
@@ -112,9 +112,9 @@ void FunctionVersion::pre_analyze(SemanticAnalyzer* analyzer, const std::vector<
 	for (unsigned i = 0; i < parent->arguments.size(); ++i) {
 		auto type = i < args.size() ? args.at(i) : (i < parent->defaultValues.size() && parent->defaultValues.at(i) != nullptr ? parent->defaultValues.at(i)->type : env.any);
 		auto name = parent->arguments.at(i)->content;
-		auto arg = std::make_unique<Variable>(name, VarScope::PARAMETER, type, i, nullptr, analyzer->current_function(), nullptr, nullptr, nullptr);
-		initial_arguments.emplace(name, arg.get());
-		arguments.emplace(name, std::move(arg));
+		auto arg = new Variable(name, VarScope::PARAMETER, type, i, nullptr, analyzer->current_function(), nullptr, nullptr, nullptr);
+		arguments.emplace(name, arg);
+		initial_arguments.emplace(name, arg);
 	}
 	body->pre_analyze(analyzer);
 

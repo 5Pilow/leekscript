@@ -139,7 +139,7 @@ Variable* SemanticAnalyzer::get_var(const std::string& v) {
 		const auto& arguments = functions_stack[f]->arguments;
 		auto i = arguments.find(v);
 		if (i != arguments.end()) {
-			return i->second.get();
+			return i->second;
 		}
 		// Search in the local variables of the function
 		int b = blocks[f].size() - 1;
@@ -292,8 +292,7 @@ Variable* SemanticAnalyzer::update_var(Variable* variable, bool add_mutation) {
 	new_variable->injected = variable->injected;
 
 	if (variable->scope == VarScope::PARAMETER) {
-		// std::cout << "update argument " << new_variable->name << std::endl;
-		// current_function()->arguments[new_variable->name] = new_variable;
+		current_function()->arguments[new_variable->name] = new_variable;
 	} else {
 		current_section()->variables[new_variable->name] = new_variable;
 	}
