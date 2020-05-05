@@ -21,7 +21,15 @@ Context::Context(Environment& env, std::string ctx) : env(env) {
 	}
 }
 
-Context::~Context() {}
+Context::~Context() {
+	// std::cout << "delete context" << std::endl;
+	for (const auto& var : vars) {
+		if (var.second.type == env.any) {
+			// std::cout << "delete var " << (LSValue*)var.second.value << std::endl;
+			delete (LSValue*)var.second.value;
+		}
+	}
+}
 
 void Context::add_variable(char* name, void* v, const Type* type) {
 	// std::cout << "add_variable " << name << " " << v << " " << ((LSValue*) v)->refs << std::endl;
