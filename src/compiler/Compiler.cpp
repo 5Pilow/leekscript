@@ -2331,10 +2331,10 @@ void Compiler::mark_offset(int line) {
 	exception_line.top() = line;
 }
 void Compiler::insn_try_catch(std::function<void()> try_, std::function<void()> catch_) {
-	auto block = new Block(env);
+	Block block { env };
 	auto handler = llvm::BasicBlock::Create(getContext(), "catch", F);
 	catchers.back().back().push_back({handler});
-	enter_block(block);
+	enter_block(&block);
 	try_();
 	delete_variables_block(1);
 	leave_block();
