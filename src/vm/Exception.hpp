@@ -43,8 +43,7 @@ struct ExceptionObj : public std::exception {
 	Exception type;
 	std::vector<exception_frame> frames;
 	ExceptionObj() : ExceptionObj(NO_EXCEPTION) {}
-	ExceptionObj(Exception type) : type(type) {
-	}
+	ExceptionObj(Exception type);
 
 	~ExceptionObj();
 

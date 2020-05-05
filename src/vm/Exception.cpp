@@ -4,6 +4,9 @@
 namespace ls {
 namespace vm {
 
+ExceptionObj::ExceptionObj(Exception type) : type(type) {
+}
+
 ExceptionObj::~ExceptionObj() {
 }
 
