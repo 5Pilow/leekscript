@@ -1794,7 +1794,7 @@ Compiler::label Compiler::insn_init_label(std::string name) {
 void Compiler::insn_if(Compiler::value condition, std::function<void()> then, std::function<void()> elze) {
 	assert(condition.t->llvm(*this) == condition.v->getType());
 	auto label_then = insn_init_label("then");
-	auto label_else = insn_init_label("else");
+	auto label_else = elze ? insn_init_label("else") : Compiler::label {};
 	auto label_end = insn_init_label("ifcont");
 	insn_if_new(insn_to_bool(condition), &label_then, elze ? &label_else : &label_end);
 	insn_label(&label_then);
