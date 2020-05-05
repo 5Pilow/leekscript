@@ -1543,7 +1543,7 @@ Token* SyntaxicAnalyzer::nextTokenAt(int pos) {
 	if (i + pos < file->tokens.size())
 		return &file->tokens[i + pos];
 	else
-		return new Token(TokenType::FINISHED, file, 0, 0, 0, "");
+		return &file->finished_token;
 }
 
 }
