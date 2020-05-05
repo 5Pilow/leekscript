@@ -260,36 +260,6 @@ void SemanticAnalyzer::add_function(Function* l) {
 	functions.push_back(l);
 }
 
-Variable* SemanticAnalyzer::convert_var_to_any(Variable* var) {
-	// std::cout << "SemanticAnalyser::convert_var_to_any(" << var->name << ")" << std::endl;
-	if (var->type->is_polymorphic()) return var;
-	auto new_var = new Variable(var->name, var->scope, env.any, 0, nullptr, var->function, var->block, var->section, nullptr);
-	// Search recursively in the functions
-
-	int f = functions_stack.size() - 1;
-	while (f >= 0) {
-		// Search in the function parameters
-		// auto& params = functions_stack.at(f)->arguments;
-		// if (params.find(var->name) != params.end()) {
-		// 	params.at(var->name) = new_var;
-		// }
-		// Search in the local variables of the function
-		int b = blocks.at(f).size() - 1;
-		while (b >= 0) {
-			for (const auto& section : blocks.at(f).at(b)->sections) {
-				auto& vars = section->variables;
-				if (vars.find(var->name) != vars.end()) {
-					vars.at(var->name) = new_var;
-					break;
-				}
-			}
-			b--;
-		}
-		f--;
-	}
-	return new_var;
-}
-
 Variable* SemanticAnalyzer::update_var(Variable* variable, bool add_mutation) {
 	if (not variable) return nullptr;
 	if (variable->loop_variable) return variable;
