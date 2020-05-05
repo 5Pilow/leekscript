@@ -221,15 +221,18 @@ Variable* Program::get_operator(const std::string& name) {
 	auto o = std::find(ops.begin(), ops.end(), name);
 	if (o == ops.end()) return nullptr;
 
-	auto token = new Token(TokenType::FUNCTION, main_file.get(), 0, 0, 0, "function");
-	auto f = new Function(env, token);
-	f->addArgument(new Token(TokenType::IDENT, main_file.get(), 0, 1, 0, "x"), nullptr);
-	f->addArgument(new Token(TokenType::IDENT, main_file.get(), 2, 1, 2, "y"), nullptr);
+	auto token = operators_tokens.emplace_back(std::make_unique<Token>(TokenType::FUNCTION, main_file.get(), 0, 0, 0, "function")).get();
+	auto f = operators_functions.emplace_back(std::make_unique<Function>(env, token)).get();
+	auto v1_token = operators_tokens.emplace_back(std::make_unique<Token>(TokenType::IDENT, main_file.get(), 0, 1, 0, "x")).get();
+	auto v2_token = operators_tokens.emplace_back(std::make_unique<Token>(TokenType::IDENT, main_file.get(), 2, 1, 2, "y")).get();
+	f->addArgument(v1_token, nullptr);
+	f->addArgument(v2_token, nullptr);
 	f->body.reset(new Block(env, true));
 	auto ex = std::make_unique<Expression>(env);
-	ex->v1 = std::make_unique<VariableValue>(env, new Token(TokenType::IDENT, main_file.get(), 0, 1, 0, "x"));
-	ex->v2 = std::make_unique<VariableValue>(env, new Token(TokenType::IDENT, main_file.get(), 2, 1, 2, "y"));
-	ex->op = std::make_shared<Operator>(new Token(token_types.at(std::distance(ops.begin(), o)), main_file.get(), 1, 1, 1, name));
+	auto op_token = operators_tokens.emplace_back(std::make_unique<Token>(token_types.at(std::distance(ops.begin(), o)), main_file.get(), 1, 1, 1, name)).get();
+	ex->v1 = std::make_unique<VariableValue>(env, v1_token);
+	ex->v2 = std::make_unique<VariableValue>(env, v2_token);
+	ex->op = std::make_shared<Operator>(op_token);
 	f->body->add_instruction(std::make_unique<ExpressionInstruction>(env, std::move(ex)));
 	auto type = Type::fun(env.any, { env.any, env.any });
 

@@ -31,6 +31,8 @@ public:
 	std::string file_name;
 	std::unordered_map<std::string, std::unique_ptr<Variable>> operators;
 	std::unique_ptr<File> main_file;
+	std::vector<std::unique_ptr<Token>> operators_tokens;
+	std::vector<std::unique_ptr<Function>> operators_functions;
 	Context* context = nullptr;
 	Result result;
 	#if COMPILER
