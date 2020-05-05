@@ -1271,6 +1271,19 @@ Compiler::value Compiler::insn_inc_refs(Compiler::value v) {
 	return new_integer(0);
 }
 
+Compiler::value Compiler::insn_dec_refs(Compiler::value v) {
+	assert(check_value(v));
+	if (v.t->must_manage_memory()) {
+		auto previous = insn_refs(v);
+		auto new_refs = insn_sub(previous, new_integer(1));
+		auto llvm_type = v.v->getType()->getPointerElementType();
+		auto r = builder.CreateStructGEP(llvm_type, v.v, 3);
+		insn_store({r, env.integer->pointer()}, new_refs);
+		return new_refs;
+	}
+	return new_integer(0);
+}
+
 Compiler::value Compiler::insn_move(Compiler::value v) {
 	assert(check_value(v));
 	if (v.t->fold()->must_manage_memory() and !v.t->temporary and !v.t->reference) {

@@ -567,12 +567,14 @@ Compiler::value ArraySTD::fold_left(Compiler& c, std::vector<Compiler::value> ar
 	c.insn_store(result.entry, c.insn_convert(c.insn_move_inc(args[2]), init_type));
 	auto v = Variable::new_temporary("v", args[0].t->element());
 	c.insn_foreach(array, c.env.void_, &v, nullptr, [&](Compiler::value v, Compiler::value k) -> Compiler::value {
-		auto r = c.insn_call(function, {c.insn_load(result.entry), v});
+		auto r = c.insn_call(function, { c.insn_load(result.entry), v });
 		c.insn_delete(c.insn_load(result.entry));
 		c.insn_store(result.entry, c.insn_move_inc(r));
 		return { c.env };
 	});
-	return c.insn_load(result.entry);
+	auto r = c.insn_load(result.entry);
+	c.insn_dec_refs(r);
+	return r;
 }
 
 Compiler::value ArraySTD::fold_right(Compiler& c, std::vector<Compiler::value> args, int) {

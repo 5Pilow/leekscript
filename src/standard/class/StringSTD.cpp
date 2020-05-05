@@ -576,7 +576,9 @@ Compiler::value StringSTD::fold_fun(Compiler& c, std::vector<Compiler::value> ar
 		c.insn_store(result.entry, c.insn_move_inc(r));
 		return { c.env };
 	});
-	return c.insn_load(result.entry);
+	auto r = c.insn_load(result.entry);
+	c.insn_dec_refs(r);
+	return r;
 }
 
 LSValue* StringSTD::string_right(LSString* string, int pos) {

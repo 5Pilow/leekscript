@@ -231,6 +231,7 @@ public:
 	value insn_clone_mpz(value mpz);
 	void  insn_delete_mpz(value mpz);
 	value insn_inc_refs(value v);
+	value insn_dec_refs(value v);
 	value insn_move(value v);
 	value insn_refs(value v);
 	value insn_native(value v);
