@@ -12,8 +12,8 @@
 
 class Test {
 private:
-	std::map<std::thread::id, ls::Environment*> envs;
-	std::map<std::thread::id, ls::Environment*> envs_legacy;
+	std::map<std::thread::id, std::unique_ptr<ls::Environment>> envs;
+	std::map<std::thread::id, std::unique_ptr<ls::Environment>> envs_legacy;
 	int total;
 	int success_count;
 	int disabled;
