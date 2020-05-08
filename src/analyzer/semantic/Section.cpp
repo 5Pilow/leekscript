@@ -4,7 +4,6 @@
 #include "SemanticAnalyzer.hpp"
 #include "../value/Phi.hpp"
 #include "../value/Block.hpp"
-#include "../semantic/Mutation.hpp"
 #include "../instruction/Foreach.hpp"
 
 namespace ls {

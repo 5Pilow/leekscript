@@ -9,7 +9,6 @@
 #include "../../constants.h"
 #include "../lexical/Location.hpp"
 #include "../semantic/Call.hpp"
-#include "../semantic/Assignment.hpp"
 #include "../PrintOptions.hpp"
 #include "../semantic/Completion.hpp"
 #include "../semantic/Hover.hpp"

@@ -3,7 +3,6 @@
 #include "../semantic/SemanticAnalyzer.hpp"
 #include "../semantic/Variable.hpp"
 #include "../value/Phi.hpp"
-#include "../semantic/Mutation.hpp"
 #include "../../colors.h"
 
 namespace ls {
