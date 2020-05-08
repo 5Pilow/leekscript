@@ -31,9 +31,16 @@ SystemSTD::SystemSTD(Environment& env) : Module(env, "System") {
 		{env.void_, {env.const_boolean}, ADDR(print_bool)},
 	});
 
-	method("throw", {
-		{env.void_, {env.integer, env.i8_ptr, env.i8_ptr, env.long_}, ADDR((void*) throw1)},
-		{env.void_, {env.long_, env.long_, env.i8_ptr, env.i8_ptr}, ADDR((void*) throw2)},
+	method("exception_fill", {
+		{env.void_, {env.long_, env.long_, env.long_, env.i8_ptr, env.i8_ptr}, ADDR((void*) exception_fill)},
+	}, PRIVATE | LEGACY);
+
+	method("new_exception", {
+		{env.i8_ptr, {env.i8_ptr, env.integer}, ADDR((void*) new_exception)},
+	}, PRIVATE | LEGACY);
+
+	method("delete_exception", {
+		{env.void_, {env.long_}, ADDR((void*) delete_exception)},
 	}, PRIVATE | LEGACY);
 
 	method("debug", {
@@ -162,22 +169,30 @@ void SystemSTD::internal_print_real(VM* vm, double v) {
 	vm->output->end();
 }
 
-void SystemSTD::throw1(int type, char* file, char* function, size_t line) {
-	// std::cout << "SystemSTD::throw " << type << " " << function << " " << line << std::endl;
-	vm::ExceptionObj ex { (vm::Exception) type };
-	ex.frames.push_back({file, function, line});
-	throw ex;
-}
-
 /**
  * Doc
  *  - https://refspecs.linuxfoundation.org/abi-eh-1.22.html#base-throw
  *  - https://llvm.org/docs/ExceptionHandling.html
  *  - https://monoinfinito.wordpress.com/series/exception-handling-in-c/
  */
-void SystemSTD::throw2(void** ex, char* file, char* function, size_t line) {
-	auto exception = (vm::ExceptionObj*) (ex);
-	exception->frames.push_back({file, function, line});
+void SystemSTD::exception_fill(vm::ExceptionObj* ex, vm::ExceptionObj* old, char* file, char* function, size_t line) {
+	auto new_ex = new (ex) vm::ExceptionObj(old->type);
+	// std::cout << "Exception fill \t" << (void*)new_ex << std::endl;
+	std::swap(ex->frames, old->frames);
+	ex->frames.push_back({file, function, line});
+}
+
+vm::ExceptionObj* SystemSTD::new_exception(void* ex, int type, char* file, char* function, size_t line) {
+	auto r = new (ex) vm::ExceptionObj((vm::Exception) type);
+	r->frames.push_back({ file, function, line });
+	return r;
+}
+
+void SystemSTD::delete_exception(vm::ExceptionObj* exception) {
+	// std::cout << "delete_exception \t" << (void*) exception << std::endl;
+	// delete exception;
+	// delete &exception->frames;
+	exception->frames.~vector();
 }
 
 #endif

@@ -88,6 +88,7 @@ void VM::execute(Program& program, bool format, bool debug, bool ops, bool assem
 			value = program.execute(*this);
 			program.result.execution_success = true;
 		} catch (vm::ExceptionObj& ex) {
+			// std::cout << "Exception caught \t" << (void*) &ex << std::endl;
 			program.result.exception = ex;
 		}
 		auto exe_end = std::chrono::high_resolution_clock::now();

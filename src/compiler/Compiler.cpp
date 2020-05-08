@@ -1848,7 +1848,12 @@ void Compiler::insn_throw(Compiler::value v) {
 		auto line = new_long(exception_line.top());
 		auto file = new_const_string(fun->parent->token->location.file->path);
 		auto function_name = new_const_string(fun->parent->name);
-		insn_call(env.void_, {v, file, function_name, line}, "System.throw");
+
+		auto ex = insn_call(env.i8_ptr, { new_integer(sizeof(vm::ExceptionObj)) }, "__cxa_allocate_exception");
+		auto ex_obj = insn_call(env.i8_ptr, { ex, v, file, function_name, line  }, "System.new_exception");
+		insn_call(env.void_, {ex_obj, new_long((long) &typeid(vm::ExceptionObj)), get_symbol("System.delete_exception", env.i8_ptr)}, "__cxa_throw");
+
+		// insn_call(env.void_, {v, file, function_name, line}, "System.throw");
 	}
 }
 

@@ -124,7 +124,7 @@ void Test::test_loops() {
 	code("var a = 0 for var i = 0; i < 10; i++ { a++ } a").equals("10");
 	code("var a = 0 for var i = 0; i < 10; i++ { if i < 5 { continue } a++ } a").equals("5");
 	code("var a = 0 for var i = 0; i < 10; i++ { if i > 5 { break } a++ } a").equals("6");
-	code("var c = 0 for var t = []; t.size() < 10; t.push('x') { c++ } c").equals("10");
+	DISABLED_code("var c = 0 for var t = []; t.size() < 10; t.push('x') { c++ } c").equals("10");
 	code("var s = 0 for var m = [1: 3, 2: 2, 3: 1]; m; var l = 0 for k, x in m { l = k } m.erase(l) { for x in m { s += x } } s").equals("14");
 	code("for var i = 0; ['', i < 10][1]; i++ {}").equals("(void)");
 	code("var i = ['', 1][1] for ; i < 10; i <<= 1 {}").equals("(void)");

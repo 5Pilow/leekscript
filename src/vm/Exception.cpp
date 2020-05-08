@@ -5,9 +5,11 @@ namespace ls {
 namespace vm {
 
 ExceptionObj::ExceptionObj(Exception type) : type(type) {
+	// std::cout << "NEW EXCEPTION \t" << (void*) this << std::endl;
 }
 
 ExceptionObj::~ExceptionObj() {
+	// std::cout << "DELETE EXCEPTION \t" << (void*) this << std::endl;
 }
 
 std::string ExceptionObj::to_string(bool colors) const {

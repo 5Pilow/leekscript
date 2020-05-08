@@ -33,8 +33,9 @@ public:
 	static void internal_print_bool(VM* vm, bool v);
 	static void internal_print_real(VM* vm, double v);
 
-	static void throw1(int type, char* file, char* function, size_t line);
-	static void throw2(void** ex, char* file, char* function, size_t line);
+	static void exception_fill(vm::ExceptionObj* ex, vm::ExceptionObj* old, char* file, char* function, size_t line);
+	static vm::ExceptionObj* new_exception(void* ex, int type, char* file, char* function, size_t line);
+	static void delete_exception(vm::ExceptionObj* ex);
 
 	static void v1_debug(LSValue* v);
 

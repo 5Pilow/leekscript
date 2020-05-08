@@ -491,8 +491,11 @@ llvm::BasicBlock* FunctionVersion::get_landing_pad(Compiler& c) {
 	auto catcher = c.find_catcher();
 	if (catcher) {
 		c.builder.CreateBr(catcher->handler);
+		// c.insn_call(c.env.void_, {}, "__cxa_end_catch");
 	} else {
 		// Catch block
+		// auto catch_switch = c.builder.CreateCatchSwitch(landingPadInst, landing_pad, 1);
+		// auto catchpad = c.builder.CreateCatchPad(catch_switch, {});
 		auto savedIPc = c.builder.saveAndClearIP();
 		c.builder.SetInsertPoint(catch_block);
 		c.delete_function_variables();
@@ -500,13 +503,25 @@ llvm::BasicBlock* FunctionVersion::get_landing_pad(Compiler& c) {
 		Compiler::value exception_line = {c.builder.CreateLoad(exception_line_slot), c.env.long_};
 		auto file = c.new_const_string(parent->token->location.file->path);
 		auto function_name = c.new_const_string(parent->name);
-		auto adjusted = c.insn_call(c.env.long_, {exception}, "__cxa_begin_catch");
-		c.insn_call(c.env.void_, {adjusted, file, function_name, exception_line}, "System.throw.1");
-		c.insn_call(c.env.void_, {exception}, "__cxa_rethrow");
-		c.insn_call(c.env.void_, {}, "__cxa_end_catch");
-		c.fun->compile_return(c, { c.env });
-		c.builder.restoreIP(savedIPc);
 
+		// auto eh_exception_type = llvm::FunctionType::get(c.env.i8_ptr->llvm(c), {}, false);
+		// auto eh_exception = llvm::Intrinsic::getDeclaration(c.program->module, llvm::Intrinsic::eh_exceptionpointer, c.env.i8_ptr->llvm(c));
+		// Compiler::value adjusted = { c.builder.CreateCall(eh_exception, { catch_block }), c.env.i8_ptr };
+
+		auto adjusted = c.insn_call(c.env.long_, {exception}, "__cxa_begin_catch");
+		auto new_ex = c.insn_call(c.env.i8_ptr, {c.new_integer(sizeof(vm::ExceptionObj))}, "__cxa_allocate_exception");
+		c.insn_call(c.env.void_, {new_ex, adjusted, file, function_name, exception_line}, "System.exception_fill");
+		// c.insn_call(c.env.void_, {exception}, "System.delete_exception");
+		// c.insn_call(c.env.void_, {}, "__cxa_rethrow");
+		c.insn_call(c.env.void_, {}, "__cxa_end_catch");
+		c.insn_call(c.env.void_, {new_ex, c.new_long((long) &typeid(vm::ExceptionObj)), c.get_symbol("System.delete_exception", c.env.i8_ptr) }, "__cxa_throw");
+		// c.insn_call(c.env.void_, {}, "llvm.eh.resume");
+		// c.insn_call(c.env.void_, {}, "_Unwind_Resume");
+		// c.builder.CreateResume(landingPadInst);
+		// c.fun->compile_return(c, { c.env });
+		c.builder.CreateUnreachable();
+
+		c.builder.restoreIP(savedIPc);
 		c.builder.CreateBr(catch_block);
 	}
 	c.builder.restoreIP(savedIP);
