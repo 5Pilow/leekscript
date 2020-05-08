@@ -26,9 +26,9 @@ class Environment;
 
 class FunctionVersion {
 public:
-	Function* parent;
+	Function* parent = nullptr;
 	std::unique_ptr<Block> body;
-	const Type* type;
+	const Type* type = nullptr;
 	const Type* placeholder_type = nullptr;
 	bool recursive = false;
 	std::unordered_map<std::string, std::unique_ptr<Variable>> initial_arguments;

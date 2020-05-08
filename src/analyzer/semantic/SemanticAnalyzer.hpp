@@ -30,7 +30,7 @@ class SemanticAnalyzer {
 public:
 
 	Environment& env;
-	Program* program;
+	Program* program = nullptr;
 	std::vector<Function*> functions;
 	std::vector<std::vector<Block*>> blocks;
 	std::vector<std::vector<Section*>> sections;

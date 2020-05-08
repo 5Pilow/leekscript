@@ -36,7 +36,7 @@ public:
 	int index;
 	int parent_index;
 	Value* value = nullptr;
-	FunctionVersion* function;
+	FunctionVersion* function = nullptr;
 	Block* block = nullptr;
 	Section* section = nullptr;
 	const Type* type;

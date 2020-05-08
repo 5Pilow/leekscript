@@ -42,7 +42,7 @@ enum class ForeachMode {
 
 class Foreach : public Instruction {
 public:
-	Token* token;
+	Token* token = nullptr;
 	std::unique_ptr<Block> wrapper_block;
 	Token* key = nullptr;
 	Token* value = nullptr;
@@ -52,10 +52,10 @@ public:
 	std::unique_ptr<Section> condition_section;
 	std::unique_ptr<Section> increment_section;
 
-	const Type* key_type;
-	const Type* value_type;
-	Variable* value_var;
-	Variable* key_var;
+	const Type* key_type = nullptr;
+	const Type* value_type = nullptr;
+	Variable* value_var = nullptr;
+	Variable* key_var = nullptr;
 
 	ForeachMode mode;
 

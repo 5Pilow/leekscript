@@ -47,7 +47,7 @@ public:
 
 	Environment& env;
 	std::string name;
-	Class* parent;
+	Class* parent = nullptr;
 	std::unordered_map<std::string, field> fields;
 	std::unordered_map<std::string, field> static_fields;
 	std::unordered_map<std::string, Callable> methods;
