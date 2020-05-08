@@ -53,7 +53,7 @@ public:
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const = 0;
-	virtual Compiler::value compile_end(Compiler&) const;
+	virtual void compile_end(Compiler&) const;
 	#endif
 
 	virtual std::unique_ptr<Instruction> clone(Block* parent) const = 0;

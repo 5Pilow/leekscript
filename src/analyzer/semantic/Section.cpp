@@ -214,6 +214,7 @@ Compiler::value Section::compile(Compiler& c) const {
 	}
 
 	((Section*) this)->first_basic_block = c.builder.GetInsertBlock(); // Update basic block before generation
+	return { env };
 }
 
 void Section::compile_end(Compiler& c) const {

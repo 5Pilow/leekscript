@@ -59,7 +59,7 @@ Compiler::value ExpressionInstruction::compile(Compiler& c) const {
 	return v;
 }
 
-Compiler::value ExpressionInstruction::compile_end(Compiler& c) const {
+void ExpressionInstruction::compile_end(Compiler& c) const {
 	value->compile_end(c);
 }
 #endif

@@ -22,9 +22,7 @@ Hover Instruction::hover(SemanticAnalyzer& analyzer, size_t position) const {
 }
 
 #if COMPILER
-Compiler::value Instruction::compile_end(Compiler& c) const {
-	return { c.env };
-}
+void Instruction::compile_end(Compiler& c) const {}
 #endif
 
 std::string Instruction::tabs(int indent) const {
