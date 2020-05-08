@@ -103,6 +103,9 @@ To help debugging, you can use `valgrind` with the following commands:
 make valgrind  # valgrind default tool
 make callgrind # valgrind callgrind tool
 ```
+### Clang C++ IR output
+[https://godbolt.org/](https://godbolt.org/) is a great tool to explore C/C++ generated assembly. Using `-S -emit-llvm -g0 -O1` options, you can discover LLVM IR for given C++ code.
+
 For a detailed and more technical list of troubleshooting entries, read [document/troubleshooting.md](document/troubleshooting.md).
 
 If you don't find any answer in these documents, check [issues](https://github.com/leek-wars/leekscript/issues) page on GitHub and feel free to post a new one.
