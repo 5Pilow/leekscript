@@ -18,9 +18,10 @@ LeekScript is a dynamically typed, compiled just-in-time programming language in
 3. [Usage](#usage) - usage \
   3.1 [Command-line options](#command-line-options) - CLI options description
 4. [Tests](#tests) - run tests, coverage, benchmark and more
-5. [Projects using LeekScript](#projects-using-leekscript) - discover projects using LeekScript language
-6. [Libraries](#libraries-used) - check library dependencies
-7. [License](#license) - license information
+5. [Troubleshooting](#troubleshooting) - common pitfalls and useful tools
+6. [Projects using LeekScript](#projects-using-leekscript) - discover projects using LeekScript language
+7. [Libraries](#libraries-used) - check library dependencies
+8. [License](#license) - license information
 ---
 
 ## Demonstration
