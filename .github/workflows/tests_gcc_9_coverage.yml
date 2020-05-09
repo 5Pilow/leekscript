@@ -1,0 +1,34 @@
+name: Tests GCC 9 Coverage
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: |
+        sudo apt -y update
+        sudo apt install -y --force-yes build-essential python wget gcc-9 libgmp-dev llvm-9-dev git libomp5 libomp-dev
+        sudo ln -s /usr/lib/llvm-9/include/llvm /usr/include
+        sudo ln -s /usr/lib/llvm-9/include/llvm-c /usr/include
+        sudo ln -s /usr/lib/llvm-9/bin/llvm-config /usr/bin
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 20
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20
+    - name: Info
+      run: |
+        gcc -v
+    - name: make coverage
+      run: make coverage
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: ./build/html/app.info
