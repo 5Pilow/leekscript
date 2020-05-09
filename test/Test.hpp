@@ -14,16 +14,16 @@ class Test {
 private:
 	std::map<std::thread::id, std::unique_ptr<ls::Environment>> envs;
 	std::map<std::thread::id, std::unique_ptr<ls::Environment>> envs_legacy;
-	int total;
-	int success_count;
-	int disabled;
-	double parse_time;
-	double compilation_time;
-	double execution_time;
-	int obj_created;
-	int obj_deleted;
-	int mpz_obj_created;
-	int mpz_obj_deleted;
+	int total = 0;
+	int success_count = 0;
+	int disabled = 0;
+	double parse_time = 0;
+	double compilation_time = 0;
+	double execution_time = 0;
+	int obj_created = 0;
+	int obj_deleted = 0;
+	int mpz_obj_created = 0;
+	int mpz_obj_deleted = 0;
 	static std::vector<std::string> failed_tests;
 	static std::vector<std::string> disabled_tests;
 
@@ -98,9 +98,9 @@ public:
 		std::string label;
 		std::string file_name;
 		std::string code;
-		bool file;
-		bool v1;
-		bool disabled;
+		bool file = false;
+		bool v1 = false;
+		bool disabled = false;
 		double parse_time = 0;
 		double compilation_time = 0;
 		double execution_time = 0;
