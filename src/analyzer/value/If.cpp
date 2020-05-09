@@ -133,6 +133,7 @@ Compiler::value If::compile(Compiler& c) const {
 		}}();
 		return r;
 	}
+	return { c.env };
 }
 #endif
 
