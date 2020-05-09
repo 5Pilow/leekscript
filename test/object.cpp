@@ -43,6 +43,7 @@ void Test::test_objects() {
 	code("12 in {x: 5, y: 'yo'}").equals("false");
 
 	section("Object.operator . ()");
+	code("{ v: 12 }.v").equals("12");
 	code("let a = {b: 12, c: 5} a.b").equals("12");
 	code("let a = {v: 5} a.v = 12").equals("12");
 	code("let a = {v: 5} a.v = 12 a").equals("{v: 12}");

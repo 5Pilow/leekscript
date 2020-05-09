@@ -144,7 +144,7 @@ void ObjectAccess::analyze(SemanticAnalyzer* analyzer) {
 	// std::cout << "ObjectAccess analyse " << this << std::endl;
 
 	object->analyze(analyzer);
-	type = env.any;
+	type = object->type->temporary ? env.tmp_any : env.any;
 
 	// Get the object class : 12 => Number
 	object_class_name = object->type->class_name();

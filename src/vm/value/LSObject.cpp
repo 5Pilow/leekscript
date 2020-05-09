@@ -153,9 +153,9 @@ bool LSObject::in(const LSValue* key) const {
 LSValue* LSObject::attr(VM* vm, const std::string& key) const {
 	auto i = values.find(key);
 	if (i != values.end()) {
-		auto& v = i->second;
+		auto v = i->second;
 		if (refs == 0) {
-			v->refs++;
+			((LSObject*) this)->values.erase(key);
 			LSValue::delete_temporary(this);
 			v->refs--;
 		}
