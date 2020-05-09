@@ -6,7 +6,7 @@
 namespace ls {
 
 Array::Array(Environment& env) : Value(env) {
-	type = Type::array(env.never);
+	type = Type::tmp_array(env.never);
 }
 
 void Array::print(std::ostream& os, int indent, PrintOptions options) const {
@@ -82,9 +82,8 @@ void Array::analyze(SemanticAnalyzer* analyzer) {
 			}
 			new_element_type = new_element_type-> operator + (ex->type);
 		}
-		type = Type::array(new_element_type->not_temporary());
+		type = Type::tmp_array(new_element_type->not_temporary());
 	}
-	type = type->add_temporary();
 	// std::cout << "Array type : " << type << " " << type->element()->fold() << std::endl;
 }
 
@@ -110,7 +109,7 @@ void Array::elements_will_take(SemanticAnalyzer* analyzer, const std::vector<con
 			element_type = element_type->operator * (ex->type);
 		}
 	}
-	this->type = Type::array(element_type);
+	this->type = Type::tmp_array(element_type);
 	// std::cout << "Array::elements_will_take type after " << this->type << std::endl;
 }
 
@@ -124,9 +123,9 @@ bool Array::will_store(SemanticAnalyzer* analyzer, const Type* type) {
 	}
 	auto current_type = this->type->element();
 	if (expressions.size() == 0) {
-		this->type = Type::array(added_type);
+		this->type = Type::tmp_array(added_type);
 	} else {
-		this->type = Type::array(current_type->operator + (added_type));
+		this->type = Type::tmp_array(current_type->operator + (added_type));
 	}
 
 	return false;
@@ -146,7 +145,7 @@ bool Array::elements_will_store(SemanticAnalyzer* analyzer, const Type* type, in
 			element_type = element_type->operator * (ex->type);
 		}
 	}
-	this->type = Type::array(element_type);
+	this->type = Type::tmp_array(element_type);
 	return false;
 }
 
