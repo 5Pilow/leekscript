@@ -9,6 +9,7 @@
 #include <thread>
 #include "../src/environment/Environment.hpp"
 #include "../src/vm/OutputStream.hpp"
+// #include <sanitizer/lsan_interface.h>
 
 std::vector<std::string> Test::failed_tests;
 std::vector<std::string> Test::disabled_tests;
@@ -31,6 +32,7 @@ int main(int, char**) {
 	ls::VM::static_init();
 	srand(time(0));
 	return Test().all();
+	// __lsan_do_recoverable_leak_check();
 }
 
 int Test::all() {

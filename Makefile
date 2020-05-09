@@ -40,7 +40,7 @@ DEBUG_WEB := -O3 -g4 -s SAFE_HEAP=1 -s ASSERTIONS=1 -DWASM=1 -s WASM=1 # --sourc
 FLAGS := -std=c++17 -lstdc++fs -Wall -fopenmp
 FLAGS_COMPILER := -Wno-pmf-conversions
 FLAGS_TEST := -fopenmp
-SANITIZE_FLAGS := -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -fsanitize=float-divide-by-zero # -fsanitize=float-cast-overflow
+SANITIZE_FLAGS := -O1 -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -fsanitize=float-divide-by-zero # -fsanitize=float-cast-overflow
 LIBS := -lm -lgmp `llvm-config-9 --cxxflags --ldflags --system-libs --libs core orcjit native`
 MAKEFLAGS += --jobs=7
 
@@ -93,7 +93,7 @@ build/profile/%.o: %.cpp
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
 
 build/sanitized/%.o: %.cpp
-	$(COMPILER) -c $(OPTIM) $(FLAGS) $(FLAGS_COMPILER) $(SANITIZE_FLAGS) -o $@ $<
+	$(COMPILER) -c $(FLAGS) $(FLAGS_COMPILER) $(SANITIZE_FLAGS) -o $@ $<
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
 
 $(BUILD_DIR):
