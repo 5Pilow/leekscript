@@ -338,13 +338,17 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 		if (t->element()->is_polymorphic()) {
 			if (v.t->element() == env.integer) {
 				auto r = insn_call(t, {v}, "Array.int_to_any");
-				if (delete_previous) insn_delete_temporary(v);
-				if (delete_previous) insn_delete(v);
+				if (delete_previous) {
+					if (v.t->temporary) insn_delete_temporary(v);
+					else insn_delete(v);
+				}
 				return r;
 			} else if (v.t->element() == env.real) {
 				auto r = insn_call(t, {v}, "Array.real_to_any");
-				if (delete_previous) insn_delete_temporary(v);
-				if (delete_previous) insn_delete(v);
+				if (delete_previous) {
+					if (v.t->temporary) insn_delete_temporary(v);
+					else insn_delete(v);
+				}
 				return r;
 			} else if (v.t->element()->is_polymorphic() and v.t->element() != env.never) {
 				return { builder.CreatePointerCast(v.v, t->llvm(*this)), t };
@@ -352,15 +356,19 @@ Compiler::value Compiler::insn_convert(Compiler::value v, const Type* t, bool de
 		} else if (t->element()->is_real()) {
 			if (v.t->element() == env.integer) {
 				auto r = insn_call(t, {v}, "Array.int_to_real");
-				if (delete_previous) insn_delete_temporary(v);
-				if (delete_previous) insn_delete(v);
+				if (delete_previous) {
+					if (v.t->temporary) insn_delete_temporary(v);
+					else insn_delete(v);
+				}
 				return r;
 			}
 		} else if (t->element()->is_long()) {
 			if (v.t->element() == env.integer) {
 				auto r = insn_call(t, {v}, "Array.int_to_long");
-				if (delete_previous) insn_delete_temporary(v);
-				if (delete_previous) insn_delete(v);
+				if (delete_previous) {
+					if (v.t->temporary) insn_delete_temporary(v);
+					else insn_delete(v);
+				}
 				return r;
 			}
 		} else if (t->element()->is_integer()) {
