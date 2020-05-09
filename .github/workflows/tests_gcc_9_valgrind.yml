@@ -25,7 +25,6 @@ jobs:
     - name: Info
       run: |
         gcc -v
+        valgrind --version
     - name: Tests with Valgrind
-      run: |
-        make build/leekscript-test
-        valgrind --leak-check=full --show-error-list=yes --error-exitcode=1 build/leekscript-test
+      run: make valgrind
