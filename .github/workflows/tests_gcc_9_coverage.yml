@@ -20,8 +20,7 @@ jobs:
         sudo ln -s /usr/lib/llvm-9/include/llvm /usr/include
         sudo ln -s /usr/lib/llvm-9/include/llvm-c /usr/include
         sudo ln -s /usr/lib/llvm-9/bin/llvm-config /usr/bin
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 20
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 20 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
     - name: Info
       run: |
         pwd
