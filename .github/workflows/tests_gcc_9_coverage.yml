@@ -16,7 +16,7 @@ jobs:
     - name: Install
       run: |
         sudo apt -y update
-        sudo apt install -y --force-yes build-essential python wget gcc-9 libgmp-dev llvm-9-dev git libomp5 libomp-dev
+        sudo apt install -y --force-yes build-essential python wget gcc-9 libgmp-dev llvm-9-dev git libomp5 libomp-dev lcov
         sudo ln -s /usr/lib/llvm-9/include/llvm /usr/include
         sudo ln -s /usr/lib/llvm-9/include/llvm-c /usr/include
         sudo ln -s /usr/lib/llvm-9/bin/llvm-config /usr/bin
