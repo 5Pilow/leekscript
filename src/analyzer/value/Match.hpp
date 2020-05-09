@@ -27,10 +27,10 @@ public:
 		Compiler::value match(Compiler &c, Compiler::value v) const;
 		#endif
 
-		Pattern&& clone(Block* parent) const {
+		Pattern clone(Block* parent) const {
 			Pattern p { begin->clone(parent), end->clone(parent) };
 			p.interval = interval;
-			return std::move(p);
+			return p;
 		}
 	};
 
