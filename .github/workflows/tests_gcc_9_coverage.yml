@@ -22,7 +22,7 @@ jobs:
         sudo ln -s /usr/lib/llvm-9/bin/llvm-config /usr/bin
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 20 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
         wget http://archive.ubuntu.com/ubuntu/pool/universe/l/lcov/lcov_1.14-2_all.deb
-        sudo dpkg -i lcov_1.14-2_all.deb
+        sudo apt install ./lcov_1.14-2_all.deb
     - name: Info
       run: |
         pwd
