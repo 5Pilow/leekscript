@@ -226,9 +226,9 @@ travis-pr:
 # `apt install lcov`
 coverage: build/leekscript-coverage
 	mkdir -p build/html
-	lcov --quiet --no-external --rc lcov_branch_coverage=1 --capture --initial --directory build/coverage/src --base-directory src --output-file build/html/app.info
+	lcov --quiet --no-external --rc lcov_branch_coverage=1 --capture --initial --directory build/coverage/src --base-directory . --output-file build/html/app.info
 	build/leekscript-coverage
-	lcov --quiet --no-external --rc lcov_branch_coverage=1 --capture --directory build/coverage/src --base-directory src --output-file build/html/app.info
+	lcov --quiet --no-external --rc lcov_branch_coverage=1 --capture --directory build/coverage/src --base-directory . --output-file build/html/app.info
 	cd build/html; genhtml --ignore-errors source --legend --precision 2 --branch-coverage app.info
 
 coverage-travis: build/leekscript-coverage
