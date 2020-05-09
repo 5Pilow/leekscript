@@ -6,6 +6,7 @@
 
 [![Tests GCC 9](https://github.com/leek-wars/leekscript/workflows/Tests%20GCC%209/badge.svg)](https://github.com/leek-wars/leekscript/actions?query=workflow%3A%22Tests+GCC+9%22)
 [![Tests GCC 9 Valgrind](https://github.com/leek-wars/leekscript/workflows/Tests%20GCC%209%20Valgrind/badge.svg)](https://github.com/leek-wars/leekscript/actions?query=workflow%3A%22Tests+GCC+9+Valgrind%22)
+[![Tests GCC 9 Address Sanitizer](https://github.com/leek-wars/leekscript/workflows/Tests%20GCC%209%20Address%20Sanitizer/badge.svg)](https://github.com/leek-wars/leekscript/actions?query=workflow%3A%22Tests+GCC+9+Address+Sanitizer%22)
 [![Build Status](https://travis-ci.org/leek-wars/leekscript.svg?branch=master)](https://travis-ci.org/leek-wars/leekscript) [![Coverage Status](https://coveralls.io/repos/github/leek-wars/leekscript/badge.svg?branch=master)](https://coveralls.io/github/leek-wars/leekscript?branch=master) [![GPL Licence](https://badges.frapsoft.com/os/gpl/gpl.svg?v=103)](https://opensource.org/licenses/GPL-3.0/)
 
 LeekScript is a dynamically typed, compiled just-in-time programming language initially designed for [Leek Wars](https://leekwars.com) AIs, and for games in general. Design to be simple to use for beginners, but with rich syntax and functionnalities, and a good speed thanks to an optimized compiler.
