@@ -37,7 +37,6 @@ public:
 	std::vector<std::vector<Instruction*>> loops;
 	std::vector<FunctionVersion*> functions_stack;
 	std::vector<Error> errors;
-	std::unordered_map<std::string, std::unique_ptr<Variable>> globals;
 
 	SemanticAnalyzer(Environment& env);
 

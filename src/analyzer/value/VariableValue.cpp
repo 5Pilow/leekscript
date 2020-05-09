@@ -48,28 +48,28 @@ Location VariableValue::location() const {
 Call VariableValue::get_callable(SemanticAnalyzer* analyzer, int argument_count) const {
 	auto& env = analyzer->env;
 	if (name == "~") {
-		return { &analyzer->globals["Value"]->clazz->operators["~"] };
+		return { &analyzer->program->globals["Value"]->clazz->operators["~"] };
 	}
 	if (name == "Number") {
-		return { &analyzer->globals["Number"]->clazz->methods["new"] };
+		return { &analyzer->program->globals["Number"]->clazz->methods["new"] };
 	}
 	if (name == "Boolean") {
-		return { &analyzer->globals["Boolean"]->clazz->methods["new"] };
+		return { &analyzer->program->globals["Boolean"]->clazz->methods["new"] };
 	}
 	if (name == "String") {
-		return { &analyzer->globals["String"]->clazz->methods["new"] };
+		return { &analyzer->program->globals["String"]->clazz->methods["new"] };
 	}
 	if (name == "Array") {
-		return { &analyzer->globals["Array"]->clazz->methods["new"] };
+		return { &analyzer->program->globals["Array"]->clazz->methods["new"] };
 	}
 	if (name == "Object") {
-		return { &analyzer->globals["Object"]->clazz->methods["new"] };
+		return { &analyzer->program->globals["Object"]->clazz->methods["new"] };
 	}
 	if (name == "Set") {
-		return { &analyzer->globals["Set"]->clazz->methods["new"] };
+		return { &analyzer->program->globals["Set"]->clazz->methods["new"] };
 	}
 	if (type->is_class()) {
-		return { &analyzer->globals["Class"]->clazz->methods["construct"], nullptr, (Value*) this };
+		return { &analyzer->program->globals["Class"]->clazz->methods["construct"], nullptr, (Value*) this };
 	}
 	if (var) {
 		if (var->call.callables.size()) return var->call;
@@ -83,7 +83,7 @@ Call VariableValue::get_callable(SemanticAnalyzer* analyzer, int argument_count)
 		}
 	} else {
 		Call call;
-		for (const auto& variable : analyzer->globals) {
+		for (const auto& variable : analyzer->program->globals) {
 			if (variable.second->type->is_class()) {
 				const auto& cl = variable.second->clazz;
 				auto m = cl->methods.find(name);
@@ -133,7 +133,7 @@ void VariableValue::analyze(SemanticAnalyzer* analyzer) {
 		// std::cout << "var " << var << " " << (void*) var << " " << var->type << std::endl;
 	} else {
 		bool found = false;
-		for (const auto& variable : analyzer->globals) {
+		for (const auto& variable : analyzer->program->globals) {
 			if (variable.second->type->is_class()) {
 				const auto& cl = variable.second->clazz;
 				for (const auto& m : cl->methods) {
@@ -244,7 +244,7 @@ Completion VariableValue::autocomplete(SemanticAnalyzer& analyzer, size_t positi
 		completion.items.push_back({ variable.first, CompletionType::VARIABLE, variable.second->type, location() });
 	}
 
-	for (const auto& global : analyzer.globals) {
+	for (const auto& global : analyzer.program->globals) {
 		if (global.second->clazz) {
 			for (const auto& method : global.second->clazz->methods) {
 				if (method.first.find(letters) == std::string::npos) continue;

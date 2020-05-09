@@ -9,6 +9,7 @@
 #include "../value/Phi.hpp"
 #include "../value/If.hpp"
 #include "../../colors.h"
+#include "../Program.hpp"
 
 namespace ls {
 
@@ -218,7 +219,7 @@ Completion Block::autocomplete(SemanticAnalyzer& analyzer, size_t position) cons
 	for (const auto& variable : variables) {
 		completion.items.push_back({ variable.first, CompletionType::VARIABLE, variable.second->type, location });
 	}
-	for (const auto& global : analyzer.globals) {
+	for (const auto& global : analyzer.program->globals) {
 		if (global.second->clazz) {
 			for (const auto& method : global.second->clazz->methods) {
 				for (const auto& version : method.second.versions) {

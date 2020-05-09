@@ -29,6 +29,7 @@ public:
 	const Type* type;
 	std::vector<Function*> functions;
 	std::string file_name;
+	std::unordered_map<std::string, std::unique_ptr<Variable>> globals;
 	std::unordered_map<std::string, std::unique_ptr<Variable>> operators;
 	std::unique_ptr<File> main_file;
 	std::vector<std::unique_ptr<Token>> operators_tokens;

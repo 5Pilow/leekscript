@@ -306,7 +306,7 @@ Completion FunctionCall::autocomplete(SemanticAnalyzer& analyzer, size_t positio
 		for (const auto& variable : analyzer.current_block()->variables) {
 			completion.items.push_back({ variable.first, CompletionType::VARIABLE, variable.second->type, location });
 		}
-		for (const auto& global : analyzer.globals) {
+		for (const auto& global : analyzer.program->globals) {
 			if (global.second->clazz) {
 				for (const auto& method : global.second->clazz->methods) {
 					for (const auto& version : method.second.versions) {

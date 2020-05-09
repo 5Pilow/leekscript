@@ -17,15 +17,15 @@ namespace ls {
 
 SemanticAnalyzer::SemanticAnalyzer(Environment& env) : env(env) {
 	program = nullptr;
-	for (const auto& clazz : env.std.classes) {
-		auto const_class = env.const_class(clazz.first);
-		globals.insert({ clazz.first, std::make_unique<Variable>(clazz.first, VarScope::INTERNAL, const_class, 0, nullptr, nullptr, nullptr, nullptr, clazz.second->clazz.get()) });
-	}
 }
 
 void SemanticAnalyzer::analyze(Program* program) {
 
 	this->program = program;
+	for (const auto& clazz : env.std.classes) {
+		auto const_class = env.const_class(clazz.first);
+		program->globals.insert({ clazz.first, std::make_unique<Variable>(clazz.first, VarScope::INTERNAL, const_class, 0, nullptr, nullptr, nullptr, nullptr, clazz.second->clazz.get()) });
+	}
 
 	program->main->create_default_version(this);
 	enter_function(program->main->default_version.get());
@@ -122,8 +122,8 @@ Variable* SemanticAnalyzer::get_var(const std::string& v) {
 	// std::cout << "SemanticAnalyzer::get_var " << v << std::endl;
 
 	// Search in global variables
-	auto i = globals.find(v);
-	if (i != globals.end()) {
+	auto i = program->globals.find(v);
+	if (i != program->globals.end()) {
 		return i->second.get();
 	}
 
@@ -199,7 +199,7 @@ Variable* SemanticAnalyzer::get_var(const std::string& v) {
 }
 
 Variable* SemanticAnalyzer::add_var(Token* v, const Type* type, Value* value) {
-	if (globals.find(v->content) != globals.end()) {
+	if (program->globals.find(v->content) != program->globals.end()) {
 		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
 		return nullptr;
 	}
@@ -220,7 +220,7 @@ Variable* SemanticAnalyzer::add_var(Token* v, const Type* type, Value* value) {
 }
 
 Variable* SemanticAnalyzer::add_var(Token* v, Variable* var) {
-	if (globals.find(v->content) != globals.end()) {
+	if (program->globals.find(v->content) != program->globals.end()) {
 		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
 		return nullptr;
 	}
