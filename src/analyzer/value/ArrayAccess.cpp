@@ -198,9 +198,10 @@ Compiler::value ArrayAccess::compile(Compiler& c) const {
 	c.mark_offset(open_bracket->location.start.line);
 
 	((ArrayAccess*) this)->compiled_array = array->compile(c);
-	c.add_temporary_value(compiled_array);
-	((ArrayAccess*) this)->should_delete_array = true;
-	array->compile_end(c);
+	if (array->type->temporary) {
+		c.add_temporary_value(compiled_array);
+		((ArrayAccess*) this)->should_delete_array = true;
+	}
 
 	c.inc_ops(2); // Array access : 2 operations
 
@@ -363,6 +364,7 @@ Compiler::value ArrayAccess::compile_l(Compiler& c) const {
 }
 
 void ArrayAccess::compile_end(Compiler& c) const {
+	// std::cout << "ArrayAccess::compile_end" << std::endl;
 	if (should_delete_array) {
 		c.pop_temporary_value();
 	}
