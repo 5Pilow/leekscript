@@ -9,9 +9,21 @@
 
 namespace ls {
 
+union ContextVarValue {
+	LSValue* ls_value;
+	int int_value;
+	double real_value;
+	long long_value;
+	ContextVarValue() : int_value(0) {}
+	ContextVarValue(int v) : int_value(v) {}
+	ContextVarValue(LSValue* v) : ls_value(v) {}
+	ContextVarValue(double v) : real_value(v) {}
+	ContextVarValue(long v) : long_value(v) {}
+};
+
 class ContextVar {
 public:
-	void* value;
+	ContextVarValue value;
 	const Type* type;
 	Variable* variable;
 	std::unique_ptr<Token> token;
@@ -27,7 +39,7 @@ public:
 	Context(Environment& env, std::string ctx);
 	virtual ~Context();
 
-	void add_variable(char* name, void* v, const Type* type);
+	void add_variable(char* name, ContextVarValue v, const Type* type);
 };
 
 }

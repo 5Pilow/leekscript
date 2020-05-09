@@ -1013,13 +1013,13 @@ LSValue* ValueSTD::get_class(VM* vm, LSValue* x) {
 	return x->getClass(vm);
 }
 void ValueSTD::export_context_variable_int(VM* vm, char* name, int v) {
-	vm->context->add_variable(name, reinterpret_cast<void*&>(v), vm->env.integer);
+	vm->context->add_variable(name, v, vm->env.integer);
 }
 void ValueSTD::export_context_variable_long(VM* vm, char* name, long v) {
-	vm->context->add_variable(name, (void*) v, vm->env.long_);
+	vm->context->add_variable(name, v, vm->env.long_);
 }
 void ValueSTD::export_context_variable_real(VM* vm, char* name, double v) {
-	vm->context->add_variable(name, reinterpret_cast<void*&>(v), vm->env.real);
+	vm->context->add_variable(name, v, vm->env.real);
 }
 void ValueSTD::export_context_variable(VM* vm, char* name, LSValue* v) {
 	// std::cout << "export context variable " << name << " " << (void*) v << " " << v->refs << std::endl;

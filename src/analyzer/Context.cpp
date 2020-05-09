@@ -26,12 +26,12 @@ Context::~Context() {
 	for (const auto& var : vars) {
 		if (var.second.type == env.any) {
 			// std::cout << "delete var " << (LSValue*)var.second.value << std::endl;
-			delete (LSValue*)var.second.value;
+			delete var.second.value.ls_value;
 		}
 	}
 }
 
-void Context::add_variable(char* name, void* v, const Type* type) {
+void Context::add_variable(char* name, ContextVarValue v, const Type* type) {
 	// std::cout << "add_variable " << name << " " << v << " " << ((LSValue*) v)->refs << std::endl;
 	auto i = vars.find(name);
 	if (i != vars.end()) {
@@ -57,11 +57,21 @@ namespace std {
 		int i = 0;
 		for (const auto& v : context->vars) {
 			if (i++ > 0) os << ", ";
-			os << v.first << ": " << v.second.value << " " << v.second.type;
+			os << v.first << ": ";
+			if (v.second.type->is_integer()) {
+				os << v.second.value.int_value;
+			} else if (v.second.type->is_real()) {
+				os << v.second.value.real_value;
+			} else if (v.second.type->is_long()) {
+				os << v.second.value.long_value;
+			} else {
+				os << (void*) v.second.value.ls_value;
+			}
+			os << " " << v.second.type;
 			#if COMPILER
 			if (v.second.type == context->env.any) {
-				os << " " << (ls::LSValue*) v.second.value;
-				os << " " << ((ls::LSValue*) v.second.value)->refs;
+				os << " " << v.second.value.ls_value;
+				os << " " << v.second.value.ls_value->refs;
 			}
 			#endif
 		}
