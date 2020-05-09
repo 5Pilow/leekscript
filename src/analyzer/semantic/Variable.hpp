@@ -46,7 +46,6 @@ public:
 	int generator = 0;
 	Variable* root = nullptr;
 	Variable* parent = nullptr;
-	std::vector<Phi*> phis;
 	bool assignment = false;
 	Class* clazz = nullptr;
 	Value* array = nullptr;

@@ -67,16 +67,8 @@ void Variable::store_value(Compiler& c, Compiler::value value) {
 	if (value.t->is_mpz_ptr()) {
 		auto v = c.insn_load(value);
 		c.insn_store(entry, v);
-		for (const auto& phi : phis) {
-			if (phi->variable1 == this) phi->value1 = v;
-			if (phi->variable2 == this) phi->value2 = v;
-		}
 	} else {
 		c.insn_store(entry, value);
-		for (const auto& phi : phis) {
-			if (phi->variable1 == this) phi->value1 = value;
-			if (phi->variable2 == this) phi->value2 = value;
-		}
 	}
 }
 

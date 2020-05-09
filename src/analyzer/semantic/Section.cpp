@@ -109,8 +109,6 @@ void Section::pre_analyze(SemanticAnalyzer* analyzer) {
 		// std::cout << variable << " " << variable->get_root() << " " << variable2 << " " << variable2->get_root() << std::endl;
 		auto new_var = analyzer->update_var(variable2);
 		auto phi = new Phi { analyzer->env, new_var, original_section1, variable, original_section2, variable2 };
-		variable->phis.push_back(phi);
-		variable2->phis.push_back(phi);
 		// std::cout << "new phi = " << phi << " " << new_var << " " << variable << " " << phi->variable->injected << std::endl;
 		phis.emplace_back(phi);
 		return true;

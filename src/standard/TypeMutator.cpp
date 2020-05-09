@@ -36,11 +36,6 @@ int ConvertMutator::compile(Compiler& c, CallableVersion* callable, std::vector<
 		if (store_array_size) {
 			callable->extra_arg = c.insn_array_size(vv->var->parent->get_value(c));
 		}
-		for (const auto& phi : vv->var->phis) {
-			if (phi->variable2 == vv->var) {
-				// c.insn_delete_temporary(phi->value1);
-			}
-		}
 		if (vv->var->scope == VarScope::CAPTURE) {
 			// vv->var->entry = vv->var->parent->entry;
 			return 0;
@@ -145,16 +140,6 @@ int ChangeValueMutator::compile(Compiler& c, CallableVersion* callable, std::vec
 			} else {
 				// std::cout << "ChangeValueMutator take parent " << vv->var << std::endl;
 				vv->var->entry = vv->var->parent->entry;
-			}
-			for (const auto& phi : vv->var->phis) {
-				if (phi->variable2 == vv->var) {
-					// std::cout << "type mutator load value" << std::endl;
-					if (vv->var->type->is_mpz_ptr()) {
-						phi->value2 = vv->var->entry;
-					} else {
-						phi->value2 = c.insn_load(vv->var->entry);
-					}
-				}
 			}
 			return 0;
 		} else {
