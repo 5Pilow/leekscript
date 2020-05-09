@@ -25,10 +25,10 @@ jobs:
     - name: Info
       run: |
         gcc -v
-    - name: make coverage
-      run: make coverage
+    - name: Coverage
+      run: make coverage-action
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: ./build/html/app.info
+        path-to-lcov: ./build/app.info

@@ -231,6 +231,11 @@ coverage: build/leekscript-coverage
 	lcov --quiet --no-external --rc lcov_branch_coverage=1 --capture --directory build/coverage/src --base-directory . --output-file build/html/app.info
 	cd build/html; genhtml --ignore-errors source --legend --precision 2 --branch-coverage app.info
 
+coverage-action: build/leekscript-coverage
+	lcov --quiet --no-external --rc lcov_branch_coverage=1 --capture --initial --directory build/coverage/src --base-directory . --output-file build/app.info
+	build/leekscript-coverage
+	lcov --quiet --no-external --rc lcov_branch_coverage=1 --capture --directory build/coverage/src --base-directory . --output-file build/app.info
+
 coverage-travis: build/leekscript-coverage
 
 demangle-coverage:
