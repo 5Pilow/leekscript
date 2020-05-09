@@ -163,10 +163,13 @@ Compiler::value Array::compile(Compiler& c) const {
 	std::vector<Compiler::value> elements;
 	for (const auto& val : expressions) {
 		auto v = val->compile(c);
-		val->compile_end(c);
 		elements.push_back(v);
 	}
-	return c.new_array(type->element(), elements);
+	auto array = c.new_array(type->element(), elements);
+	for (const auto& val : expressions) {
+		val->compile_end(c);
+	}
+	return array;
 }
 #endif
 
