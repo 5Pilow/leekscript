@@ -118,7 +118,7 @@ void Test::test_legacy_array() {
     section("large array");
     exe_start = std::chrono::high_resolution_clock::now();
     auto largea = new ls::LSArray<ls::LSValue*>();
-     for (int i = 0; i < S; ++i) {
+    for (int i = 0; i < S; ++i) {
         largea->push_move(ls::LSNumber::get(12));
     }
     exe_end = std::chrono::high_resolution_clock::now();
