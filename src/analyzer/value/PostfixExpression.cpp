@@ -59,7 +59,7 @@ Compiler::value PostfixExpression::compile(Compiler& c) const {
 
 		case TokenType::PLUS_PLUS: {
 			if (expression->type->is_mpz_ptr()) {
-				auto x = expression->compile_l(c);
+				auto x = ((LeftValue*) expression.get())->compile_l(c);
 				auto one = c.new_integer(1);
 				if (is_void) {
 					c.insn_call(env.void_, {x, x, one}, "Number.mpz_add_ui");
@@ -70,13 +70,13 @@ Compiler::value PostfixExpression::compile(Compiler& c) const {
 					return r;
 				}
 			} else if (!expression->type->is_polymorphic()) {
-				auto x_addr = expression->compile_l(c);
+				auto x_addr = ((LeftValue*) expression.get())->compile_l(c);
 				auto x = c.insn_load(x_addr);
 				auto sum = c.insn_add(x, c.new_integer(1));
 				c.insn_store(x_addr, sum);
 				return x;
 			} else {
-				auto e = expression->compile_l(c);
+				auto e = ((LeftValue*) expression.get())->compile_l(c);
 				if (is_void) {
 					return c.insn_invoke(env.any, {e}, "Value.pre_incl");
 				} else {
@@ -87,7 +87,7 @@ Compiler::value PostfixExpression::compile(Compiler& c) const {
 		}
 		case TokenType::MINUS_MINUS: {
 			if (expression->type->is_mpz_ptr()) {
-				auto x = expression->compile_l(c);
+				auto x = ((LeftValue*) expression.get())->compile_l(c);
 				auto one = c.new_integer(1);
 				if (is_void) {
 					c.insn_call(env.void_, {x, x, one}, "Number.mpz_sub_ui");
@@ -98,13 +98,13 @@ Compiler::value PostfixExpression::compile(Compiler& c) const {
 					return r;
 				}
 			} else if (expression->type->is_primitive()) {
-				auto x_addr = expression->compile_l(c);
+				auto x_addr = ((LeftValue*) expression.get())->compile_l(c);
 				auto x = c.insn_load(x_addr);
 				auto sum = c.insn_sub(x, c.new_integer(1));
 				c.insn_store(x_addr, sum);
 				return x;
 			} else {
-				auto e = expression->compile_l(c);
+				auto e = ((LeftValue*) expression.get())->compile_l(c);
 				if (is_void) {
 					return c.insn_invoke(env.any, {e}, "Value.pre_decl");
 				} else {
@@ -121,7 +121,7 @@ Compiler::value PostfixExpression::compile(Compiler& c) const {
 
 std::unique_ptr<Value> PostfixExpression::clone(Block* parent) const {
 	auto pe = std::make_unique<PostfixExpression>(type->env);
-	pe->expression = unique_static_cast<LeftValue>(expression->clone(parent));
+	pe->expression = unique_static_cast<Value>(expression->clone(parent));
 	pe->operatorr = operatorr;
 	return pe;
 }

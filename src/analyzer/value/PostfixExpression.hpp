@@ -10,7 +10,7 @@ namespace ls {
 class PostfixExpression : public Value {
 public:
 
-	std::unique_ptr<LeftValue> expression;
+	std::unique_ptr<Value> expression;
 	std::shared_ptr<Operator> operatorr;
 	bool return_value;
 

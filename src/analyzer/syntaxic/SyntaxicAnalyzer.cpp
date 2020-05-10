@@ -647,7 +647,7 @@ Value* SyntaxicAnalyzer::eatSimpleExpression(Block* block, bool pipe_opened, boo
 			auto ex = new PostfixExpression(env);
 
 			ex->operatorr = std::make_shared<Operator>(op);
-			ex->expression = std::unique_ptr<LeftValue>((LeftValue*) e);
+			ex->expression = std::unique_ptr<Value>(e);
 			e = ex;
 		}
 	}
