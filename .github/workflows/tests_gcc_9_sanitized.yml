@@ -1,4 +1,4 @@
-name: Tests GCC 9 Address Sanitizer
+name: Tests GCC 9 ASan
 
 on:
   push:
