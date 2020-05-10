@@ -38,6 +38,13 @@ LSMap<K, V>::~LSMap() {
  * Map methods
  */
 template <class K, class V>
+int LSMap<K, V>::ls_size() {
+	int s = this->size();
+	LSValue::delete_temporary(this);
+	return s;
+}
+
+template <class K, class V>
 bool LSMap<K, V>::ls_insert(K key, V value) {
 	auto it = this->lower_bound(key);
 	if (it == this->end() || !ls::equals(it->first, key)) {

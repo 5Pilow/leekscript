@@ -9,11 +9,6 @@
 namespace ls {
 
 #if COMPILER
-int map_size(const LSMap<LSValue*,LSValue*>* map) {
-	int r = map->size();
-	if (map->refs == 0) delete map;
-	return r;
-}
 void* iterator_end(LSMap<int, int>* map) {
 	return map->end()._M_node;
 }
@@ -76,12 +71,12 @@ MapSTD::MapSTD(Environment& env) : Module(env, "Map") {
 	});
 
 	method("size", {
-		{env.integer, {Type::const_map(env.any, env.any)}, ADDR((void*) map_size)},
-		{env.integer, {Type::const_map(env.any, env.real)}, ADDR((void*) map_size)},
-		{env.integer, {Type::const_map(env.any, env.integer)}, ADDR((void*) map_size)},
-		{env.integer, {Type::const_map(env.integer, env.any)}, ADDR((void*) map_size)},
-		{env.integer, {Type::const_map(env.integer, env.real)}, ADDR((void*) map_size)},
-		{env.integer, {Type::const_map(env.integer, env.integer)}, ADDR((void*) map_size)},
+		{env.integer, {Type::const_map(env.any, env.any)}, ADDR(((void*) &LSMap<LSValue*, LSValue*>::ls_size))},
+		{env.integer, {Type::const_map(env.any, env.real)}, ADDR(((void*) &LSMap<LSValue*, double>::ls_size))},
+		{env.integer, {Type::const_map(env.any, env.integer)}, ADDR(((void*) &LSMap<LSValue*, int>::ls_size))},
+		{env.integer, {Type::const_map(env.integer, env.any)}, ADDR(((void*) &LSMap<int, LSValue*>::ls_size))},
+		{env.integer, {Type::const_map(env.integer, env.real)}, ADDR(((void*) &LSMap<int, double>::ls_size))},
+		{env.integer, {Type::const_map(env.integer, env.integer)}, ADDR(((void*) &LSMap<int, int>::ls_size))},
     });
 
 	auto vK = env.template_("K");

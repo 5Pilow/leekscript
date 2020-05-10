@@ -22,6 +22,7 @@ public:
 	/*
 	 * Map methods;
 	 */
+	int ls_size();
 	bool ls_insert(K key, V value);
 	void ls_emplace(K key, V value);
 	LSMap<K, V>* ls_clear();
