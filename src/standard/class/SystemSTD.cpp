@@ -176,7 +176,7 @@ void SystemSTD::internal_print_real(VM* vm, double v) {
  *  - https://monoinfinito.wordpress.com/series/exception-handling-in-c/
  */
 void SystemSTD::exception_fill(vm::ExceptionObj* ex, vm::ExceptionObj* old, char* file, char* function, size_t line) {
-	auto new_ex = new (ex) vm::ExceptionObj(old->type);
+	new (ex) vm::ExceptionObj(old->type);
 	// std::cout << "Exception fill \t" << (void*)new_ex << std::endl;
 	std::swap(ex->frames, old->frames);
 	ex->frames.push_back({file, function, line});
