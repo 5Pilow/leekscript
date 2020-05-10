@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+    
+jobs:
+
+  tests:
+  
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: |
+        sudo apt -y update
+        sudo apt install -y --force-yes build-essential python wget gcc-9 libgmp-dev llvm-9-dev git libomp5 libomp-dev
+        sudo ln -s /usr/lib/llvm-9/include/llvm /usr/include
+        sudo ln -s /usr/lib/llvm-9/include/llvm-c /usr/include
+        sudo ln -s /usr/lib/llvm-9/bin/llvm-config /usr/bin
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 20
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20
+    - name: Info
+      run: |
+        gcc -v
+    - name: make test
+      run: make test
+
+
+  coverage:
+  
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: |
+        sudo apt -y update
+        sudo apt install -y --force-yes build-essential python wget gcc-9 libgmp-dev llvm-9-dev git libomp5 libomp-dev
+        sudo ln -s /usr/lib/llvm-9/include/llvm /usr/include
+        sudo ln -s /usr/lib/llvm-9/include/llvm-c /usr/include
+        sudo ln -s /usr/lib/llvm-9/bin/llvm-config /usr/bin
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 20 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
+        wget http://archive.ubuntu.com/ubuntu/pool/universe/l/lcov/lcov_1.14-2_all.deb
+        sudo apt install ./lcov_1.14-2_all.deb
+    - name: Info
+      run: |
+        pwd
+        gcc -v
+        gcov -v
+        lcov -v
+    - name: Coverage
+      run: make coverage-action
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: ./build/app.info
+
+
+  sanitized:
+
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: |
+        sudo apt -y update
+        sudo apt install -y --force-yes build-essential python wget gcc-9 libgmp-dev llvm-9-dev git libomp5 libomp-dev
+        sudo ln -s /usr/lib/llvm-9/include/llvm /usr/include
+        sudo ln -s /usr/lib/llvm-9/include/llvm-c /usr/include
+        sudo ln -s /usr/lib/llvm-9/bin/llvm-config /usr/bin
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 20
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20
+    - name: Info
+      run: |
+        gcc -v
+    - name: Tests with Address Sanitizer
+      run: make sanitized
+
+
+  valgrind:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: |
+        sudo apt -y update
+        sudo apt install -y --force-yes build-essential python wget gcc-9 libgmp-dev llvm-9-dev git libomp5 libomp-dev valgrind
+        sudo ln -s /usr/lib/llvm-9/include/llvm /usr/include
+        sudo ln -s /usr/lib/llvm-9/include/llvm-c /usr/include
+        sudo ln -s /usr/lib/llvm-9/bin/llvm-config /usr/bin
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 20
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20
+    - name: Info
+      run: |
+        gcc -v
+        valgrind --version
+    - name: Tests with Valgrind
+      run: make valgrind
