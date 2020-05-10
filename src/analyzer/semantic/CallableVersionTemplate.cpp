@@ -140,7 +140,7 @@ std::pair<int, CallableVersion> CallableVersionTemplate::get_score(SemanticAnaly
 			const auto implem_arg = new_version.type->argument(i);
 			// std::cout << "argument " << i << " " << implem_arg << std::endl;
 			if (a->function() and (implem_arg->is_function() or implem_arg->is_function_pointer() or implem_arg->is_function_object())) {
-				arguments.at(i) = ((Function*) a->function())->will_take(analyzer, implem_arg->arguments(), 1);
+				arguments.at(i) = ((Value*) a->function())->will_take(analyzer, implem_arg->arguments(), 1);
 			}
 		} else if (f and ((Function*) f)->defaultValues.at(i)) {
 			// Default argument
@@ -197,7 +197,7 @@ void solve(SemanticAnalyzer* analyzer, const Type* t1, const Type* t2) {
 		auto f = t2->function();
 		if (f) {
 			auto t1_args = build(t1)->arguments();
-			auto type = ((Function*) f)->will_take(analyzer, t1_args, 1);
+			auto type = ((Value*) f)->will_take(analyzer, t1_args, 1);
 			solve(analyzer, t1->return_type(), type->return_type());
 		}
 	}
