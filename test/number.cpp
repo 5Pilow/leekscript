@@ -807,7 +807,7 @@ void Test::test_numbers() {
 	code("3972049.isPrime()").equals("false");
 	code("(1993l).isPrime()").equals("true");
 	code("4398042316799.isPrime()").equals("true");
-	code("(4398042316799m).isPrime()").equals("1");
+	code("(4398042316799m).isPrime() >= 1").equals("true");
 	code("359334085968622831041960188598043661065388726959079837.isPrime()").equals("1");
 	code("(146m ** 45m).isPrime()").equals("0");
 	code("1993l.isPrime()").equals("true");
