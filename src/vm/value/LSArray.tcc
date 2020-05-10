@@ -98,12 +98,13 @@ inline LSArray<LSValue*>* LSArray<LSValue*>::ls_clear() {
 		LSValue::delete_ref(v);
 	}
 	this->clear();
-	return this;
+	return new LSArray<LSValue*>();
 }
 template <class T>
-inline LSArray<T>* LSArray<T>::ls_clear() {
+inline LSArray<LSValue*>* LSArray<T>::ls_clear() {
 	this->clear();
-	return this;
+	LSValue::delete_temporary(this);
+	return new LSArray<LSValue*>();
 }
 
 template <>

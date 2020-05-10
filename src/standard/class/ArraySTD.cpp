@@ -90,9 +90,9 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
     });
 
 	method("clear", {
-		{Type::array(env.never), {Type::const_array(env.void_)}, ADDR((void*) &LSArray<LSValue*>::ls_clear)},
-		{Type::array(env.never), {Type::const_array(env.real)}, ADDR((void*) &LSArray<double>::ls_clear)},
-		{Type::array(env.never), {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_clear)},
+		{Type::tmp_array(env.never), {Type::const_array(env.void_)}, ADDR((void*) &LSArray<LSValue*>::ls_clear)},
+		{Type::tmp_array(env.never), {Type::const_array(env.real)}, ADDR((void*) &LSArray<double>::ls_clear)},
+		{Type::tmp_array(env.never), {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_clear)},
 		{Type::tmp_array(env.never), {Type::tmp_array(env.void_)}, ADDR((void*) &LSArray<LSValue*>::ls_clear)},
 		{Type::tmp_array(env.never), {Type::tmp_array(env.real)}, ADDR((void*) &LSArray<double>::ls_clear)},
 		{Type::tmp_array(env.never), {Type::tmp_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_clear)},
@@ -127,7 +127,8 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.real, {Type::const_array(env.real)}, ADDR((void*) &LSArray<double>::ls_min), THROWS},
 		{env.long_, {Type::const_array(env.long_)}, ADDR((void*) &LSArray<long>::ls_min), THROWS},
 		{env.integer, {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_min), THROWS},
-		{mT, {Type::array(mT), Type::fun_object(env.integer, {mT})}, ADDR(min_fun)}
+		{mT, {Type::array(mT), Type::fun_object(env.integer, {mT})}, ADDR(min_fun)},
+		{env.any, {Type::const_array(env.never)}, ADDR((void*) &LSArray<LSValue*>::ls_min), THROWS},
 	});
 
 	auto map_fun = ADDR((&LSArray<LSValue*>::ls_map<LSFunction*, LSValue*>));
@@ -178,6 +179,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.boolean, {env.array}, ADDR((void*) &LSArray<LSValue*>::ls_empty)},
 		{env.boolean, {Type::array(env.real)}, ADDR((void*) &LSArray<double>::ls_empty)},
 		{env.boolean, {Type::array(env.integer)}, ADDR((void*) &LSArray<int>::ls_empty)},
+		{env.boolean, {Type::array(env.never)}, ADDR((void*) &LSArray<LSValue*>::ls_empty)},
 	});
 
 	auto perm_int_int = ADDR(&LSArray<int>::is_permutation<int>);
@@ -250,6 +252,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.real, {Type::array(env.real)}, ADDR((void*) &LSArray<double>::ls_pop), THROWS},
 		{env.long_, {Type::array(env.long_)}, ADDR((void*) &LSArray<long>::ls_pop), THROWS},
 		{env.integer, {Type::array(env.integer)}, ADDR((void*) &LSArray<int>::ls_pop), THROWS},
+		{env.tmp_any, {Type::array(env.never)}, ADDR((void*) &LSArray<LSValue*>::ls_pop), THROWS},
 	});
 
 	method("product", {
@@ -277,9 +280,11 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.string, {Type::const_array(env.void_)}, ADDR((void*) &LSArray<LSValue*>::ls_join)},
 		{env.string, {Type::const_array(env.real)}, ADDR((void*) &LSArray<double>::ls_join)},
 		{env.string, {Type::const_array(env.integer)}, ADDR((void*) &LSArray<int>::ls_join)},
+		{env.string, {Type::const_array(env.never)}, ADDR((void*) &LSArray<LSValue*>::ls_join)},
 		{env.string, {Type::const_array(env.void_), env.const_string}, ADDR((void*) &LSArray<LSValue*>::ls_join_glue)},
 		{env.string, {Type::const_array(env.real), env.const_string}, ADDR((void*) &LSArray<double>::ls_join_glue)},
 		{env.string, {Type::const_array(env.integer), env.const_string}, ADDR((void*) &LSArray<int>::ls_join_glue)},
+		{env.string, {Type::const_array(env.never), env.const_string}, ADDR((void*) &LSArray<LSValue*>::ls_join_glue)},
 	});
 
 	method("json", {
@@ -319,6 +324,8 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.boolean, {Type::array(env.real), env.const_real}, ADDR(remove_element_real)},
 		{env.boolean, {Type::array(env.integer), env.const_any}, ADDR(remove_element_int)},
 		{env.boolean, {Type::array(env.integer), env.integer}, ADDR(remove_element_int)},
+		{env.boolean, {Type::array(env.never), env.const_any}, ADDR(remove_element_any)},
+		{env.boolean, {Type::array(env.never), env.integer}, ADDR(remove_element_any)},
 	});
 
 	auto rT = env.template_("T");
