@@ -46,7 +46,6 @@ Location VariableValue::location() const {
 }
 
 Call VariableValue::get_callable(SemanticAnalyzer* analyzer, int argument_count) const {
-	auto& env = analyzer->env;
 	if (name == "~") {
 		return { &analyzer->program->globals["Value"]->clazz->operators["~"] };
 	}

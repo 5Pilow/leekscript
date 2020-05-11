@@ -58,7 +58,6 @@ void VM::static_init() {
 void VM::execute(Program& program, bool format, bool debug, bool ops, bool assembly, bool pseudo_code, bool optimized_ir, bool execute_ir, bool execute_bitcode) {
 
 	// Reset
-	this->file_name = file_name;
 	LSValue::obj_count = 0;
 	LSValue::obj_deleted = 0;
 	VM::mpz_created = 0;

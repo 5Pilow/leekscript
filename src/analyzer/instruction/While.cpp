@@ -141,8 +141,6 @@ std::unique_ptr<Instruction> While::clone(Block* parent) const {
 	auto w = std::make_unique<While>(type->env);
 	w->token = token;
 
-	auto current_section = parent->sections.back().get();
-
 	w->end_section = new Section(type->env, "end");
 
 	w->condition = unique_static_cast<Block>(condition->clone(parent));

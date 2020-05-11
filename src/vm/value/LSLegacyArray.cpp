@@ -469,7 +469,7 @@ Element* LSLegacyArray::createElement(Key* key, LSValue* value) {
 	e->key = key;
 
 	// On ajoute la taille de la clé
-	int keySize = 1;
+	// int keySize = 1;
 
 	e->value = value;
 	if (key->isInteger()) {
