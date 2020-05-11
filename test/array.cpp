@@ -66,7 +66,6 @@ void Test::test_arrays() {
 	code("['yo'] + '!'").equals("['yo', '!']");
 	code("let a = ['yo'] a + '!'").equals("['yo', '!']");
 	code("let a = [5] let b = ['b'] a + b").equals("[5, 'b']");
-	code("['a'] + ['b']").equals("['a', 'b']");
 	code("let a = ['a'] a + ['b']").equals("['a', 'b']");
 	code("[1, 2] + {}").equals("[1, 2, {}]");
 	code("let a = [1, 2] a + {}").equals("[1, 2, {}]");
