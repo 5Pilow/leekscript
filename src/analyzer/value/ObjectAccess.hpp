@@ -51,7 +51,7 @@ public:
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;
-	virtual Compiler::value compile_version(Compiler& c, std::vector<const Type*> version) const;
+	virtual Compiler::value compile_version(Compiler& c, std::vector<const Type*> version) const override;
 	virtual Compiler::value compile_l(Compiler&) const override;
 	#endif
 

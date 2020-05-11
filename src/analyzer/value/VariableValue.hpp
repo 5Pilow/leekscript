@@ -47,7 +47,7 @@ public:
 	virtual void change_value(SemanticAnalyzer*, Value* value) override;
 	virtual const Type* version_type(std::vector<const Type*>) const override;
 	virtual Completion autocomplete(SemanticAnalyzer& analyzer, size_t position) const override;
-	virtual Hover hover(SemanticAnalyzer& analyzer, size_t position) const;
+	virtual Hover hover(SemanticAnalyzer& analyzer, size_t position) const override;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;
