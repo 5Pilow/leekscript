@@ -84,6 +84,14 @@ LSValue::~LSValue() {
 	}
 }
 
+LSValue* LSValue::std_move(LSValue* value) {
+	return value->move();
+}
+
+LSValue* LSValue::std_move_inc(LSValue* value) {
+	return value->move_inc();
+}
+
 LSValue* LSValue::ls_minus() {
 	delete_temporary(this);
 	throw vm::ExceptionObj(vm::Exception::NO_SUCH_OPERATOR);
@@ -335,9 +343,9 @@ std::string LSValue::to_string() const {
 	return oss.str();
 }
 
-LSString* LSValue::ls_json() {
-	auto json = new LSString(this->json());
-	LSValue::delete_temporary(this);
+LSString* LSValue::std_json(const LSValue* const v) {
+	auto json = new LSString(v->json());
+	LSValue::delete_temporary(v);
 	return json;
 }
 

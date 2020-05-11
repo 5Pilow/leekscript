@@ -24,16 +24,18 @@ public:
 	/*
 	 * LSSet methods
 	 */
-	int ls_size();
-	bool ls_insert(T value);
-	LSValue* ls_insert_ptr(T value);
-	void vinsert(T value);
-	LSSet<T>* ls_clear();
-	bool ls_erase(T value);
-	bool ls_contains(T value);
+	static int std_size(const LSSet<T>* const set);
+	static bool std_insert(LSSet<T>* set, T value);
+	static LSValue* std_insert_ptr(LSSet<T>* set, T value);
+	static void vinsert(LSSet<T>* set, T value);
+	static LSSet<T>* std_clear(LSSet<T>* set);
+	static bool std_erase(LSSet<T>* set, T value);
+	static bool std_contains(const LSSet<T>* const set, T value);
 	template <class T2>
 	bool set_lt(const LSSet<T2>* set) const;
-	LSSet<LSValue*>* to_any_set() const;
+	static LSSet<LSValue*>* to_any_set(const LSSet<T>* const set);
+	static bool std_in(const LSSet<T>* const set, const LSValue* value);
+	static bool std_in_v(const LSSet<T>* const set, T value);
 
 	/*
 	 * LSValue methods

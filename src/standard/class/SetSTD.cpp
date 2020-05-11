@@ -38,10 +38,10 @@ SetSTD::SetSTD(Environment& env) : Module(env, "Set") {
 	 * Operators
 	 */
 	operator_("in", {
-		{Type::const_set(env.void_), env.any, env.boolean, ADDR((void*) &LSSet<LSValue*>::in_v)},
+		{Type::const_set(env.void_), env.any, env.boolean, ADDR((void*) LSSet<LSValue*>::std_in_v)},
 		{Type::const_set(env.void_), env.integer, env.boolean, ADDR(in_any)},
-		{Type::const_set(env.real), env.real, env.boolean, ADDR((void*) &LSSet<double>::in_v)},
-		{Type::const_set(env.integer), env.integer, env.boolean, ADDR((void*) &LSSet<int>::in_v)}
+		{Type::const_set(env.real), env.real, env.boolean, ADDR((void*) LSSet<double>::std_in_v)},
+		{Type::const_set(env.integer), env.integer, env.boolean, ADDR((void*) LSSet<int>::std_in_v)}
 	});
 
 	auto pqT = env.template_("T");
@@ -55,37 +55,37 @@ SetSTD::SetSTD(Environment& env) : Module(env, "Set") {
 	 * Methods
 	 */
 	method("size", {
-		{env.integer, {Type::const_set(env.void_)}, ADDR((void*) &LSSet<LSValue*>::ls_size)},
-		{env.integer, {Type::const_set(env.real)}, ADDR((void*) &LSSet<double>::ls_size)},
-		{env.integer, {Type::const_set(env.integer)}, ADDR((void*) &LSSet<int>::ls_size)},
+		{env.integer, {Type::const_set(env.void_)}, ADDR((void*) LSSet<LSValue*>::std_size)},
+		{env.integer, {Type::const_set(env.real)}, ADDR((void*) LSSet<double>::std_size)},
+		{env.integer, {Type::const_set(env.integer)}, ADDR((void*) LSSet<int>::std_size)},
 	});
 	method("insert", {
-		{env.boolean, {Type::set(env.any), env.any}, ADDR((void*) &LSSet<LSValue*>::ls_insert_ptr)},
+		{env.boolean, {Type::set(env.any), env.any}, ADDR((void*) LSSet<LSValue*>::std_insert_ptr)},
 		{env.boolean, {Type::set(env.any), env.any}, ADDR(insert_any)},
 		{env.boolean, {Type::set(env.real), env.real}, ADDR(insert_real)},
 		{env.boolean, {Type::set(env.integer), env.integer}, ADDR(insert_int)},
 	});
 	method("clear", {
-		{Type::set(env.void_), {Type::set(env.any)}, ADDR((void*) &LSSet<LSValue*>::ls_clear)},
-		{Type::set(env.real), {Type::set(env.real)}, ADDR((void*) &LSSet<double>::ls_clear)},
-		{Type::set(env.integer), {Type::set(env.integer)}, ADDR((void*) &LSSet<int>::ls_clear)},
+		{Type::set(env.void_), {Type::set(env.any)}, ADDR((void*) LSSet<LSValue*>::std_clear)},
+		{Type::set(env.real), {Type::set(env.real)}, ADDR((void*) LSSet<double>::std_clear)},
+		{Type::set(env.integer), {Type::set(env.integer)}, ADDR((void*) LSSet<int>::std_clear)},
 	});
 	method("erase", {
-		{env.boolean, {Type::set(env.void_), env.any}, ADDR((void*) &LSSet<LSValue*>::ls_erase)},
-		{env.boolean, {Type::set(env.real), env.real}, ADDR((void*) &LSSet<double>::ls_erase)},
-		{env.boolean, {Type::set(env.integer), env.integer}, ADDR((void*) &LSSet<int>::ls_erase)},
+		{env.boolean, {Type::set(env.void_), env.any}, ADDR((void*) LSSet<LSValue*>::std_erase)},
+		{env.boolean, {Type::set(env.real), env.real}, ADDR((void*) LSSet<double>::std_erase)},
+		{env.boolean, {Type::set(env.integer), env.integer}, ADDR((void*) LSSet<int>::std_erase)},
 	});
 	method("contains", {
-		{env.boolean, {Type::const_set(env.void_), env.any}, ADDR((void*) &LSSet<LSValue*>::ls_contains)},
-		{env.boolean, {Type::const_set(env.real), env.real}, ADDR((void*) &LSSet<double>::ls_contains)},
-		{env.boolean, {Type::const_set(env.integer), env.integer}, ADDR((void*) &LSSet<int>::ls_contains)},
+		{env.boolean, {Type::const_set(env.void_), env.any}, ADDR((void*) LSSet<LSValue*>::std_contains)},
+		{env.boolean, {Type::const_set(env.real), env.real}, ADDR((void*) LSSet<double>::std_contains)},
+		{env.boolean, {Type::const_set(env.integer), env.integer}, ADDR((void*) LSSet<int>::std_contains)},
 	});
 
 	/** Internal **/
 	method("vinsert", {
-		{env.void_, {Type::const_set(env.any), env.any}, ADDR((void*) &LSSet<LSValue*>::vinsert)},
-		{env.void_, {Type::const_set(env.real), env.real}, ADDR((void*) &LSSet<double>::vinsert)},
-		{env.void_, {Type::const_set(env.integer), env.integer}, ADDR((void*) &LSSet<int>::vinsert)},
+		{env.void_, {Type::const_set(env.any), env.any}, ADDR((void*) LSSet<LSValue*>::vinsert)},
+		{env.void_, {Type::const_set(env.real), env.real}, ADDR((void*) LSSet<double>::vinsert)},
+		{env.void_, {Type::const_set(env.integer), env.integer}, ADDR((void*) LSSet<int>::vinsert)},
 	}, PRIVATE);
 	method("iterator_end", {
 		{Type::set(env.void_)->iterator(), {Type::set(env.void_)}, ADDR((void*) iterator_end)}
@@ -94,15 +94,15 @@ SetSTD::SetSTD(Environment& env) : Module(env, "Set") {
 		{Type::set(env.void_)->iterator(), {Type::set(env.void_)->iterator()}, ADDR((void*) iterator_inc)}
 	}, PRIVATE);
 	method("insert_fun", {
-		{env.boolean, {Type::const_set(env.any), env.any}, ADDR((void*) &LSSet<LSValue*>::ls_insert)},
-		{env.boolean, {Type::const_set(env.real), env.real}, ADDR((void*) &LSSet<double>::ls_insert)},
-		{env.boolean, {Type::const_set(env.integer), env.integer}, ADDR((void*) &LSSet<int>::ls_insert)},
+		{env.boolean, {Type::const_set(env.any), env.any}, ADDR((void*) LSSet<LSValue*>::std_insert)},
+		{env.boolean, {Type::const_set(env.real), env.real}, ADDR((void*) LSSet<double>::std_insert)},
+		{env.boolean, {Type::const_set(env.integer), env.integer}, ADDR((void*) LSSet<int>::std_insert)},
 	}, PRIVATE);
 	method("int_to_any", {
-		{Type::set(env.any), {Type::set(env.integer)}, ADDR((void*) &LSSet<int>::to_any_set)}
+		{Type::set(env.any), {Type::set(env.integer)}, ADDR((void*) LSSet<int>::to_any_set)}
 	}, PRIVATE);
 	method("real_to_any", {
-		{Type::set(env.any), {Type::set(env.real)}, ADDR((void*) &LSSet<double>::to_any_set)}
+		{Type::set(env.any), {Type::set(env.real)}, ADDR((void*) LSSet<double>::to_any_set)}
 	}, PRIVATE);
 }
 

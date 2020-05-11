@@ -35,21 +35,23 @@ public:
 
 	virtual ~LSString();
 
-	LSString* charAt(int index) const;
-	LSString* codePointAt(int index) const;
+	static LSString* charAt(const LSString* const string, int index);
+	static LSString* codePointAt(const LSString* const string, int index);
 	int unicode_length() const;
-	bool is_permutation(LSString* other);
-	LSString* sort();
-	bool is_palindrome() const;
+	static bool is_permutation(const LSString* const string, LSString* other);
+	static LSString* sort(LSString* string);
+	static bool is_palindrome(const LSString* const string);
 	template <class F> LSValue* ls_foldLeft(F, LSValue* v0);
-	int int_size() const;
-	int ls_size() const;
-	LSValue* ls_size_ptr() const;
-	int word_count() const;
-	LSValue* word_count_ptr() const;
-	LSArray<LSValue*>* ls_lines() const;
+	static int int_size(const LSString* const string);
+	static int std_size(const LSString* const string);
+	static LSValue* std_size_ptr(const LSString* const string);
+	static int word_count(const LSString* const string);
+	static LSValue* word_count_ptr(const LSString* const string);
+	static LSArray<LSValue*>* std_lines(const LSString* const string);
 	template <class F>
-	LSString* ls_map(F function);
+	static LSString* std_map(const LSString* const string, F function);
+	static LSValue* std_tilde(LSString* string);
+	static bool std_to_bool(const LSString* const string);
 
 	/*
 	 * LSValue methods

@@ -23,9 +23,9 @@ public:
 	virtual ~LSClosure();
 	virtual bool closure() const;
 
-	void add_capture(LSValue* value);
-	LSValue* get_capture(int index);
-	LSValue** get_capture_l(int index);
+	static void add_capture(LSClosure* closure, LSValue* value);
+	static LSValue* get_capture(LSClosure* closure, int index);
+	static LSValue** get_capture_l(LSClosure* closure, int index);
 };
 
 template <class R, class ...A> R call(LSClosure* function, A... args) {

@@ -27,7 +27,7 @@ public:
 	 * LSNumber
 	 */
 	template <class F>
-	LSValue* ls_fold(F function, LSValue* v0);
+	static LSValue* ls_fold(LSNumber* number, F function, LSValue* v0);
 
 	/*
 	 * LSValue

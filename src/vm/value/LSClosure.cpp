@@ -30,19 +30,19 @@ bool LSClosure::closure() const {
 	return true;
 }
 
-void LSClosure::add_capture(LSValue* value) {
-	if (!value->native && value != this) {
+void LSClosure::add_capture(LSClosure* closure, LSValue* value) {
+	if (!value->native && value != closure) {
 		value->refs++;
 	}
-	captures.push_back(value);
-	captures_native.push_back(value->native);
+	closure->captures.push_back(value);
+	closure->captures_native.push_back(value->native);
 }
 
-LSValue* LSClosure::get_capture(int index) {
-	return captures[index];
+LSValue* LSClosure::get_capture(LSClosure* closure, int index) {
+	return closure->captures[index];
 }
-LSValue** LSClosure::get_capture_l(int index) {
-	return &captures[index];
+LSValue** LSClosure::get_capture_l(LSClosure* closure, int index) {
+	return &closure->captures[index];
 }
 
 }

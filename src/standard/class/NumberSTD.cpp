@@ -276,11 +276,9 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{env.real, {env.any}, ADDR((void*) exp_ptr)},
 		{env.real, {env.real}, ADDR(exp_real)},
 	});
-	auto fold_fun_type = Type::fun_object(env.any, {env.any, env.integer});
-	auto fold_fun = ADDR(&LSNumber::ls_fold<LSFunction*>);
 	method("fold", {
-		{env.any, {env.any, fold_fun_type, env.any}, (void*) fold_fun},
-		{env.any, {env.any, fold_fun_type, env.any}, ADDR(fold)}
+		{env.any, {env.any, Type::fun_object(env.any, {env.any, env.integer}), env.any}, ADDR((void*) LSNumber::ls_fold<LSFunction*>)},
+		{env.any, {env.any, Type::fun_object(env.any, {env.any, env.integer}), env.any}, ADDR(fold)}
 	});
 
 	method("floor", {

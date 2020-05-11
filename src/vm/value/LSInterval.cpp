@@ -30,31 +30,39 @@ LSArray<int>* base_filter(LSInterval* interval, F function) {
 	return new_array;
 }
 template <>
-LSArray<int>* LSInterval::ls_filter(LSFunction* function) {
-	return base_filter(this, function);
+LSArray<int>* LSInterval::std_filter(LSInterval* interval, LSFunction* function) {
+	return base_filter(interval, function);
 }
 template <>
-LSArray<int>* LSInterval::ls_filter(LSClosure* function) {
-	return base_filter(this, function);
+LSArray<int>* LSInterval::std_filter(LSInterval* interval, LSClosure* function) {
+	return base_filter(interval, function);
 }
 
-long LSInterval::ls_sum() {
-	auto sum = (b - a + 1) * (a + b) / 2;
-	LSValue::delete_temporary(this);
+long LSInterval::std_sum(LSInterval* interval) {
+	auto sum = (interval->b - interval->a + 1) * (interval->a + interval->b) / 2;
+	LSValue::delete_temporary(interval);
 	return sum;
 }
 
-long LSInterval::ls_product() {
-	if (a <= 0 and b > 0) {
-		LSValue::delete_temporary(this);
+long LSInterval::std_product(LSInterval* interval) {
+	if (interval->a <= 0 and interval->b > 0) {
+		LSValue::delete_temporary(interval);
 		return 0;
 	}
 	long product = 1;
-	for (int i = a; i <= b; ++i) {
+	for (int i = interval->a; i <= interval->b; ++i) {
 		product *= i;
 	}
-	LSValue::delete_temporary(this);
+	LSValue::delete_temporary(interval);
 	return product;
+}
+
+int LSInterval::std_at_i_i(LSInterval* interval, const int key) {
+	return interval->at_i_i(key);
+}
+
+bool LSInterval::std_in_i(LSInterval* interval, const int v) {
+	return interval->in_i(v);
 }
 
 bool LSInterval::to_bool() const {

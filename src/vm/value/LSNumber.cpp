@@ -58,12 +58,12 @@ LSValue* base_fold(LSNumber* number, F function, LSValue* v0) {
 }
 
 template <>
-LSValue* LSNumber::ls_fold(LSFunction* function, LSValue* v0) {
-	return base_fold(this, function, v0);
+LSValue* LSNumber::ls_fold(LSNumber* number, LSFunction* function, LSValue* v0) {
+	return base_fold(number, function, v0);
 }
 template <>
-LSValue* LSNumber::ls_fold(LSClosure* closure, LSValue* v0) {
-	return base_fold(this, closure, v0);
+LSValue* LSNumber::ls_fold(LSNumber* number, LSClosure* closure, LSValue* v0) {
+	return base_fold(number, closure, v0);
 }
 
 /*

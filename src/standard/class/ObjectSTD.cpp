@@ -36,7 +36,7 @@ ObjectSTD::ObjectSTD(Environment& env) : Module(env, "Object") {
 	 * Operators
 	 */
 	operator_("in", {
-		{env.object, env.any, env.boolean, ADDR((void*) &LSObject::in)},
+		{env.object, env.any, env.boolean, ADDR((void*) LSObject::ls_in)},
 		{env.object, env.number, env.boolean, ADDR(in_any)}
 	});
 
@@ -46,21 +46,19 @@ ObjectSTD::ObjectSTD(Environment& env) : Module(env, "Object") {
 	method("copy", {
 		{env.object, {env.object}, ADDR(ValueSTD::copy)}
 	});
-	auto map_fun_type = Type::fun_object(env.any, {env.any});
-	auto map_fun = ADDR(&LSObject::ls_map<LSFunction*>);
 	method("map", {
-		{env.tmp_object, {env.object, map_fun_type}, (void*) map_fun}
+		{env.tmp_object, {env.object, Type::fun_object(env.any, {env.any})}, ADDR((void*) LSObject::ls_map<LSFunction*>)}
 	});
 	method("keys", {
-		{Type::array(env.string), {env.object}, ADDR((void*) &LSObject::ls_get_keys)}
+		{Type::array(env.string), {env.object}, ADDR((void*) LSObject::ls_get_keys)}
 	});
 	method("values", {
-		{Type::array(env.any), {env.object}, ADDR((void*) &LSObject::ls_get_values)}
+		{Type::array(env.any), {env.object}, ADDR((void*) LSObject::ls_get_values)}
 	});
 
 	/** Internal **/
 	method("add_field", {
-		{env.void_, {env.object, env.i8_ptr, env.any}, ADDR((void*) &LSObject::addField)}
+		{env.void_, {env.object, env.i8_ptr, env.any}, ADDR((void*) LSObject::std_add_field)}
 	}, PRIVATE);
 }
 

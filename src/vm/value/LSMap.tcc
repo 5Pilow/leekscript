@@ -8,6 +8,22 @@
 
 namespace ls {
 
+
+template <> inline int convert(const LSValue* v) {
+	if (v->type == LSValue::NUMBER) {
+		return (int) ((LSNumber*) v)->value;
+	}
+	throw vm::ExceptionObj(vm::Exception::WRONG_ARGUMENT_TYPE);
+}
+
+template <> inline double convert(const LSValue* v) {
+	if (v->type == LSValue::NUMBER) {
+		return ((LSNumber*) v)->value;
+	}
+	throw vm::ExceptionObj(vm::Exception::WRONG_ARGUMENT_TYPE);
+}
+
+
 template <typename K>
 inline bool lsmap_less<K>::operator()(K lhs, K rhs) const {
 	return lhs < rhs;
@@ -38,31 +54,31 @@ LSMap<K, V>::~LSMap() {
  * Map methods
  */
 template <class K, class V>
-int LSMap<K, V>::ls_size() {
-	int s = this->size();
-	LSValue::delete_temporary(this);
+int LSMap<K, V>::std_size(const LSMap<K, V>* const map) {
+	int s = map->size();
+	LSValue::delete_temporary(map);
 	return s;
 }
 
 template <class K, class V>
-bool LSMap<K, V>::ls_insert(K key, V value) {
-	auto it = this->lower_bound(key);
-	if (it == this->end() || !ls::equals(it->first, key)) {
-		this->emplace_hint(it, ls::move_inc(key), ls::move_inc(value));
-		if (refs == 0) delete this;
+bool LSMap<K, V>::std_insert(LSMap<K, V>* map, K key, V value) {
+	auto it = map->lower_bound(key);
+	if (it == map->end() || !ls::equals(it->first, key)) {
+		map->emplace_hint(it, ls::move_inc(key), ls::move_inc(value));
+		if (map->refs == 0) delete map;
 		return true;
 	}
 	ls::release(key);
 	ls::release(value);
-	if (refs == 0) delete this;
+	if (map->refs == 0) delete map;
 	return false;
 }
 
 template <class K, class V>
-void LSMap<K, V>::ls_emplace(K key, V value) {
-	auto it = this->lower_bound(key);
-	if (it == this->end() || !ls::equals(it->first, key)) {
-		this->emplace_hint(it, ls::move_inc(key), ls::move_inc(value));
+void LSMap<K, V>::std_emplace(LSMap<K, V>* map, K key, V value) {
+	auto it = map->lower_bound(key);
+	if (it == map->end() || !ls::equals(it->first, key)) {
+		map->emplace_hint(it, ls::move_inc(key), ls::move_inc(value));
 	} else {
 		ls::release(key);
 		ls::release(value);
@@ -70,145 +86,155 @@ void LSMap<K, V>::ls_emplace(K key, V value) {
 }
 
 template <class K, class V>
-LSMap<K, V>* LSMap<K, V>::ls_clear() {
-	for (auto it = this->begin(); it != this->end(); ++it) {
+LSMap<K, V>* LSMap<K, V>::std_clear(LSMap<K, V>* map) {
+	for (auto it = map->begin(); it != map->end(); ++it) {
 		ls::unref(it->first);
 		ls::unref(it->second);
 	}
-	this->clear();
-	return this;
+	map->clear();
+	return map;
 }
 
 template <class K, class V>
-bool LSMap<K, V>::ls_erase(K key) {
-	auto it = this->find(key);
+bool LSMap<K, V>::std_erase(LSMap<K, V>* map, K key) {
+	auto it = map->find(key);
 	ls::release(key);
-	if (it != this->end()) {
+	if (it != map->end()) {
 		ls::unref(it->first);
 		ls::unref(it->second);
-		this->erase(it);
-		LSValue::delete_temporary(this);
+		map->erase(it);
+		LSValue::delete_temporary(map);
 		return true;
 	}
-	LSValue::delete_temporary(this);
+	LSValue::delete_temporary(map);
 	return false;
 }
 
 template <class K, class V>
 template <class V2>
-V2 LSMap<K, V>::ls_look(K key, V2 def) {
-	auto it = this->find(key);
+V2 LSMap<K, V>::std_look(const LSMap<K, V>* const map, K key, V2 def) {
+	auto it = map->find(key);
 	ls::release(key);
-	if (it != this->end()) {
+	if (it != map->end()) {
 		ls::release(def);
-		if (refs == 0) {
+		if (map->refs == 0) {
 			V r = ls::clone(it->second);
-			LSValue::delete_temporary(this);
+			LSValue::delete_temporary(map);
 			return ls::convert<V2>(r);
 		}
 		return ls::convert<V2>(it->second);
 	}
-	LSValue::delete_temporary(this);
+	LSValue::delete_temporary(map);
 	return def;
 }
 
 template <class K, class V>
-V LSMap<K, V>::ls_max() {
-	if (this->empty()) {
-		LSValue::delete_temporary(this);
+V LSMap<K, V>::std_max(const LSMap<K, V>* const map) {
+	if (map->empty()) {
+		LSValue::delete_temporary(map);
 		throw vm::ExceptionObj(vm::Exception::ARRAY_OUT_OF_BOUNDS);
 	}
-	auto it = this->begin();
+	auto it = map->begin();
 	auto max = it->second;
-	for (; it != this->end(); ++it) {
+	for (; it != map->end(); ++it) {
 		if (ls::lt(max, it->second)) {
 			max = it->second;
 		}
 	}
-	if (refs == 0) {
+	if (map->refs == 0) {
 		max = ls::clone(max);
-		LSValue::delete_temporary(this);
+		LSValue::delete_temporary(map);
 	}
 	return max;
 }
 
 template <class K, class V>
-K LSMap<K, V>::ls_maxKey() {
-	if (this->empty()) {
-		LSValue::delete_temporary(this);
+K LSMap<K, V>::std_maxKey(const LSMap<K, V>* const map) {
+	if (map->empty()) {
+		LSValue::delete_temporary(map);
 		throw vm::ExceptionObj(vm::Exception::ARRAY_OUT_OF_BOUNDS);
 	}
-	auto it = this->begin();
+	auto it = map->begin();
 	auto max = it->first;
-	for (; it != this->end(); ++it) {
+	for (; it != map->end(); ++it) {
 		if (ls::lt(max, it->first)) {
 			max = it->first;
 		}
 	}
-	if (refs == 0) {
+	if (map->refs == 0) {
 		max = ls::clone(max);
-		LSValue::delete_temporary(this);
+		LSValue::delete_temporary(map);
 	}
 	return max;
 }
 
 template <class K, class V>
-V LSMap<K, V>::ls_min() {
-	if (this->empty()) {
-		LSValue::delete_temporary(this);
+V LSMap<K, V>::std_min(const LSMap<K, V>* const map) {
+	if (map->empty()) {
+		LSValue::delete_temporary(map);
 		throw vm::ExceptionObj(vm::Exception::ARRAY_OUT_OF_BOUNDS);
 	}
-	auto it = this->begin();
+	auto it = map->begin();
 	auto min = it->second;
-	for (; it != this->end(); ++it) {
+	for (; it != map->end(); ++it) {
 		if (ls::lt(it->second, min)) {
 			min = it->second;
 		}
 	}
-	if (refs == 0) {
+	if (map->refs == 0) {
 		min = ls::clone(min);
-		LSValue::delete_temporary(this);
+		LSValue::delete_temporary(map);
 	}
 	return min;
 }
 
 template <class K, class V>
-K LSMap<K, V>::ls_minKey() {
-	if (this->empty()) {
-		LSValue::delete_temporary(this);
+K LSMap<K, V>::std_minKey(const LSMap<K, V>* const map) {
+	if (map->empty()) {
+		LSValue::delete_temporary(map);
 		throw vm::ExceptionObj(vm::Exception::ARRAY_OUT_OF_BOUNDS);
 	}
-	auto it = this->begin();
+	auto it = map->begin();
 	auto min = it->first;
-	for (; it != this->end(); ++it) {
+	for (; it != map->end(); ++it) {
 		if (ls::lt(it->first, min)) {
 			min = it->first;
 		}
 	}
-	if (refs == 0) {
+	if (map->refs == 0) {
 		min = ls::clone(min);
-		LSValue::delete_temporary(this);
+		LSValue::delete_temporary(map);
 	}
 	return min;
 }
 
 template <typename K, typename V>
-LSArray<V>* LSMap<K, V>::values() const {
+LSArray<V>* LSMap<K, V>::values(const LSMap<K, V>* const map) {
 	auto array = new LSArray<V>();
-	for (auto i : *this) {
+	for (auto i : *map) {
 		array->push_clone(i.second);
 	}
-	LSValue::delete_temporary(this);
+	LSValue::delete_temporary(map);
 	return array;
 }
 
 template <class K, class V>
 template <class F>
-void LSMap<K, V>::ls_iter(F function) const {
-	for (auto v : *this) {
+void LSMap<K, V>::std_iter(const LSMap<K, V>* const map, F function) {
+	for (auto v : *map) {
 		ls::call<void>(function, v.first, v.second);
 	}
-	LSValue::delete_temporary(this);
+	LSValue::delete_temporary(map);
+}
+
+template <class K, class V>
+V LSMap<K, V>::std_at(const LSMap<K, V>* const map, K key) {
+	return map->at_k(key);
+}
+
+template <class K, class V>
+bool LSMap<K, V>::std_in(const LSMap<K, V>* const map, const LSValue* v) {
+	return map->in(v);
 }
 
 /*
@@ -227,8 +253,16 @@ bool LSMap<K, T>::ls_not() const {
 }
 
 template <class K, class T>
-bool LSMap<K, T>::in(K key) const {
+bool LSMap<K, T>::in_k(K key) const {
 	bool r = this->find(key) != this->end();
+	LSValue::delete_temporary(this);
+	ls::release(key);
+	return r;
+}
+
+template <class K, class T>
+bool LSMap<K, T>::in(const LSValue* key) const {
+	bool r = this->find(ls::convert<K>(key)) != this->end();
 	LSValue::delete_temporary(this);
 	ls::release(key);
 	return r;
@@ -313,11 +347,25 @@ bool LSMap<K, T>::lt(const LSValue* v) const {
 }
 
 template <class K, class V>
-V LSMap<K, V>::at(const K key) const {
+V LSMap<K, V>::at_k(const K key) const {
 	bool ex = false;
 	try {
 		auto map = (std::map<K, V, lsmap_less<K>>*) this;
 		return map->at(key);
+	} catch (std::exception&) {
+		ex = true;
+	}
+	if (ex)
+		throw vm::ExceptionObj(vm::Exception::ARRAY_OUT_OF_BOUNDS);
+	assert(false); // LCOV_EXCL_LINE
+}
+
+template <class K, class V>
+LSValue* LSMap<K, V>::at(const LSValue* key) const {
+	bool ex = false;
+	try {
+		auto map = (std::map<K, V, lsmap_less<K>>*) this;
+		return ls::convert<LSValue*>(map->at(ls::convert<K>(key)));
 	} catch (std::exception&) {
 		ex = true;
 	}
@@ -337,13 +385,13 @@ inline LSValue** LSMap<K, T>::atL(const LSValue* key) {
 
 template <>
 inline LSValue** LSMap<LSValue*, LSValue*>::atL(const LSValue* key) {
-	return this->atL_base((LSValue*) key);
+	return atL_base(this, (LSValue*) key);
 }
 
 template <>
 inline LSValue** LSMap<int, LSValue*>::atL(const LSValue* key) {
 	if (key->type == NUMBER) {
-		auto r = this->atL_base(static_cast<const LSNumber*>(key)->value);
+		auto r = atL_base(this, static_cast<const LSNumber*>(key)->value);
 		LSValue::delete_temporary(key);
 		return r;
 	}
@@ -355,7 +403,7 @@ inline LSValue** LSMap<int, LSValue*>::atL(const LSValue* key) {
 template <>
 inline LSValue** LSMap<double, LSValue*>::atL(const LSValue* key) {
 	if (key->type == NUMBER) {
-		auto r = this->atL_base(static_cast<const LSNumber*>(key)->value);
+		auto r = atL_base(this, static_cast<const LSNumber*>(key)->value);
 		LSValue::delete_temporary(key);
 		return r;
 	}
@@ -365,9 +413,9 @@ inline LSValue** LSMap<double, LSValue*>::atL(const LSValue* key) {
 }
 
 template <class K, class T>
-inline T* LSMap<K, T>::atL_base(K key) const {
+inline T* LSMap<K, T>::atL_base(LSMap<K, T>* raw_map, K key) {
 	// std::cout << "atL_base " << key << std::endl;
-	auto map = (std::map<K, T, lsmap_less<K>>*) this;
+	auto map = (std::map<K, T, lsmap_less<K>>*) raw_map;
 	try {
 		auto r = &map->at(key);
 		ls::release(key);

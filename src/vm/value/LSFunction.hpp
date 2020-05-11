@@ -26,8 +26,8 @@ public:
 	virtual ~LSFunction();
 	virtual bool closure() const;
 
-	LSValue* call(LSValue* object, LSValue* arg1) const {
-		auto fun = (LSValue* (*)(LSValue*, LSValue*)) function;
+	static LSValue* call(LSFunction* function, LSValue* object, LSValue* arg1) {
+		auto fun = (LSValue* (*)(LSValue*, LSValue*)) function->function;
 		return fun(object, arg1);
 	}
 

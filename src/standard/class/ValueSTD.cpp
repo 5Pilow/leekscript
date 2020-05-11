@@ -253,7 +253,7 @@ ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
 		{env.string, {env.const_any}, ADDR(to_string)}
 	});
 	method("json", {
-		{env.tmp_string, {env.const_any}, ADDR((void*) &LSValue::ls_json)},
+		{env.tmp_string, {env.const_any}, ADDR((void*) LSValue::std_json)},
 		{env.tmp_string, {env.const_any}, ADDR(JsonSTD::encode)},
 	});
 
@@ -265,15 +265,15 @@ ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
 	}, PRIVATE | LEGACY);
 
 	method("move", {
-		{env.any, {env.const_any}, ADDR((void*) &LSValue::move)}
+		{env.any, {env.const_any}, ADDR((void*) LSValue::std_move)}
 	}, PRIVATE | LEGACY);
 
 	method("move_inc", {
-		{env.any, {env.const_any}, ADDR((void*) &LSValue::move_inc)}
+		{env.any, {env.const_any}, ADDR((void*) LSValue::std_move_inc)}
 	}, PRIVATE | LEGACY);
 
 	method("ptr", {
-		{env.tmp_any, {env.const_any}, ADDR((void*) &LSValue::move)}
+		{env.tmp_any, {env.const_any}, ADDR((void*) LSValue::std_move)}
 	}, PRIVATE | LEGACY);
 
 	method("absolute", {

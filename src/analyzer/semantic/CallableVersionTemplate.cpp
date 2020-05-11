@@ -29,6 +29,7 @@ CallableVersionTemplate::CallableVersionTemplate(std::string name, const Type* t
 		// std::cout << "callable version compiler fun" << std::endl;
 	}
 #endif
+
 CallableVersionTemplate::CallableVersionTemplate(std::string name, const Type* type, void* addr, std::vector<const TypeMutator*> mutators, std::vector<const Type*> templates, bool object, bool v1_addr, bool v2_addr, int flags)
 	: name(name), type(type), object(object), mutators(mutators), templates(templates), v1_addr(v1_addr), v2_addr(v2_addr), flags(flags), addr(addr)
 	{}

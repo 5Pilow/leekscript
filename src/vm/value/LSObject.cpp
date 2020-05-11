@@ -19,7 +19,7 @@ LSObject::LSObject() : LSValue(OBJECT) {
 LSObject::LSObject(LSClass* clazz) : LSObject() {
 	this->clazz = clazz;
 	for (auto f : clazz->clazz->fields) {
-		this->addField(f.first.c_str(), f.second.default_value->clone());
+		addField(f.first.c_str(), f.second.default_value->clone());
 	}
 }
 
@@ -30,28 +30,32 @@ LSObject::~LSObject() {
 }
 
 void LSObject::addField(const char* name, LSValue* var) {
-	this->values.insert({name, var->move_inc()});
+	values.insert({name, var->move_inc()});
+}
+
+void LSObject::std_add_field(LSObject* object, const char* name, LSValue* var) {
+	object->addField(name, var);
 }
 
 LSValue* LSObject::getField(std::string name) {
 	return this->values.at(name);
 }
 
-LSArray<LSValue*>* LSObject::ls_get_keys() const {
+LSArray<LSValue*>* LSObject::ls_get_keys(const LSObject* const object) {
 	auto keys = new LSArray<LSValue*>();
-	for (auto i = values.begin(); i != values.end(); i++) {
+	for (auto i = object->values.begin(); i != object->values.end(); i++) {
 		keys->push_inc(new LSString(i->first));
 	}
-	if (refs == 0) delete this;
+	if (object->refs == 0) delete object;
 	return keys;
 }
 
-LSArray<LSValue*>* LSObject::ls_get_values() const {
+LSArray<LSValue*>* LSObject::ls_get_values(const LSObject* const object) {
 	auto v = new LSArray<LSValue*>();
-	for (auto i = values.begin(); i != values.end(); i++) {
+	for (auto i = object->values.begin(); i != object->values.end(); i++) {
 		v->push_clone(i->second);
 	}
-	if (refs == 0) delete this;
+	if (object->refs == 0) delete object;
 	return v;
 }
 
@@ -66,12 +70,16 @@ LSObject* base_map(const LSObject* object, F function) {
 	return result;
 }
 template <>
-LSObject* LSObject::ls_map(LSFunction* function) const {
-	return base_map(this, function);
+LSObject* LSObject::ls_map(const LSObject* const object, LSFunction* function) {
+	return base_map(object, function);
 }
 template <>
-LSObject* LSObject::ls_map(LSClosure* function) const {
-	return base_map(this, function);
+LSObject* LSObject::ls_map(const LSObject* const object, LSClosure* function) {
+	return base_map(object, function);
+}
+
+bool LSObject::ls_in(const LSObject* const object, const LSValue* value) {
+	return object->in(value);
 }
 
 /*

@@ -162,11 +162,11 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 	}, LEGACY);
 
 	method("isPermutation", {
-		{env.boolean, {env.string, env.const_any}, ADDR((void*) &LSString::is_permutation)},
+		{env.boolean, {env.string, env.const_any}, ADDR((void*) LSString::is_permutation)},
 	});
 
 	method("isPalindrome", {
-		{env.boolean, {env.string}, ADDR((void*) &LSString::is_palindrome)},
+		{env.boolean, {env.string}, ADDR((void*) LSString::is_palindrome)},
 	});
 
 	method("left", {
@@ -179,12 +179,12 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 	});
 
 	method("lines", {
-		{Type::tmp_array(env.string), {env.string}, ADDR((void*) &LSString::ls_lines)},
+		{Type::tmp_array(env.string), {env.string}, ADDR((void*) LSString::std_lines)},
 	});
 
 	method("size", {
-		{env.any, {env.string}, ADDR((void*) &LSString::ls_size_ptr)},
-		{env.integer, {env.string}, ADDR((void*) &LSString::ls_size)},
+		{env.any, {env.string}, ADDR((void*) LSString::std_size_ptr)},
+		{env.integer, {env.string}, ADDR((void*) LSString::std_size)},
 	});
 
 	method("replace", {
@@ -193,7 +193,7 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 	});
 
 	method("reverse", {
-		{env.tmp_string, {env.string}, ADDR((void*) &LSString::ls_tilde)},
+		{env.tmp_string, {env.string}, ADDR((void*) LSString::std_tilde)},
 	});
 
 	method("right", {
@@ -237,9 +237,8 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 		{env.long_, {env.const_any}, ADDR((void*) string_number)},
 	}, LEGACY);
 
-	auto map_fun = ADDR(&LSString::ls_map<LSFunction*>);
 	method("map", {
-		{env.tmp_string, {env.string, Type::fun_object(env.string, {env.string})}, (void*) map_fun},
+		{env.tmp_string, {env.string, Type::fun_object(env.string, {env.string})}, ADDR((void*) LSString::std_map<LSFunction*>)},
 	});
 
 	method("sort", {
@@ -253,13 +252,13 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 
 	/** Internal **/
 	method("to_bool", {
-		{env.boolean, {env.string}, ADDR((void*) &LSString::to_bool)}
+		{env.boolean, {env.string}, ADDR((void*) LSString::std_to_bool)}
 	}, PRIVATE);
 	method("codePointAt", {
-		{env.tmp_string, {env.string, env.integer}, ADDR((void*) &LSString::codePointAt)}
+		{env.tmp_string, {env.string, env.integer}, ADDR((void*) LSString::codePointAt)}
 	}, PRIVATE);
 	method("isize", {
-		{env.integer, {env.string}, ADDR((void*) &LSString::int_size)}
+		{env.integer, {env.string}, ADDR((void*) LSString::int_size)}
 	}, PRIVATE);
 	method("iterator_begin", {
 		{env.void_, {env.string, env.i8_ptr}, ADDR((void*) iterator_begin)}

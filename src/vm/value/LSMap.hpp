@@ -22,24 +22,26 @@ public:
 	/*
 	 * Map methods;
 	 */
-	int ls_size();
-	bool ls_insert(K key, V value);
-	void ls_emplace(K key, V value);
-	LSMap<K, V>* ls_clear();
-	bool ls_erase(K key);
+	static int std_size(const LSMap<K, V>* const map);
+	static bool std_insert(LSMap<K, V>* map, K key, V value);
+	static void std_emplace(LSMap<K, V>* map, K key, V value);
+	static LSMap<K, V>* std_clear(LSMap<K, V>* map);
+	static bool std_erase(LSMap<K, V>* map, K key);
 	template <class V2>
-	V2 ls_look(K key, V2 def);
-	V ls_max();
-	K ls_maxKey();
-	V ls_min();
-	K ls_minKey();
-	LSArray<V>* values() const;
+	static V2 std_look(const LSMap<K, V>* const map, K key, V2 def);
+	static V std_max(const LSMap<K, V>* const map);
+	static K std_maxKey(const LSMap<K, V>* const map);
+	static V std_min(const LSMap<K, V>* const map);
+	static K std_minKey(const LSMap<K, V>* const map);
+	static LSArray<V>* values(const LSMap<K, V>* const map);
 	template <class K2, class V2>
 	bool map_equals(const LSMap<K2, V2>* map) const;
 	template <class K2, class V2>
 	bool map_lt(const LSMap<K2, V2>* map) const;
 	template <class F>
-	void ls_iter(F function) const;
+	static void std_iter(const LSMap<K, V>* const map, F function);
+	static V std_at(const LSMap<K, V>* const map, K key);
+	static bool std_in(const LSMap<K, V>* const map, const LSValue*);
 
 	/*
 	 * LSValue methods;
@@ -50,12 +52,14 @@ public:
 	bool eq(const LSValue*) const override;
 	bool lt(const LSValue*) const override;
 
-	V at(const K key) const;
+	V at_k(const K key) const;
+	LSValue* at(const LSValue* key) const override;
 
 	virtual LSValue** atL(const LSValue* key) override;
-	V* atL_base(K key) const;
+	static V* atL_base(LSMap<K, V>* map, K key);
 
-	bool in(K) const;
+	bool in_k(K) const;
+	bool in(const LSValue*) const override;
 
 	virtual std::ostream& dump(std::ostream&, int level) const override;
 	virtual std::string json() const override;

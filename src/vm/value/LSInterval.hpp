@@ -22,9 +22,11 @@ public:
 	 * Array methods
 	 */
 	template <class F>
-	LSArray<int>* ls_filter(F function);
-	long ls_sum();
-	long ls_product();
+	static LSArray<int>* std_filter(LSInterval* interval, F function);
+	static long std_sum(LSInterval* interval);
+	static long std_product(LSInterval* interval);
+	static int std_at_i_i(LSInterval* interval, const int key);
+	static bool std_in_i(LSInterval* interval, const int);
 
 	/*
 	 * LSValue methods

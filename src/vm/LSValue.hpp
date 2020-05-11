@@ -62,6 +62,9 @@ public:
 	LSValue(const LSValue& other);
 	virtual ~LSValue() = 0;
 
+	static LSValue* std_move(LSValue* value);
+	static LSValue* std_move_inc(LSValue* value);
+
 	virtual bool to_bool() const = 0;
 	virtual bool ls_not() const = 0;
 	virtual LSValue* ls_minus();
@@ -136,7 +139,7 @@ public:
 	virtual std::ostream& dump(std::ostream&, int level) const = 0;
 	virtual std::string json() const;
 
-	LSString* ls_json();
+	static LSString* std_json(const LSValue* const v);
 
 	virtual LSValue* clone() const;
 	LSValue* clone_inc();
@@ -392,6 +395,7 @@ namespace ls {
 	template <> inline long convert(long v) { return v; }
 	template <> inline double convert(double v) { return v; }
 	template <> inline LSValue* convert(LSValue* v) { return v; }
+	template <> inline LSValue* convert(const LSValue* v) { return (LSValue*) v; }
 
 	template <> inline int convert(double v) { return v; }
 	template <> inline int convert(long v) { return v; }

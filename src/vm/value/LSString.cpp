@@ -62,13 +62,13 @@ LSString::LSString(const Json& json) : LSValue(STRING), std::string(json.get<std
 
 LSString::~LSString() {}
 
-LSString* LSString::charAt(int index) const {
-	return new LSString(this->operator[] (index));
+LSString* LSString::charAt(const LSString* const string, int index) {
+	return new LSString(string->operator[] (index));
 }
 
-LSString* LSString::codePointAt(int index) const {
+LSString* LSString::codePointAt(const LSString* const string, int index) {
 	char buff[5];
-	u_int32_t c = u8_char_at((char*) this->c_str(), index);
+	u_int32_t c = u8_char_at((char*) string->c_str(), index);
 	u8_toutf8(buff, 5, &c, 1);
 	return new LSString(buff);
 }
@@ -77,27 +77,27 @@ int LSString::unicode_length() const {
 	return u8_strlen(this->c_str());
 }
 
-bool LSString::is_permutation(LSString* other) {
-	bool result = this->size() == other->size() and std::is_permutation(this->begin(), this->end(), other->begin());
-	LSValue::delete_temporary(this);
+bool LSString::is_permutation(const LSString* const string, LSString* other) {
+	bool result = string->size() == other->size() and std::is_permutation(string->begin(), string->end(), other->begin());
+	LSValue::delete_temporary(string);
 	LSValue::delete_temporary(other);
 	return result;
 }
 
-LSString* LSString::sort() {
-	if (refs == 0) {
-		std::sort(this->begin(), this->end());
-		return this;
+LSString* LSString::sort(LSString* string) {
+	if (string->refs == 0) {
+		std::sort(string->begin(), string->end());
+		return string;
 	} else {
-		std::string res = *this;
+		std::string res = *string;
 		std::sort(res.begin(), res.end());
 		return new LSString(res);
 	}
 }
 
-bool LSString::is_palindrome() const {
-	bool r = std::equal(this->begin(), this->begin() + this->size() / 2, this->rbegin());
-	LSValue::delete_temporary(this);
+bool LSString::is_palindrome(const LSString* const string) {
+	bool r = std::equal(string->begin(), string->begin() + string->size() / 2, string->rbegin());
+	LSValue::delete_temporary(string);
 	return r;
 }
 
@@ -128,42 +128,42 @@ LSValue* LSString::ls_foldLeft(LSClosure* closure, LSValue* v0) {
 	return string_base_fold(this, closure, v0);
 }
 
-int LSString::int_size() const {
-	return size();
+int LSString::int_size(const LSString* const string) {
+	return string->size();
 }
 
-int LSString::ls_size() const {
-	auto s = unicode_length();
-	LSValue::delete_temporary(this);
+int LSString::std_size(const LSString* const string) {
+	auto s = string->unicode_length();
+	LSValue::delete_temporary(string);
 	return s;
 }
-LSValue* LSString::ls_size_ptr() const {
-	return LSNumber::get(ls_size());
+LSValue* LSString::std_size_ptr(const LSString* const string) {
+	return LSNumber::get(int_size(string));
 }
 
-int LSString::word_count() const {
-	auto c = std::distance(std::istream_iterator<std::string>(std::istringstream(*this) >> std::ws), std::istream_iterator<std::string>());
-	LSValue::delete_temporary(this);
+int LSString::word_count(const LSString* const string) {
+	auto c = std::distance(std::istream_iterator<std::string>(std::istringstream(*string) >> std::ws), std::istream_iterator<std::string>());
+	LSValue::delete_temporary(string);
 	return c;
 }
 
-LSValue* LSString::word_count_ptr() const {
-	return LSNumber::get(word_count());
+LSValue* LSString::word_count_ptr(const LSString* const string) {
+	return LSNumber::get(word_count(string));
 }
 
-LSArray<LSValue*>* LSString::ls_lines() const {
+LSArray<LSValue*>* LSString::std_lines(const LSString* const string) {
 	auto results = new LSArray<LSValue*>();
-	std::stringstream ss(*this);
+	std::stringstream ss(*string);
 	std::string item;
 	while (std::getline(ss, item, '\n')) {
 		results->push_inc(new LSString(item));
 	}
-	LSValue::delete_temporary(this);
+	LSValue::delete_temporary(string);
 	return results;
 }
 
 template <class F>
-LSString* base_map(LSString* s, F function) {
+LSString* base_map(const LSString* const s, F function) {
 	char buff[5];
 	LSValue* r = new LSString();
 	const char* string_chars = s->c_str();
@@ -182,12 +182,20 @@ LSString* base_map(LSString* s, F function) {
 }
 
 template <>
-LSString* LSString::ls_map(LSFunction* function) {
-	return base_map(this, function);
+LSString* LSString::std_map(const LSString* const string, LSFunction* function) {
+	return base_map(string, function);
 }
 template <>
-LSString* LSString::ls_map(LSClosure* closure) {
-	return base_map(this, closure);
+LSString* LSString::std_map(const LSString* const string, LSClosure* closure) {
+	return base_map(string, closure);
+}
+
+LSValue* LSString::std_tilde(LSString* string) {
+	return string->ls_tilde();
+}
+
+bool LSString::std_to_bool(const LSString* const string) {
+	return string->to_bool();
 }
 
 /*

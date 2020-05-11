@@ -25,7 +25,7 @@ IntervalSTD::IntervalSTD(Environment& env) : Module(env, "Interval") {
 	 * Operators
 	 */
 	operator_("in", {
-		{env.interval, env.integer, env.boolean, ADDR((void*) &LSInterval::in_i)}
+		{env.interval, env.integer, env.boolean, ADDR((void*) LSInterval::std_in_i)}
 	});
 
 	auto ttR = env.template_("R");
@@ -39,11 +39,11 @@ IntervalSTD::IntervalSTD(Environment& env) : Module(env, "Interval") {
 	 */
 	auto pred_fun_type_int = Type::fun_object(env.boolean, {env.integer});
 	auto pred_clo_type_int = Type::closure(env.boolean, {env.integer});
-	auto filter_fun = ADDR(&LSInterval::ls_filter<LSFunction*>);
-	auto filter_clo = ADDR(&LSInterval::ls_filter<LSClosure*>);
+	auto filter_fun = ADDR((void*) LSInterval::std_filter<LSFunction*>);
+	auto filter_clo = ADDR((void*) LSInterval::std_filter<LSClosure*>);
 	method("filter", {
-		{Type::tmp_array(env.integer), {env.interval, pred_fun_type_int}, (void*) filter_fun},
-		{Type::tmp_array(env.integer), {env.interval, pred_clo_type_int}, (void*) filter_clo}
+		{Type::tmp_array(env.integer), {env.interval, pred_fun_type_int}, filter_fun},
+		{Type::tmp_array(env.integer), {env.interval, pred_clo_type_int}, filter_clo}
 	});
 
 	auto mapR = env.template_("R");
@@ -53,15 +53,15 @@ IntervalSTD::IntervalSTD(Environment& env) : Module(env, "Interval") {
 	});
 
 	method("sum", {
-		{env.long_, {env.interval}, ADDR((void*) &LSInterval::ls_sum)},
+		{env.long_, {env.interval}, ADDR((void*) LSInterval::std_sum)},
 	});
 	method("product", {
-		{env.long_, {env.interval}, ADDR((void*) &LSInterval::ls_product)},
+		{env.long_, {env.interval}, ADDR((void*) LSInterval::std_product)},
 	});
 
 	/** Interval **/
 	method("at_i_i", {
-		{env.integer, {env.interval, env.integer}, ADDR((void*) &LSInterval::at_i_i)}
+		{env.integer, {env.interval, env.integer}, ADDR((void*) LSInterval::std_at_i_i)}
 	}, PRIVATE);
 }
 

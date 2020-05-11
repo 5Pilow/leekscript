@@ -21,11 +21,13 @@ public:
 
 	/** LSObject methods **/
 	void addField(const char* name, LSValue* value);
+	static void std_add_field(LSObject* object, const char* name, LSValue* value);
 	LSValue* getField(std::string name);
-	LSArray<LSValue*>* ls_get_keys() const;
-	LSArray<LSValue*>* ls_get_values() const;
+	static LSArray<LSValue*>* ls_get_keys(const LSObject* const object);
+	static LSArray<LSValue*>* ls_get_values(const LSObject* const object);
 	template <class F>
-	LSObject* ls_map(F fun) const;
+	static LSObject* ls_map(const LSObject* const object, F fun);
+	static bool ls_in(const LSObject* const object, const LSValue* value);
 
 	/** LSValue methods **/
 	bool to_bool() const override;

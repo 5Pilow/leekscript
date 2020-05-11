@@ -53,85 +53,85 @@ inline LSSet<T>::~LSSet() {
 }
 
 template <typename T>
-int LSSet<T>::ls_size() {
-	int s = this->size();
-	LSValue::delete_temporary(this);
+int LSSet<T>::std_size(const LSSet<T>* const set) {
+	int s = set->size();
+	LSValue::delete_temporary(set);
 	return s;
 }
 
 template <>
-inline bool LSSet<LSValue*>::ls_insert(LSValue* value) {
-	auto it = lower_bound(value);
-	if (it == end() || (**it != *value)) {
-		insert(it, value->move_inc());
-		LSValue::delete_temporary(this);
+inline bool LSSet<LSValue*>::std_insert(LSSet<LSValue*>* set, LSValue* value) {
+	auto it = set->lower_bound(value);
+	if (it == set->end() || (**it != *value)) {
+		set->insert(it, value->move_inc());
+		LSValue::delete_temporary(set);
 		return true;
 	}
 	LSValue::delete_temporary(value);
-	LSValue::delete_temporary(this);
+	LSValue::delete_temporary(set);
 	return false;
 }
 
 template <>
-inline LSValue* LSSet<LSValue*>::ls_insert_ptr(LSValue* value) {
-	return LSBoolean::get(ls_insert(value));
+inline LSValue* LSSet<LSValue*>::std_insert_ptr(LSSet<LSValue*>* set, LSValue* value) {
+	return LSBoolean::get(std_insert(set, value));
 }
 
 template <typename T>
-inline bool LSSet<T>::ls_insert(T value) {
-	bool r = this->insert(value).second;
+inline bool LSSet<T>::std_insert(LSSet<T>* set, T value) {
+	bool r = set->insert(value).second;
 	return r;
 }
 
 template <>
-inline void LSSet<LSValue*>::vinsert(LSValue* value) {
-	auto it = lower_bound(value);
-	if (it == end() || (**it != *value)) {
-		insert(it, value->move_inc());
+inline void LSSet<LSValue*>::vinsert(LSSet<LSValue*>* set, LSValue* value) {
+	auto it = set->lower_bound(value);
+	if (it == set->end() || (**it != *value)) {
+		set->insert(it, value->move_inc());
 	} else {
 		LSValue::delete_temporary(value);
 	}
 }
 template <typename T>
-inline void LSSet<T>::vinsert(T value) {
-	this->insert(value);
+inline void LSSet<T>::vinsert(LSSet<T>* set, T value) {
+	set->insert(value);
 }
 
 template <class T>
-LSSet<T>* LSSet<T>::ls_clear() {
-	for (T v : *this) {
+LSSet<T>* LSSet<T>::std_clear(LSSet<T>* set) {
+	for (T v : *set) {
 		ls::unref(v);
 	}
-	this->clear();
-	return this;
+	set->clear();
+	return set;
 }
 
 template <>
-inline bool LSSet<LSValue*>::ls_erase(LSValue* value) {
-	auto it = find(value);
+inline bool LSSet<LSValue*>::std_erase(LSSet<LSValue*>* set, LSValue* value) {
+	auto it = set->find(value);
 	LSValue::delete_temporary(value);
-	if (it == end()) {
-		if (refs == 0) delete this;
+	if (it == set->end()) {
+		if (set->refs == 0) delete set;
 		return false;
 	} else {
 		LSValue::delete_ref(*it);
-		erase(it);
-		if (refs == 0) delete this;
+		set->erase(it);
+		if (set->refs == 0) delete set;
 		return true;
 	}
 }
 template <typename T>
-inline bool LSSet<T>::ls_erase(T value) {
-	bool r = this->erase(value);
-	if (refs == 0) delete this;
+inline bool LSSet<T>::std_erase(LSSet<T>* set, T value) {
+	bool r = set->erase(value);
+	if (set->refs == 0) delete set;
 	return r;
 }
 
 template <class T>
-bool LSSet<T>::ls_contains(T value) {
-	bool r = this->count(value);
+bool LSSet<T>::std_contains(const LSSet<T>* const set, T value) {
+	bool r = set->count(value);
 	ls::release(value);
-	if (refs == 0) delete this;
+	if (set->refs == 0) delete set;
 	return r;
 }
 
@@ -279,12 +279,22 @@ bool LSSet<T>::set_lt(const LSSet<T2>* set) const {
 
 
 template <typename T>
-LSSet<LSValue*>* LSSet<T>::to_any_set() const {
+LSSet<LSValue*>* LSSet<T>::to_any_set(const LSSet<T>* const set) {
 	auto result = new LSSet<LSValue*>();
-	for (const auto& e : *this) {
+	for (const auto& e : *set) {
 		result->emplace(ls::convert<LSValue*>(e));
 	}
 	return result;
+}
+
+template <class T>
+bool LSSet<T>::std_in(const LSSet<T>* const set, const LSValue* value) {
+	return set->in_v(value);
+}
+
+template <class T>
+bool LSSet<T>::std_in_v(const LSSet<T>* const set, T value) {
+	return set->in_v(value);
 }
 
 template <>
