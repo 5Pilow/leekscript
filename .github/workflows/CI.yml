@@ -53,7 +53,7 @@ jobs:
         gcov -v
         lcov -v
     - name: Coverage
-      run: make coverage-action
+      run: COMPILER=g++ make coverage-action
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
