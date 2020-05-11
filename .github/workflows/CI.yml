@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  tests:
+  tests_gcc:
     name: Tests GCC 9
     runs-on: ubuntu-18.04
     steps:
@@ -26,10 +26,10 @@ jobs:
       run: |
         gcc -v
     - name: make test
-      run: make test
+      run: COMPILER=g++ make test
 
 
-  coverage:
+  coverage_gcc:
 
     name: Tests coverage GCC 9
     runs-on: ubuntu-18.04
@@ -61,7 +61,7 @@ jobs:
         path-to-lcov: ./build/app.info
 
 
-  sanitized:
+  sanitized_gcc:
 
     name: Tests sanitized GCC 9
     runs-on: ubuntu-18.04
@@ -80,10 +80,10 @@ jobs:
       run: |
         gcc -v
     - name: Tests with Address Sanitizer
-      run: make sanitized
+      run: COMPILER=g++ make sanitized
 
 
-  valgrind:
+  valgrind_gcc:
 
     name: Tests Valgrind GCC 9
     runs-on: ubuntu-latest
@@ -104,11 +104,11 @@ jobs:
         gcc -v
         valgrind --version
     - name: Tests with Valgrind
-      run: make valgrind
+      run: COMPILER=g++ make valgrind
 
 
   tests_clang:
-    name: Tests Clang 10
+    name: Tests Clang 9
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
@@ -121,5 +121,22 @@ jobs:
     - name: Info
       run: |
         clang -v
-    - name: make test-clang
-      run: make test-clang
+    - name: make test
+      run: make test
+
+  sanitized_clang:
+    name: Tests sanitized Clang 9
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: |
+        sudo apt -y update
+        sudo apt install -y --force-yes build-essential python wget libgmp-dev llvm-9-dev git libomp5 libomp-dev
+        sudo ln -s /usr/lib/llvm-9/include/llvm /usr/include
+        sudo ln -s /usr/lib/llvm-9/include/llvm-c /usr/include
+    - name: Info
+      run: |
+        clang -v
+    - name: make sanitized
+      run: make sanitized

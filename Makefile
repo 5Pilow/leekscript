@@ -33,7 +33,7 @@ OBJ_SANITIZED := $(patsubst %.cpp,build/sanitized/%.o,$(SRC))
 OBJ_ANALYZER := $(patsubst %.cpp,build/analyzer/%.o,$(SRC_ANALYZER)) build/analyzer/src/CLI.o build/analyzer/src/MainAnalyzer.o
 OBJ_ANALYZER_WEB := $(patsubst %.cpp,build/analyzer-web/%.o,$(SRC_ANALYZER)) build/analyzer-web/src/CLI.o build/analyzer-web/src/MainAnalyzer.o
 
-COMPILER := g++
+COMPILER := $(or $(COMPILER), clang++)
 OPTIM := -O0 -Wall
 DEBUG := -g3 -DDEBUG_LEAKS
 DEBUG_WEB := -O3 -g4 -s SAFE_HEAP=1 -s ASSERTIONS=1 -DWASM=1 -s WASM=1 # --source-map-base http://localhost:8080/ # -s DEMANGLE_SUPPORT=1
@@ -48,9 +48,6 @@ CLOC_EXCLUDED := .git,lib,build,doxygen
 .PHONY: test
 
 all: build/leekscript
-
-clang: COMPILER=clang++
-clang: all
 
 ninja:
 	@mkdir -p build/default
@@ -171,9 +168,6 @@ build/leekscript-coverage: $(BUILD_DIR) $(OBJ_COVERAGE) $(OBJ_TEST)
 # Run tests
 test: build/leekscript-test
 	@build/leekscript-test
-
-test-clang: COMPILER=clang++
-test-clang: test
 
 opti: FLAGS += -DNDEBUG
 opti: OPTIM := -O2
