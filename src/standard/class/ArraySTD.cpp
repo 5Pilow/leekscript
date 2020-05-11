@@ -403,7 +403,9 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	}, PRIVATE | LEGACY);
 
 	method("to_bool", {
-		{env.boolean, {env.array}, ADDR((void*) LSArray<int>::std_to_bool)}
+		{env.boolean, {Type::array(env.any)}, ADDR((void*) LSArray<LSValue*>::std_to_bool)},
+		{env.boolean, {Type::array(env.real)}, ADDR((void*) LSArray<double>::std_to_bool)},
+		{env.boolean, {Type::array(env.integer)}, ADDR((void*) LSArray<int>::std_to_bool)},
 	}, PRIVATE | LEGACY);
 
 	auto sort_fun_int = ADDR(&LSArray<int>::ls_sort_fun<LSFunction*>);

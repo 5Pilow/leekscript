@@ -1049,7 +1049,13 @@ Compiler::value Compiler::insn_to_bool(Compiler::value v) {
 	}
 	if (v.t->is_array()) {
 		// Always take LSArray<int>, but the array is not necessarily of this type
-		return insn_call(env.boolean, {v}, "Array.to_bool");
+		if (v.t->element()->is_integer()) {
+			return insn_call(env.boolean, {v}, "Array.to_bool.2");
+		} else if (v.t->element()->is_real()) {
+			return insn_call(env.boolean, {v}, "Array.to_bool.1");
+		} else {
+			return insn_call(env.boolean, {v}, "Array.to_bool");
+		}
 	}
 	if (v.t->is_function() or v.t->is_function_pointer()) {
 		return new_bool(true);
