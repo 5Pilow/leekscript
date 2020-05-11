@@ -5,7 +5,7 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-    
+
 jobs:
 
   tests:
@@ -30,7 +30,7 @@ jobs:
 
 
   coverage:
-  
+
     name: Tests coverage GCC 9
     runs-on: ubuntu-18.04
 
@@ -105,3 +105,21 @@ jobs:
         valgrind --version
     - name: Tests with Valgrind
       run: make valgrind
+
+
+  tests_clang:
+    name: Tests Clang 10
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: |
+        sudo apt -y update
+        sudo apt install -y --force-yes build-essential python wget libgmp-dev llvm-9-dev git libomp5 libomp-dev
+        sudo ln -s /usr/lib/llvm-9/include/llvm /usr/include
+        sudo ln -s /usr/lib/llvm-9/include/llvm-c /usr/include
+    - name: Info
+      run: |
+        clang -v
+    - name: make test-clang
+      run: make test-clang
