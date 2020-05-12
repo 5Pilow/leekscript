@@ -10,6 +10,7 @@ namespace ls {
 
 class Phi;
 class Mutation;
+class Variable;
 
 class Section {
     static const std::vector<std::string> COLORS;

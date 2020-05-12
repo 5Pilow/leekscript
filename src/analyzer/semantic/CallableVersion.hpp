@@ -15,6 +15,7 @@ class SemanticAnalyzer;
 class Type;
 class Value;
 class Callable;
+class Environment;
 
 class CallableVersion {
 	const Callable* callable = nullptr;
@@ -25,12 +26,8 @@ public:
 	Compiler::value extra_arg;
 	#endif
 
-	#if COMPILER
 	CallableVersion(Environment&);
 	CallableVersion(Environment&, const Callable*, size_t index, const Type*);
-	#else
-	CallableVersion();
-	#endif
 
 	const CallableVersionTemplate* template_() const;
 	operator bool() const;

@@ -17,13 +17,17 @@
 
 namespace ls {
 
+CallableVersion::CallableVersion(Environment& env) : type(env.void_)
 #if COMPILER
-CallableVersion::CallableVersion(Environment& env) : type(env.void_), extra_arg(env) {}
-
-CallableVersion::CallableVersion(Environment& env, const Callable* callable, size_t index, const Type* type) : callable(callable), index(index), type(type), extra_arg(env) {}
-#else
-CallableVersion::CallableVersion() {}
+, extra_arg(env)
 #endif
+{}
+
+CallableVersion::CallableVersion(Environment& env, const Callable* callable, size_t index, const Type* type) : callable(callable), index(index), type(type)
+#if COMPILER
+, extra_arg(env)
+#endif
+{}
 
 CallableVersion::operator bool() const {
 	return callable;

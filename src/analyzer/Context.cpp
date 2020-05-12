@@ -4,6 +4,7 @@
 #include <vector>
 #include "../util/json.hpp"
 #include "../type/Type.hpp"
+#include "lexical/Token.hpp"
 #if COMPILER
 #include "../vm/LSValue.hpp"
 #endif
@@ -23,12 +24,14 @@ Context::Context(Environment& env, std::string ctx) : env(env) {
 
 Context::~Context() {
 	// std::cout << "delete context" << std::endl;
+	#if COMPILER
 	for (const auto& var : vars) {
 		if (var.second.type == env.any) {
 			// std::cout << "delete var " << (LSValue*)var.second.value << std::endl;
 			delete var.second.value.ls_value;
 		}
 	}
+	#endif
 }
 
 void Context::add_variable(char* name, ContextVarValue v, const Type* type) {
