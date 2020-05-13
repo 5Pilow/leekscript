@@ -19,6 +19,8 @@ BUILD_DIR += $(addprefix build/deps/,$(SRC_DIR))
 BUILD_DIR += $(addprefix build/deps/,$(TEST_DIR))
 BUILD_DIR += $(addprefix build/analyzer/,$(SRC_ANALYZER))
 BUILD_DIR += $(addprefix build/analyzer-web/,$(SRC_ANALYZER))
+BUILD_DIR += $(addprefix build/lib-analyzer/,$(SRC_ANALYZER))
+BUILD_DIR += $(addprefix build/lib-analyzer-web/,$(SRC_ANALYZER))
 
 OBJ := $(patsubst %.cpp,build/default/%.o,$(SRC))
 DEPS := $(patsubst %.cpp,build/deps/%.d,$(SRC))
@@ -32,6 +34,8 @@ OBJ_PROFILE := $(patsubst %.cpp,build/profile/%.o,$(SRC))
 OBJ_SANITIZED := $(patsubst %.cpp,build/sanitized/%.o,$(SRC))
 OBJ_ANALYZER := $(patsubst %.cpp,build/analyzer/%.o,$(SRC_ANALYZER)) build/analyzer/src/CLI.o build/analyzer/src/MainAnalyzer.o
 OBJ_ANALYZER_WEB := $(patsubst %.cpp,build/analyzer-web/%.o,$(SRC_ANALYZER)) build/analyzer-web/src/CLI.o build/analyzer-web/src/MainAnalyzer.o
+OBJ_LIB_ANALYZER := $(patsubst %.cpp,build/lib-analyzer/%.o,$(SRC_ANALYZER))
+OBJ_LIB_ANALYZER_WEB := $(patsubst %.cpp,build/lib-analyzer-web/%.o,$(SRC_ANALYZER))
 
 COMPILER := $(or $(COMPILER), clang++)
 OPTIM := -O0 -Wall
@@ -68,6 +72,10 @@ build/default/%.o: %.cpp
 
 build/analyzer/%.o: %.cpp
 	$(COMPILER) -c $(OPTIM) $(FLAGS) $(DEBUG) -o $@ $<
+	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
+
+build/lib-analyzer/%.o: %.cpp
+	$(COMPILER) -c $(OPTIM) $(FLAGS) -fPIC $(DEBUG) -o $@ $<
 	@$(COMPILER) $(FLAGS) -MM -MT $@ $*.cpp -MF build/deps/$*.d
 
 build/analyzer-web/%.o: %.cpp
