@@ -83,9 +83,10 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 
 Completion Program::autocomplete(SemanticAnalyzer& analyzer, size_t position) {
 	if (not result.analyzed) {
-		std::cout << "Program not analyzed yet!" << std::endl;
-		return {};
+		// std::cout << "Program not analyzed yet!" << std::endl;
+		return { analyzer.env };
 	}
+	analyzer.program = this;
 	return main->autocomplete(analyzer, position);
 }
 
