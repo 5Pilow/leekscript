@@ -9,9 +9,10 @@ namespace ls {
 class File;
 
 struct Position {
-	size_t line;
-	size_t column;
-	size_t raw;
+	size_t line = 0;
+	size_t column = 0;
+	size_t raw = 0;
+	Position() {}
 	Position(size_t line, size_t column, size_t raw) :
 		line(line), column(column), raw(raw) {}
 
@@ -20,9 +21,10 @@ struct Position {
 };
 
 struct Location {
-	File* file;
+	File* file = nullptr;
 	Position start;
 	Position end;
+	Location() {}
 	Location(File* file, Position start, Position end) : file(file), start(start), end(end) {}
 
 	bool contains(size_t position) const;
