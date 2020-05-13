@@ -282,6 +282,9 @@ Completion Function::autocomplete(SemanticAnalyzer& analyzer, size_t position) c
 }
 
 Hover Function::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	if (versions.size()) {
+		return versions.begin()->second->hover(analyzer, position);
+	}
 	return default_version->hover(analyzer, position);
 }
 

@@ -40,6 +40,13 @@ Location Return::location() const {
 	return expression->location();
 }
 
+Hover Return::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	if (expression && expression->location().contains(position)) {
+		return expression->hover(analyzer, position);
+	}
+	return { analyzer.env };
+}
+
 #if COMPILER
 Compiler::value Return::compile(Compiler& c) const {
 	auto& env = c.env;

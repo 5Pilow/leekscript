@@ -8,6 +8,7 @@
 #include "../../standard/Module.hpp"
 #include "../Program.hpp"
 #include "../semantic/Variable.hpp"
+#include "../resolver/File.hpp"
 
 namespace ls {
 
@@ -275,7 +276,12 @@ Hover VariableValue::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	// 		}
 	// 	}
 	// }
-	return { type, location() };
+	Hover hover { type, location() };
+	if (var && var->token) {
+		hover.defined_file = var->token->location.file->path;
+		hover.defined_line = var->token->location.start.line;
+	}
+	return hover;
 }
 
 #if COMPILER

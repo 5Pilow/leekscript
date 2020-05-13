@@ -327,14 +327,16 @@ Completion FunctionCall::autocomplete(SemanticAnalyzer& analyzer, size_t positio
 
 Hover FunctionCall::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	if (position < opening_parenthesis->location.start.raw) {
-		return function->hover(analyzer, position);
+		auto hover = function->hover(analyzer, position);
+		hover.type = callable_version.type;
+		return hover;
 	}
 	for (const auto& argument : arguments) {
 		if (argument->location().contains(position)) {
 			return argument->hover(analyzer, position);
 		}
 	}
-	return { type, location() };
+	return { callable_version.type->return_type(), location() };
 }
 
 #if COMPILER
@@ -402,6 +404,7 @@ std::unique_ptr<Value> FunctionCall::clone(Block* parent) const {
 	for (const auto& a : arguments) {
 		fc->arguments.emplace_back(a->clone(parent));
 	}
+	fc->opening_parenthesis = opening_parenthesis;
 	fc->closing_parenthesis = closing_parenthesis;
 	return fc;
 }

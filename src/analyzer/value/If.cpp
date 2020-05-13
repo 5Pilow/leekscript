@@ -35,7 +35,19 @@ void If::print(std::ostream& os, int indent, PrintOptions options) const {
 }
 
 Location If::location() const {
-	return { token->location.file, token->location.start, elze ? elze->location().end : then->location().end };
+	if (ternary) {
+		auto cond_loc = condition->location();
+		return {
+			cond_loc.file,
+			cond_loc.start,
+			elze->location().end
+		};
+	}
+	return {
+		token->location.file,
+		token->location.start,
+		elze and elze->instructions.size() ? elze->location().end : then->location().end
+	};
 }
 
 void If::pre_analyze(SemanticAnalyzer* analyzer) {
@@ -87,7 +99,7 @@ Hover If::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	if (then->location().contains(position)) {
 		return then->hover(analyzer, position);
 	}
-	if (elze && elze->location().contains(position)) {
+	if (elze and elze->instructions.size() and elze->location().contains(position)) {
 		return elze->hover(analyzer, position);
 	}
 	return { type, location() };
