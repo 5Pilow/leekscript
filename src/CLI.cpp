@@ -116,6 +116,7 @@ int CLI::analyze_snippet(std::string code, CLI_options options) {
 	env.analyze(program, options.format, options.debug);
 	std::ostringstream oss;
 	program.print(oss, true);
+	print_result(program.result, oss.str(), options.json_output, options.display_time, options.operations);
 	return 0;
 }
 
@@ -126,6 +127,7 @@ int CLI::analyze_file(std::string file, CLI_options options) {
 	env.analyze(program, options.format, options.debug);
 	std::ostringstream oss;
 	program.print(oss, true);
+	print_result(program.result, oss.str(), options.json_output, options.display_time, options.operations);
 	return 0;
 }
 
