@@ -236,7 +236,7 @@ Variable* Program::get_operator(const std::string& name) {
 	f->body->add_instruction(std::make_unique<ExpressionInstruction>(env, std::move(ex)));
 	auto type = Type::fun(env.any, { env.any, env.any });
 
-	auto var = new Variable(name, VarScope::INTERNAL, type, 0, f, nullptr, nullptr, nullptr, nullptr);
+	auto var = new Variable(name, token, VarScope::INTERNAL, type, 0, f, nullptr, nullptr, nullptr, nullptr);
 	operators.emplace(name, var);
 	return var;
 }

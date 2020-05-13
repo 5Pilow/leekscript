@@ -6,14 +6,14 @@
 
 namespace ls {
 
-Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, Call call, bool global) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), section(section), type(type), call(call), clazz(clazz), global(global)
+Variable::Variable(std::string name, Token* token, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, Call call, bool global) : name(name), token(token), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), section(section), type(type), call(call), clazz(clazz), global(global)
 #if COMPILER
 , entry(type->env), addr_val(type->env), val(type->env)
 #endif
 {}
 
 #if COMPILER
-Variable::Variable(std::string name, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, LSClass* lsclass, Call call) : name(name), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), section(section), type(type), clazz(clazz), lsclass(lsclass), call(call), entry(type->env), addr_val(type->env), val(type->env) {}
+Variable::Variable(std::string name, Token* token, VarScope scope, const Type* type, int index, Value* value, FunctionVersion* function, Block* block, Section* section, Class* clazz, LSClass* lsclass, Call call) : name(name), token(token), scope(scope), index(index), parent_index(0), value(value), function(function), block(block), section(section), type(type), clazz(clazz), lsclass(lsclass), call(call), entry(type->env), addr_val(type->env), val(type->env) {}
 #endif
 
 Variable* Variable::get_root() const {
@@ -89,7 +89,7 @@ void Variable::delete_value(Compiler& c) {
 #endif
 
 Variable Variable::new_temporary(std::string name, const Type* type) {
-	return { name, VarScope::LOCAL, type, 0, nullptr, nullptr, nullptr, nullptr, nullptr };
+	return { name, nullptr, VarScope::LOCAL, type, 0, nullptr, nullptr, nullptr, nullptr, nullptr };
 }
 
 const Type* Variable::get_type_for_variable_from_expression(Environment& env, const Value* expression) {

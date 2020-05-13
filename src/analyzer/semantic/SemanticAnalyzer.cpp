@@ -24,7 +24,7 @@ void SemanticAnalyzer::analyze(Program* program) {
 	this->program = program;
 	for (const auto& clazz : env.std.classes) {
 		auto const_class = env.const_class(clazz.first);
-		program->globals.insert({ clazz.first, std::make_unique<Variable>(clazz.first, VarScope::INTERNAL, const_class, 0, nullptr, nullptr, nullptr, nullptr, clazz.second->clazz.get()) });
+		program->globals.emplace(clazz.first, new Variable(clazz.first, nullptr, VarScope::INTERNAL, const_class, 0, nullptr, nullptr, nullptr, nullptr, clazz.second->clazz.get()));
 	}
 
 	program->main->create_default_version(this);
@@ -209,7 +209,7 @@ Variable* SemanticAnalyzer::add_var(Token* v, const Type* type, Value* value) {
 		return nullptr;
 	}
 
-	auto var = new Variable(v->content, VarScope::LOCAL, type, 0, value, current_function(), current_block(), current_section(), nullptr);
+	auto var = new Variable(v->content, v, VarScope::LOCAL, type, 0, value, current_function(), current_block(), current_section(), nullptr);
 	block->variables.emplace(v->content, var);
 	assert(current_section());
 	current_section()->variables.emplace(v->content, var);
@@ -251,7 +251,7 @@ Variable* SemanticAnalyzer::add_global_var(Token* v, const Type* type, Value* va
 		}
 	}
 	auto& section = blocks.begin()->front()->sections.front();
-	auto& var = section->variable_list.emplace_back(new Variable(v->content, VarScope::LOCAL, type, 0, value, current_function(), current_block(), current_section(), nullptr, {}, true));
+	auto& var = section->variable_list.emplace_back(new Variable(v->content, v, VarScope::LOCAL, type, 0, value, current_function(), current_block(), current_section(), nullptr, {}, true));
 	section->variables.emplace(v->content, var.get());
 	return var.get();
 }
@@ -272,7 +272,7 @@ Variable* SemanticAnalyzer::update_var(Variable* variable, bool add_mutation) {
 		// a.1 = 5.5
 		// a.2 = 'salut'
 		auto root = variable->root ? variable->root : variable;
-		new_variable = new Variable(root->name, variable->scope, env.void_, root->index, nullptr, current_function(), current_block(), current_section(), nullptr);
+		new_variable = new Variable(root->name, variable->token, variable->scope, env.void_, root->index, nullptr, current_function(), current_block(), current_section(), nullptr);
 		new_variable->id = variable->id + 1;
 		new_variable->root = root;
 	} else {
@@ -284,7 +284,7 @@ Variable* SemanticAnalyzer::update_var(Variable* variable, bool add_mutation) {
 		//    a.1.1 = 'salut'
 		// }
 		auto root = variable->root ? variable->root : variable;
-		new_variable = new Variable(variable->name, variable->scope, env.void_, variable->index, nullptr, current_function(), current_block(), current_section(), nullptr);
+		new_variable = new Variable(variable->name, variable->token, variable->scope, env.void_, variable->index, nullptr, current_function(), current_block(), current_section(), nullptr);
 		new_variable->id = variable->id + 1;
 		new_variable->root = root;
 	}
