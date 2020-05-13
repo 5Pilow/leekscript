@@ -21,6 +21,10 @@ SystemSTD::SystemSTD(Environment& env) : Module(env, "System") {
 	static_field_fun("microTime", env.long_, ADDR((void*) microtime));
 	static_field_fun("nanoTime", env.long_, ADDR((void*) nanotime));
 
+	method("include", {
+		{env.void_, {env.string}, ADDR(nullptr)}
+	}, LEGACY);
+
 	method("print", {
 		{env.void_, {env.const_any}, ADDR(print)},
 		{env.void_, {env.mpz_ptr}, ADDR(print_mpz)},
@@ -44,6 +48,15 @@ SystemSTD::SystemSTD(Environment& env) : Module(env, "System") {
 	}, PRIVATE | LEGACY);
 
 	method("debug", {
+		{env.void_, {env.any}, ADDR(print)}
+	}, LEGACY_ONLY);
+	method("debugW", {
+		{env.void_, {env.any}, ADDR(print)}
+	}, LEGACY_ONLY);
+	method("debugE", {
+		{env.void_, {env.any}, ADDR(print)}
+	}, LEGACY_ONLY);
+	method("debugC", {
 		{env.void_, {env.any}, ADDR(print)}
 	}, LEGACY_ONLY);
 
@@ -71,7 +84,7 @@ SystemSTD::SystemSTD(Environment& env) : Module(env, "System") {
 		{env.integer, {}, ADDR(nullptr)}
 	}, LEGACY_ONLY);
 
-	method("getInstructionCount", {
+	method("getInstructionsCount", {
 		{env.integer, {}, ADDR(nullptr)}
 	}, LEGACY_ONLY);
 }

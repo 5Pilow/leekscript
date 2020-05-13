@@ -61,7 +61,7 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{env.mpz_ptr, env.mpz_ptr, env.boolean, ADDR(eq_mpz_mpz)},
 		{env.mpz_ptr, env.integer, env.boolean, ADDR(eq_mpz_int)},
 		{env.integer, env.mpz_ptr, env.boolean, ADDR(eq_int_mpz)},
-	});
+	}, LEGACY);
 	operator_("+", {
 		{env.mpz_ptr, env.mpz_ptr, env.tmp_mpz_ptr, ADDR(add_mpz_mpz)},
 		{env.mpz_ptr, env.integer, env.tmp_mpz_ptr, ADDR(add_mpz_int)},
@@ -69,26 +69,26 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{env.long_, env.long_, env.long_, ADDR(add_real_real)},
 		{env.const_integer, env.const_integer, env.integer, ADDR(add_real_real)},
 		{env.const_integer, env.const_string, env.tmp_string, ADDR((void*) &StringSTD::add_int_r)}
-	});
+	}, LEGACY);
 	operator_("+=", {
 		{env.mpz_ptr, env.mpz_ptr, env.tmp_mpz_ptr, ADDR(add_eq_mpz_mpz), 0, { env.convert_mutator }, true},
 		{env.mpz_ptr, env.integer, env.tmp_mpz_ptr, ADDR(add_eq_mpz_int), 0, { env.convert_mutator }, true},
 		{env.real, env.real, env.real, ADDR(add_eq_real), 0, { env.convert_mutator }, true},
 		{env.long_, env.long_, env.long_, ADDR(add_eq_real), 0, { env.convert_mutator }, true},
 		{env.integer, env.integer, env.integer, ADDR(add_eq_real), 0, { env.convert_mutator }, true}
-	});
+	}, LEGACY);
 	operator_("-", {
 		{env.mpz_ptr, env.mpz_ptr, env.tmp_mpz_ptr, ADDR(sub_mpz_mpz)},
 		{env.mpz_ptr, env.integer, env.tmp_mpz_ptr, ADDR(sub_mpz_int)},
 		{env.real, env.real, env.real, ADDR(sub_real_real)},
 		{env.long_, env.long_, env.long_, ADDR(sub_real_real)},
 		{env.const_integer, env.const_integer, env.integer, ADDR(sub_real_real)},
-	});
+	}, LEGACY);
 	operator_("-=", {
 		{env.mpz_ptr, env.mpz_ptr, env.tmp_mpz_ptr, ADDR(sub_eq_mpz_mpz)},
 		{env.real, env.real, env.real, ADDR(sub_eq_real), 0, {}, true},
 		{env.integer, env.integer, env.integer, ADDR(sub_eq_real), 0, {}, true}
-	});
+	}, LEGACY);
 	operator_("*", {
 		{env.real, env.real, env.real, ADDR(mul_real_real)},
 		{env.long_, env.long_, env.long_, ADDR(mul_real_real)},
@@ -100,13 +100,13 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{env.mpz_ptr, env.mpz, env.tmp_mpz_ptr, ADDR(mul_mpz_tmp_mpz)},
 		{env.mpz_ptr, env.mpz_ptr, env.tmp_mpz_ptr, ADDR(mul_mpz_mpz)},
 		{env.mpz, env.integer, env.tmp_mpz_ptr, ADDR(mul_tmp_mpz_int)},
-	});
+	}, LEGACY);
 	operator_("*=", {
 		{env.mpz_ptr, env.mpz_ptr, env.tmp_mpz, ADDR(mul_eq_mpz_mpz)},
 		{env.mpz_ptr, env.integer, env.tmp_mpz_ptr, ADDR(mul_eq_mpz_int)},
 		{env.real, env.real, env.real, ADDR(mul_eq_real), 0, {}, true},
 		{env.integer, env.integer, env.integer, ADDR(mul_eq_real), 0, {}, true}
-	});
+	}, LEGACY);
 
 	auto pX = env.template_("X");
 	auto pY = env.template_("Y");
@@ -117,20 +117,20 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{env.tmp_mpz_ptr, env.tmp_mpz_ptr, env.tmp_mpz_ptr, ADDR(pow_mpz_mpz), THROWS},
 		{env.tmp_mpz_ptr, env.integer, env.tmp_mpz_ptr, ADDR(pow_mpz_int), THROWS},
 		{env.mpz_ptr, env.integer, env.tmp_mpz_ptr, ADDR(pow_mpz_int), THROWS},
-	});
+	}, LEGACY);
 
 	operator_("**=", {
 		{env.mpz_ptr, env.mpz_ptr, env.tmp_mpz_ptr, ADDR(pow_eq_mpz_mpz)},
 		{env.real, env.real, env.real, ADDR(pow_eq_real), 0, {}, true},
 		{env.integer, env.integer, env.integer, ADDR(pow_eq_real), 0, {}, true}
-	});
+	}, LEGACY);
 	operator_("/", {
 		{env.number, env.number, env.real, ADDR(div_val_val)}
-	});
+	}, LEGACY);
 	operator_("/=", {
 		{env.mpz, env.mpz, env.tmp_mpz, ADDR(div_eq_mpz_mpz)},
 		{env.real, env.real, env.real, ADDR(div_eq_real), THROWS, {}, true}
-	});
+	}, LEGACY);
 	operator_("\\", {
 		{env.real, env.real, env.integer, ADDR(int_div_val_val)},
 		{env.long_, env.long_ , env.long_, ADDR(int_div_val_val)},
@@ -141,22 +141,22 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 	});
 	operator_("<", {
 		{env.number, env.number, env.boolean, ADDR(lt)}
-	});
+	}, LEGACY);
 	operator_("<=", {
 		{env.number, env.number, env.boolean, ADDR(le)}
-	});
+	}, LEGACY);
 	operator_(">", {
 		{env.number, env.number, env.boolean, ADDR(gt)}
-	});
+	}, LEGACY);
 	operator_(">=", {
 		{env.number, env.number, env.boolean, ADDR(ge)}
-	});
+	}, LEGACY);
 	operator_("%", {
 		{env.real, env.real, env.real, ADDR(mod), THROWS},
 		{env.long_, env.long_, env.long_, ADDR(mod), THROWS},
 		{env.const_integer, env.const_integer, env.integer, ADDR(mod), THROWS},
 		{env.mpz_ptr, env.mpz_ptr, env.tmp_mpz_ptr, ADDR(mod_mpz_mpz), THROWS},
-	});
+	}, LEGACY);
 	operator_("%%", {
 		{env.real, env.real, env.real, ADDR(double_mod)},
 		{env.long_, env.long_, env.long_, ADDR(double_mod)},
@@ -175,22 +175,22 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 	});
 	operator_("&", {
 		{env.const_integer, env.const_integer, env.integer, ADDR(bit_and)}
-	});
+	}, LEGACY);
 	operator_("&=", {
 		{env.integer, env.const_integer, env.integer, ADDR(bit_and_eq), 0, {}, true}
-	});
+	}, LEGACY);
 	operator_("|", {
 		{env.const_integer, env.const_integer, env.integer, ADDR(bit_or)}
-	});
+	}, LEGACY);
 	operator_("|=", {
 		{env.integer, env.const_integer, env.integer, ADDR(bit_or_eq), 0, {}, true}
-	});
+	}, LEGACY);
 	operator_("^", {
 		{env.const_integer, env.const_integer, env.integer, ADDR(bit_xor)}
-	});
+	}, LEGACY);
 	operator_("^=", {
 		{env.integer, env.const_integer, env.integer, ADDR(bit_xor_eq), 0, {}, true}
-	});
+	}, LEGACY);
 
 	/*
 	 * Methods
@@ -219,7 +219,7 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 	method("abs", {
 		{env.any, {env.any}, ADDR((void*) abs_ptr)},
 		{absT, {absT}, ADDR(abs)}
-	});
+	}, LEGACY);
 	int (*abs_int)(int) = std::abs;
 	long (*abs_long)(long) = std::abs;
 	double (*abs_real)(double) = std::fabs;
@@ -312,7 +312,7 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 	method("max", {
 		{env.any, {env.any, env.any}, ADDR((void*) max_ptr_ptr), DEFAULT},
 		{Type::meta_mul(maxT1, maxT2), {maxT1, maxT2}, ADDR(max)},
-	});
+	}, LEGACY);
 
 	// template<T1 : number, T2 : number>
 	// T1 × T2 min(T1 x, T2 y)
@@ -322,7 +322,7 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 	method("min", {
 		{env.real, {env.any, env.any}, ADDR((void*) min_ptr_ptr), DEFAULT},
 		{Type::meta_mul(minT1, minT2), {minT1, minT2}, ADDR(min)},
-	});
+	}, LEGACY);
 
 	#if COMPILER
 	auto gcd = std::gcd<int, int>;
@@ -341,20 +341,20 @@ NumberSTD::NumberSTD(Environment& env) : Module(env, "Number") {
 		{env.integer, {env.any}, ADDR((void*) round_ptr)},
 		{env.integer, {env.real}, ADDR(round_real)},
 		{env.integer, {env.integer}, ADDR(round_int)}
-	});
+	}, LEGACY);
 	method("rand", {
 		{env.real, {}, ADDR((void*) rand01)},
 	});
 	method("randInt", {
 		{env.integer, {env.integer, env.integer}, ADDR((void*) rand_int)},
-	});
+	}, LEGACY);
 	method("randFloat", {
 		{env.real, {env.real, env.real}, ADDR((void*) rand_real)},
-	});
+	}, LEGACY);
 	method("signum", {
 		{env.integer, {env.any}, ADDR((void*) signum_ptr)},
 		{env.integer, {env.number}, ADDR(signum)},
-	});
+	}, LEGACY);
 	method("sin", {
 		{env.real, {env.any}, ADDR((void*) sin_ptr)},
 		{env.real, {env.any}, ADDR((void*) sin_ptr)},

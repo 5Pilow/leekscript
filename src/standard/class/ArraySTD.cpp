@@ -157,6 +157,12 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::array(sT), {Type::array(sT), Type::fun_object(env.boolean, {sT, sT})}, ADDR(sort)}
 	});
 
+	auto asT = env.template_("T");
+	template_(asT).
+	method("arraySort", {
+		{ls::Type::array(asT), {Type::array(asT), Type::fun_object(env.integer, {asT, asT})}, ADDR(nullptr)},
+	}, LEGACY_ONLY);
+
 	auto map2_fun_type = (const Type*) Type::fun_object(env.any, {env.any, env.any});
 	auto map2_fun_type_int = (const Type*) Type::fun_object(env.any, {env.any, env.integer});
 	auto map2_ptr_ptr = ADDR((&LSArray<LSValue*>::ls_map2<LSFunction*, LSValue*, LSValue*>));
@@ -174,6 +180,13 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	method("filter", {
 		{Type::tmp_array(fiT), {Type::const_array(fiT), Type::fun(env.boolean, {fiT})}, ADDR(filter)},
 	});
+
+	auto afT = env.template_("T");
+	template_(afT).
+	method("arrayFlatten", {
+		{ls::Type::array(afT), {Type::array(afT)}, ADDR(nullptr)},
+		{ls::Type::array(afT), {Type::array(afT), env.integer}, ADDR(nullptr)},
+	}, LEGACY_ONLY);
 
 	method("isEmpty", {
 		{env.boolean, {env.array}, ADDR((void*) LSArray<LSValue*>::ls_empty)},
@@ -285,7 +298,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.string, {Type::const_array(env.real), env.const_string}, ADDR((void*) LSArray<double>::ls_join_glue)},
 		{env.string, {Type::const_array(env.integer), env.const_string}, ADDR((void*) LSArray<int>::ls_join_glue)},
 		{env.string, {Type::const_array(env.never), env.const_string}, ADDR((void*) LSArray<LSValue*>::ls_join_glue)},
-	});
+	}, LEGACY);
 
 	method("json", {
 		{env.string, {env.array}, ADDR((void*) LSValue::std_json)},
@@ -326,7 +339,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.boolean, {Type::array(env.integer), env.integer}, ADDR(remove_element_int)},
 		{env.boolean, {Type::array(env.never), env.const_any}, ADDR(remove_element_any)},
 		{env.boolean, {Type::array(env.never), env.integer}, ADDR(remove_element_any)},
-	});
+	}, LEGACY);
 
 	auto rT = env.template_("T");
 	template_(rT).
