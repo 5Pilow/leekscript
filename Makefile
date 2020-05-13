@@ -41,7 +41,7 @@ FLAGS := -std=c++17 -Wall -fopenmp
 FLAGS_TEST := -fopenmp
 SANITIZE_FLAGS := -O1 -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -fsanitize=float-divide-by-zero # -fsanitize=float-cast-overflow
 LIBS := -lm -lgmp `llvm-config-9 --cxxflags --ldflags --system-libs --libs core orcjit native`
-MAKEFLAGS += --jobs=7
+MAKEFLAGS += --jobs=20
 
 CLOC_EXCLUDED := .git,lib,build,doxygen
 
