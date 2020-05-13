@@ -213,7 +213,7 @@ Completion Block::autocomplete(SemanticAnalyzer& analyzer, size_t position) cons
 	}
 
 	// Return variables accessible from the block
-	Completion completion;
+	Completion completion { analyzer.env };
 	Position pos { 0, 0, 0 };
 	Location location { nullptr, pos, pos };
 	for (const auto& variable : variables) {
@@ -243,7 +243,7 @@ Hover Block::hover(SemanticAnalyzer& analyzer, size_t position) const {
 			return instruction->hover(analyzer, position);
 		}
 	}
-	return { type, location() };
+	return { analyzer.env };
 }
 
 #if COMPILER

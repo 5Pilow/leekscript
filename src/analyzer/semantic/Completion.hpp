@@ -5,6 +5,7 @@
 
 namespace ls {
 
+class Environment;
 class Type;
 
 enum class CompletionType {
@@ -25,6 +26,9 @@ class Completion {
 public:
 	const Type* type;
 	std::vector<CompletionItem> items;
+
+	Completion(Environment&);
+	Completion(const Type*);
 };
 
 }

@@ -304,7 +304,7 @@ Completion ObjectAccess::autocomplete(SemanticAnalyzer& analyzer, size_t positio
 		}
 		return completion;
 	}
-	return {};
+	return { analyzer.env };
 }
 
 Hover ObjectAccess::hover(SemanticAnalyzer& analyzer, size_t position) const {

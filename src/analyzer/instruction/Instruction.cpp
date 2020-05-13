@@ -14,7 +14,7 @@ void Instruction::analyze(SemanticAnalyzer* analyzer) {
 }
 
 Completion Instruction::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
-	return {};
+	return { analyzer.env };
 }
 
 Hover Instruction::hover(SemanticAnalyzer& analyzer, size_t position) const {

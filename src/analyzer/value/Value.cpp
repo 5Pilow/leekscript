@@ -61,7 +61,7 @@ bool Value::is_zero() const {
 }
 
 Completion Value::autocomplete(SemanticAnalyzer& analyzer, size_t position) const {
-	return {};
+	return { analyzer.env };
 }
 
 Hover Value::hover(SemanticAnalyzer& analyzer, size_t position) const {

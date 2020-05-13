@@ -109,7 +109,7 @@ Completion VariableDeclaration::autocomplete(SemanticAnalyzer& analyzer, size_t 
 	if (expressions.size()) {
 		return expressions.front()->autocomplete(analyzer, position);
 	}
-	return {};
+	return { analyzer.env };
 }
 
 Hover VariableDeclaration::hover(SemanticAnalyzer& analyzer, size_t position) const {
