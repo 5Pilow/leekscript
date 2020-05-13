@@ -34,6 +34,7 @@
 #include "../analyzer/syntaxic/SyntaxicAnalyzer.hpp"
 #include "../analyzer/semantic/SemanticAnalyzer.hpp"
 #include "../util/utf8.h"
+#include "../analyzer/resolver/Resolver.hpp"
 
 namespace ls {
 

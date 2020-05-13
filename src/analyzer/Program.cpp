@@ -32,7 +32,11 @@
 namespace ls {
 
 Program::Program(Environment& env, const std::string& code, const std::string& file_name)
-	: env(env), code(code), file_name(file_name) {}
+	: env(env), code(code), file_name(file_name) {
+
+	// std::cout << "new Program " << file_name << std::endl;
+	main_file = std::unique_ptr<File>(Resolver().create(file_name, this));
+}
 
 Program::~Program() {
 	#if COMPILER
@@ -46,7 +50,6 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 
 	auto parse_start = std::chrono::high_resolution_clock::now();
 
-	main_file = std::make_unique<File>(file_name, code, FileContext());
 	std::unique_ptr<Block> block { syn.analyze(main_file.get()) };
 
 	if (main_file->errors.size() > 0) {

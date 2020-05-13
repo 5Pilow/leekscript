@@ -1,0 +1,20 @@
+#ifndef VIRTUAL_RESOLVER_HPP
+#define VIRTUAL_RESOLVER_HPP
+
+#include "File.hpp"
+#include "FileContext.hpp"
+#include <string>
+
+namespace ls {
+
+class Program;
+
+class VirtualResolver {
+public:
+    File* create(std::string path, Program* program) const;
+	File* resolve(std::string path, FileContext context) const;
+};
+
+}
+
+#endif
