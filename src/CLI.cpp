@@ -190,6 +190,8 @@ int CLI::repl(CLI_options options) {
 		// Execute
 		Program program { env, code, "(top-level)" };
 		program.context = &ctx;
+		env.analyze(program, options.format, options.debug, options.sections);
+		env.compile(program, options.format, options.debug, options.operations, false, options.intermediate, options.optimization, options.execute_ir, options.execute_bitcode);
 		env.execute(program, options.debug, options.operations, options.bitcode, options.intermediate);
 		print_result(program.result, "", options.json_output, options.display_time, options.operations);
 		// std::cout << &ctx << std::endl;
