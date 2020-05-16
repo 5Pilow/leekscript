@@ -279,7 +279,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	template_(pT, pE).
 	method("push", {
 		{Type::array(env.any), {env.array, env.const_any}, ADDR((void*) LSArray<LSValue*>::ls_push), LEGACY, { env.convert_mutator }},
-		{Type::array(Type::meta_mul(pT, Type::meta_not_temporary(pE))), {Type::array(pT), pE}, ADDR(push), LEGACY, { env.convert_mutator }},
+		{Type::array(Type::meta_add(pT, Type::meta_not_temporary(pE))), {Type::array(pT), pE}, ADDR(push), LEGACY, { env.convert_mutator }},
 	});
 
 	auto paX = env.template_("X");
