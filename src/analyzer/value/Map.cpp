@@ -58,7 +58,7 @@ void Map::analyze(SemanticAnalyzer* analyzer) {
 		for (size_t i = 0; i < values.size(); ++i) {
 			const auto& ex = values[i];
 			ex->analyze(analyzer);
-			value_type = value_type->operator * (ex->type);
+			value_type = value_type->operator + (ex->type);
 			if (ex->constant == false) constant = false;
 		}
 		value_type = value_type->not_temporary();
