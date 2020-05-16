@@ -418,6 +418,7 @@ VariableDeclaration* SyntaxicAnalyzer::eatFunctionDeclaration(Block* block) {
 	auto token = eat_get(TokenType::FUNCTION);
 
 	auto vd = new VariableDeclaration(env);
+	vd->keyword = token;
 	vd->global = true;
 	vd->function = true;
 
