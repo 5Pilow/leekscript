@@ -102,7 +102,7 @@ Hover If::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	if (elze and elze->instructions.size() and elze->location().contains(position)) {
 		return elze->hover(analyzer, position);
 	}
-	return { type, location() };
+	return { analyzer.env };
 }
 
 #if COMPILER
