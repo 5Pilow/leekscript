@@ -8,9 +8,10 @@ namespace ls {
 class Return : public Instruction {
 public:
 
+	Token* token = nullptr;
 	std::unique_ptr<Value> expression;
 
-	Return(Environment& env, std::unique_ptr<Value> = nullptr);
+	Return(Environment& env, Token* token, std::unique_ptr<Value> = nullptr);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;

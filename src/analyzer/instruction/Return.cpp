@@ -5,7 +5,7 @@
 
 namespace ls {
 
-Return::Return(Environment& env, std::unique_ptr<Value> v) : Instruction(env), expression(std::move(v)) {
+Return::Return(Environment& env, Token* token, std::unique_ptr<Value> v) : Instruction(env), token(token), expression(std::move(v)) {
 	returning = true;
 	may_return = true;
 	jumping = true;
@@ -37,7 +37,8 @@ void Return::analyze(SemanticAnalyzer* analyzer, const Type*) {
 }
 
 Location Return::location() const {
-	return expression->location();
+	auto end = expression ? expression->location().end : token->location.end;
+	return { token->location.file, token->location.start, end };
 }
 
 Hover Return::hover(SemanticAnalyzer& analyzer, size_t position) const {
@@ -70,7 +71,7 @@ Compiler::value Return::compile(Compiler& c) const {
 
 std::unique_ptr<Instruction> Return::clone(Block* parent) const {
 	auto ex = expression ? expression->clone(parent) : nullptr;
-	return std::make_unique<Return>(type->env, std::move(ex));
+	return std::make_unique<Return>(type->env, token, std::move(ex));
 }
 
 }

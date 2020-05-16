@@ -305,12 +305,12 @@ Instruction* SyntaxicAnalyzer::eatInstruction(Block* block) {
 			return eatFunctionDeclaration(block);
 
 		case TokenType::RETURN: {
-			eat();
+			auto token = eat_get();
 			if (t->type == TokenType::FINISHED or t->type == TokenType::CLOSING_BRACE
 				or t->type == TokenType::ELSE or t->type == TokenType::END or t->type == TokenType::SEMICOLON) {
-				return new Return(env);
+				return new Return(env, token);
 			} else {
-				return new Return(env, std::unique_ptr<Value>(eatExpression(block)));
+				return new Return(env, token, std::unique_ptr<Value>(eatExpression(block)));
 			}
 		}
 		case TokenType::THROW: {
