@@ -100,6 +100,11 @@ const Type* Type::operator + (const Type* type) const {
 		bool tmp = temporary or type->temporary;
 		return (tmp ? Type::tmp_map : Type::map)(key()->operator + (type->key()), element()->operator + (type->element()));
 	}
+	if (is_array() and type->is_map()) {
+		if (element() == env.never) {
+			return type;
+		}
+	}
 	return Type::compound({this, type});
 }
 const Type* Type::operator * (const Type* t2) const {
