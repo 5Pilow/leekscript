@@ -23,6 +23,7 @@ public:
 	Token* token;
 	std::vector<Token*> arguments;
 	std::vector<std::unique_ptr<Value>> defaultValues;
+	std::vector<bool> references;
 	std::unique_ptr<Block> body;
 
 	bool function_added;
@@ -41,7 +42,7 @@ public:
 
 	Function(Environment& env, Token* token);
 
-	void addArgument(Token* token, Value* defaultValue);
+	void addArgument(Token* token, Value* defaultValue, bool reference);
 
 	virtual void print(std::ostream&, int indent, PrintOptions options) const override;
 	virtual Location location() const override;

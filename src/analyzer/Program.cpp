@@ -233,8 +233,8 @@ Variable* Program::get_operator(const std::string& name) {
 	auto f = operators_functions.emplace_back(std::make_unique<Function>(env, token)).get();
 	auto v1_token = operators_tokens.emplace_back(std::make_unique<Token>(TokenType::IDENT, main_file.get(), 0, 1, 0, "x")).get();
 	auto v2_token = operators_tokens.emplace_back(std::make_unique<Token>(TokenType::IDENT, main_file.get(), 2, 1, 2, "y")).get();
-	f->addArgument(v1_token, nullptr);
-	f->addArgument(v2_token, nullptr);
+	f->addArgument(v1_token, nullptr, false);
+	f->addArgument(v2_token, nullptr, false);
 	f->body.reset(new Block(env, true));
 	auto ex = std::make_unique<Expression>(env);
 	auto op_token = operators_tokens.emplace_back(std::make_unique<Token>(token_types.at(std::distance(ops.begin(), o)), main_file.get(), 1, 1, 1, name)).get();

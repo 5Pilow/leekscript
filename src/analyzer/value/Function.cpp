@@ -35,9 +35,10 @@ Function::Function(Environment& env, Token* token) : Value(env), token(token) {
 	callable = std::make_unique<Callable>();
 }
 
-void Function::addArgument(Token* name, Value* defaultValue) {
+void Function::addArgument(Token* name, Value* defaultValue, bool reference) {
 	arguments.push_back(name);
 	defaultValues.emplace_back(defaultValue);
+	references.push_back(reference);
 	if (defaultValue) default_values_count++;
 }
 

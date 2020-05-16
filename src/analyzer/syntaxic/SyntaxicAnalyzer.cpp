@@ -403,6 +403,12 @@ Function* SyntaxicAnalyzer::eatFunction(Block* block, Token* token) {
 
 	while (t->type != TokenType::FINISHED && t->type != TokenType::CLOSING_PARENTHESIS) {
 
+		bool reference = false;
+		if (t->type == TokenType::AROBASE) {
+			reference = true;
+			eat();
+		}
+
 		auto ident = eatIdent();
 
 		Value* defaultValue = nullptr;
@@ -411,7 +417,7 @@ Function* SyntaxicAnalyzer::eatFunction(Block* block, Token* token) {
 			defaultValue = eatExpression(block);
 		}
 
-		f->addArgument(ident, defaultValue);
+		f->addArgument(ident, defaultValue, reference);
 
 		if (t->type == TokenType::COMMA) {
 			eat();
@@ -950,7 +956,7 @@ Value* SyntaxicAnalyzer::eatLambdaContinue(Block* block, bool parenthesis, Ident
 	auto l = new Function(env, nullptr);
 	l->lambda = true;
 	// Add first argument
-	l->addArgument(ident.token, expression);
+	l->addArgument(ident.token, expression, false);
 	// Add other arguments
 	while (t->type == TokenType::COMMA) {
 		eat();
@@ -960,7 +966,7 @@ Value* SyntaxicAnalyzer::eatLambdaContinue(Block* block, bool parenthesis, Ident
 			eat();
 			defaultValue = eatExpression(block);
 		}
-		l->addArgument(ident, defaultValue);
+		l->addArgument(ident, defaultValue, false);
 	}
 	if (t->type == TokenType::CLOSING_PARENTHESIS) {
 		eat();
