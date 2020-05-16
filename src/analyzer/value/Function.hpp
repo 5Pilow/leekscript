@@ -20,7 +20,7 @@ public:
 	std::string name;
 	std::string internal_name;
 	bool lambda = false;
-	Token* token;
+	Token* token = nullptr;
 	std::vector<Token*> arguments;
 	std::vector<std::unique_ptr<Value>> defaultValues;
 	std::vector<bool> references;

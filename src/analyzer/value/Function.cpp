@@ -70,6 +70,9 @@ void Function::print(std::ostream& os, int indent, PrintOptions options) const {
 }
 
 Location Function::location() const {
+	if (token) {
+		return { token->location.file, token->location.start, default_version->body->location().end };
+	}
 	return default_version->body->location();
 }
 
@@ -283,10 +286,14 @@ Completion Function::autocomplete(SemanticAnalyzer& analyzer, size_t position) c
 }
 
 Hover Function::hover(SemanticAnalyzer& analyzer, size_t position) const {
-	if (versions.size()) {
-		return versions.begin()->second->hover(analyzer, position);
+	auto version = versions.size() ? versions.begin()->second.get() : default_version.get();
+	for (size_t a = 0; a < arguments.size(); ++a) {
+		const auto& argument = arguments[a];
+		if (argument->location.contains(position)) {
+			return { version->type->argument(a) , argument->location };
+		}
 	}
-	return default_version->hover(analyzer, position);
+	return version->hover(analyzer, position);
 }
 
 #if COMPILER
