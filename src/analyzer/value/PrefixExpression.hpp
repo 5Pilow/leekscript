@@ -20,6 +20,7 @@ public:
 
 	virtual void pre_analyze(SemanticAnalyzer*) override;
 	virtual void analyze(SemanticAnalyzer*) override;
+	virtual Hover hover(SemanticAnalyzer& analyzer, size_t position) const override;
 
 	#if COMPILER
 	virtual Compiler::value compile(Compiler&) const override;

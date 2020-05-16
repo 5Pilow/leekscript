@@ -21,7 +21,7 @@ void PrefixExpression::print(std::ostream& os, int indent, PrintOptions options)
 }
 
 Location PrefixExpression::location() const {
-	return {operatorr->token->location.file, operatorr->token->location.start, expression->location().end};
+	return { operatorr->token->location.file, operatorr->token->location.start, expression->location().end };
 }
 
 void PrefixExpression::pre_analyze(SemanticAnalyzer* analyzer) {
@@ -97,6 +97,13 @@ void PrefixExpression::analyze(SemanticAnalyzer* analyzer) {
 	if (is_void) {
 		type = env.void_;
 	}
+}
+
+Hover PrefixExpression::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	if (expression->location().contains(position)) {
+		return expression->hover(analyzer, position);
+	}
+	return { type, location() };
 }
 
 #if COMPILER
