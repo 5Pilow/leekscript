@@ -35,7 +35,13 @@ void VariableDeclaration::print(std::ostream& os, int indent, PrintOptions optio
 }
 
 Location VariableDeclaration::location() const {
-	auto end = variables.size() > expressions.size() ? variables.back()->location.end : expressions.back()->location().end;
+	auto end = [&]() {
+		if (expressions.back() != nullptr) {
+			return expressions.back()->location().end;
+		} else {
+			return variables.back()->location.end;
+		}
+	}();
 	return { keyword->location.file, keyword->location.start, end };
 }
 
