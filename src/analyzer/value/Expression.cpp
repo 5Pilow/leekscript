@@ -228,7 +228,7 @@ Hover Expression::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	if (v2 and v2->location().contains(position)) {
 		return v2->hover(analyzer, position);
 	}
-	return { type, location() };
+	return { callable_version.type, location() };
 }
 
 #if COMPILER
