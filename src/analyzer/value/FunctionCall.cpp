@@ -326,7 +326,7 @@ Completion FunctionCall::autocomplete(SemanticAnalyzer& analyzer, size_t positio
 }
 
 Hover FunctionCall::hover(SemanticAnalyzer& analyzer, size_t position) const {
-	if (position < opening_parenthesis->location.start.raw) {
+	if (function->location().contains(position)) {
 		auto hover = function->hover(analyzer, position);
 		hover.type = callable_version.type;
 		return hover;
