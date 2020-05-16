@@ -26,7 +26,7 @@ void Map::print(std::ostream& os, int indent, PrintOptions options) const {
 }
 
 Location Map::location() const {
-	return {opening_bracket->location.file, opening_bracket->location.start, closing_bracket->location.end};
+	return { opening_bracket->location.file, opening_bracket->location.start, closing_bracket->location.end };
 }
 
 void Map::pre_analyze(SemanticAnalyzer* analyzer) {
@@ -67,6 +67,18 @@ void Map::analyze(SemanticAnalyzer* analyzer) {
 		value_type = env.never;
 	}
 	type = Type::tmp_map(key_type, value_type);
+}
+
+Hover Map::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	for (size_t i = 0; i < keys.size(); ++i) {
+		if (keys[i]->location().contains(position)) {
+			return keys[i]->hover(analyzer, position);
+		}
+		if (values[i]->location().contains(position)) {
+			return values[i]->hover(analyzer, position);
+		}
+	}
+	return { type, location() };
 }
 
 #if COMPILER
