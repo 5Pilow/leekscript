@@ -37,6 +37,12 @@ bool Compound_type::container() const {
 	});
 }
 
+bool Compound_type::iterable() const {
+	return some([](const Type* t) {
+		return t->container();
+	});
+}
+
 bool Compound_type::all(std::function<bool(const Type*)> fun) const {
 	return std::all_of(types.begin(), types.end(), fun);
 }
