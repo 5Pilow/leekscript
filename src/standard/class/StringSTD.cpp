@@ -104,13 +104,13 @@ StringSTD::StringSTD(Environment& env) : Module(env, "String") {
 		{env.string, env.long_, env.tmp_string, ADDR((void*) add_long)},
 		{env.string, env.integer, env.tmp_string, ADDR((void*) add_int)},
 		{env.string, env.boolean, env.tmp_string, ADDR((void*) add_bool)},
-	});
+	}, LEGACY);
 
 	auto aeT = env.template_("T");
 	template_(aeT).
 	operator_("+=", {
 		{env.string, aeT, env.string, ADDR(add_eq), 0, {}, true},
-	});
+	}, LEGACY);
 
 	operator_("<", {
 		{env.string, env.string, env.boolean, ADDR(lt)}

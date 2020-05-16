@@ -54,6 +54,11 @@ ValueSTD::ValueSTD(Environment& env) : Module(env, "Value") {
 		{env.const_any, env.const_any, env.boolean, ADDR(op_triple_equals)}
 	}, LEGACY_ONLY);
 
+	operator_("!==", {
+		{env.const_any, env.const_any, env.boolean, ADDR((void*) triple_eq)},
+		{env.const_any, env.const_any, env.boolean, ADDR(op_triple_equals)}
+	}, LEGACY_ONLY);
+
 	operator_("!=", {
 		{env.const_any, env.const_any, env.boolean, ADDR(op_not_equals)}
 	}, LEGACY);

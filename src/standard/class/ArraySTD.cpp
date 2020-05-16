@@ -19,6 +19,9 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	lsclass = env.array_class.get();
 	#endif
 
+	static_field("SORT_ASC", env.real, ADDR(nullptr), LEGACY);
+	static_field("SORT_DESC", env.integer, ADDR(nullptr), LEGACY);
+
 	/*
 	 * Constructor
 	 */
@@ -155,7 +158,14 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::array(env.long_), {Type::array(env.long_)}, ADDR((void*) LSArray<long>::ls_sort)},
 		{Type::array(env.integer), {Type::array(env.integer)}, ADDR((void*) LSArray<int>::ls_sort)},
 		{Type::array(sT), {Type::array(sT), Type::fun_object(env.boolean, {sT, sT})}, ADDR(sort)}
-	});
+	}, LEGACY);
+
+	auto acsT = env.template_("T");
+	template_(acsT).
+	method("assocSort", {
+		{env.void_, {Type::array(acsT)}, ADDR(nullptr)},
+		{env.void_, {Type::array(acsT), env.integer}, ADDR(nullptr)},
+	}, LEGACY);
 
 	auto asT = env.template_("T");
 	template_(asT).
@@ -317,7 +327,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::array(env.any), {env.array, env.any, env.integer}, ADDR((void*) LSArray<LSValue*>::ls_insert)},
 		{Type::array(env.real), {Type::array(env.real), env.real, env.integer}, ADDR((void*) LSArray<double>::ls_insert)},
 		{Type::array(env.integer), {Type::array(env.integer), env.integer, env.integer}, ADDR((void*) LSArray<int>::ls_insert)},
-	});
+	}, LEGACY);
 
 	method("random", {
 		{Type::tmp_array(env.void_), {Type::const_array(env.void_), env.const_integer}, ADDR((void*) LSArray<LSValue*>::ls_random)},
@@ -371,21 +381,23 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.any, {Type::const_array(env.void_)}, ADDR((void*) LSArray<LSValue*>::ls_sum)},
 		{env.real, {Type::const_array(env.real)}, ADDR((void*) LSArray<double>::ls_sum)},
 		{env.integer, {Type::const_array(env.integer)}, ADDR((void*) LSArray<int>::ls_sum)},
-	});
+	}, LEGACY);
 
+	auto saT = env.template_("T");
+	template_(saT).
 	method("subArray", {
-		{Type::tmp_array(env.void_), {Type::const_array(env.void_), env.const_integer, env.const_integer}, ADDR((void*) sub)},
-		{Type::tmp_array(env.real), {Type::const_array(env.real), env.const_integer, env.const_integer}, ADDR((void*) sub)},
-		{Type::tmp_array(env.integer), {Type::const_array(env.integer), env.const_integer, env.const_integer}, ADDR((void*) sub)},
-	});
+		{Type::tmp_array(saT), {Type::const_array(saT), env.const_integer, env.const_integer}, ADDR((void*) sub)},
+	}, LEGACY);
 
 	/** Legacy-only **/
 	method("count", {
 		{env.integer, {env.any}, ADDR((void*) LSArray<LSValue*>::ls_size)}
 	}, LEGACY_ONLY);
 
+	auto iaT = env.template_("T");
+	template_(iaT).
 	method("inArray", {
-		{env.boolean, {env.array, env.any}, ADDR((void*) LSArray<LSValue*>::ls_contains)},
+		{env.boolean, {Type::array(iaT), env.any}, ADDR((void*) LSArray<LSValue*>::ls_contains)},
 		{env.boolean, {Type::array(env.real), env.real}, ADDR((void*) LSArray<double>::ls_contains)},
 		{env.boolean, {Type::array(env.integer), env.integer}, ADDR((void*) LSArray<int>::ls_contains)}
 	}, LEGACY_ONLY);

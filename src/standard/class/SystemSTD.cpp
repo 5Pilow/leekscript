@@ -21,6 +21,9 @@ SystemSTD::SystemSTD(Environment& env) : Module(env, "System") {
 	static_field_fun("microTime", env.long_, ADDR((void*) microtime));
 	static_field_fun("nanoTime", env.long_, ADDR((void*) nanotime));
 
+	static_field("OPERATIONS_LIMIT", env.integer, ADDR(nullptr), LEGACY);
+	static_field("INSTRUCTIONS_LIMIT", env.integer, ADDR(nullptr), LEGACY);
+
 	method("include", {
 		{env.void_, {env.string}, ADDR(nullptr)}
 	}, LEGACY);
