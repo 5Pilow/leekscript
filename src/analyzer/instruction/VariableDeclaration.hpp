@@ -12,10 +12,10 @@ class Variable;
 class VariableDeclaration : public Instruction {
 public:
 
-	Token* keyword;
-	bool global;
-	bool constant;
-	bool function;
+	Token* keyword = nullptr;
+	bool global = false;
+	bool constant = false;
+	bool function = false;
 	std::vector<Token*> variables;
 	std::vector<std::unique_ptr<Value>> expressions;
 	std::map<std::string, Variable*> global_vars;
