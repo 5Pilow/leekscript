@@ -61,6 +61,7 @@ std::string Error::type_to_string(Type type) {
 		case Type::CONTINUE_LEVEL_ZERO: return "CONTINUE_LEVEL_ZERO";
 		case Type::EXPECTED_VALUE: return "EXPECTED_VALUE";
 		case Type::UNEXPECTED_TOKEN: return "UNEXPECTED_TOKEN";
+		case Type::NO_SUCH_FILE: return "NO_SUCH_FILE";
 		// Semantic
 		case Type::UNDEFINED_VARIABLE: return "UNDEFINED_VARIABLE";
 		case Type::VARIABLE_ALREADY_DEFINED: return "VARIABLE_ALREADY_DEFINED";

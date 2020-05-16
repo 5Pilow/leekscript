@@ -67,6 +67,7 @@ Block* SyntaxicAnalyzer::analyze(File* file) {
 Block* SyntaxicAnalyzer::eatMain(File* file) {
 
 	auto block = new Block(env, true);
+	file->waiting = false;
 
 	while (true) {
 		if (t->type == TokenType::FINISHED) {
@@ -84,19 +85,32 @@ Block* SyntaxicAnalyzer::eatMain(File* file) {
 							auto str = dynamic_cast<String*>(fc->arguments.at(0).get());
 							if (vv->name == "include" and str) {
 								auto included_file = resolver->resolve(str->token->content, file->context);
-								auto included_block = SyntaxicAnalyzer(env, resolver).analyze(included_file);
-								for (auto& instruction : included_block->instructions) {
-									block->add_instruction(instruction.get());
-									instruction.release();
+								if (included_file) {
+									included_file->includers_files[file->path] = file;
+									if (included_file->waiting) { // The file exists but is not loaded yet, it will be loaded later
+										// std::cout << "Include waiting, cancel..." << std::endl;
+										file->waiting = true;
+										delete ins;
+										return block;
+									}
+									// std::cout << "included file " << included_file->code << std::endl;
+									auto included_block = SyntaxicAnalyzer(env, resolver).analyze(included_file);
+									for (auto& instruction : included_block->instructions) {
+										block->add_instruction(instruction.get());
+										instruction.release();
+									}
+									delete ins; // The include instruction will not be used
+									file->included_files.emplace_back(included_file);
+									included_block->sections.front().reset();
+									for (auto& s : included_block->sections) {
+										s.release();
+									}
+									delete included_block;
+									continue;
+								} else {
+									auto location = fc->arguments.at(0)->location();
+									file->errors.push_back(Error(Error::Type::NO_SUCH_FILE, location, location, { str->token->content }));
 								}
-								delete ins; // The include instruction will not be used
-								file->included_files.emplace_back(included_file);
-								included_block->sections.front().reset();
-								for (auto& s : included_block->sections) {
-									s.release();
-								}
-								delete included_block;
-								continue;
 							}
 						}
 					}
