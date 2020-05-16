@@ -289,9 +289,15 @@ Instruction* SyntaxicAnalyzer::eatInstruction(Block* block) {
 		case TokenType::GREATER:
 		case TokenType::LOWER_EQUALS:
 		case TokenType::GREATER_EQUALS:
-		case TokenType::OR:
-			return new ExpressionInstruction(env, std::unique_ptr<Value>(eatExpression(block)));
-
+		case TokenType::OR: {
+			auto expression = std::unique_ptr<Value>(eatExpression(block));
+			if (expression) {
+				return new ExpressionInstruction(env, std::move(expression));
+			} else {
+				// No expression : () for example
+				return nullptr;
+			}
+		}
 		case TokenType::MATCH:
 			return new ExpressionInstruction(env, std::unique_ptr<Value>(eatMatch(block, false)));
 
@@ -718,7 +724,10 @@ Value* SyntaxicAnalyzer::eatExpression(Block* block, bool pipe_opened, bool set_
 				ex->v1.reset(e);
 			}
 		}
-		ex->append(std::shared_ptr<Operator>(op), eatSimpleExpression(block));
+		auto ex2 = eatSimpleExpression(block);
+		if (ex2) {
+			ex->append(std::shared_ptr<Operator>(op), ex2);
+		}
 	}
 	if (ex != nullptr) {
 		e = ex;
