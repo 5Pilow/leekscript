@@ -218,7 +218,7 @@ void Expression::analyze(SemanticAnalyzer* analyzer) {
 		}
 	}
 	// std::cout << "No such operator " << v1->type << " " << op->character << " " << v2->type << std::endl;
-	analyzer->add_error({Error::Type::NO_SUCH_OPERATOR, location(), op->token->location, {v1->type->to_string(), op->character, v2->type->to_string()}});
+	analyzer->add_error({Error::Type::NO_SUCH_OPERATOR, location(), location(), {v1->type->to_string(), op->character, v2->type->to_string()}});
 }
 
 Hover Expression::hover(SemanticAnalyzer& analyzer, size_t position) const {
