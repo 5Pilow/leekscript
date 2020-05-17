@@ -174,6 +174,21 @@ MapSTD::MapSTD(Environment& env) : Module(env, "Map") {
 		{frR, {Type::const_map(frK, frT), Type::fun(frR, {frK, frT, Type::meta_add(frI, frR)}), frI}, ADDR(fold_right)},
 	});
 
+	auto rK = env.template_("K");
+	auto rV = env.template_("V");
+	auto rT = env.template_("T");
+	template_(rK, rV, rT).
+	method("removeKey", {
+		{env.void_, {Type::const_map(rK, rV), rT}, ADDR(nullptr)},
+	}, LEGACY_ONLY);
+
+	auto asK = env.template_("K");
+	auto asV = env.template_("V");
+	template_(asK, asV).
+	method("assocSort", {
+		{env.void_, {Type::const_map(asK, asV), env.integer}, ADDR(nullptr)},
+	}, LEGACY_ONLY);
+
 	/**
 	 * Internal
 	 */
