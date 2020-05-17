@@ -15,6 +15,13 @@ File* VirtualResolver::create(std::string path, Program* program) const {
 	return file_cache.emplace(path, new File(path, code, FileContext(fspath.parent_path()), program)).first->second.get();
 }
 
+File* VirtualResolver::delete_(std::string path) const {
+	auto fspath = std::filesystem::path(path);
+	auto file = file_cache[path].release();
+	file_cache.erase(path);
+	return file;
+}
+
 File* VirtualResolver::resolve(std::string path, FileContext context) const {
 	auto resolvedPath = (context.folder / path).lexically_normal();
 	auto i = file_cache.find(resolvedPath);

@@ -14,6 +14,8 @@ public:
     File* create(std::string path, Program* program) const;
 	File* delete_(std::string path) const;
 	File* resolve(std::string path, FileContext context) const;
+
+    static std::unordered_map<std::string, std::unique_ptr<File>>& get_cache();
 };
 
 }
