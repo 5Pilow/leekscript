@@ -42,6 +42,7 @@ public:
 		VALUE_NOT_ITERABLE,
 		NO_SUCH_ATTRIBUTE,
 		VALUE_MUST_BE_A_CONTAINER,
+		ARRAY_OF_OUT_BOUNDS,
 	};
 
 	static bool translation_loaded;

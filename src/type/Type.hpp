@@ -45,6 +45,8 @@ public:
 	virtual const Type* argument(size_t) const;
 	virtual const std::vector<const Type*>& arguments() const;
 	virtual const Type* element() const;
+	virtual const Type* element(size_t index) const;
+	virtual size_t size() const;
 	virtual const Type* key() const;
 	virtual const Type* member(int) const;
 	virtual const Value* function() const { return nullptr; }
@@ -95,6 +97,7 @@ public:
 	bool is_mpz() const;
 	bool is_mpz_ptr() const;
 	bool is_array() const;
+	bool is_fixed_array() const;
 	bool is_string() const;
 	bool is_set() const;
 	bool is_interval() const;
@@ -127,6 +130,8 @@ public:
     static const Type* array(const Type*);
 	static const Type* const_array(const Type*);
 	static const Type* tmp_array(const Type*);
+	static const Type* fixed_array(std::vector<const Type*>);
+	static const Type* tmp_fixed_array(std::vector<const Type*>);
 	static const Type* set(const Type*);
 	static const Type* const_set(const Type*);
 	static const Type* tmp_set(const Type*);

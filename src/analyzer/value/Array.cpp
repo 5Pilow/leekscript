@@ -43,6 +43,7 @@ void Array::analyze(SemanticAnalyzer* analyzer) {
 
 	if (expressions.size() > 0) {
 
+		std::vector<const Type*> element_types;
 		const Type* element_type = env.void_;
 		auto homogeneous = true;
 
@@ -55,15 +56,16 @@ void Array::analyze(SemanticAnalyzer* analyzer) {
 
 			constant &= ex->constant;
 			throws |= ex->throws;
-			if (element_type->is_void() and element_type != ex->type) {
+			if (element_types.size() and element_types.back() != ex->type) {
 				homogeneous = false;
 			}
-			element_type = element_type->operator * (ex->type);
+			element_type = element_type->operator + (ex->type);
+			element_types.push_back(ex->type);
 		}
 
 		// Re-analyze expressions with the supported type
 		// and second computation of the array type
-		const Type* new_element_type = env.void_;
+		// const Type* new_element_type = env.void_;
 		for (size_t i = 0; i < expressions.size(); ++i) {
 			const auto& ex = expressions[i];
 			if (!homogeneous and ex->type->is_array()) {
@@ -80,9 +82,13 @@ void Array::analyze(SemanticAnalyzer* analyzer) {
 					ex->will_take(analyzer, types, 1);
 				}
 			}
-			new_element_type = new_element_type-> operator + (ex->type);
+			// new_element_type = new_element_type-> operator + (ex->type);
 		}
-		type = Type::tmp_array(new_element_type->not_temporary());
+		#if COMPILER
+			type = Type::tmp_array(element_type->not_temporary());
+		#else
+			type = Type::tmp_fixed_array(element_types);
+		#endif
 	}
 	// std::cout << "Array type : " << type << " " << type->element()->fold() << std::endl;
 }

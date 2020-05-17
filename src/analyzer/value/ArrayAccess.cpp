@@ -4,6 +4,7 @@
 #include "../error/Error.hpp"
 #include "../semantic/Callable.hpp"
 #include "../semantic/CallableVersion.hpp"
+#include "Number.hpp"
 
 namespace ls {
 
@@ -85,6 +86,18 @@ void ArrayAccess::analyze(SemanticAnalyzer* analyzer) {
 	constant = array->constant && key->constant;
 
 	type = array->type->element();
+
+	// Fixed array => better check
+	if (array->type->is_fixed_array()) {
+		if (auto kn = dynamic_cast<const Number*>(key.get())) {
+			size_t index = kn->int_value;
+			if (index < 0 || index >= array->type->size()) {
+				analyzer->add_error({Error::Type::ARRAY_OF_OUT_BOUNDS, location(), location(), {array->to_string()}});
+			} else {
+				type = array->type->element(kn->int_value);
+			}
+		}
+	}
 
 	if (array->type->is_map()) {
 		map_key_type = array->type->key();

@@ -81,6 +81,7 @@ std::string Error::type_to_string(Type type) {
 		case Type::VALUE_NOT_ITERABLE: return "VALUE_NOT_ITERABLE";
 		case Type::NO_SUCH_ATTRIBUTE: return "NO_SUCH_ATTRIBUTE";
 		case Type::VALUE_MUST_BE_A_CONTAINER: return "VALUE_MUST_BE_A_CONTAINER";
+		case Type::ARRAY_OF_OUT_BOUNDS: return "ARRAY_OF_OUT_BOUNDS";
 		default:
 			return "UNKNOWN_ERROR";
 	}

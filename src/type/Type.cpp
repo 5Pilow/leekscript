@@ -9,6 +9,7 @@
 #include "Void_type.hpp"
 #include "Any_type.hpp"
 #include "Array_type.hpp"
+#include "Fixed_array_type.hpp"
 #include "Set_type.hpp"
 #include "Function_type.hpp"
 #include "Function_object_type.hpp"
@@ -63,6 +64,12 @@ const std::vector<const Type*>& Type::arguments() const {
 }
 const Type* Type::element() const {
 	return env.any;
+}
+const Type* Type::element(size_t index) const {
+	return env.any;
+}
+size_t Type::size() const {
+	return 0u;
 }
 const Type* Type::key() const {
 	return env.any;
@@ -277,6 +284,7 @@ bool Type::is_mpz() const { return folded == env.mpz or folded == env.tmp_mpz or
 bool Type::is_mpz_ptr() const { return folded == env.mpz_ptr or folded == env.tmp_mpz_ptr or folded == env.const_mpz_ptr; }
 bool Type::is_string() const { return folded == env.string or folded == env.tmp_string or folded == env.const_string; }
 bool Type::is_array() const { return is_type<Array_type>(); }
+bool Type::is_fixed_array() const { return is_type<Fixed_array_type>(); }
 bool Type::is_set() const { return is_type<Set_type>(); }
 bool Type::is_interval() const { return folded == env.interval or folded == env.tmp_interval or folded == env.const_interval; }
 bool Type::is_map() const { return is_type<Map_type>(); }
@@ -347,6 +355,7 @@ const Type* Type::array(const Type* element) {
 const Type* Type::const_array(const Type* element) {
 	if (auto e = dynamic_cast<const Meta_element_type*>(element)) return e->type;
 	Environment& env = element->env;
+	element = element->not_temporary();
 	auto i = env.const_array_types.find(element);
 	if (i != env.const_array_types.end()) return i->second;
 	auto type = array(element)->add_constant();
@@ -356,12 +365,43 @@ const Type* Type::const_array(const Type* element) {
 const Type* Type::tmp_array(const Type* element) {
 	if (auto e = dynamic_cast<const Meta_element_type*>(element)) return e->type;
 	auto& env = element->env;
+	element = element->not_temporary();
 	auto i = env.tmp_array_types.find(element);
 	if (i != env.tmp_array_types.end()) return i->second;
 	auto type = array(element)->add_temporary();
 	env.tmp_array_types.insert({element, type });
 	return type;
 }
+
+const Type* Type::fixed_array(std::vector<const Type*> elements) {
+	assert(elements.size());
+	// if (auto e = dynamic_cast<const Meta_element_type*>(element)) return e->type;
+	Environment& env = elements.front()->env;
+	for (auto& element : elements) {
+		element = element->not_temporary();
+	}
+	auto i = env.fixed_array_types.find(elements);
+	if (i != env.fixed_array_types.end()) return i->second.get();
+	auto type = new Fixed_array_type(elements);
+	// type->placeholder = element->placeholder;
+	env.fixed_array_types.emplace(elements, type);
+	return type;
+}
+
+const Type* Type::tmp_fixed_array(std::vector<const Type*> elements) {
+	// assert(elements.size());
+	// if (auto e = dynamic_cast<const Meta_element_type*>(element)) return e->type;
+	auto& env = elements.front()->env;
+	for (auto& element : elements) {
+		element = element->not_temporary();
+	}
+	auto i = env.tmp_fixed_array_types.find(elements);
+	if (i != env.tmp_fixed_array_types.end()) return i->second;
+	auto type = fixed_array(elements)->add_temporary();
+	env.tmp_fixed_array_types.insert({elements, type });
+	return type;
+}
+
 const Type* Type::set(const Type* element) {
 	auto& env = element->env;
 	auto i = env.set_types.find(element);

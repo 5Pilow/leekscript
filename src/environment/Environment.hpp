@@ -37,6 +37,8 @@ private:
 	std::unordered_map<const Type*, std::unique_ptr<const Type>> array_types;
 	std::unordered_map<const Type*, const Type*> const_array_types;
 	std::unordered_map<const Type*, const Type*> tmp_array_types;
+	std::map<std::vector<const Type*>, std::unique_ptr<const Type>> fixed_array_types;
+	std::map<std::vector<const Type*>, const Type*> tmp_fixed_array_types;
 	std::unordered_map<const Type*, std::unique_ptr<const Type>> set_types;
 	std::unordered_map<const Type*, const Type*> const_set_types;
 	std::unordered_map<const Type*, const Type*> tmp_set_types;
