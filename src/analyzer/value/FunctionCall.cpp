@@ -14,6 +14,7 @@
 #include "../semantic/FunctionVersion.hpp"
 #include "../semantic/Variable.hpp"
 #include "ArrayAccess.hpp"
+#include "../resolver/File.hpp"
 #if COMPILER
 #include "../../compiler/Compiler.hpp"
 #endif
@@ -333,7 +334,12 @@ Hover FunctionCall::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	}
 	for (const auto& argument : arguments) {
 		if (argument->location().contains(position)) {
-			return argument->hover(analyzer, position);
+			auto hover = argument->hover(analyzer, position);
+			if (include) {
+				hover.defined_file = included_file->path;
+				hover.defined_line = 1;
+			}
+			return hover;
 		}
 	}
 	return { callable_version.type->return_type(), location() };
