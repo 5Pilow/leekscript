@@ -46,7 +46,8 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	template_(aT, aE).
 	operator_("+", {
 		{Type::const_array(aT), aE, Type::tmp_array(Type::meta_add(aT, aE)), ADDR(op_add)},
-	});
+		{Type::const_array(aT), Type::const_array(aE), Type::tmp_array(Type::meta_add(aT, aE)), ADDR(op_add)},
+	}, LEGACY);
 
 	auto pqT = env.template_("T");
 	auto pqE = env.template_("E");
@@ -56,7 +57,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::array(pqT), pqE, Type::array(Type::meta_add(pqT, Type::meta_not_temporary(pqE))), ADDR(array_add_eq), 0, { env.convert_mutator }, true},
 		// array<T> += array<E>   ==> array<T | E>
 		{Type::array(pqT), Type::array(pqE), Type::array(Type::meta_add(pqT, pqE)), ADDR(array_add_eq), 0, { env.convert_mutator }, true},
-	});
+	}, LEGACY);
 
 	auto mulT = env.template_("T");
 	template_(mulT).
@@ -79,7 +80,7 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{env.real, {Type::const_array(env.real)}, ADDR((void*) LSArray<double>::ls_average)},
 		{env.real, {Type::const_array(env.long_)}, ADDR((void*) LSArray<long>::ls_average)},
 		{env.real, {Type::const_array(env.integer)}, ADDR((void*) LSArray<int>::ls_average)},
-	});
+	}, LEGACY);
 
 	method("chunk", {
 		{Type::array(env.array), {Type::const_array(env.void_)}, ADDR((void*) chunk_1_ptr)},
@@ -142,6 +143,13 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 		{Type::tmp_array(R), {Type::const_array(E), Type::fun(Type::meta_not_void(R), {E})}, (void*) map_fun},
 		{Type::tmp_array(R), {Type::const_array(E), Type::fun(Type::meta_not_void(R), {E})}, ADDR(map)},
 	});
+
+	template_(E, R).
+	method("arrayMap", {
+		{Type::tmp_array(R), {Type::const_array(E), Type::fun(Type::meta_not_void(R), {E, env.integer})}, (void*) map_fun},
+		{Type::tmp_array(R), {Type::const_array(E), Type::fun(Type::meta_not_void(R), {E})}, ADDR(map)},
+		{Type::tmp_array(R), {Type::const_array(E), Type::fun(Type::meta_not_void(R), {E, env.integer})}, ADDR(map)},
+	}, LEGACY_ONLY);
 
 	method("unique", {
 		{env.array, {env.array}, ADDR((void*) LSArray<LSValue*>::ls_unique)},
