@@ -342,6 +342,9 @@ Hover FunctionCall::hover(SemanticAnalyzer& analyzer, size_t position) const {
 #if COMPILER
 Compiler::value FunctionCall::compile(Compiler& c) const {
 
+	// Don't compile include function call
+	if (include) return { c.env };
+
 	c.mark_offset(location().start.line);
 
 	// std::cout << "FunctionCall::compile(" << function_type << ")" << std::endl;
