@@ -1386,10 +1386,15 @@ Instruction* SyntaxicAnalyzer::eatFor(Block* block) {
 		// body
 		if (t->type == TokenType::OPEN_BRACE) {
 			f->body = std::unique_ptr<Block>(eatBlock(block, false, false, f->condition_section.get(), f->increment_section.get()));
-		} else {
+		} else if (t->type == TokenType::DO) {
 			eat(TokenType::DO);
 			f->body = std::unique_ptr<Block>(eatBlock(block, false, false, f->condition_section.get(), f->increment_section.get()));
 			eat(TokenType::END);
+		} else {
+			auto body = blockInit(block, f->condition_section.get(), false);
+			body->add_instruction(eatInstruction(body));
+			blockEnd(body, f->increment_section.get());
+			f->body = std::unique_ptr<Block>(body);
 		}
 
 		f->condition_section->successors.push_back(f->end_section);
