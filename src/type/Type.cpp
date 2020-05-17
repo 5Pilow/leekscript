@@ -105,6 +105,11 @@ const Type* Type::operator + (const Type* type) const {
 			return type;
 		}
 	}
+	if (is_map() and type->is_array()) {
+		if (type->element() == env.never) {
+			return this;
+		}
+	}
 	return Type::compound({this, type});
 }
 const Type* Type::operator * (const Type* t2) const {
