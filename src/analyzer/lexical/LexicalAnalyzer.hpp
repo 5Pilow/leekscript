@@ -2,6 +2,7 @@
 #define LEXICALanalyzer_H_
 
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <string>
 #include "Token.hpp"
@@ -15,6 +16,8 @@ enum class LetterType {
 
 class LexicalAnalyzer {
 public:
+
+	static std::unordered_set<std::string> ignored_case_legacy;
 
 	File* file;
 	std::unordered_map<std::string, TokenType> token_map;

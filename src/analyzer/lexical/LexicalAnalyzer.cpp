@@ -3,6 +3,7 @@
 #include "../../util/utf8.h"
 #include <string.h>
 #include "../error/Error.hpp"
+#include "../../util/Util.hpp"
 
 namespace ls {
 
@@ -77,6 +78,10 @@ static std::vector<std::vector<std::string>> type_literals = {
 	{ "%%" }, { "%%=" }
 };
 
+std::unordered_set<std::string> LexicalAnalyzer::ignored_case_legacy = {
+	"true", "false", "null", "not", "and", "or"
+};
+
 LexicalAnalyzer::LexicalAnalyzer() {
 	// Build token cache map
 	for (size_t j = 0; j < type_literals.size(); ++j) {
@@ -106,10 +111,14 @@ LetterType LexicalAnalyzer::getLetterType(unsigned char c, unsigned char nc) {
 }
 
 TokenType LexicalAnalyzer::getTokenType(const std::string& word, TokenType by_default) {
-	auto i = token_map.find(word);
+	// TODO legacy only
+	auto word_lower = Util::tolower(word);
+	bool ignore_case = ignored_case_legacy.find(word_lower) != ignored_case_legacy.end();
+	auto i = ignore_case ? token_map.find(word_lower) : token_map.find(word);
 	if (i != token_map.end()) return i->second;
 	return by_default;
 }
+
 bool LexicalAnalyzer::isToken(const std::string& word) {
 	return token_map.find(word) != token_map.end();
 }
