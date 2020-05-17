@@ -2,6 +2,9 @@
 #include <limits.h>
 #include "../../type/Type.hpp"
 #include "../semantic/SemanticAnalyzer.hpp"
+#include <stdio.h>
+#include <stdlib.h>
+#include <cerrno>
 
 namespace ls {
 
@@ -91,17 +94,23 @@ void Number::analyze(SemanticAnalyzer* analyzer) {
 			type = env.tmp_mpz_ptr;
 		}
 		#else
+		type = env.long_;
+		// Does not seem to work in WebAssembly :(
+		// char* end;
+		// long_value = strtol(clean_value.c_str(), &end, 10);
+		// std::cout << errno << std::endl;
+		// if (errno == 0) {
+		// 	type = env.long_;
+		// }
+		// try {
+		// 	long_value = std::stol(clean_value);
+		// 	type = env.long_;
+		// } catch (...) {}
 		try {
 			int_value = std::stoi(clean_value);
 			type = env.integer;
-		} catch (const std::out_of_range&) {
-			try {
-				long_value = std::stol(clean_value);
-				type = env.long_;
-			} catch (const std::out_of_range&) {
-				type = env.tmp_mpz_ptr;
-			}
-		}
+		} catch (...) {}
+
 		if (long_number) type = env.long_;
 		if (mp_number) type = env.tmp_mpz_ptr;
 		#endif
