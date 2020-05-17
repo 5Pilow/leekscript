@@ -48,7 +48,7 @@ void PrefixExpression::analyze(SemanticAnalyzer* analyzer) {
 
 	if (operatorr->type == TokenType::PLUS_PLUS
 		or operatorr->type == TokenType::MINUS_MINUS
-		or operatorr->type == TokenType::MINUS) {
+		or operatorr->type == TokenType::MINUS or operatorr->type == TokenType::AROBASE) {
 
 		type = expression->type;
 		throws |= expression->type->fold()->is_polymorphic();

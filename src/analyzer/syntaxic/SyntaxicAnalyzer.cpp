@@ -537,7 +537,7 @@ Value* SyntaxicAnalyzer::eatSimpleExpression(Block* block, bool pipe_opened, boo
 			if (t->type == TokenType::NEW || t->type == TokenType::MINUS ||
 				t->type == TokenType::PLUS || t->type == TokenType::NOT ||
 				t->type == TokenType::MINUS_MINUS || t->type == TokenType::PLUS_PLUS
-				|| t->type == TokenType::TILDE) {
+				|| t->type == TokenType::TILDE || t->type == TokenType::AROBASE) {
 
 				if (t->type == TokenType::MINUS && nt != nullptr && t->location.start.line == nt->location.start.line) {
 					auto minus = eat_get();
