@@ -216,4 +216,7 @@ void Test::test_general() {
 
 	section("Assignments with +=");
 	code("var a = 10 a += 0.5 a").equals("10.5");
+
+	section("File");
+	file("test/code/trivial.leek").equals("2");
 }
