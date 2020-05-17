@@ -135,12 +135,6 @@ Variable* SemanticAnalyzer::get_var(const std::string& v) {
 	// Search recursively in the functions
 	int f = functions_stack.size() - 1;
 	while (f >= 0) {
-		// Search in the function parameters
-		const auto& arguments = functions_stack[f]->arguments;
-		auto i = arguments.find(v);
-		if (i != arguments.end()) {
-			return i->second;
-		}
 		// Search in the local variables of the function
 		int b = blocks[f].size() - 1;
 		if (b >= 0) {
@@ -174,6 +168,13 @@ Variable* SemanticAnalyzer::get_var(const std::string& v) {
 				}
 			}
 			// std::cout << "NOT FOUND " << std::endl;
+		}
+
+		// Search in the function parameters
+		const auto& arguments = functions_stack[f]->arguments;
+		auto i = arguments.find(v);
+		if (i != arguments.end()) {
+			return i->second;
 		}
 
 		// const auto& fvars = blocks[f];
@@ -289,13 +290,14 @@ Variable* SemanticAnalyzer::update_var(Variable* variable, bool add_mutation) {
 		new_variable->root = root;
 	}
 	new_variable->parent = variable;
-	new_variable->injected = variable->injected;
+	// new_variable->injected = variable->injected;
 
-	if (variable->scope == VarScope::PARAMETER) {
-		current_function()->arguments[new_variable->name] = new_variable;
-	} else {
+	// if (variable->scope == VarScope::PARAMETER) {
+	// 	// current_function()->arguments[new_variable->name] = new_variable;
+	// 	current_section()->variables[new_variable->name] = new_variable;
+	// } else {
 		current_section()->variables[new_variable->name] = new_variable;
-	}
+	// }
 	current_section()->variable_list.emplace_back(new_variable);
 
 	// Ajout d'une mutation
@@ -313,7 +315,7 @@ Variable* SemanticAnalyzer::update_var(Variable* variable, bool add_mutation) {
 }
 
 void SemanticAnalyzer::add_error(Error ex) {
-	ex.underline_code = program->underline_code(ex.location, ex.focus);
+	// ex.underline_code = program->underline_code(ex.location, ex.focus);
 	errors.push_back(ex);
 }
 

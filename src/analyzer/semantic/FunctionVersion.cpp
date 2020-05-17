@@ -115,6 +115,10 @@ void FunctionVersion::pre_analyze(SemanticAnalyzer* analyzer, const std::vector<
 		auto arg = new Variable(name, parent->arguments.at(i), VarScope::PARAMETER, type, i, nullptr, analyzer->current_function(), nullptr, nullptr, nullptr);
 		arguments.emplace(name, arg);
 		initial_arguments.emplace(name, arg);
+		arg->injected = true;
+		arg->block = body.get();
+
+		body->sections.front()->variables.insert({ name, arg });
 	}
 	body->pre_analyze(analyzer);
 
@@ -142,6 +146,10 @@ void FunctionVersion::analyze(SemanticAnalyzer* analyzer, const std::vector<cons
 	for (unsigned i = 0; i < parent->arguments.size(); ++i) {
 		auto type = i < args.size() ? args.at(i) : (i < parent->defaultValues.size() && parent->defaultValues.at(i) != nullptr ? parent->defaultValues.at(i)->type : env.any);
 		arg_types.push_back(type);
+
+		const auto& name = parent->arguments.at(i)->content;
+		arguments.at(name)->type = type;
+		// std::cout << "set arg type " << type << std::endl;
 	}
 
 	body->analyze(analyzer);

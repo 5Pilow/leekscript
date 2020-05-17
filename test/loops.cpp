@@ -216,6 +216,9 @@ void Test::test_loops() {
 	code("for x in 'salut' { return 13 }").equals("13");
 	code("for x in 123 { return 14 }").equals("14");
 
+	section("Foreach - argument");
+	DISABLED_code("function main(r) { for x in [1, 2, 3] { for y in [4, 5, 6] { r += x * y }} r } main([])").equals("[4, 5, 6, 8, 10, 12, 12, 15, 18]");
+
 	header("Foreach - unknown container");
 	// TODO : unknown container iterator
 	// code("for x in ['hello', 12345][0] { print(x) }").equals("h\ne\nl\nl\no\n");

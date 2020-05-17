@@ -104,12 +104,15 @@ void VariableValue::pre_analyze(SemanticAnalyzer* analyzer) {
 	// }
 	if (var != nullptr) {
 		// std::cout << "VV pre_analyze variable = " << var << std::endl;
-		// std::cout << "pre analyze var " << var->name << " " << (void*) var->function << " <=> " << (void*) analyzer->current_function() << " " << (int) var->scope << std::endl;
-		if (var->scope != VarScope::INTERNAL and var->function != analyzer->current_function()) {
-			if (not var->type->is_function()) {
-				// std::cout << "VV " << var << " capture " << std::endl;
-				var = analyzer->current_function()->capture(analyzer, var);
-			}
+		// std::cout << "pre analyze var " << var->name << " " << (void*) var->function << " <=> " << (void*) analyzer->current_function() << " " << (int) var->scope << " " << var->type << std::endl;
+
+		// Internal variables don't need to be captured
+		if (var->scope == VarScope::INTERNAL) return;
+
+		// The variable is defined in another function, is not a function or closure
+		if (var->function != analyzer->current_function() and not var->type->is_function() and not var->type->is_closure()) {
+			// std::cout << "VV " << var << " capture " << std::endl;
+			var = analyzer->current_function()->capture(analyzer, var);
 		}
 	}
 }
@@ -118,6 +121,7 @@ void VariableValue::analyze(SemanticAnalyzer* analyzer) {
 	const auto& env = analyzer->env;
 	if (var != nullptr) {
 		if (update_variable and var->parent) {
+			// std::cout << "update var " << var->parent << " " << var->parent->type << std::endl;
 			var->type = var->parent->type;
 			var->value = var->parent->value;
 		}
