@@ -51,13 +51,27 @@ void VariableDeclaration::set_end_section(Section* end_section) {
 }
 
 void VariableDeclaration::analyze_global_functions(SemanticAnalyzer* analyzer) const {
-	if (global && function) {
+	if (global) {
 		auto& env = analyzer->env;
-		auto var = variables.at(0);
-		const auto& expr = expressions.at(0);
-		auto v = analyzer->add_global_var(var, Type::fun(env.void_, {}), expr.get());
-		((VariableDeclaration*) this)->global_vars.insert({ var->content, v });
-		expr->pre_analyze(analyzer);
+		for (unsigned i = 0; i < variables.size(); ++i) {
+			auto& var = variables.at(i);
+			if (function) {
+				const auto& expr = expressions.at(i);
+				auto v = analyzer->add_global_var(var, Type::fun(env.void_, {}), expr.get());
+				((VariableDeclaration*) this)->global_vars.insert({ var->content, v });
+				if (Function* f = dynamic_cast<Function*>(expr.get())) {
+					f->name = var->content;
+				}
+				expr->pre_analyze(analyzer);
+			} else {
+				const auto& expr = expressions.at(i);
+				auto v = analyzer->add_global_var(var, env.any, expr.get());
+				if (expr) {
+					expr->pre_analyze(analyzer);
+				}
+				((VariableDeclaration*) this)->global_vars.insert({ var->content, v });
+			}
+		}
 	}
 }
 
