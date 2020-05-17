@@ -135,7 +135,7 @@ Completion VariableDeclaration::autocomplete(SemanticAnalyzer& analyzer, size_t 
 Hover VariableDeclaration::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	for (const auto& variable : variables) {
 		if (variable->location.contains(position)) {
-			return { vars.at(variable->content)->type, variable->location };
+			return { (global ? global_vars : vars).at(variable->content)->type, variable->location };
 		}
 	}
 	for (const auto& expression : expressions) {
