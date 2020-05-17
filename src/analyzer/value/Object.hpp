@@ -12,6 +12,8 @@ public:
 
 	std::vector<Token*> keys;
 	std::vector<std::unique_ptr<Value>> values;
+	Token* opening_brace = nullptr;
+	Token* closing_brace = nullptr;
 
 	Object(Environment& env);
 

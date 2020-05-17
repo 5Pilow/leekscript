@@ -25,7 +25,7 @@ void Object::print(std::ostream& os, int indent, PrintOptions options) const {
 }
 
 Location Object::location() const {
-	return {nullptr, {0, 0, 0}, {0, 0, 0}}; // TODO
+	return { opening_brace->location.file, opening_brace->location.end, closing_brace->location.end };
 }
 
 void Object::pre_analyze(SemanticAnalyzer* analyzer) {
@@ -63,6 +63,8 @@ Compiler::value Object::compile(Compiler& c) const {
 
 std::unique_ptr<Value> Object::clone(Block* parent) const {
 	auto o = std::make_unique<Object>(type->env);
+	o->opening_brace = opening_brace;
+	o->closing_brace = closing_brace;
 	for (const auto& k : keys) {
 		o->keys.push_back(k);
 	}

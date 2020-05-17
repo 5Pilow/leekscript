@@ -250,9 +250,9 @@ void SyntaxicAnalyzer::blockEnd(Block* block, Section* after) {
 
 Object* SyntaxicAnalyzer::eatObject(Block* block) {
 
-	eat(TokenType::OPEN_BRACE);
-
 	auto o = new Object(env);
+
+	o->opening_brace = eat_get(TokenType::OPEN_BRACE);
 
 	while (t->type == TokenType::IDENT) {
 
@@ -264,7 +264,7 @@ Object* SyntaxicAnalyzer::eatObject(Block* block) {
 			eat();
 		}
 	}
-	eat(TokenType::CLOSING_BRACE);
+	o->closing_brace = eat_get(TokenType::CLOSING_BRACE);
 
 	return o;
 }
