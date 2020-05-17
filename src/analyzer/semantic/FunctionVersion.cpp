@@ -270,6 +270,10 @@ Hover FunctionVersion::hover(SemanticAnalyzer& analyzer, size_t position) {
 	return body->hover(analyzer, position);
 }
 
+Hover FunctionVersion::hover(SemanticAnalyzer& analyzer, File* file, size_t position) {
+	return body->hover(analyzer, file, position);
+}
+
 #if COMPILER
 
 bool FunctionVersion::is_compiled() const {

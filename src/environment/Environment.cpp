@@ -120,9 +120,9 @@ Completion Environment::autocomplete(Program& program, size_t position) {
 	return program.autocomplete(sem, position);
 }
 
-Hover Environment::hover(Program& program, size_t position) {
+Hover Environment::hover(Program& program, File* file, size_t position) {
 	SemanticAnalyzer sem { *this };
-	return program.hover(sem, position);
+	return program.hover(sem, file, position);
 }
 
 #if COMPILER

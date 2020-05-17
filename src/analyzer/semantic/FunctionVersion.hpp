@@ -54,6 +54,7 @@ public:
 	void analyze(SemanticAnalyzer* analyzer, const std::vector<const Type*>& args);
 	Completion autocomplete(SemanticAnalyzer& analyzer, size_t position);
 	Hover hover(SemanticAnalyzer& analyzer, size_t position);
+	Hover hover(SemanticAnalyzer& analyzer, File* file, size_t position);
 
 	#if COMPILER
 	void create_function(Compiler& c);

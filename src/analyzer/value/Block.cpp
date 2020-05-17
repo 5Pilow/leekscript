@@ -239,7 +239,16 @@ Completion Block::autocomplete(SemanticAnalyzer& analyzer, size_t position) cons
 
 Hover Block::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	for (const auto& instruction : instructions) {
-		if (instruction->location().contains(position)) {
+		if (not instruction->included and instruction->location().contains(position)) {
+			return instruction->hover(analyzer, position);
+		}
+	}
+	return { analyzer.env };
+}
+
+Hover Block::hover(SemanticAnalyzer& analyzer, File* file, size_t position) const {
+	for (const auto& instruction : instructions) {
+		if (instruction->location().file == file and instruction->location().contains(position)) {
 			return instruction->hover(analyzer, position);
 		}
 	}

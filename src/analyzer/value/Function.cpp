@@ -296,6 +296,10 @@ Hover Function::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	return version->hover(analyzer, position);
 }
 
+Hover Function::hover(SemanticAnalyzer& analyzer, File* file, size_t position) const {
+	return default_version->hover(analyzer, file, position);
+}
+
 #if COMPILER
 Compiler::value Function::compile(Compiler& c) const {
 	// std::cout << "Function::compile() " << this << " version " << version << " " << has_version << std::endl;

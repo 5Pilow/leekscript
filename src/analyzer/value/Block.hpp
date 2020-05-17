@@ -48,6 +48,7 @@ public:
 	virtual void analyze(SemanticAnalyzer* analyzer) override;
 	virtual Completion autocomplete(SemanticAnalyzer& analyzer, size_t position) const override;
 	virtual Hover hover(SemanticAnalyzer& analyzer, size_t position) const override;
+	Hover hover(SemanticAnalyzer& analyzer, File* file, size_t position) const;
 
 	#if COMPILER
 	Compiler::value compile(Compiler&) const override;
