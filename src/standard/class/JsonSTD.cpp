@@ -19,6 +19,13 @@ JsonSTD::JsonSTD(Environment& env) : Module(env, "Json") {
 	method("decode", {
 		{env.tmp_any, {env.const_string}, ADDR((void*) decode)},
 	});
+
+	method("jsonEncode", {
+		{env.tmp_string, {env.const_any}, ADDR(encode)}
+	}, LEGACY_ONLY);
+	method("jsonDecode", {
+		{env.tmp_any, {env.const_string}, ADDR((void*) decode)},
+	}, LEGACY_ONLY);
 }
 
 #if COMPILER
