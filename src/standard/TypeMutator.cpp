@@ -94,7 +94,9 @@ void ChangeValueMutator::apply(SemanticAnalyzer* analyzer, std::vector<Value*> v
 		// std::cout << "Change mutator " << vv->var->parent << " " << vv->var->parent->type << " => " << vv->var << " " << vv->var->type << " " << return_type << std::endl;
 		vv->previous_type = vv->type;
 		vv->type = return_type->not_temporary()->not_constant();
-		vv->var->type = vv->type;
+		if (vv->var) {
+			vv->var->type = vv->type;
+		}
 		// std::cout << "variable type " << vv->var << " " << vv->var->type << std::endl;
 	} else if (auto aa = dynamic_cast<ArrayAccess*>(values[0])) {
 		if (aa->key) {
@@ -115,7 +117,9 @@ void ChangeValueMutator::apply(SemanticAnalyzer* analyzer, std::vector<Value*> v
 					auto element = vv->type->element()->operator + (return_type->not_temporary());
 					vv->type = Type::map(key, element);
 				}
-				vv->var->type = vv->type;
+				if (vv->var) {
+					vv->var->type = vv->type;
+				}
 			} else if (auto aa2 = dynamic_cast<ArrayAccess*>(aa->array.get())) {
 				if (auto vv2 = dynamic_cast<VariableValue*>(aa2->array.get())) {
 					// vv->type = Type::array(Type::array(return_type->not_temporary()));
