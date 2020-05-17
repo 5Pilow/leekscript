@@ -111,6 +111,13 @@ Block* SyntaxicAnalyzer::eatMain(File* file) {
 										file->included_files.push_back(included_file);
 										root_file->included_files.push_back(included_file);
 										root_file->program->included_files.insert(included_file);
+
+										// Add the include() function call in the file for inspection
+										ins->include = true;
+										fc->include = true;
+										fc->included_file = included_file;
+										block->add_instruction(ins);
+
 										// std::cout << "included file " << included_file->code << std::endl;
 										auto included_block = SyntaxicAnalyzer(env, resolver, root_file).analyze(included_file);
 										for (auto& instruction : included_block->instructions) {
@@ -121,10 +128,6 @@ Block* SyntaxicAnalyzer::eatMain(File* file) {
 									} else {
 										// std::cout << "file " << included_file->path << " already included" << std::endl;
 									}
-									ins->include = true;
-									fc->include = true;
-									fc->included_file = included_file;
-									block->add_instruction(ins);
 									continue;
 								} else {
 									auto location = fc->arguments.at(0)->location();
