@@ -214,6 +214,15 @@ void For::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 }
 
 Hover For::hover(SemanticAnalyzer& analyzer, size_t position) const {
+	if (init->location().contains(position)) {
+		return init->hover(analyzer, position);
+	}
+	if (condition->location().contains(position)) {
+		return condition->hover(analyzer, position);
+	}
+	if (increment->location().contains(position)) {
+		return increment->hover(analyzer, position);
+	}
 	return body->hover(analyzer, position);
 }
 
