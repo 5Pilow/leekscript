@@ -92,7 +92,7 @@ void Expression::pre_analyze(SemanticAnalyzer* analyzer) {
 		if (op->type == TokenType::EQUAL or op->type == TokenType::PLUS_EQUAL) {
 			if (auto vv = dynamic_cast<VariableValue*>(v1.get())) {
 				// std::cout << "update variable " << vv->var << " " << (int) vv->var->scope << std::endl;
-				if (vv->var->scope != VarScope::CAPTURE) {
+				if (vv->var and vv->var->scope != VarScope::CAPTURE) {
 					// std::cout << "EX update_var " << vv->var;
 					vv->var = analyzer->update_var(vv->var);
 					// std::cout << " to " << vv->var << std::endl;
