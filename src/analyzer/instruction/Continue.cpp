@@ -19,7 +19,7 @@ void Continue::print(std::ostream& os, int, PrintOptions) const {
 }
 
 Location Continue::location() const {
-	return {nullptr, {0, 0, 0}, {0, 0, 0}};
+	return token->location;
 }
 
 void Continue::analyze(SemanticAnalyzer* analyzer, const Type*) {
@@ -42,6 +42,7 @@ Compiler::value Continue::compile(Compiler& c) const {
 std::unique_ptr<Instruction> Continue::clone(Block* parent) const {
 	auto c = std::make_unique<Continue>(type->env);
 	c->deepness = deepness;
+	c->token = token;
 	return c;
 }
 

@@ -1494,8 +1494,8 @@ Break* SyntaxicAnalyzer::eatBreak(Block* block) {
 }
 
 Continue* SyntaxicAnalyzer::eatContinue(Block* block) {
-	eat(TokenType::CONTINUE);
 	Continue* c = new Continue(env);
+	c->token = eat_get(TokenType::CONTINUE);
 
 	if (t->type == TokenType::NUMBER /*&& t->line == lt->line*/) {
 		int deepness = std::stoi(t->content);

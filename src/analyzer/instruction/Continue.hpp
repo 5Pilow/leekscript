@@ -9,6 +9,7 @@ class Continue : public Instruction {
 public:
 
 	int deepness;
+	Token* token = nullptr;
 
 	Continue(Environment& env);
 
