@@ -146,7 +146,7 @@ void Expression::analyze(SemanticAnalyzer* analyzer) {
 
 	// in operator : v1 must be a container
 	if (op->type == TokenType::IN and not v2->type->can_be_container()) {
-		analyzer->add_error({Error::Type::VALUE_MUST_BE_A_CONTAINER, location(), v2->location(), {v2->to_string()}});
+		analyzer->add_error({Error::Type::VALUE_MUST_BE_A_CONTAINER, ErrorLevel::ERROR, location(), v2->location(), {v2->to_string()}});
 		return;
 	}
 
@@ -159,17 +159,17 @@ void Expression::analyze(SemanticAnalyzer* analyzer) {
 		// Change the type of x for operator =
 		if (op->type == TokenType::EQUAL) {
 			if (v2->type->is_void()) {
-				analyzer->add_error({Error::Type::CANT_ASSIGN_VOID, location(), v2->location(), {v1->to_string()}});
+				analyzer->add_error({Error::Type::CANT_ASSIGN_VOID, ErrorLevel::ERROR, location(), v2->location(), {v1->to_string()}});
 			}
 		}
 		// TODO other operators like |= ^= &=
 		if (v1->type->constant) {
-			analyzer->add_error({Error::Type::CANT_MODIFY_CONSTANT_VALUE, location(), op->token->location, {v1->to_string()}});
+			analyzer->add_error({Error::Type::CANT_MODIFY_CONSTANT_VALUE, ErrorLevel::ERROR, location(), op->token->location, {v1->to_string()}});
 			return; // don't analyze more
 		}
 		// Check if A is a l-value
 		if (not v1->isLeftValue()) {
-			analyzer->add_error({Error::Type::VALUE_MUST_BE_A_LVALUE, location(), v1->location(), {v1->to_string()}});
+			analyzer->add_error({Error::Type::VALUE_MUST_BE_A_LVALUE, ErrorLevel::ERROR, location(), v1->location(), {v1->to_string()}});
 			return; // don't analyze more
 		}
 	}
@@ -218,7 +218,7 @@ void Expression::analyze(SemanticAnalyzer* analyzer) {
 		}
 	}
 	// std::cout << "No such operator " << v1->type << " " << op->character << " " << v2->type << std::endl;
-	analyzer->add_error({Error::Type::NO_SUCH_OPERATOR, location(), location(), {v1->type->to_string(), op->character, v2->type->to_string()}});
+	analyzer->add_error({Error::Type::NO_SUCH_OPERATOR, ErrorLevel::ERROR, location(), location(), {v1->type->to_string(), op->character, v2->type->to_string()}});
 }
 
 Hover Expression::hover(SemanticAnalyzer& analyzer, size_t position) const {

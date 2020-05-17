@@ -115,7 +115,7 @@ void VariableDeclaration::analyze(SemanticAnalyzer* analyzer, const Type*) {
 			throws |= expressions[i]->throws;
 		}
 		if (v->value and v->value->type->is_void()) {
-			analyzer->add_error({Error::Type::CANT_ASSIGN_VOID, location(), var->location, {var->content}});
+			analyzer->add_error({Error::Type::CANT_ASSIGN_VOID, ErrorLevel::WARNING, location(), var->location, {var->content}});
 		} else {
 			v->type = Variable::get_type_for_variable_from_expression(env, v->value);
 			if (constant) v->type = v->type->add_constant();

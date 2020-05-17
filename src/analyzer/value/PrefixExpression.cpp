@@ -40,7 +40,7 @@ void PrefixExpression::analyze(SemanticAnalyzer* analyzer) {
 
 	if (operatorr->type == TokenType::TILDE) {
 		if (expression->type->is_function()) {
-			analyzer->add_error({ Error::Type::NO_SUCH_OPERATOR, location(), location(), { "~", expression->to_string() } });
+			analyzer->add_error({ Error::Type::NO_SUCH_OPERATOR, ErrorLevel::ERROR, location(), location(), { "~", expression->to_string() } });
 		}
 		type = expression->type;
 		throws |= expression->type->is_polymorphic();
@@ -57,10 +57,10 @@ void PrefixExpression::analyze(SemanticAnalyzer* analyzer) {
 		throws |= expression->type->fold()->is_polymorphic();
 		if (operatorr->type == TokenType::PLUS_PLUS or operatorr->type == TokenType::MINUS_MINUS) {
 			if (expression->type->constant) {
-				analyzer->add_error({Error::Type::CANT_MODIFY_CONSTANT_VALUE, location(), expression->location(), {expression->to_string()}});
+				analyzer->add_error({Error::Type::CANT_MODIFY_CONSTANT_VALUE, ErrorLevel::ERROR, location(), expression->location(), {expression->to_string()}});
 			}
 			if (not expression->isLeftValue()) {
-				analyzer->add_error({Error::Type::VALUE_MUST_BE_A_LVALUE, location(), expression->location(), {expression->to_string()}});
+				analyzer->add_error({Error::Type::VALUE_MUST_BE_A_LVALUE, ErrorLevel::ERROR, location(), expression->location(), {expression->to_string()}});
 			}
 		}
 

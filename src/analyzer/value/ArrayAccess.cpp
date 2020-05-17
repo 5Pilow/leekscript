@@ -75,7 +75,7 @@ void ArrayAccess::analyze(SemanticAnalyzer* analyzer) {
 	array->analyze(analyzer);
 
 	if (not array->type->can_be_container()) {
-		analyzer->add_error({Error::Type::VALUE_MUST_BE_A_CONTAINER, location(), array->location(), {array->to_string()}});
+		analyzer->add_error({Error::Type::VALUE_MUST_BE_A_CONTAINER, ErrorLevel::WARNING, location(), array->location(), {array->to_string()}});
 		return;
 	}
 	if (key == nullptr) {
@@ -92,7 +92,7 @@ void ArrayAccess::analyze(SemanticAnalyzer* analyzer) {
 		if (auto kn = dynamic_cast<const Number*>(key.get())) {
 			size_t index = kn->int_value;
 			if (index < 0 || index >= array->type->size()) {
-				analyzer->add_error({Error::Type::ARRAY_OF_OUT_BOUNDS, location(), location(), {array->to_string()}});
+				analyzer->add_error({Error::Type::ARRAY_OUT_OF_BOUNDS, ErrorLevel::WARNING, location(), location(), { array->to_string(), key->to_string() }});
 			} else {
 				type = array->type->element(kn->int_value);
 			}
@@ -110,11 +110,11 @@ void ArrayAccess::analyze(SemanticAnalyzer* analyzer) {
 
 		if (!key->type->is_any() and not key->type->is_number()) {
 			std::string k = "<key 1>";
-			analyzer->add_error({Error::Type::ARRAY_ACCESS_RANGE_KEY_MUST_BE_NUMBER, location(), key->location(), {k}});
+			analyzer->add_error({Error::Type::ARRAY_ACCESS_RANGE_KEY_MUST_BE_NUMBER, ErrorLevel::ERROR, location(), key->location(), {k}});
 		}
 		if (!key2->type->is_any() and not key2->type->is_number()) {
 			std::string k = "<key 2>";
-			analyzer->add_error({Error::Type::ARRAY_ACCESS_RANGE_KEY_MUST_BE_NUMBER, location(), key2->location(), {k}});
+			analyzer->add_error({Error::Type::ARRAY_ACCESS_RANGE_KEY_MUST_BE_NUMBER, ErrorLevel::ERROR, location(), key2->location(), {k}});
 		}
 		type = array->type;
 		type = type->add_temporary();
@@ -125,7 +125,7 @@ void ArrayAccess::analyze(SemanticAnalyzer* analyzer) {
 				std::string a = array->to_string();
 				std::string k = key->to_string();
 				std::string kt = key->type->to_string();
-				analyzer->add_error({Error::Type::ARRAY_ACCESS_KEY_MUST_BE_NUMBER, location(), key->location(), {k, a, kt}});
+				analyzer->add_error({Error::Type::ARRAY_ACCESS_KEY_MUST_BE_NUMBER, ErrorLevel::ERROR, location(), key->location(), {k, a, kt}});
 			}
 		}
 		if (array->type->is_string()) {
@@ -137,7 +137,7 @@ void ArrayAccess::analyze(SemanticAnalyzer* analyzer) {
 				std::string a = array->to_string();
 				std::string k = key->to_string();
 				std::string kt = key->type->to_string();
-				analyzer->add_error({Error::Type::INVALID_MAP_KEY, location(), key->location(), {k, a, kt}});
+				analyzer->add_error({Error::Type::INVALID_MAP_KEY, ErrorLevel::ERROR, location(), key->location(), {k, a, kt}});
 			}
 		}
 	}

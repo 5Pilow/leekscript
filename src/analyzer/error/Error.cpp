@@ -6,13 +6,13 @@ namespace ls {
 bool Error::translation_loaded = false;
 Json Error::translation;
 
-Error::Error(Type type, File* file, size_t line, size_t character) : type(type), location(file, Position(line, character, 0), Position(line, character + 1, 0)), focus(file, Position(line, character, 0), Position(line, character + 1, 0)) {}
+Error::Error(Type type, ErrorLevel level, File* file, size_t line, size_t character) : type(type), level(level), location(file, Position(line, character, 0), Position(line, character + 1, 0)), focus(file, Position(line, character, 0), Position(line, character + 1, 0)) {}
 
-Error::Error(Type type, Token* token, std::vector<std::string> parameters) : type(type), location(token->location), focus(token->location), parameters(parameters) {}
+Error::Error(Type type, ErrorLevel level, Token* token, std::vector<std::string> parameters) : type(type), level(level), location(token->location), focus(token->location), parameters(parameters) {}
 
-Error::Error(Type type, Location location, Location focus) : type(type), location(location), focus(focus) {}
+Error::Error(Type type, ErrorLevel level, Location location, Location focus) : type(type), level(level), location(location), focus(focus) {}
 
-Error::Error(Type type, Location location, Location focus, std::vector<std::string> parameters) : type(type), location(location), focus(focus), parameters(parameters) {}
+Error::Error(Type type, ErrorLevel level, Location location, Location focus, std::vector<std::string> parameters) : type(type), level(level), location(location), focus(focus), parameters(parameters) {}
 
 Error::~Error() {}
 
@@ -21,7 +21,7 @@ std::string Error::message() const {
 }
 
 Json Error::json() const {
-	return { focus.start.line, focus.start.column, focus.end.line, focus.end.column, 0, type_to_string(type), parameters };
+	return { focus.start.line, focus.start.column, focus.end.line, focus.end.column, (int) level, type_to_string(type), parameters };
 }
 
 std::string Error::build_message(Type type, std::vector<std::string> parameters) {
@@ -81,7 +81,7 @@ std::string Error::type_to_string(Type type) {
 		case Type::VALUE_NOT_ITERABLE: return "VALUE_NOT_ITERABLE";
 		case Type::NO_SUCH_ATTRIBUTE: return "NO_SUCH_ATTRIBUTE";
 		case Type::VALUE_MUST_BE_A_CONTAINER: return "VALUE_MUST_BE_A_CONTAINER";
-		case Type::ARRAY_OF_OUT_BOUNDS: return "ARRAY_OF_OUT_BOUNDS";
+		case Type::ARRAY_OUT_OF_BOUNDS: return "ARRAY_OUT_OF_BOUNDS";
 		default:
 			return "UNKNOWN_ERROR";
 	}

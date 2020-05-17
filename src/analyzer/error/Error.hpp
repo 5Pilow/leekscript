@@ -7,6 +7,12 @@
 
 namespace ls {
 
+enum class ErrorLevel {
+	ERROR = 0,
+	WARNING = 1,
+	TODO = 2
+};
+
 class Error {
 public:
 
@@ -42,7 +48,7 @@ public:
 		VALUE_NOT_ITERABLE,
 		NO_SUCH_ATTRIBUTE,
 		VALUE_MUST_BE_A_CONTAINER,
-		ARRAY_OF_OUT_BOUNDS,
+		ARRAY_OUT_OF_BOUNDS,
 	};
 
 	static bool translation_loaded;
@@ -51,15 +57,16 @@ public:
 	static std::string build_message(Type, std::vector<std::string> parameters);
 
 	Type type;
+	ErrorLevel level;
 	Location location;
 	Location focus;
 	std::vector<std::string> parameters;
 	std::string underline_code;
 
-	Error(Type type, File* file, size_t line, size_t character);
-	Error(Type type, Token* token, std::vector<std::string> parameters);
-	Error(Type type, Location location, Location focus);
-	Error(Type type, Location location, Location focus, std::vector<std::string> parameters);
+	Error(Type type, ErrorLevel level, File* file, size_t line, size_t character);
+	Error(Type type, ErrorLevel level, Token* token, std::vector<std::string> parameters);
+	Error(Type type, ErrorLevel level, Location location, Location focus);
+	Error(Type type, ErrorLevel level, Location location, Location focus, std::vector<std::string> parameters);
 	virtual ~Error();
 
 	std::string message() const;

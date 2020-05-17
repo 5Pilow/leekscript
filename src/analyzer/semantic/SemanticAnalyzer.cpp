@@ -201,12 +201,12 @@ Variable* SemanticAnalyzer::get_var(const std::string& v) {
 
 Variable* SemanticAnalyzer::add_var(Token* v, const Type* type, Value* value) {
 	if (program->globals.find(v->content) != program->globals.end()) {
-		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
+		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, ErrorLevel::ERROR, v->location, v->location, {v->content}});
 		return nullptr;
 	}
 	const auto& block = blocks.back().back();
 	if (block->variables.find(v->content) != block->variables.end()) {
-		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
+		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, ErrorLevel::ERROR, v->location, v->location, {v->content}});
 		return nullptr;
 	}
 
@@ -222,12 +222,12 @@ Variable* SemanticAnalyzer::add_var(Token* v, const Type* type, Value* value) {
 
 Variable* SemanticAnalyzer::add_var(Token* v, Variable* var) {
 	if (program->globals.find(v->content) != program->globals.end()) {
-		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
+		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, ErrorLevel::ERROR, v->location, v->location, {v->content}});
 		return nullptr;
 	}
 	const auto& block = blocks.back().back();
 	if (block->variables.find(v->content) != block->variables.end()) {
-		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
+		add_error({Error::Type::VARIABLE_ALREADY_DEFINED, ErrorLevel::ERROR, v->location, v->location, {v->content}});
 		return nullptr;
 	}
 	var->function = current_function();
@@ -247,7 +247,7 @@ Variable* SemanticAnalyzer::add_global_var(Token* v, const Type* type, Value* va
 	for (const auto& section : blocks.begin()->front()->sections) {
 		auto& vars = section->variables;
 		if (vars.find(v->content) != vars.end()) {
-			add_error({Error::Type::VARIABLE_ALREADY_DEFINED, v->location, v->location, {v->content}});
+			add_error({Error::Type::VARIABLE_ALREADY_DEFINED, ErrorLevel::ERROR, v->location, v->location, {v->content}});
 			return nullptr;
 		}
 	}

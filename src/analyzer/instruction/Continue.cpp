@@ -26,7 +26,7 @@ void Continue::analyze(SemanticAnalyzer* analyzer, const Type*) {
 
 	// continue must be in a loop
 	if (!analyzer->in_loop(deepness)) {
-		analyzer->add_error({Error::Type::CONTINUE_MUST_BE_IN_LOOP, {nullptr, {0, 0, 0}, {0, 0, 0}}, {nullptr, {0, 0, 0}, {0, 0, 0}}}); // TODO location
+		analyzer->add_error({ Error::Type::CONTINUE_MUST_BE_IN_LOOP, ErrorLevel::ERROR, location(), location() });
 	}
 }
 

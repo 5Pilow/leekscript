@@ -131,7 +131,7 @@ Block* SyntaxicAnalyzer::eatMain(File* file) {
 									continue;
 								} else {
 									auto location = fc->arguments.at(0)->location();
-									root_file->errors.push_back(Error(Error::Type::NO_SUCH_FILE, location, location, { str->token->content }));
+									root_file->errors.push_back(Error(Error::Type::NO_SUCH_FILE, ErrorLevel::ERROR, location, location, { str->token->content }));
 								}
 							}
 						}
@@ -194,7 +194,7 @@ Block* SyntaxicAnalyzer::eatBlock(Block* parent, bool is_function_block, bool si
 				break;
 			} else if (t->type == TokenType::FINISHED || t->type == TokenType::ELSE || t->type == TokenType::END || t->type == TokenType::IN) {
 				if (brace) {
-					file->errors.push_back(Error(Error::Type::BLOCK_NOT_CLOSED, t, {}));
+					file->errors.push_back(Error(Error::Type::BLOCK_NOT_CLOSED, ErrorLevel::ERROR, t, {}));
 				}
 				break;
 			} else if (t->type == TokenType::SEMICOLON) {
@@ -361,7 +361,7 @@ Instruction* SyntaxicAnalyzer::eatInstruction(Block* block) {
 
 		default:
 			// std::cout << "Unexpected token : " << (int)t->type << " (" << t->content << ")" << std::endl;
-			file->errors.push_back(Error(Error::Type::UNEXPECTED_TOKEN, t, {t->content}));
+			file->errors.push_back(Error(Error::Type::UNEXPECTED_TOKEN, ErrorLevel::ERROR, t, {t->content}));
 			eat();
 			return nullptr;
 	}
@@ -871,7 +871,7 @@ Value* SyntaxicAnalyzer::eatValue(Block* block, bool comma_list) {
 			break;
 	}
 
-	file->errors.push_back(Error(Error::EXPECTED_VALUE, t, {t->content}));
+	file->errors.push_back(Error(Error::EXPECTED_VALUE, ErrorLevel::ERROR, t, {t->content}));
 	eat();
 	return nullptr;
 }
@@ -1495,7 +1495,7 @@ Break* SyntaxicAnalyzer::eatBreak(Block* block) {
 	if (t->type == TokenType::NUMBER /*&& t->line == lt->line*/) {
 		int deepness = std::stoi(t->content);
 		if (deepness <= 0) {
-			file->errors.push_back(Error(Error::Type::BREAK_LEVEL_ZERO, t, {}));
+			file->errors.push_back(Error(Error::Type::BREAK_LEVEL_ZERO, ErrorLevel::ERROR, t, {}));
 		} else {
 			b->deepness = deepness;
 			eat();
@@ -1503,7 +1503,7 @@ Break* SyntaxicAnalyzer::eatBreak(Block* block) {
 	}
 
 	if (b->deepness > loops.size()) {
-		file->errors.push_back(Error(Error::Type::BREAK_MUST_BE_IN_LOOP, t, {}));
+		file->errors.push_back(Error(Error::Type::BREAK_MUST_BE_IN_LOOP, ErrorLevel::ERROR, t, {}));
 	} else {
 		auto loop = loops.at(loops.size() - b->deepness);
 
@@ -1521,14 +1521,14 @@ Continue* SyntaxicAnalyzer::eatContinue(Block* block) {
 	if (t->type == TokenType::NUMBER /*&& t->line == lt->line*/) {
 		int deepness = std::stoi(t->content);
 		if (deepness <= 0) {
-			file->errors.push_back(Error(Error::Type::CONTINUE_LEVEL_ZERO, t, {}));
+			file->errors.push_back(Error(Error::Type::CONTINUE_LEVEL_ZERO, ErrorLevel::ERROR, t, {}));
 		} else {
 			c->deepness = deepness;
 			eat();
 		}
 	}
 	if (c->deepness > loops.size()) {
-		file->errors.push_back(Error(Error::Type::CONTINUE_MUST_BE_IN_LOOP, t, {}));
+		file->errors.push_back(Error(Error::Type::CONTINUE_MUST_BE_IN_LOOP, ErrorLevel::ERROR, t, {}));
 	} else {
 		auto loop = loops.at(loops.size() - c->deepness);
 		auto condition = loop->continue_section;
@@ -1588,7 +1588,7 @@ Token* SyntaxicAnalyzer::eat_get(TokenType type) {
 	nt = i < file->tokens.size() - 1 ? &file->tokens[i + 1] : nullptr;
 
 	if (type != TokenType::DONT_CARE && eaten->type != type) {
-		file->errors.push_back(Error(Error::Type::UNEXPECTED_TOKEN, eaten, {eaten->content}));
+		file->errors.push_back({ Error::Type::UNEXPECTED_TOKEN, ErrorLevel::ERROR, eaten, {eaten->content} });
 		// std::cout << "unexpected token : " << to_string((int) type) << " != " << to_string((int) eaten->type) << " (" << eaten->content << ") char " << eaten->location.start.column << std::endl;
 		return &file->finished_token;
 	}

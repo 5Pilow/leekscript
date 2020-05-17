@@ -133,7 +133,7 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 	analyzer->leave_section();
 
 	if (not container->type->is_void() and not container->type->iterable() and not container->type->is_any()) {
-		analyzer->add_error({Error::Type::VALUE_NOT_ITERABLE, container->location(), container->location(), {container->to_string(), container->type->to_string()}});
+		analyzer->add_error({Error::Type::VALUE_NOT_ITERABLE, ErrorLevel::WARNING, container->location(), container->location(), {container->to_string(), container->type->to_string()}});
 		return;
 	}
 

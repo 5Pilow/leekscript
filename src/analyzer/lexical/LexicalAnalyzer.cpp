@@ -202,14 +202,14 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 					ident = false;
 				} else if (number) {
 					if ((bin || hex) && word.size() == 2) {
-						file->errors.push_back({Error::Type::NUMBER_INVALID_REPRESENTATION, file, line, character});
+						file->errors.push_back({Error::Type::NUMBER_INVALID_REPRESENTATION, ErrorLevel::ERROR, file, line, character});
 					}
 					tokens.push_back({ TokenType::NUMBER, file, k, line, character, word });
 					number = bin = hex = false;
 				} else if (string1 || string2) {
 					if (escape) {
 						escape = false;
-						file->errors.push_back({Error::Type::UNKNOWN_ESCAPE_SEQUENCE, file, line, character});
+						file->errors.push_back({Error::Type::UNKNOWN_ESCAPE_SEQUENCE, ErrorLevel::ERROR, file, line, character});
 					}
 					word += code.substr(h, i - h);
 				} else if (other) {
@@ -231,7 +231,7 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 						} else if (c == 't') {
 							word += '\t'; // moves the printing position some spaces to the right.
 						} else {
-							file->errors.push_back({Error::Type::UNKNOWN_ESCAPE_SEQUENCE, file, line, character});
+							file->errors.push_back({Error::Type::UNKNOWN_ESCAPE_SEQUENCE, ErrorLevel::ERROR, file, line, character});
 						}
 					} else {
 						word += code.substr(h, i - h);
@@ -259,7 +259,7 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 						word = "";
 						tokens.push_back({ TokenType::STAR, file, k, line, character, code.substr(h, i - h) });
 					} else {
-						file->errors.push_back({Error::Type::NUMBER_INVALID_REPRESENTATION, file, line, character});
+						file->errors.push_back({Error::Type::NUMBER_INVALID_REPRESENTATION, ErrorLevel::ERROR, file, line, character});
 						tokens.push_back({ TokenType::NUMBER, file, k, line, character, word });
 						number = bin = hex = false;
 					}
@@ -275,14 +275,14 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 			} else if (type == LetterType::NUMBER) {
 				if (number) {
 					if (bin && c > '1') {
-						file->errors.push_back({Error::Type::NUMBER_INVALID_REPRESENTATION, file, line, character});
+						file->errors.push_back({Error::Type::NUMBER_INVALID_REPRESENTATION, ErrorLevel::ERROR, file, line, character});
 					} else {
 						word += code.substr(h, i - h);
 					}
 				} else if (ident || string1 || string2) {
 					if (escape) {
 						escape = false;
-						file->errors.push_back({Error::Type::UNKNOWN_ESCAPE_SEQUENCE, file, line, character});
+						file->errors.push_back({Error::Type::UNKNOWN_ESCAPE_SEQUENCE, ErrorLevel::ERROR, file, line, character});
 					}
 					word += code.substr(h, i - h);
 				} else if (other) {
@@ -302,7 +302,7 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 					word = "";
 				} else if (number) {
 					if ((bin || hex) && word.size() == 2) {
-						file->errors.push_back({Error::Type::NUMBER_INVALID_REPRESENTATION, file, line, character});
+						file->errors.push_back({Error::Type::NUMBER_INVALID_REPRESENTATION, ErrorLevel::ERROR, file, line, character});
 					}
 					tokens.push_back({ TokenType::NUMBER, file, k, line, character, word });
 					number = bin = hex = false;
@@ -331,7 +331,7 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 					word = "";
 				} else if (number) {
 					if ((bin || hex) && word.size() == 2) {
-						file->errors.push_back({Error::Type::NUMBER_INVALID_REPRESENTATION, file, line, character});
+						file->errors.push_back({Error::Type::NUMBER_INVALID_REPRESENTATION, ErrorLevel::ERROR, file, line, character});
 					}
 					tokens.push_back({ TokenType::NUMBER, file, k, line, character, word });
 					number = bin = hex = false;
@@ -369,7 +369,7 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 						word += code.substr(h, i - h);
 					} else {
 						if ((bin || hex) && word.size() == 2) {
-							file->errors.push_back({Error::Type::NUMBER_INVALID_REPRESENTATION, file, line, character});
+							file->errors.push_back({Error::Type::NUMBER_INVALID_REPRESENTATION, ErrorLevel::ERROR, file, line, character});
 						}
 						tokens.push_back({ TokenType::NUMBER, file, k, line, character, word });
 						number = bin = hex = false;
@@ -379,7 +379,7 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 				} else if (string1 || string2) {
 					if (escape && c != '\\') {
 						escape = false;
-						file->errors.push_back({Error::Type::UNKNOWN_ESCAPE_SEQUENCE, file, line, character});
+						file->errors.push_back({Error::Type::UNKNOWN_ESCAPE_SEQUENCE, ErrorLevel::ERROR, file, line, character});
 					}
 					if (!escape && c == '\\') {
 						escape = true;
@@ -422,7 +422,7 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 		}
 	}
 	if (string1 or string2) {
-		file->errors.push_back({Error::Type::UNTERMINATED_STRING, file, line, character});
+		file->errors.push_back({Error::Type::UNTERMINATED_STRING, ErrorLevel::ERROR, file, line, character});
 	}
 	return tokens;
 }
