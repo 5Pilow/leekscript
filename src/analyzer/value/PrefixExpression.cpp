@@ -7,7 +7,10 @@
 
 namespace ls {
 
-PrefixExpression::PrefixExpression(Environment& env, std::shared_ptr<Operator> op, std::unique_ptr<Value> expression) : Value(env), operatorr(op), expression(std::move(expression)) {}
+PrefixExpression::PrefixExpression(Environment& env, std::shared_ptr<Operator> op, std::unique_ptr<Value> expression)
+	: Value(env), operatorr(op), expression(std::move(expression)) {
+		assert(this->expression.get());
+}
 
 void PrefixExpression::print(std::ostream& os, int indent, PrintOptions options) const {
 	operatorr->print(os);
