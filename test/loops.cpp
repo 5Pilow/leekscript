@@ -201,6 +201,9 @@ void Test::test_loops() {
 	code("var s = 0l for i in [0..1000] { s += i ** 2 } s").equals("333833500");
 	code("var S = 'salut' var N = [] for var s in S.split('') { N += String.code(s) } N").equals("[115, 97, 108, 117, 116]");
 
+	section("Foreach - no braces");
+	code("var s = 0 for v in [1, 2, 3, 4] s += v s").equals("10");
+
 	section("Foreach - double");
 	code("var r = [] for x in [1, 2, 3] { for y in [4, 5, 6] { r += x * y }} r").equals("[4, 5, 6, 8, 10, 12, 12, 15, 18]");
 	code("var r = [] for x in ['a', 'b', 'c'] { for y in [4, 5, 6] { r += x * y }} r").equals("['aaaa', 'aaaaa', 'aaaaaa', 'bbbb', 'bbbbb', 'bbbbbb', 'cccc', 'ccccc', 'cccccc']");
