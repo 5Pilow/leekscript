@@ -12,6 +12,7 @@ class Program;
 class VirtualResolver {
 public:
     File* create(std::string path, Program* program) const;
+	File* delete_(std::string path) const;
 	File* resolve(std::string path, FileContext context) const;
 };
 

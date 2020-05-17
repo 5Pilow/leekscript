@@ -4,6 +4,7 @@
 #include "../analyzer/value/Function.hpp"
 #include "PrintOptions.hpp"
 #include "Result.hpp"
+#include <unordered_set>
 #if COMPILER
 #include "../vm/VM.hpp"
 #endif
@@ -31,7 +32,8 @@ public:
 	std::string file_name;
 	std::unordered_map<std::string, std::unique_ptr<Variable>> globals;
 	std::unordered_map<std::string, std::unique_ptr<Variable>> operators;
-	std::unique_ptr<File> main_file;
+	File* main_file;
+	std::unordered_set<File*> included_files;
 	std::vector<std::unique_ptr<Token>> operators_tokens;
 	std::vector<std::unique_ptr<Function>> operators_functions;
 	Context* context = nullptr;
@@ -44,6 +46,7 @@ public:
 	#endif
 
 	Program(Environment& env, const std::string& code, const std::string& file_name);
+	Program(Environment& env, const std::string& code, File* file);
 	virtual ~Program();
 
 	void analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format, bool debug, bool sections);

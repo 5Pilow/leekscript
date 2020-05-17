@@ -109,7 +109,7 @@ Environment::~Environment() {
 
 void Environment::analyze(Program& program, bool format, bool debug, bool sections) {
 	auto resolver = new Resolver();
-	SyntaxicAnalyzer syn { *this, resolver };
+	SyntaxicAnalyzer syn { *this, resolver, program.main_file };
 	SemanticAnalyzer sem { *this };
 	program.analyze(syn, sem, format, debug, sections);
 	delete resolver;

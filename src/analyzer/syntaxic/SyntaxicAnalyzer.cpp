@@ -44,18 +44,23 @@
 
 namespace ls {
 
-SyntaxicAnalyzer::SyntaxicAnalyzer(Environment& env, Resolver* resolver) : resolver(resolver), env(env) {
+SyntaxicAnalyzer::SyntaxicAnalyzer(Environment& env, Resolver* resolver, File* root_file) : resolver(resolver), env(env) {
 	time = 0;
 	nt = nullptr;
 	t = nullptr;
 	i = 0;
+	this->root_file = root_file;
+	this->root_file->included_files.clear();
 }
 
 Block* SyntaxicAnalyzer::analyze(File* file) {
 	this->file = file;
 
-	// Call the lexical analyzer to parse tokens
-	file->tokens = lexical.analyze(file);
+	// Call the lexical analyzer to parse tokens, only if the file was never read before
+	if (not file->tokens_read) {
+		file->tokens = lexical.analyze(file);
+		file->tokens_read = true;
+	}
 
 	this->t = &file->tokens.at(0);
 	this->nt = file->tokens.size() > 1 ? &file->tokens.at(1) : nullptr;
@@ -67,7 +72,7 @@ Block* SyntaxicAnalyzer::analyze(File* file) {
 Block* SyntaxicAnalyzer::eatMain(File* file) {
 
 	auto block = new Block(env, true);
-	file->waiting = false;
+	file->waiting = nullptr;
 
 	while (true) {
 		if (t->type == TokenType::FINISHED) {
@@ -86,30 +91,44 @@ Block* SyntaxicAnalyzer::eatMain(File* file) {
 							if (vv->name == "include" and str) {
 								auto included_file = resolver->resolve(str->token->content, file->context);
 								if (included_file) {
-									included_file->includers_files[file->path] = file;
-									if (included_file->waiting) { // The file exists but is not loaded yet, it will be loaded later
-										// std::cout << "Include waiting, cancel..." << std::endl;
-										file->waiting = true;
-										delete ins;
-										return block;
+									// Not already included?
+									if (included_file != root_file and std::find(root_file->included_files.begin(), root_file->included_files.end(), included_file) == root_file->included_files.end()) {
+										// std::cout << "include " << included_file->path << std::endl;
+										included_file->includers_files[file->path] = file;
+
+										// The included file is waiting for the file we are currently analyzing, so it's not waiting anymore
+										// if (included_file->waiting == root_file) {
+										// 	included_file->waiting = nullptr;
+										// }
+										if (included_file->waiting) { // The file exists but is not loaded yet, it will be loaded later
+											// std::cout << "Include " << included_file->path << " waiting, cancel..." << std::endl;
+											// file->waiting = included_file;
+											// included_file->waiters.push_back(file);
+											delete ins;
+											return block;
+										}
+										// std::cout << "include " << included_file->path << std::endl;
+										file->included_files.push_back(included_file);
+										root_file->included_files.push_back(included_file);
+										root_file->program->included_files.insert(included_file);
+										// std::cout << "included file " << included_file->code << std::endl;
+										auto included_block = SyntaxicAnalyzer(env, resolver, root_file).analyze(included_file);
+										for (auto& instruction : included_block->instructions) {
+											instruction->included = true;
+											block->add_instruction(instruction.get());
+											instruction.release();
+										}
+									} else {
+										// std::cout << "file " << included_file->path << " already included" << std::endl;
 									}
-									// std::cout << "included file " << included_file->code << std::endl;
-									auto included_block = SyntaxicAnalyzer(env, resolver).analyze(included_file);
-									for (auto& instruction : included_block->instructions) {
-										block->add_instruction(instruction.get());
-										instruction.release();
-									}
-									delete ins; // The include instruction will not be used
-									file->included_files.emplace_back(included_file);
-									included_block->sections.front().reset();
-									for (auto& s : included_block->sections) {
-										s.release();
-									}
-									delete included_block;
+									ins->include = true;
+									fc->include = true;
+									fc->included_file = included_file;
+									block->add_instruction(ins);
 									continue;
 								} else {
 									auto location = fc->arguments.at(0)->location();
-									file->errors.push_back(Error(Error::Type::NO_SUCH_FILE, location, location, { str->token->content }));
+									root_file->errors.push_back(Error(Error::Type::NO_SUCH_FILE, location, location, { str->token->content }));
 								}
 							}
 						}

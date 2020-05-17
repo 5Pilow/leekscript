@@ -35,6 +35,8 @@ public:
 	bool breaking = false; // Break or continue instruction
 	Section* end_section = nullptr;
 	Section* continue_section = nullptr;
+	bool include = false; // Is a include instruction?
+	bool included = false; // Is an instruction from an include?
 
 	Instruction(Environment& env);
 	virtual ~Instruction() {}

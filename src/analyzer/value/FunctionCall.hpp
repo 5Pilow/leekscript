@@ -34,6 +34,8 @@ public:
 	Call call;
 	CallableVersion callable_version;
 	std::unique_ptr<Callable> callable;
+	bool include = false; // Is a include instruction?
+	File* included_file = nullptr; // Included file in case of include
 
 	FunctionCall(Environment& env, Token* t);
 

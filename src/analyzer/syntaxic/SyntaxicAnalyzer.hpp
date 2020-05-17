@@ -43,12 +43,13 @@ class SyntaxicAnalyzer {
 	Token* finished_token;
 	File* file;
 	std::vector<Instruction*> loops;
+	File* root_file = nullptr;
 
 public:
 
 	Environment& env;
 
-	SyntaxicAnalyzer(Environment& env, Resolver* resolver);
+	SyntaxicAnalyzer(Environment& env, Resolver* resolver, File* root_file);
 
 	Block* analyze(File* file);
 

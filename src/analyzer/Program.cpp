@@ -35,7 +35,13 @@ Program::Program(Environment& env, const std::string& code, const std::string& f
 	: env(env), code(code), file_name(file_name) {
 
 	// std::cout << "new Program " << file_name << std::endl;
-	main_file = std::unique_ptr<File>(Resolver().create(file_name, this));
+	main_file = Resolver().create(file_name, this);
+}
+
+Program::Program(Environment& env, const std::string& code, File* file)
+	: env(env), code(code), file_name(file->path) {
+
+	main_file = file;
 }
 
 Program::~Program() {
@@ -54,14 +60,11 @@ void Program::analyze(SyntaxicAnalyzer& syn, SemanticAnalyzer& sem, bool format,
 	result.errors.clear();
 	main_file->errors.clear();
 
-	std::unique_ptr<Block> block { syn.analyze(main_file.get()) };
+	std::unique_ptr<Block> block { syn.analyze(main_file) };
 
-	// if (main_file->errors.size() > 0) {
-		result.errors = main_file->errors;
-		// return;
-	// }
+	result.errors = main_file->errors;
 
-	main_token = std::make_unique<Token>(TokenType::FUNCTION, main_file.get(), 0, 0, 0, "function");
+	main_token = std::make_unique<Token>(TokenType::FUNCTION, main_file, 0, 0, 0, "function");
 	main = std::make_unique<Function>(env, main_token.get());
 	main->body = std::move(block);
 	main->is_main_function = true;
@@ -229,15 +232,15 @@ Variable* Program::get_operator(const std::string& name) {
 	auto o = std::find(ops.begin(), ops.end(), name);
 	if (o == ops.end()) return nullptr;
 
-	auto token = operators_tokens.emplace_back(std::make_unique<Token>(TokenType::FUNCTION, main_file.get(), 0, 0, 0, "function")).get();
+	auto token = operators_tokens.emplace_back(std::make_unique<Token>(TokenType::FUNCTION, main_file, 0, 0, 0, "function")).get();
 	auto f = operators_functions.emplace_back(std::make_unique<Function>(env, token)).get();
-	auto v1_token = operators_tokens.emplace_back(std::make_unique<Token>(TokenType::IDENT, main_file.get(), 0, 1, 0, "x")).get();
-	auto v2_token = operators_tokens.emplace_back(std::make_unique<Token>(TokenType::IDENT, main_file.get(), 2, 1, 2, "y")).get();
+	auto v1_token = operators_tokens.emplace_back(std::make_unique<Token>(TokenType::IDENT, main_file, 0, 1, 0, "x")).get();
+	auto v2_token = operators_tokens.emplace_back(std::make_unique<Token>(TokenType::IDENT, main_file, 2, 1, 2, "y")).get();
 	f->addArgument(v1_token, nullptr, false);
 	f->addArgument(v2_token, nullptr, false);
 	f->body.reset(new Block(env, true));
 	auto ex = std::make_unique<Expression>(env);
-	auto op_token = operators_tokens.emplace_back(std::make_unique<Token>(token_types.at(std::distance(ops.begin(), o)), main_file.get(), 1, 1, 1, name)).get();
+	auto op_token = operators_tokens.emplace_back(std::make_unique<Token>(token_types.at(std::distance(ops.begin(), o)), main_file, 1, 1, 1, name)).get();
 	ex->v1 = std::make_unique<VariableValue>(env, v1_token);
 	ex->v2 = std::make_unique<VariableValue>(env, v2_token);
 	ex->op = std::make_shared<Operator>(op_token);
