@@ -54,6 +54,7 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<const Type>> class_types;
 	std::unordered_map<std::string, std::unique_ptr<const Type>> structure_types;
 	std::map<std::pair<const Type*, const Type*>, std::unique_ptr<const Type>> meta_add_types;
+	std::map<std::pair<const Type*, const Type*>, std::unique_ptr<const Type>> meta_concat_types;
 	std::map<std::pair<const Type*, const Type*>, std::unique_ptr<const Type>> meta_mul_types;
 	std::map<std::pair<const Type*, const Type*>, std::unique_ptr<const Type>> meta_base_of_types;
 	std::unordered_map<const Type*, std::unique_ptr<const Type>> meta_temporary_types;

@@ -1,6 +1,7 @@
 #include "CallableVersion.hpp"
 #include "../../type/Template_type.hpp"
 #include "../../type/Meta_add_type.hpp"
+#include "../../type/Meta_concat_type.hpp"
 #include "../../type/Meta_mul_type.hpp"
 #include "../../type/Meta_baseof_type.hpp"
 #include "../../type/Meta_temporary_type.hpp"
@@ -63,6 +64,13 @@ const Type* build(const Type* type) {
 	if (type->is_array()) {
 		return type->temporary ? Type::tmp_array(build(type->element())) : Type::array(build(type->element()));
 	}
+	if (type->is_fixed_array()) {
+		std::vector<const Type*> new_elements;
+		for (const auto& element : type->elements()) {
+			new_elements.push_back(build(element));
+		}
+		return type->temporary ? Type::tmp_fixed_array(new_elements) : Type::fixed_array(new_elements);
+	}
 	if (type->is_set()) return Type::set(build(type->element()));
 	if (type->is_map()) return Type::map(build(type->key()), build(type->element()));
 	if (type->is_function()) {
@@ -96,6 +104,9 @@ const Type* build(const Type* type) {
 	if (auto mul = dynamic_cast<const Meta_add_type*>(type)) {
 		return build(mul->t1)->operator + (build(mul->t2));
 	}
+	if (auto mul = dynamic_cast<const Meta_concat_type*>(type)) {
+		return build(mul->t1)->concat(build(mul->t2));
+	}
 	if (auto mul = dynamic_cast<const Meta_mul_type*>(type)) {
 		return build(mul->t1)->operator * (build(mul->t2));
 	}
@@ -103,6 +114,7 @@ const Type* build(const Type* type) {
 		if (baseof->result) return baseof->result;
 		auto t = build(baseof->type);
 		auto d = t->distance(baseof->base);
+		// std::cout << "d = " << d << std::endl;
 		if (d == -1) {
 			return ((Meta_baseof_type*) baseof)->result = baseof->base;
 		} else if (d < 100) {
@@ -185,6 +197,13 @@ void solve(SemanticAnalyzer* analyzer, const Type* t1, const Type* t2) {
 	}
 	else if (t1->is_array() and t2->is_array()) {
 		solve(analyzer, t1->element(), t2->element());
+	}
+	else if (t1->is_fixed_array() and t2->is_fixed_array()) {
+		if (t1->size() == t2->size()) {
+			for (size_t i = 0; i < t1->size(); ++i) {
+				solve(analyzer, t1->element(i), t2->element(i));
+			}
+		}
 	}
 	else if (t1->is_set() and t2->is_set()) {
 		solve(analyzer, t1->element(), t2->element());

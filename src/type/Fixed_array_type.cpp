@@ -27,6 +27,10 @@ const Type* Fixed_array_type::element(size_t index) const {
 	return _elements[index];
 }
 
+const std::vector<const Type*>& Fixed_array_type::elements() const {
+	return _elements;
+}
+
 size_t Fixed_array_type::size() const {
 	return _elements.size();
 }
@@ -40,7 +44,8 @@ bool Fixed_array_type::operator == (const Type* type) const {
 int Fixed_array_type::distance(const Type* type) const {
 	if (not temporary and type->temporary) return -1;
 	if (dynamic_cast<const Any_type*>(type->folded)) { return 1000; }
-	if (auto array = dynamic_cast<const Array_type*>(type->folded)) {
+	if (auto array = dynamic_cast<const Fixed_array_type*>(type->folded)) {
+		if (array->size() == 1 and array->element(0) == env.void_) return 0;
 		if (_element == env.never) return 0;
 		if (array->element() == env.never) return 999;
 		if (array->element()->is_void()) {

@@ -21,6 +21,7 @@ public:
 	virtual const Type* key() const override;
 	virtual const Type* element() const override;
 	virtual const Type* element(size_t index) const override;
+	virtual const std::vector<const Type*>& elements() const override;
 	virtual size_t size() const override;
 	virtual bool operator == (const Type*) const override;
 	virtual int distance(const Type* type) const override;

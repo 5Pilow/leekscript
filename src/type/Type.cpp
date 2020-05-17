@@ -34,6 +34,7 @@
 #include "Never_type.hpp"
 #include "Compound_type.hpp"
 #include "Meta_add_type.hpp"
+#include "Meta_concat_type.hpp"
 #include "Meta_mul_type.hpp"
 #include "Meta_baseof_type.hpp"
 #include "Meta_element_type.hpp"
@@ -67,6 +68,9 @@ const Type* Type::element() const {
 }
 const Type* Type::element(size_t index) const {
 	return env.any;
+}
+const std::vector<const Type*>& Type::elements() const {
+	return Type::empty_types;
 }
 size_t Type::size() const {
 	return 0u;
@@ -140,6 +144,31 @@ const Type* Type::operator * (const Type* t2) const {
 		else return a;
 	}
 	return env.any;
+}
+
+const Type* Type::concat(const Type* type) const {
+	if (is_fixed_array()) {
+		auto new_elements = elements();
+		if (type->is_fixed_array()) {
+			for (const auto& element : type->elements()) {
+				new_elements.push_back(element);
+			}
+		} else if (type->is_array()) {
+			return tmp_array(element()->operator + (type->element()));
+		}
+		return tmp_fixed_array(new_elements);
+	} else if (is_array()) {
+		if (type->is_fixed_array()) {
+			auto new_elements = elements();
+			for (const auto& element : type->elements()) {
+				new_elements.push_back(element);
+			}
+			return tmp_fixed_array(new_elements);
+		} else {
+			return tmp_array(element()->operator + (type));
+		}
+	}
+	return operator + (type);
 }
 
 const Type* Type::fold() const {
@@ -551,6 +580,16 @@ const Type* Type::meta_add(const Type* t1, const Type* t2) {
 	env.meta_add_types.emplace(std::make_pair(t1, t2), type);
 	return type;
 }
+
+const Type* Type::meta_concat(const Type* t1, const Type* t2) {
+	auto& env = t1->env;
+	auto i = env.meta_concat_types.find({t1, t2});
+	if (i != env.meta_concat_types.end()) return i->second.get();
+	auto type = new Meta_concat_type(t1, t2);
+	env.meta_concat_types.emplace(std::make_pair(t1, t2), type);
+	return type;
+}
+
 const Type* Type::meta_mul(const Type* t1, const Type* t2) {
 	auto& env = t1->env;
 	auto i = env.meta_mul_types.find({t1, t2});

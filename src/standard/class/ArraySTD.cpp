@@ -45,8 +45,10 @@ ArraySTD::ArraySTD(Environment& env) : Module(env, "Array") {
 	auto aE = env.template_("E");
 	template_(aT, aE).
 	operator_("+", {
-		{Type::const_array(aT), aE, Type::tmp_array(Type::meta_add(aT, aE)), ADDR(op_add)},
-		{Type::const_array(aT), Type::const_array(aE), Type::tmp_array(Type::meta_add(aT, aE)), ADDR(op_add)},
+		{Type::const_array(aT), aE, Type::meta_concat(Type::const_array(aT), aE), ADDR(op_add)},
+		{Type::meta_base_of(aT, Type::fixed_array({env.void_})), aE, Type::meta_concat(aT, aE), ADDR(op_add)},
+		{Type::const_array(aT), Type::const_array(aE), Type::tmp_array(Type::meta_concat(aT, aE)), ADDR(op_add)},
+		{Type::meta_base_of(aT, Type::fixed_array({env.void_})), Type::meta_base_of(aE, Type::fixed_array({env.void_})), Type::meta_concat(aT, aE), ADDR(op_add)},
 	}, LEGACY);
 
 	auto pqT = env.template_("T");

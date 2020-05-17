@@ -46,6 +46,7 @@ public:
 	virtual const std::vector<const Type*>& arguments() const;
 	virtual const Type* element() const;
 	virtual const Type* element(size_t index) const;
+	virtual const std::vector<const Type*>& elements() const;
 	virtual size_t size() const;
 	virtual const Type* key() const;
 	virtual const Type* member(int) const;
@@ -78,6 +79,7 @@ public:
 	const Type* operator + (const Type* type) const;
 	void operator += (const Type* type);
 	const Type* operator * (const Type* t2) const;
+	const Type* concat(const Type* type) const;
 	const Type* fold() const;
 	virtual bool operator == (const Type*) const = 0;
 
@@ -148,6 +150,7 @@ public:
 	static const Type* tmp_compound(std::initializer_list<const Type*> types);
 
 	static const Type* meta_add(const Type* t1, const Type* t2);
+	static const Type* meta_concat(const Type* t1, const Type* t2);
 	static const Type* meta_mul(const Type* t1, const Type* t2);
 	static const Type* meta_base_of(const Type* type, const Type* base);
 	static const Type* meta_element(const Type* type);
