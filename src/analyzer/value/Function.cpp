@@ -110,6 +110,9 @@ void Function::pre_analyze(SemanticAnalyzer* analyzer) {
 	}
 
 	create_default_version(analyzer);
+	if (type == analyzer->env.any) {
+		type = default_version->type;
+	}
 
 	current_version = default_version.get();
 	default_version->pre_analyze(analyzer, default_version->type->arguments());
@@ -154,7 +157,6 @@ void Function::analyze(SemanticAnalyzer* analyzer) {
 		capture->type = capture->parent->type->is_polymorphic() ? capture->parent->type : analyzer->env.any;
 		// std::cout << "Function analyze capture " << capture << " " << capture->type << std::endl;
 	}
-
 	create_default_version(analyzer);
 	if (is_main_function) {
 		default_version->analyze_global_functions(analyzer);
