@@ -89,6 +89,9 @@ void VariableDeclaration::pre_analyze(SemanticAnalyzer* analyzer) {
 			analyzer->add_var(var, vars.at(var->content));
 		}
 		if (expressions[i] != nullptr) {
+			if (Function* f = dynamic_cast<Function*>(expressions[i].get())) {
+				f->name = var->content;
+			}
 			expressions[i]->pre_analyze(analyzer);
 		}
 	}
@@ -107,9 +110,6 @@ void VariableDeclaration::analyze(SemanticAnalyzer* analyzer, const Type*) {
 		if (vi == variables.end()) continue;
 		auto v = vi->second;
 		if (expressions[i]) {
-			if (Function* f = dynamic_cast<Function*>(expressions[i].get())) {
-				f->name = var->content;
-			}
 			expressions[i]->analyze(analyzer);
 			v->value = expressions[i].get();
 			throws |= expressions[i]->throws;
