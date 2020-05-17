@@ -165,6 +165,7 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 	size_t h = 0, i = 0, j = 0, k = 0;
 	char c, nc = code[j];
 	u8_inc(string_chars, &j);
+	LetterType type;
 
 	auto next = [&]() {
 		character++;
@@ -174,14 +175,13 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 		nc = code[j];
 		u8_inc(string_chars, &j);
 		k++;
+		type = getLetterType(c, code[h + 1]);
 	};
 
 	while (i < l) {
 
 		// Next character
 		next();
-
-		auto type = getLetterType(c, code[h + 1]);
 		// std::cout << "c = " << c << " nc = " << nc << " " << code.substr(h, i - h) << " " << (int)(unsigned char) c << " " << (int)(unsigned char) nc << " " << (int) type << std::endl;
 
 		if (c == '\n') {
@@ -194,7 +194,8 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 			comment--;
 			// eat the '/'
 			next();
-		} else if (comment == 0 and not lineComment) {
+		}
+		if (comment == 0 and not lineComment) {
 			if (type == LetterType::WHITE) {
 				if (ident) {
 					tokens.push_back({ getTokenType(word, TokenType::IDENT), file, k, line, character, word });
