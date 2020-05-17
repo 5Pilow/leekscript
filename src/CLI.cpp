@@ -111,7 +111,7 @@ int CLI::start_full(int argc, char* argv[]) {
 }
 
 int CLI::analyze_snippet(std::string code, CLI_options options) {
-	ls::Environment env;
+	ls::Environment env { options.legacy };
 	ls::Program program { env, code, "snippet" };
 	env.analyze(program, options.format, options.debug);
 	std::ostringstream oss;
@@ -122,9 +122,9 @@ int CLI::analyze_snippet(std::string code, CLI_options options) {
 
 int CLI::analyze_file(std::string file, CLI_options options) {
 	auto code = ls::Util::read_file(file);
-	ls::Environment env;
+	ls::Environment env { options.legacy };
 	ls::Program program { env, code, "snippet" };
-	env.analyze(program, options.format, options.debug);
+	env.analyze(program, options.format, options.debug, options.sections);
 	std::ostringstream oss;
 	program.print(oss, true);
 	print_result(program.result, oss.str(), options.json_output, options.display_time, options.operations);
