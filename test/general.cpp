@@ -84,8 +84,8 @@ void Test::test_general() {
 	code("var a = 2 ['a', a = 10]").equals("['a', 10]");
 
 	section("Global variables");
-	DISABLED_code("global a = 2").equals("(void)");
-	DISABLED_code("global a = 2, b = 'a'").equals("(void)");
+	code("global a = 2").equals("(void)");
+	code("global a = 2, b = 'a'").equals("(void)");
 
 	section("Variable already defined");
 	code("a").error(ls::Error::Type::UNDEFINED_VARIABLE, {"a"});
