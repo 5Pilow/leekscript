@@ -64,7 +64,7 @@ const std::string Map_type::getName() const {
 }
 Json Map_type::json() const {
 	return {
-		{ "name", "map" },
+		{ "name", "array" },
 		{ "key", _key->json() },
 		{ "element", _element->json() }
 	};
