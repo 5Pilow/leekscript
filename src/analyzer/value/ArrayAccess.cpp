@@ -92,7 +92,7 @@ void ArrayAccess::analyze(SemanticAnalyzer* analyzer) {
 		if (auto kn = dynamic_cast<const Number*>(key.get())) {
 			size_t index = kn->int_value;
 			if (index < 0 || index >= array->type->size()) {
-				analyzer->add_error({Error::Type::ARRAY_OUT_OF_BOUNDS, ErrorLevel::WARNING, location(), location(), { array->to_string(), key->to_string() }});
+				analyzer->add_error({Error::Type::ARRAY_OUT_OF_BOUNDS, ErrorLevel::WARNING, location(), location(), { array->to_string(), key->to_string(), std::to_string(array->type->size()) }});
 			} else {
 				type = array->type->element(kn->int_value);
 			}
