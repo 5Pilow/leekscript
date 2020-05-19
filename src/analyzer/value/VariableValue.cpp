@@ -284,6 +284,9 @@ Hover VariableValue::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	if (var && var->token) {
 		hover.defined_file = var->token->location.file->path;
 		hover.defined_line = var->token->location.start.line;
+		if (var->root == nullptr and var->value and var->value->constant and not type->is_function()) {
+			hover.alias = var->value->to_string();
+		}
 	}
 	return hover;
 }
