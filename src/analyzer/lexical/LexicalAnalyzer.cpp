@@ -192,7 +192,8 @@ std::vector<Token> LexicalAnalyzer::parseTokens(const std::string& code) {
 			comment++;
 		} else if (c == '*' && nc == '/') {
 			comment--;
-			// eat the '/'
+			// eat the '*/'
+			next();
 			next();
 		}
 		if (comment == 0 and not lineComment) {
