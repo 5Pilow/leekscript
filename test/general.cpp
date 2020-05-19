@@ -17,7 +17,7 @@ void Test::test_general() {
 
 	header("General");
 	// Print a syntaxical error
-	auto error = new ls::Error(ls::Error::Type::NO_SUCH_ATTRIBUTE, {nullptr, {0, 0, 0}, {0, 0, 0}}, {nullptr, {0, 0, 0}, {0, 0, 0}}, {"key", "obj_fake"});
+	auto error = new ls::Error(ls::Error::Type::NO_SUCH_ATTRIBUTE, ls::ErrorLevel::ERROR, {nullptr, {0, 0, 0}, {0, 0, 0}}, {nullptr, {0, 0, 0}, {0, 0, 0}}, {"key", "obj_fake"});
 	std::cout << error->message() << std::endl;
 	delete error;
 	// Print a program
