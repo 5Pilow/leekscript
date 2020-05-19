@@ -143,7 +143,7 @@ Hover VariableDeclaration::hover(SemanticAnalyzer& analyzer, size_t position) co
 			return expression->hover(analyzer, position);
 		}
 	}
-	return { type, location() };
+	return { analyzer.env };
 }
 
 #if COMPILER
