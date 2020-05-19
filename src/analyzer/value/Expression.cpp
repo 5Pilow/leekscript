@@ -228,11 +228,12 @@ Hover Expression::hover(SemanticAnalyzer& analyzer, size_t position) const {
 	if (v2 and v2->location().contains(position)) {
 		return v2->hover(analyzer, position);
 	}
-	std::string alias = "";
+	Hover hover { callable_version.type, location(), "" };
 	if (op) {
-		alias = op->token->content;
+		hover.op = true;
+		hover.alias = op->token->content;
 	}
-	return { callable_version.type, location(), alias };
+	return hover;
 }
 
 #if COMPILER
