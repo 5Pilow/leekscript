@@ -156,6 +156,7 @@ const Type* Type::concat(const Type* type) const {
 		} else if (type->is_array()) {
 			return tmp_array(element()->operator + (type->element()));
 		}
+		new_elements.push_back(type);
 		return tmp_fixed_array(new_elements);
 	} else if (is_array()) {
 		if (type->is_fixed_array()) {
