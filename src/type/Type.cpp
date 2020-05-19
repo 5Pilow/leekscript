@@ -175,6 +175,16 @@ const Type* Type::fold() const {
 	return folded;
 }
 
+const Type* Type::filter(std::function<bool(const Type*)> fun) const {
+	if (auto c = dynamic_cast<const Compound_type*>(this)) {
+		return c->filter(fun);
+	}
+	if (fun(this)) {
+		return this;
+	}
+	return this->env.void_;
+}
+
 std::string Type::to_string() const {
 	std::ostringstream oss;
 	oss << this;

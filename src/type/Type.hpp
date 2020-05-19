@@ -82,6 +82,7 @@ public:
 	const Type* concat(const Type* type) const;
 	const Type* fold() const;
 	virtual bool operator == (const Type*) const = 0;
+	const Type* filter(std::function<bool(const Type*)> fun) const;
 
 	template <class T> bool is_type() const;
 	template <class T> bool can_be_type() const;

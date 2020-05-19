@@ -132,13 +132,17 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 
 	analyzer->leave_section();
 
-	if (not container->type->is_void() and not container->type->iterable() and not container->type->is_any()) {
+	auto container_iterable_types = container->type->filter([](const Type* type) {
+		return type->iterable();
+	});
+
+	if (not container->type->is_void() and container_iterable_types == env.void_ and not container->type->is_any()) {
 		analyzer->add_error({Error::Type::VALUE_NOT_ITERABLE, ErrorLevel::WARNING, container->location(), container->location(), {container->to_string(), container->type->to_string()}});
 		return;
 	}
 
-	key_type = container->type->key();
-	value_type = container->type->element();
+	key_type = container_iterable_types->key();
+	value_type = container_iterable_types->element();
 	if (key != nullptr) {
 		key_var->type = key_type;
 	}
@@ -178,8 +182,8 @@ void Foreach::analyze(SemanticAnalyzer* analyzer, const Type* req_type) {
 		container->analyze(analyzer);
 		analyzer->leave_section();
 
-		key_type = container->type->key();
-		value_type = container->type->element();
+		key_type = container_iterable_types->key();
+		value_type = container_iterable_types->element();
 		if (key != nullptr) {
 			key_var->type = key_type;
 		}

@@ -21,6 +21,7 @@ public:
 	virtual bool iterable() const override;
 	bool all(std::function<bool(const Type*)> fun) const;
 	bool some(std::function<bool(const Type*)> fun) const;
+	const Type* filter(std::function<bool(const Type*)> fun) const;
 	virtual int distance(const Type* type) const override;
 	virtual void implement(const Type* type) const override;
 	#if COMPILER

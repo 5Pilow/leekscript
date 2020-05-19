@@ -51,6 +51,12 @@ bool Compound_type::some(std::function<bool(const Type*)> fun) const {
 	return std::any_of(types.begin(), types.end(), fun);
 }
 
+const Type* Compound_type::filter(std::function<bool(const Type*)> fun) const {
+	std::vector<const Type*> new_types;
+	std::copy_if(types.begin(), types.end(), std::back_inserter(new_types), fun);
+	return Type::compound(new_types);
+}
+
 int Compound_type::distance(const Type* type) const {
 	if (not temporary and type->temporary) return -1;
 	return folded->distance(type->folded);
