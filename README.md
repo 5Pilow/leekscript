@@ -4,7 +4,7 @@
     </h1>
 </div>
 
-[![CI](https://github.com/leek-wars/leekscript/workflows/CI/badge.svg)](https://github.com/leek-wars/leekscript/actions?query=workflow%3ACI)
+[![CI](https://github.com/leek-wars/leekscript-next/workflows/CI/badge.svg)](https://github.com/leek-wars/leekscript/actions?query=workflow%3ACI)
 [![Coverage Status](https://coveralls.io/repos/github/leek-wars/leekscript/badge.svg?branch=master)](https://coveralls.io/github/leek-wars/leekscript?branch=master)
 [![GPL Licence](https://badges.frapsoft.com/os/gpl/gpl.svg?v=103)](https://opensource.org/licenses/GPL-3.0/)
 
