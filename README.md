@@ -123,4 +123,4 @@ If you don't find any answer in these documents, check [issues](https://github.c
 * [CLI11](https://github.com/CLIUtils/CLI11), by Henry Schreinern under NSF AWARD 1414736
 
 ## License
-Distributed under the GPL3 license. Copyright (c) 2016-2019, Pierre Lauprêtre
+Distributed under the GPL3 license. Copyright (c) 2016-2022, Pilow
