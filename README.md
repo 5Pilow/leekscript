@@ -5,7 +5,7 @@
 </div>
 
 [![CI](https://github.com/leek-wars/leekscript-next/workflows/CI/badge.svg)](https://github.com/leek-wars/leekscript-next/actions?query=workflow%3ACI)
-[![Coverage Status](https://coveralls.io/repos/github/leek-wars/leekscript/badge.svg?branch=master)](https://coveralls.io/github/leek-wars/leekscript?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/leek-wars/leekscript-next/badge.svg?branch=master)](https://coveralls.io/github/leek-wars/leekscript-next?branch=master)
 [![GPL Licence](https://badges.frapsoft.com/os/gpl/gpl.svg?v=103)](https://opensource.org/licenses/GPL-3.0/)
 
 LeekScript is a dynamically typed, compiled just-in-time programming language initially designed for [Leek Wars](https://leekwars.com) AIs, and for games in general. Design to be simple to use for beginners, but with rich syntax and functionnalities, and a good speed thanks to an optimized compiler.
